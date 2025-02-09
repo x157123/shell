@@ -290,10 +290,10 @@ def main(client, serverId, appId):
 
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser(description="获取应用信息")
-    # parser.add_argument("--serverId", type=str, help="服务ID", required=True)
-    # parser.add_argument("--appId", type=str, help="应用ID", required=True)
-    # args = parser.parse_args()
+    parser = argparse.ArgumentParser(description="获取应用信息")
+    parser.add_argument("--serverId", type=str, help="服务ID", required=True)
+    parser.add_argument("--appId", type=str, help="应用ID", required=True)
+    args = parser.parse_args()
 
     # MQTT 配置
     BROKER = "150.109.5.143"
@@ -304,5 +304,6 @@ if __name__ == "__main__":
 
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client(BROKER, PORT, USERNAME, PASSWORD, TOPIC)
-    client.loop_start()  # 启动网络循环
-    main(client, '1887684083329384529', '1872873912635240450')
+    client.loop_start()
+    # 启动网络循环
+    main(client, args.serverId, args.appId)
