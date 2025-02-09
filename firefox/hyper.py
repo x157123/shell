@@ -4,6 +4,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 import paho.mqtt.client as mqtt
 import json
 import time
@@ -120,17 +122,20 @@ def monitor_switch(driver, client, serverId, appId):
     同时统计连续未连接主网络的次数，并在异常超过一定次数时输出提示
     """
     total = 0
+    count = 0
     while True:
         try:
             time.sleep(10)
             switch_button = driver.find_element(By.XPATH, "//button[@role='switch']")
             state = switch_button.get_attribute("aria-checked")
             if state == "true":
-                print("按钮已选中。")
-                if total > 0:
+                print("已连接到主网络。")
+                if total > 0 or count > 100:
                     app_info = get_app_info(serverId, appId, 2, '运行中，连接成功。')
                     client.publish(TOPIC, json.dumps(app_info))
+                    count = 0
                 total = 0
+                count += 0
             else:
                 if toggle_switch(driver):
                     if total > 5:
@@ -244,13 +249,18 @@ def post_info(url, server_id, public_key, private_key):
 
 
 def main(client, serverId, appId):
-    # 初始化浏览器驱动并打开目标页面
-    driver = webdriver.Firefox()
-    driver.get("https://node.hyper.space")
+    # 设置自定义下载目录（例如 /your/download/directory）
+    profile_path  = "D://data/firefoxData"
+    # 加载指定的 Firefox 配置文件
+    profile = FirefoxProfile(profile_path)
 
-    # 初始化存储公钥和私钥的变量
-    public_key = ""
-    private_key = ""
+    # 创建 Options 对象，并设置 profile
+    options = Options()
+    options.profile = profile
+
+    # 初始化浏览器驱动并打开目标页面
+    driver = webdriver.Firefox(options=options)
+    driver.get("https://node.hyper.space")
 
     # 关闭弹窗（如果存在）
     close_popup(driver)
