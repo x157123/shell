@@ -8,7 +8,7 @@ APP_ID=""
 VNC_PORT=25931   # <-- 在此处自定义要使用的 VNC 端口
 
 # 使用 getopt 解析命令行参数
-TEMP=$(getopt -o u:p:s:a: --long user:,password:,serverId:,appId: -n 'docker-entrypoint.sh' -- "$@")
+TEMP=$(getopt -o u:p:s:a: --long user:,password:,serverId:,appId: -n 'initSystem.sh' -- "$@")
 if [ $? != 0 ]; then
     echo "Failed to parse options."
     exit 1
