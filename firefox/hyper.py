@@ -282,6 +282,7 @@ def main(client, serverId, appId):
 
 
 if __name__ == "__main__":
+    time.sleep(15)  # 等待 15 秒后重试
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--serverId", type=str, help="服务ID", required=True)
     parser.add_argument("--appId", type=str, help="应用ID", required=True)
