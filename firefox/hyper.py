@@ -12,6 +12,7 @@ import time
 import argparse
 import requests
 
+
 def wait_and_click(driver, xpath, wait_time=10, description="元素", sleep_after=0):
     """
     等待指定的元素可点击，点击后返回 True，否则返回 False
@@ -104,6 +105,25 @@ def click_outer_button(driver):
     wait_and_click(driver, xpath, wait_time=10, description="外层 div 平级的 button")
 
 
+def get_points(driver):
+    """
+    点击外层容器内与“Public Key:”相关联的按钮
+    """
+    xpath = "//button[.//span[text()='Points']]"
+    wait_and_click(driver, xpath, wait_time=10, description="外层 div 平级的 button")
+    time.sleep(2)  # 等待 2 秒 获取积分
+    wait = WebDriverWait(driver, 10)
+    points_value_element = wait.until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//div[text()='Accumlated points']/following-sibling::div")
+        )
+    )
+    points_value = points_value_element.text
+    xpath = "//button[.//span[text()='Close']]"
+    wait_and_click(driver, xpath, wait_time=10, description="关闭弹窗")
+    return points_value
+
+
 def retrieve_private_key(driver):
     """
     点击页面上的“获取私钥”按钮，并通过剪贴板读取私钥
@@ -130,6 +150,7 @@ def monitor_switch(driver, client, serverId, appId):
             state = switch_button.get_attribute("aria-checked")
             if state == "true":
                 print("已连接到主网络。")
+                print(get_points(driver))
                 if total > 0 or count > 100:
                     app_info = get_app_info(serverId, appId, 2, '运行中，连接成功。')
                     client.publish(TOPIC, json.dumps(app_info))
@@ -243,7 +264,7 @@ def post_info(url, server_id, public_key, private_key):
     try:
         response = requests.post(url, json=data)  # 使用 json 参数，requests 会自动设置 Content-Type 为 application/json
         response.raise_for_status()  # 如果响应状态码不是 200 系列，将抛出异常
-        return response.json()     # 返回解析后的 JSON 数据（前提是接口返回 JSON 格式数据）
+        return response.json()  # 返回解析后的 JSON 数据（前提是接口返回 JSON 格式数据）
     except requests.RequestException as e:
         print("请求发生异常：", e)
         return None
@@ -262,18 +283,16 @@ def main(client, serverId, appId):
 
     # 获取公钥：点击按钮后从剪贴板读取
     public_key = retrieve_public_key(driver)
-    print("公钥：", public_key)
 
     # 点击与公钥相关联的外层按钮（如有特殊逻辑需要执行）
     click_outer_button(driver)
 
     # 获取私钥：点击按钮后从剪贴板读取
     private_key = retrieve_private_key(driver)
-    print("私钥：", private_key)
 
     # 发送公钥 私钥 需要更改为接口
     # post_info("http://localhost:4200/api/cloud-automation/accountInfo/save/hyper", serverId, public_key, private_key)
-    client.publish('hyperKey', json.dumps(get_info(serverId,"hyper", public_key, private_key)))
+    client.publish('hyperKey', json.dumps(get_info(serverId, "hyper", public_key, private_key)))
     # 关闭弹窗（如果再次出现）
     close_popup(driver)
 
