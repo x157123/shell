@@ -209,7 +209,7 @@ fi
 # 如果未指定 --user，则默认用 admin（或你想要的其它用户）
 SUDO_USER="${USER:-admin}"
 
-sudo -u "$SUDO_USER" $SERVER_ID_DATA="$SERVER_ID" $APP_ID_DATA="$APP_ID" -i bash <<'EOF'
+sudo -u "$SUDO_USER" -i bash <<'EOF'
 # 内部脚本：用以特定用户的身份执行
 
 
@@ -220,7 +220,7 @@ export DISPLAY=:1
 # 执行远程 Python 脚本
 echo "开始执行 /opt/hyper.py ..."
 # 若需要脚本以该用户身份执行，使用 sudo -u。如果 python3 路径不一致，可改为绝对路径
-nohup sudo -u "$SUDO_USER" -i python3 /opt/hyper.py --serverId "${SERVER_ID_DATA}" --appId "${APP_ID_DATA}" > hyperOutput.log 2>&1 &
+nohup sudo -u "$SUDO_USER" -i python3 /opt/hyper.py --serverId "$SERVER_ID" --appId "$APP_ID" > hyperOutput.log 2>&1 &
 
 echo "脚本已在后台执行，日志输出至 hyperOutput.log"
 
