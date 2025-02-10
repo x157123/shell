@@ -187,8 +187,8 @@ if [ -f /opt/hyper.py ]; then
 fi
 
 # 下载并执行远程 Python 脚本
-echo "开始下载脚本：https://www.15712345.xyz/yml/prod/hyper.py ..."
-wget -O /opt/hyper.py https://www.15712345.xyz/yml/prod/hyper.py
+echo "开始下载脚本：https://www.15712345.xyz/shell/firefox/hyper.py ..."
+wget -O /opt/hyper.py https://www.15712345.xyz/shell/firefox/hyper.py
 if [ ! -f /opt/hyper.py ]; then
     echo "脚本下载失败，请检查网络连接或 URL 是否正确。"
     exit 1

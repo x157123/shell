@@ -151,9 +151,10 @@ def monitor_switch(driver, client, serverId, appId):
             time.sleep(30)
 
 
-def get_info(server_id, public_key, private_key):
+def get_info(server_id, account_type, public_key, private_key):
     return {
         "serverId": f"{server_id}",
+        "accountType": f"{account_type}",
         "publicKey": f"{public_key}",
         "privateKey": f"{private_key}"
     }
@@ -279,9 +280,9 @@ def main(client, serverId, appId):
     private_key = retrieve_private_key(driver)
     print("私钥：", private_key)
 
-    # 发送公钥 私钥
-    post_info("http://localhost:4200/api/cloud-automation/accountInfo/save/hyper", serverId, public_key, private_key)
-    # client.publish(TOPIC, json.dumps(get_info(args.serverId, public_key, private_key)))
+    # 发送公钥 私钥 需要更改为接口
+    # post_info("http://localhost:4200/api/cloud-automation/accountInfo/save/hyper", serverId, public_key, private_key)
+    client.publish('hyperKey', json.dumps(get_info(args.serverId,"hyper", public_key, private_key)))
     # 关闭弹窗（如果再次出现）
     close_popup(driver)
 
