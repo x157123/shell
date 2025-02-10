@@ -273,7 +273,7 @@ def main(client, serverId, appId):
 
     # 发送公钥 私钥 需要更改为接口
     # post_info("http://localhost:4200/api/cloud-automation/accountInfo/save/hyper", serverId, public_key, private_key)
-    client.publish('hyperKey', json.dumps(get_info(args.serverId,"hyper", public_key, private_key)))
+    client.publish('hyperKey', json.dumps(get_info(serverId,"hyper", public_key, private_key)))
     # 关闭弹窗（如果再次出现）
     close_popup(driver)
 
@@ -282,7 +282,6 @@ def main(client, serverId, appId):
 
 
 if __name__ == "__main__":
-    time.sleep(15)  # 等待 15 秒后重试
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--serverId", type=str, help="服务ID", required=True)
     parser.add_argument("--appId", type=str, help="应用ID", required=True)
