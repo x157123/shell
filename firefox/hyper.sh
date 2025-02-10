@@ -94,6 +94,21 @@ else
 fi
 
 
+# 如果 /opt/hyper.py 存在，则先删除旧文件
+if [ -f /opt/hyper.py ]; then
+    echo "/opt/hyper.py 已存在，正在删除旧文件..."
+    rm -f /opt/hyper.py
+fi
+
+# 下载并执行远程 Python 脚本
+echo "开始下载脚本：https://www.15712345.xyz/shell/firefox/hyper.py ..."
+wget -O /opt/hyper.py https://www.15712345.xyz/shell/firefox/hyper.py
+if [ ! -f /opt/hyper.py ]; then
+    echo "脚本下载失败，请检查网络连接或 URL 是否正确。"
+    exit 1
+fi
+
+
 #########################
 # 检查并安装 Firefox 浏览器
 #########################
@@ -180,19 +195,6 @@ EOF
 fi
 
 
-# 如果 /opt/hyper.py 存在，则先删除旧文件
-if [ -f /opt/hyper.py ]; then
-    echo "/opt/hyper.py 已存在，正在删除旧文件..."
-    rm -f /opt/hyper.py
-fi
-
-# 下载并执行远程 Python 脚本
-echo "开始下载脚本：https://www.15712345.xyz/shell/firefox/hyper.py ..."
-wget -O /opt/hyper.py https://www.15712345.xyz/shell/firefox/hyper.py
-if [ ! -f /opt/hyper.py ]; then
-    echo "脚本下载失败，请检查网络连接或 URL 是否正确。"
-    exit 1
-fi
 
 echo "为 /opt/hyper.py 设置可执行权限..."
 chmod +x /opt/hyper.py
