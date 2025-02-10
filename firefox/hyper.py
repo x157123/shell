@@ -248,10 +248,10 @@ def on_disconnect(client, userdata, reason_code, properties=None):
             time.sleep(5)  # 等待 5 秒后重试
 
 
-def on_message(client, userdata, msg):
+def on_message(msg):
     """
     当收到订阅主题的新消息时触发
-    v5 中的 on_message 参数与 v3.x 相同： (client, userdata, message)
+    v5 中的 on_message 参数与 v3.x
     """
     print(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
 
