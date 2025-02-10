@@ -126,47 +126,47 @@ else
 fi
 
 echo "以新建用户的身份执行 VNC 配置:"
-# 以新建用户的身份执行 VNC 配置
-sudo -u "$USER" bash <<EOF
-# 设置 VNC 密码（使用 expect 脚本自动输入密码）
-VNC_PASS="$PASSWORD"
-VNC_REAL_PORT="$VNC_PORT"
+# 通过 sudo 以 admin 用户运行 bash，并传递环境变量 VNC_PASS 与 VNC_REAL_PORT
+sudo -u "$USER" VNC_PASS="$PASSWORD" VNC_REAL_PORT="$VNC_PORT" bash <<'EOF'
+# 这里采用 <<'EOF'，外层不展开其中的变量，下面所使用的变量由 sudo 环境传入
 
-# 创建 .vnc 文件夹（如果还不存在）
-mkdir -p "\$HOME/.vnc"
-chmod 700 "\$HOME/.vnc"
+# 确保 ~/.vnc 文件夹存在，并设置正确权限
+mkdir -p "$HOME/.vnc"
+chmod 700 "$HOME/.vnc"
 
-EXPECT_SCRIPT=\$(cat <<EOL
-spawn tightvncserver :1 -rfbport \$VNC_REAL_PORT
+# 构造 expect 脚本，注意这里的 here‐doc 使用未引用的 EOL，这样内层 bash 会展开 VNC_PASS 与 VNC_REAL_PORT
+EXPECT_SCRIPT=$(cat <<EOL
+spawn tightvncserver :1 -rfbport ${VNC_REAL_PORT}
 expect "Password:"
-send "\$VNC_PASS\r"
+send "${VNC_PASS}\r"
 expect "Verify:"
-send "\$VNC_PASS\r"
+send "${VNC_PASS}\r"
 expect "Would you like to enter a view-only password (y/n)?"
 send "n\r"
 expect eof
 EOL
 )
 
-# 如果已经启动过 VNC，需要先 kill 防止重复设置
+# 如果 VNC 服务器已经启动，先关闭以免重复配置
 tightvncserver -kill :1 >/dev/null 2>&1 || true
 
-expect -c "\$EXPECT_SCRIPT"
+# 使用 expect 脚本自动输入密码（不用人工干预）
+expect -c "$EXPECT_SCRIPT"
 
-# 配置 ~/.vnc/xstartup 以使用 XFCE 桌面环境
-cat > "\$HOME/.vnc/xstartup" <<XSTARTUP
+# 配置 ~/.vnc/xstartup 以启动 XFCE 桌面环境
+cat > "$HOME/.vnc/xstartup" <<'XSTARTUP'
 #!/bin/bash
-xrdb \$HOME/.Xresources
+xrdb $HOME/.Xresources
 startxfce4 &
 XSTARTUP
 
-chmod +x "\$HOME/.vnc/xstartup"
+chmod +x "$HOME/.vnc/xstartup"
 
-# 为了确保 xstartup 生效，先启动、再关闭一次
-tightvncserver -kill :1
+# 为了确保 xstartup 配置生效，先关闭已有的 VNC 会话（如果有的话）
+tightvncserver -kill :1 >/dev/null 2>&1 || true
 
-# 最终重新启动 VNC Server，端口依旧使用 \$VNC_REAL_PORT
-tightvncserver :1 -rfbport \$VNC_REAL_PORT -geometry 1280x800 -depth 24
+# 最终启动 VNC 服务器，指定显示号、端口、分辨率和颜色深度
+tightvncserver :1 -rfbport ${VNC_REAL_PORT} -geometry 1280x800 -depth 24
 EOF
 
 # XRDP 默认配置使用 /etc/xrdp/startwm.sh
