@@ -36,4 +36,4 @@ echo "==== 重新启动 VNC 服务 ===="
 sudo -u "$USER" tightvncserver "$VNC_DISPLAY"
 
 echo "==== VNC 密码已更新，服务已重启 ===="
-echo "VNC Display: $VNC_DISPLAY (端口对应 5901)"
+echo "VNC Display: $VNC_DISPLAY"
