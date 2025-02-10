@@ -250,17 +250,8 @@ def post_info(url, server_id, public_key, private_key):
 
 
 def main(client, serverId, appId):
-    # 设置自定义下载目录（例如 /your/download/directory）
-    profile_path  = "D://data/firefoxData"
-    # 加载指定的 Firefox 配置文件
-    profile = FirefoxProfile(profile_path)
-
-    # 创建 Options 对象，并设置 profile
-    options = Options()
-    options.profile = profile
-
     # 初始化浏览器驱动并打开目标页面
-    driver = webdriver.Firefox(options=options)
+    driver = webdriver.Firefox()
     driver.get("https://node.hyper.space")
 
     # 关闭弹窗（如果存在）
