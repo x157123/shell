@@ -211,15 +211,27 @@ if [ -n "$USER" ]; then
     chown "$USER":"$USER" /opt/hyper.py
 fi
 
-# 检查是否已有 /opt/hyper.py 进程在运行，并将其杀掉
-echo "检查是否已有 /opt/hyper.py 进程在运行..."
-pids=$(pgrep -f "python3 /opt/hyper.py")
-if [ -n "$pids" ]; then
-    echo "发现进程 PID: $pids，正在将其杀掉..."
-    kill -9 $pids
+# 查找 /opt/hyper.py 进程
+pid=$(pgrep -f "python3 /opt/hyper.py")
+if [ -n "$pid" ]; then
+    # 获取进程组ID（PGID），去除前后空格
+    pgid=$(ps -o pgid= "$pid" | tr -d ' ')
+    echo "杀掉进程组 PGID: $pgid (PID: $pid)"
+    # 杀掉整个进程组（注意负号表示进程组）
+    kill -9 -"$pgid"
 else
-    echo "没有找到正在运行的 /opt/hyper.py 进程。"
+    echo "没有找到 /opt/hyper.py 进程"
 fi
+
+## 终止GeckoDriver进程
+#if pkill -f geckodriver; then
+#    echo "已终止GeckoDriver进程"
+#fi
+#
+## 终止Firefox进程
+#if pkill -f firefox; then
+#    echo "已终止Firefox进程"
+#fi
 
 # 以特定用户启动 hyper
 # 如果未指定 --user，则默认用 admin（或你想要的其它用户）
@@ -234,7 +246,7 @@ export DISPLAY=:1
 # 执行远程 Python 脚本
 echo "开始执行 /opt/hyper.py ..."
 # 若需要脚本以该用户身份执行，使用 sudo -u。如果 python3 路径不一致，可改为绝对路径
-nohup python3 /opt/hyper.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" > hyperOutput.log 2>&1 &
+nohup setsid python3 /opt/hyper.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" > hyperOutput.log 2>&1 &
 
 echo "脚本已在后台执行，日志输出至 /home/$SUDO_USER/hyperOutput.log"
 
