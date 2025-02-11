@@ -227,7 +227,7 @@ def monitor_switch(driver, client, serverId, appId, public_key):
                         app_info = get_app_info(serverId, appId, 2, '中断，重新连接成功。')
                         client.publish(TOPIC, json.dumps(app_info))
                 total = 0
-                count += 0
+                count += 1
             else:
                 if toggle_switch(driver):
                     if total > 5:
