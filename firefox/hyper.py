@@ -395,11 +395,10 @@ if __name__ == "__main__":
     TOPIC = "appInfo"
     USERNAME = "userName"
     PASSWORD = "liuleiliulei"
-    DECRYPT_KEY = "WRmbL0Rs1EUh8Nm3/q678fAw+AZF5Dyb2ZdN6ccO7lY=";
 
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client(BROKER, PORT, USERNAME, PASSWORD, TOPIC)
     client.loop_start()
     # 启动网络循环
     main(client, args.serverId, args.appId, args.decryptKey)
-    # main(client, 1882796114432892929, 1886415390339420161, "WRmbL0Rs1EUh8Nm3/q678fAw+AZF5Dyb2ZdN6ccO7lY=")
+    # main(client, 1882796114432892929, 1886415390339420161, "WRmbL0Rs1EUh8Nm3")
