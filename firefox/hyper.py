@@ -355,10 +355,10 @@ def main(client, serverId, appId, decryptKey, user):
     client.publish(TOPIC, json.dumps(get_app_info(serverId, appId, 1, '启动服务。')))
     # 初始化浏览器驱动并打开目标页面
     profile_path = "/home/" + user + "/.mozilla/firefox/hyper"
+    profile = webdriver.FirefoxProfile(profile_path)
 
-    # 创建 Firefox 选项
     firefox_options = Options()
-    firefox_options.set_preference("profile", profile_path)
+    firefox_options.profile = profile
 
     driver = webdriver.Firefox(options=firefox_options)
     driver.get("https://node.hyper.space")
