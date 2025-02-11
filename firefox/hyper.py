@@ -333,5 +333,5 @@ if __name__ == "__main__":
     client = create_mqtt_client(BROKER, PORT, USERNAME, PASSWORD, TOPIC)
     client.loop_start()
     # 启动网络循环
-    # main(client, args.serverId, args.appId)
+    main(client, args.serverId, args.appId)
     # main(client, 1887684083329384529, 1886415390339420161)
