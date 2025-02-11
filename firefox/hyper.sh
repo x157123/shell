@@ -58,6 +58,8 @@ if [ -z "$USER" ]; then
   echo "Warning: --user 未指定，将默认以 admin 身份执行相关操作（如需特定用户，请使用 --user）"
 fi
 
+pip3 install pycryptodome
+
 #########################
 # 检查并安装 selenium
 #########################
@@ -209,6 +211,15 @@ if [ -n "$USER" ]; then
     chown "$USER":"$USER" /opt/hyper.py
 fi
 
+# 检查是否已有 /opt/hyper.py 进程在运行，并将其杀掉
+echo "检查是否已有 /opt/hyper.py 进程在运行..."
+pids=$(pgrep -f "python3 /opt/hyper.py")
+if [ -n "$pids" ]; then
+    echo "发现进程 PID: $pids，正在将其杀掉..."
+    kill -9 $pids
+else
+    echo "没有找到正在运行的 /opt/hyper.py 进程。"
+fi
 
 # 以特定用户启动 hyper
 # 如果未指定 --user，则默认用 admin（或你想要的其它用户）
@@ -223,8 +234,10 @@ export DISPLAY=:1
 # 执行远程 Python 脚本
 echo "开始执行 /opt/hyper.py ..."
 # 若需要脚本以该用户身份执行，使用 sudo -u。如果 python3 路径不一致，可改为绝对路径
-nohup sudo -u "$SUDO_USER" -i python3 /opt/hyper.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" > hyperOutput.log 2>&1 &
+nohup python3 /opt/hyper.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" > hyperOutput.log 2>&1 &
 
-echo "脚本已在后台执行，日志输出至 hyperOutput.log"
+echo "脚本已在后台执行，日志输出至 /home/$SUDO_USER/hyperOutput.log"
 
 EOF
+
+echo "脚本已在后台执行"

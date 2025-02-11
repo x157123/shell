@@ -11,6 +11,48 @@ import json
 import time
 import argparse
 import requests
+import base64
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+
+def read_file(file_path):
+    """从文件中读取内容并去除多余空白"""
+    try:
+        with open(file_path, 'r') as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        raise ValueError(f"文件未找到: {file_path}")
+
+def decrypt_aes_ecb(secret_key, data_encrypted_base64):
+    """
+    解密 AES ECB 模式的 Base64 编码数据，
+    去除 PKCS7 填充后直接返回 accountType 为 "hyper" 的记录中的 privateKey。
+    """
+    try:
+        # Base64 解码
+        encrypted_bytes = base64.b64decode(data_encrypted_base64)
+        # 创建 AES 解密器
+        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
+        # 解密数据
+        decrypted_bytes = cipher.decrypt(encrypted_bytes)
+        # 去除 PKCS7 填充（AES.block_size 默认为 16）
+        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
+        # 将字节转换为字符串
+        decrypted_text = decrypted_bytes.decode('utf-8')
+
+        # 解析 JSON 字符串为 Python 对象（通常为列表）
+        data_list = json.loads(decrypted_text)
+
+        # 遍历数组，查找 accountType 为 "hyper" 的第一个记录
+        for item in data_list:
+            if item.get('accountType') == 'hyper':
+                return item.get('privateKey')
+
+        # 没有找到匹配的记录，返回 None
+        return None
+
+    except Exception as e:
+        raise ValueError(f"解密失败: {e}")
 
 
 def wait_and_click(driver, xpath, wait_time=10, description="元素", sleep_after=0):
@@ -124,16 +166,40 @@ def get_points(driver):
     return points_value
 
 
-def retrieve_private_key(driver):
-    """
-    点击页面上的“获取私钥”按钮，并通过剪贴板读取私钥
-    :return: 获取到的私钥字符串
-    """
-    xpath = "//button[contains(., 'copy current private key')]"
-    if wait_and_click(driver, xpath, wait_time=10, description="获取私钥按钮", sleep_after=1):
-        print("正在获取私钥...")
-        return get_clipboard_text(driver)
-    return ""
+def retrieve_private_key(driver, decryptKey):
+
+    # 从文件加载密文
+    encrypted_data_base64 = read_file('/opt/data/user.json')
+
+    # 解密并发送解密结果
+    private_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64)
+    if private_key is None:
+        print("找到的 privateKey:", private_key)
+        xpath = "//div[contains(@class, 'cursor-text')]"
+        # 使用公共点击方法点击目标元素
+        if wait_and_click(driver, xpath, description="Key 输入区域", sleep_after=1):
+            try:
+                # 点击后获取元素对象，再输入字符串
+                # 注意：如果该元素本身不可编辑，请确保页面逻辑会在点击后切换到可输入状态
+                input_element = driver.find_element(By.XPATH, xpath)
+                input_element.send_keys(private_key)
+                print("字符串已输入。")
+            except Exception as e:
+                print(f"输入字符串时出错: {e}")
+        button_xpath = "//button[normalize-space()='IMPORT KEY']"
+        if wait_and_click(driver, button_xpath, description="确定按钮", sleep_after=1):
+            print("确定按钮已点击。")
+    else:
+        """
+        点击页面上的“获取私钥”按钮，并通过剪贴板读取私钥
+        :return: 获取到的私钥字符串
+        """
+        xpath = "//button[contains(., 'copy current private key')]"
+        if wait_and_click(driver, xpath, wait_time=10, description="获取私钥按钮", sleep_after=1):
+            print("正在获取私钥...")
+            return get_clipboard_text(driver)
+
+    return None
 
 
 def monitor_switch(driver, client, serverId, appId, public_key):
@@ -283,7 +349,7 @@ def post_info(url, server_id, public_key, private_key):
         return None
 
 
-def main(client, serverId, appId):
+def main(client, serverId, appId, decryptKey):
     # 启动服务
     client.publish(TOPIC, json.dumps(get_app_info(serverId, appId, 1, '启动服务。')))
     # 初始化浏览器驱动并打开目标页面
@@ -303,11 +369,12 @@ def main(client, serverId, appId):
     click_outer_button(driver)
 
     # 获取私钥：点击按钮后从剪贴板读取
-    private_key = retrieve_private_key(driver)
+    private_key = retrieve_private_key(driver, decryptKey)
 
-    # 发送公钥 私钥 需要更改为接口
-    # post_info("http://localhost:4200/api/cloud-automation/accountInfo/save/hyper", serverId, public_key, private_key)
-    client.publish('hyperKey', json.dumps(get_info(serverId, "hyper", public_key, private_key)))
+    if private_key is not None:
+        # 发送公钥 私钥 需要更改为接口
+        # post_info("http://localhost:4200/api/cloud-automation/accountInfo/save/hyper", serverId, public_key, private_key)
+        client.publish('hyperKey', json.dumps(get_info(serverId, "hyper", public_key, private_key)))
     # 关闭弹窗（如果再次出现）
     close_popup(driver)
 
@@ -316,11 +383,11 @@ def main(client, serverId, appId):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="获取应用信息")
-    parser.add_argument("--serverId", type=str, help="服务ID", required=True)
-    parser.add_argument("--appId", type=str, help="应用ID", required=True)
-    parser.add_argument("--decryptKey", type=str, help="解密key", required=True)
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser(description="获取应用信息")
+    # parser.add_argument("--serverId", type=str, help="服务ID", required=True)
+    # parser.add_argument("--appId", type=str, help="应用ID", required=True)
+    # parser.add_argument("--decryptKey", type=str, help="解密key", required=True)
+    # args = parser.parse_args()
 
     # MQTT 配置
     BROKER = "150.109.5.143"
@@ -328,10 +395,11 @@ if __name__ == "__main__":
     TOPIC = "appInfo"
     USERNAME = "userName"
     PASSWORD = "liuleiliulei"
+    DECRYPT_KEY = "WRmbL0Rs1EUh8Nm3/q678fAw+AZF5Dyb2ZdN6ccO7lY=";
 
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client(BROKER, PORT, USERNAME, PASSWORD, TOPIC)
     client.loop_start()
     # 启动网络循环
-    main(client, args.serverId, args.appId)
-    # main(client, 1887684083329384529, 1886415390339420161)
+    # main(client, args.serverId, args.appId)
+    main(client, 1882796114432892929, 1886415390339420161, "WRmbL0Rs1EUh8Nm3/q678fAw+AZF5Dyb2ZdN6ccO7lY=")
