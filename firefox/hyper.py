@@ -14,6 +14,7 @@ import requests
 import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
+from selenium.webdriver.common.action_chains import ActionChains
 
 def read_file(file_path):
     """从文件中读取内容并去除多余空白"""
@@ -173,16 +174,17 @@ def retrieve_private_key(driver, appId, decryptKey):
 
     # 解密并发送解密结果
     private_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64)
-    if private_key is None:
+    if private_key is not None:
         print("找到的 privateKey:", private_key)
         xpath = "//div[contains(@class, 'cursor-text')]"
         # 使用公共点击方法点击目标元素
         if wait_and_click(driver, xpath, description="Key 输入区域", sleep_after=1):
             try:
-                # 点击后获取元素对象，再输入字符串
-                # 注意：如果该元素本身不可编辑，请确保页面逻辑会在点击后切换到可输入状态
                 input_element = driver.find_element(By.XPATH, xpath)
-                input_element.send_keys(private_key)
+                # 利用 ActionChains 先点击后发送按键
+                actions = ActionChains(driver)
+                actions.move_to_element(input_element).click().send_keys(private_key)
+                actions.perform()
                 print("字符串已输入。")
             except Exception as e:
                 print(f"输入字符串时出错: {e}")
