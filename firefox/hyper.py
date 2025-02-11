@@ -136,7 +136,7 @@ def retrieve_private_key(driver):
     return ""
 
 
-def monitor_switch(driver, client, serverId, appId):
+def monitor_switch(driver, client, serverId, appId, public_key):
     """
     循环检查切换按钮的状态，如果状态为未开启则点击切换按钮，
     同时统计连续未连接主网络的次数，并在异常超过一定次数时输出提示
@@ -150,18 +150,21 @@ def monitor_switch(driver, client, serverId, appId):
             state = switch_button.get_attribute("aria-checked")
             if state == "true":
                 print("已连接到主网络。")
-                print(get_points(driver))
-                if total > 0 or count > 100:
-                    app_info = get_app_info(serverId, appId, 2, '运行中，连接成功。')
-                    client.publish(TOPIC, json.dumps(app_info))
-                    count = 0
+                if total > 0 or count > 3:
+                    if count > 3:
+                        app_info = get_app_info_integral(serverId, appId, public_key, get_points(driver), 2, '运行中， 并采集积分。')
+                        client.publish(TOPIC, json.dumps(app_info))
+                        count = 0
+                    else:
+                        app_info = get_app_info(serverId, appId, 2, '中断，重新连接成功。')
+                        client.publish(TOPIC, json.dumps(app_info))
                 total = 0
                 count += 0
             else:
                 if toggle_switch(driver):
                     if total > 5:
-                        print("检查过程中出现异常：五分钟未连接到主网络")
-                        app_info = get_app_info(serverId, appId, 3, '检查过程中出现异常：五分钟未连接到主网络')
+                        print("检查过程中出现异常：未连接到主网络")
+                        app_info = get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络')
                         client.publish(TOPIC, json.dumps(app_info))
                         total = 0
                     else:
@@ -189,6 +192,16 @@ def get_app_info(serverId, appId, operationType, description):
         "description": f"{description}",
     }
 
+
+def get_app_info_integral(serverId, appId, public_key, integral, operationType, description):
+    return {
+        "serverId": f"{serverId}",
+        "applicationId": f"{appId}",
+        "publicKey": f"{public_key}",
+        "integral": f"{integral}",
+        "operationType": f"{operationType}",
+        "description": f"{description}",
+    }
 
 def create_mqtt_client(broker, port, username, password, topic):
     """
@@ -271,6 +284,8 @@ def post_info(url, server_id, public_key, private_key):
 
 
 def main(client, serverId, appId):
+    # 启动服务
+    client.publish(TOPIC, json.dumps(get_app_info(serverId, appId, 1, '启动服务。')))
     # 初始化浏览器驱动并打开目标页面
     driver = webdriver.Firefox()
     driver.get("https://node.hyper.space")
@@ -297,14 +312,15 @@ def main(client, serverId, appId):
     close_popup(driver)
 
     # 进入循环，持续监控切换按钮状态
-    monitor_switch(driver, client, serverId, appId)
+    monitor_switch(driver, client, serverId, appId, public_key)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="获取应用信息")
-    parser.add_argument("--serverId", type=str, help="服务ID", required=True)
-    parser.add_argument("--appId", type=str, help="应用ID", required=True)
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser(description="获取应用信息")
+    # parser.add_argument("--serverId", type=str, help="服务ID", required=True)
+    # parser.add_argument("--appId", type=str, help="应用ID", required=True)
+    # parser.add_argument("--decryptKey", type=str, help="解密key", required=True)
+    # args = parser.parse_args()
 
     # MQTT 配置
     BROKER = "150.109.5.143"
@@ -317,4 +333,5 @@ if __name__ == "__main__":
     client = create_mqtt_client(BROKER, PORT, USERNAME, PASSWORD, TOPIC)
     client.loop_start()
     # 启动网络循环
-    main(client, args.serverId, args.appId)
+    # main(client, args.serverId, args.appId)
+    main(client, 1887684083329384529, 1886415390339420161)

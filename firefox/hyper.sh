@@ -4,9 +4,10 @@ USER=""
 PASSWORD=""
 SERVER_ID=""
 APP_ID=""
+DECRYPT_KEY=""
 
 # 使用 getopt 解析命令行参数
-TEMP=$(getopt -o u:p:s:a: --long user:,password:,serverId:,appId: -n 'startfirefox.sh' -- "$@")
+TEMP=$(getopt -o u:p:k:s:a: --long user:,password:,decryptKey:,serverId:,appId: -n 'startfirefox.sh' -- "$@")
 if [ $? != 0 ]; then
     echo "Failed to parse options."
     exit 1
@@ -21,6 +22,10 @@ while true; do
             ;;
         -p|--password)
             PASSWORD=$2
+            shift 2
+            ;;
+        -k|--decryptKey)
+            DECRYPT_KEY=$2
             shift 2
             ;;
         -s|--serverId)
@@ -218,7 +223,7 @@ export DISPLAY=:1
 # 执行远程 Python 脚本
 echo "开始执行 /opt/hyper.py ..."
 # 若需要脚本以该用户身份执行，使用 sudo -u。如果 python3 路径不一致，可改为绝对路径
-nohup sudo -u "$SUDO_USER" -i python3 /opt/hyper.py --serverId "$SERVER_ID" --appId "$APP_ID" > hyperOutput.log 2>&1 &
+nohup sudo -u "$SUDO_USER" -i python3 /opt/hyper.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" > hyperOutput.log 2>&1 &
 
 echo "脚本已在后台执行，日志输出至 hyperOutput.log"
 
