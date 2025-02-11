@@ -212,13 +212,13 @@ def monitor_switch(driver, client, serverId, appId, public_key):
     count = 0
     while True:
         try:
-            time.sleep(10)
+            time.sleep(20)
             switch_button = driver.find_element(By.XPATH, "//button[@role='switch']")
             state = switch_button.get_attribute("aria-checked")
             if state == "true":
                 print("已连接到主网络。")
-                if total > 0 or count > 3:
-                    if count > 3:
+                if total > 0 or count > 360:
+                    if count > 300:
                         app_info = get_app_info_integral(serverId, appId, public_key, get_points(driver), 2, '运行中， 并采集积分。')
                         client.publish(TOPIC, json.dumps(app_info))
                         count = 0
@@ -226,10 +226,9 @@ def monitor_switch(driver, client, serverId, appId, public_key):
                         app_info = get_app_info(serverId, appId, 2, '中断，重新连接成功。')
                         client.publish(TOPIC, json.dumps(app_info))
                 total = 0
-                count += 1
             else:
                 if toggle_switch(driver):
-                    if total > 5:
+                    if total > 60:
                         print("检查过程中出现异常：未连接到主网络")
                         app_info = get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络')
                         client.publish(TOPIC, json.dumps(app_info))
@@ -237,8 +236,10 @@ def monitor_switch(driver, client, serverId, appId, public_key):
                     else:
                         print("检查过程中未连接到主网络:", total)
                         total += 1
+            count += 1
         except Exception as e:
-            print("检查过程中出现异常：", e)
+            app_info = get_app_info(serverId, appId, 3, '检查过程中出现异常: ', e)
+            client.publish(TOPIC, json.dumps(app_info))
             time.sleep(30)
 
 
