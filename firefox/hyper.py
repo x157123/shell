@@ -5,7 +5,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 import paho.mqtt.client as mqtt
 import json
 import time
@@ -351,11 +350,11 @@ def post_info(url, server_id, public_key, private_key):
         return None
 
 
-def main(client, serverId, appId, decryptKey):
+def main(client, serverId, appId, decryptKey, user):
     # 启动服务
     client.publish(TOPIC, json.dumps(get_app_info(serverId, appId, 1, '启动服务。')))
     # 初始化浏览器驱动并打开目标页面
-    profile_path = "/opt/firefox/hyper"
+    profile_path = "/home" + user + "/firefox/hyper"
 
     # 创建 Firefox 选项
     firefox_options = Options()
@@ -395,6 +394,7 @@ if __name__ == "__main__":
     parser.add_argument("--serverId", type=str, help="服务ID", required=True)
     parser.add_argument("--appId", type=str, help="应用ID", required=True)
     parser.add_argument("--decryptKey", type=str, help="解密key", required=True)
+    parser.add_argument("--user", type=str, help="解密key", required=True)
     args = parser.parse_args()
 
     # MQTT 配置
@@ -408,5 +408,5 @@ if __name__ == "__main__":
     client = create_mqtt_client(BROKER, PORT, USERNAME, PASSWORD, TOPIC)
     client.loop_start()
     # 启动网络循环
-    main(client, args.serverId, args.appId, args.decryptKey)
+    main(client, args.serverId, args.appId, args.decryptKey, args.user)
     # main(client, 1882796114432892929, 1886415390339420161, "WRmbL0Rs1EUh8Nm3")
