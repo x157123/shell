@@ -166,10 +166,10 @@ def get_points(driver):
     return points_value
 
 
-def retrieve_private_key(driver, decryptKey):
+def retrieve_private_key(driver, appId, decryptKey):
 
     # 从文件加载密文
-    encrypted_data_base64 = read_file('/opt/data/user.json')
+    encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
 
     # 解密并发送解密结果
     private_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64)
@@ -369,7 +369,7 @@ def main(client, serverId, appId, decryptKey):
     click_outer_button(driver)
 
     # 获取私钥：点击按钮后从剪贴板读取
-    private_key = retrieve_private_key(driver, decryptKey)
+    private_key = retrieve_private_key(driver, appId, decryptKey)
 
     if private_key is not None:
         # 发送公钥 私钥 需要更改为接口
