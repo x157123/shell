@@ -234,7 +234,7 @@ export DISPLAY=:1
 # 执行远程 Python 脚本
 echo "开始执行 /opt/hyper.py ..."
 # 若需要脚本以该用户身份执行，使用 sudo -u。如果 python3 路径不一致，可改为绝对路径
-nohup python3 /opt/hyper.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey '"$DECRYPT_KEY"' > hyperOutput.log 2>&1 &
+nohup python3 /opt/hyper.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" > hyperOutput.log 2>&1 &
 
 echo "脚本已在后台执行，日志输出至 /home/$SUDO_USER/hyperOutput.log"
 
