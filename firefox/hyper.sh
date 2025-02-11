@@ -201,7 +201,7 @@ EOF
     echo "Firefox 安装成功！"
 fi
 
-
+mkdir -p /opt/firefox/hyper
 
 echo "为 /opt/hyper.py 设置可执行权限..."
 chmod +x /opt/hyper.py
