@@ -243,7 +243,7 @@ sudo -u "$SUDO_USER" -i bash <<EOF
 export DISPLAY=:1
 
 
-mkdir -p /home/$SUDO_USER/firefox/hyper
+mkdir -p /home/$SUDO_USER/.mozilla/firefox/hyper
 
 # 执行远程 Python 脚本
 echo "开始执行 /opt/hyper.py ..."
