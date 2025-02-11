@@ -354,7 +354,7 @@ def main(client, serverId, appId, decryptKey, user):
     # 启动服务
     client.publish(TOPIC, json.dumps(get_app_info(serverId, appId, 1, '启动服务。')))
     # 初始化浏览器驱动并打开目标页面
-    profile_path = "/home" + user + "/firefox/hyper"
+    profile_path = "/home/" + user + "/.mozilla/firefox/"
 
     # 创建 Firefox 选项
     firefox_options = Options()
