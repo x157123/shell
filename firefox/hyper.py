@@ -210,11 +210,18 @@ def monitor_switch(driver, client, serverId, appId, public_key):
     """
     total = 0
     count = 0
+    index = 0
     while True:
         try:
             time.sleep(20)
             switch_button = driver.find_element(By.XPATH, "//button[@role='switch']")
             state = switch_button.get_attribute("aria-checked")
+            if index <= 0:
+                if state == "true":
+                    client.publish(TOPIC, json.dumps(get_app_info(serverId, appId, 2, '浏览器启动,已连接到主网。')))
+                else:
+                    client.publish(TOPIC, json.dumps(get_app_info(serverId, appId, 3, '浏览器启动,检查过程中出现异常：未连接到主网络。')))
+                index = 10
             if state == "true":
                 print("已连接到主网络。")
                 if total > 0 or count > 10:
