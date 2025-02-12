@@ -1,29 +1,51 @@
 #!/bin/bash
 
-# 默认值
-VNC_USER=""
-VNC_PASSWORD=""
-SERVER_ID=""
-APP_ID=""
-VNC_RFBPORT=25931   # <-- 在此处自定义要使用的 VNC 端口
+##############################################################################
+# initSystem.sh
+# --------------
+# 使用方法示例：
+#   sudo ./initSystem.sh \
+#       --user admin \
+#       --password 'MyP@ssw0rd' \
+#       --serverId 123 \
+#       --appId 456
+#
+# 该脚本将：
+# 1. 安装基础工具 (tar, gcc, vim, wget, python3, pip3, git等)
+# 2. 安装并配置 TightVNC (端口默认 25931) + Xfce4 桌面环境
+# 3. 安装 XRDP 并启动 (默认监听3389端口，可使用 Windows远程桌面或任何 RDP 客户端)
+# 4. 安装并启动 noVNC (通过浏览器访问)
+##############################################################################
+
+# 默认 VNC 端口
+VNC_PORT=25931   # 在此可自定义要使用的 VNC 端口
 
 # 使用 getopt 解析命令行参数
-TEMP=$(getopt -o u:p:s:a: --long user:,password:,serverId:,appId: -n 'initSystem.sh' -- "$@")
-if [ $? != 0 ]; then
+TEMP=$(getopt -o u:p:s:a: \
+  --long user:,password:,serverId:,appId: \
+  -n 'initSystem.sh' -- "$@")
+
+if [ $? -ne 0 ]; then
     echo "Failed to parse options."
     exit 1
 fi
 eval set -- "$TEMP"
 
+# 定义空变量用于存储命令行参数
+VNCUSER=""
+PASSWORD=""
+SERVER_ID=""
+APP_ID=""
+
 # 处理命令行参数
 while true; do
   case "$1" in
     --user)
-      VNC_USER="$2"
+      VNCUSER="$2"
       shift 2
       ;;
     --password)
-      VNC_PASSWORD="$2"
+      PASSWORD="$2"
       shift 2
       ;;
     --serverId)
@@ -39,136 +61,185 @@ while true; do
       break
       ;;
     *)
-      echo "Usage: $0 --user VNC_USER --password VNC_PASSWORD --serverId SERVER_ID --appId APP_ID"
+      echo "用法: $0 --user <USER> --password <PASSWORD> --serverId <SERVER_ID> --appId <APP_ID>"
       exit 1
       ;;
   esac
 done
 
 # 如果没有传递账号、密码、serverId 或 appId，打印错误信息并退出
-if [ -z "$VNC_USER" ] || [ -z "$VNC_PASSWORD" ] || [ -z "$SERVER_ID" ] || [ -z "$APP_ID" ]; then
-  echo "Usage: $0 --user VNC_USER --password VNC_PASSWORD --serverId SERVER_ID --appId APP_ID"
+if [ -z "$VNCUSER" ] || [ -z "$PASSWORD" ] || [ -z "$SERVER_ID" ] || [ -z "$APP_ID" ]; then
+  echo "用法: $0 --user <USER> --password <PASSWORD> --serverId <SERVER_ID> --appId <APP_ID>"
   exit 1
 fi
 
+# 设置 debconf 为非交互模式
+export DEBIAN_FRONTEND=noninteractive
 
-###################################################
-# 1. 更新系统软件源
-###################################################
-echo "=== [1/8] 更新系统软件源 ==="
-sudo apt update -y
+# 预先设置键盘配置默认值（避免安装过程中的交互）
+echo 'keyboard-configuration keyboard-configuration/layoutcode string us'   | debconf-set-selections
+echo 'keyboard-configuration keyboard-configuration/modelcode string pc105' | debconf-set-selections
 
-###################################################
-# 2. 安装必要软件包
-###################################################
-echo "=== [2/8] 安装桌面与 VNC 相关软件包 ==="
-sudo apt install -y \
-    xfce4 xfce4-goodies \
-    tigervnc-standalone-server \
-    tigervnc-common \
-    dbus-x11 \
-    xauth \
-    xfonts-base \
-    curl
+##############################################################################
+# 更新并安装基础软件
+##############################################################################
+echo "Updating package list..."
+apt-get update -y
 
-###################################################
-# 3. 创建并配置 VNC 用户
-###################################################
-echo "=== [3/8] 创建 VNC 用户: $VNC_USER ==="
-if ! id "$VNC_USER" &>/dev/null; then
-    sudo adduser --disabled-password --gecos "" "$VNC_USER"
-    echo "$VNC_USER:$VNC_PASSWORD" | sudo chpasswd
+echo "Installing tar, gcc, vim, wget..."
+apt-get install -y tar gcc vim wget
+
+echo "Installing Python 3 and pip..."
+apt-get install -y python3 python3-pip python3-dev
+
+echo "Installing git..."
+apt-get install -y git
+
+echo "Installing other dependencies..."
+apt-get install -y psmisc
+
+# 打印 Python & pip 版本
+echo "Python and pip versions:"
+python3 --version
+pip3 --version
+
+# 安装 Python 基础插件
+echo "Installing Python libraries..."
+pip3 install --no-cache-dir psutil requests paho-mqtt selenium
+
+##############################################################################
+# 安装桌面环境、VNC、XRDP等
+##############################################################################
+echo "Installing xfce4, xfce4-goodies, tightvncserver, xrdp, expect, sudo..."
+apt-get install -y \
+    xfce4 \
+    xfce4-goodies \
+    tightvncserver \
+    xrdp \
+    expect \
+    sudo
+
+##############################################################################
+# 创建用户
+##############################################################################
+if id "$VNCUSER" &>/dev/null; then
+    echo "用户 $VNCUSER 已存在，跳过创建步骤"
+else
+    echo "创建用户 $VNCUSER ..."
+    useradd -m -s /bin/bash "$VNCUSER"
+    echo "$VNCUSER:$PASSWORD" | chpasswd
+    # 如果需要让此用户可使用 sudo，则取消下面行的注释
+    # usermod -aG sudo "$VNCUSER"
 fi
 
-###################################################
-# 4. 初始化 VNC 密码
-###################################################
-echo "=== [4/8] 初始化 VNC 密码 ==="
-# 确保 admin 用户对其 home 目录有读写权限
-sudo chown -R $VNC_USER:$VNC_USER /home/$VNC_USER
-# 创建 .vnc 目录（如果没有）
-sudo -u "$VNC_USER" mkdir -p /home/"$VNC_USER"/.vnc
+##############################################################################
+# 以新建用户身份执行 VNC 配置
+##############################################################################
+echo "开始以新建用户($VNCUSER)的身份执行 VNC 配置..."
 
-# 使用 vncpasswd -f 将明文密码转换为 VNC 加密密码
-echo "$VNC_PASSWORD" | sudo -u "$VNC_USER" vncpasswd -f > /home/$VNC_USER/.vnc/passwd
-sudo chmod 600 /home/$VNC_USER/.vnc/passwd
+# 将必要变量传递进 sudo 环境
+sudo -u "$VNCUSER" VNC_PASS="$PASSWORD" VNC_REAL_PORT="$VNC_PORT" bash <<'INNEREOF'
+  # 在这里引用外层传来的 VNC_PASS 和 VNC_REAL_PORT
 
-###################################################
-# 5. 创建 xstartup 脚本
-###################################################
-echo "=== [5/8] 创建 xstartup 脚本 (启动 Xfce) ==="
-cat << 'EOF' | sudo -u "$VNC_USER" tee /home/"$VNC_USER"/.vnc/xstartup >/dev/null
+  # 确保 ~/.vnc 文件夹存在，并设置正确权限
+  mkdir -p "$HOME/.vnc"
+  chmod 700 "$HOME/.vnc"
+
+  # 构造 expect 脚本，用于初始化 VNC 密码
+  EXPECT_SCRIPT=$(cat <<EOL
+spawn tightvncserver :1 -rfbport ${VNC_REAL_PORT}
+expect "Password:"
+send "${VNC_PASS}\r"
+expect "Verify:"
+send "${VNC_PASS}\r"
+expect "Would you like to enter a view-only password (y/n)?"
+send "n\r"
+expect eof
+EOL
+)
+
+  # 如果 VNC 服务器已经启动，先关闭以免重复配置
+  tightvncserver -kill :1 >/dev/null 2>&1 || true
+
+  # 使用 expect 脚本自动输入密码（避免人工干预）
+  expect -c "$EXPECT_SCRIPT"
+
+  # 写入 xstartup 脚本，启动 Xfce4
+  cat > "$HOME/.vnc/xstartup" <<'XSTARTUP'
 #!/bin/bash
 xrdb $HOME/.Xresources
 startxfce4 &
-EOF
+XSTARTUP
 
-sudo chmod +x /home/"$VNC_USER"/.vnc/xstartup
+  chmod +x "$HOME/.vnc/xstartup"
 
-###################################################
-# 6. 创建并配置 systemd 服务文件
-###################################################
-echo "=== [6/8] 创建 systemd 服务文件: vncserver@${VNC_USER}.service ==="
-sudo bash -c "cat > /etc/systemd/system/vncserver@${VNC_USER}.service" << EOT
-[Unit]
-Description=VNC Service for user ${VNC_USER}
-After=syslog.target network.target
+  # 为了确保 xstartup 配置生效，先关闭已有的 VNC 会话（如果有的话）
+  tightvncserver -kill :1 >/dev/null 2>&1 || true
 
-[Service]
-Type=forking
-User=${VNC_USER}
-Group=${VNC_USER}
-WorkingDirectory=/home/${VNC_USER}
+  # 最终启动 VNC 服务器，指定显示号、端口、分辨率和颜色深度
+  tightvncserver :1 -rfbport ${VNC_REAL_PORT} -geometry 1280x800 -depth 24
+INNEREOF
 
-PIDFile=/home/${VNC_USER}/.vnc/%H:${VNC_DISPLAY}.pid
+##############################################################################
+# XRDP 配置：让 XRDP 使用 Xfce4
+##############################################################################
+echo "Configuring XRDP..."
+echo "startxfce4" > /home/$VNCUSER/.xsession
+chown $VNCUSER:$VNCUSER /home/$VNCUSER/.xsession
 
-ExecStartPre=-/usr/bin/vncserver -kill :${VNC_DISPLAY} > /dev/null 2>&1
-ExecStart=/usr/bin/vncserver -depth 24 -geometry 1280x800 -rfbport ${VNC_RFBPORT} :${VNC_DISPLAY}
-ExecStop=/usr/bin/vncserver -kill :${VNC_DISPLAY}
+# 如 XRDP 未运行，则启动
+if ! service xrdp status | grep -q "running"; then
+    echo "XRDP未运行，正在启动..."
+    service xrdp start
+else
+    echo "XRDP已在运行。"
+fi
 
-[Install]
-WantedBy=multi-user.target
-EOT
+##############################################################################
+# 检查 VNC 是否在运行，如没有则启动
+##############################################################################
+if ! pgrep -f "tightvncserver :1" > /dev/null; then
+    echo "VNC 尚未运行，正在以用户($VNCUSER)启动..."
+    sudo -u "$VNCUSER" tightvncserver :1 \
+        -rfbport $VNC_PORT \
+        -geometry 1280x800 \
+        -depth 24 &
+else
+    echo "VNC 已在运行，跳过启动。"
+fi
 
-###################################################
-# 7. 启动并设置开机自启
-###################################################
-echo "=== [7/8] 启动并设置开机自启 VNC 服务 ==="
-sudo systemctl daemon-reload
-sudo systemctl enable vncserver@"${VNC_USER}".service
-sudo systemctl start vncserver@"${VNC_USER}".service
-
-echo "======================================="
-echo " TigerVNC 安装配置完成"
-echo " 用户名:         ${VNC_USER}"
-echo " 登录密码:       ${VNC_PASSWORD}"
-echo " VNC Display:    :${VNC_DISPLAY}   (仅用于标识)"
-echo " 监听端口:       ${VNC_RFBPORT}"
-echo
-echo " 请在防火墙/安全组中放行端口: ${VNC_RFBPORT}"
-echo " 通过 '服务器IP:${VNC_RFBPORT}' 进行 VNC 连接"
-echo "======================================="
-
-
-###################################################
-# 8. 安装NoVNC
-###################################################
-echo "=== [7/8] 安装 NoVNC 服务 ==="
-
-# 检查是否已经存在 noVNC 目录
+##############################################################################
+# 安装 & 启动 noVNC
+##############################################################################
 if [ -d "noVNC" ]; then
-    echo "noVNC directory already exists. Skipping git clone."
+    echo "noVNC 目录已存在，跳过 git clone。"
 else
     echo "Downloading noVNC repository..."
     git clone https://github.com/novnc/noVNC.git
 fi
 
-# 检查 novnc_proxy 是否已经在运行
-if pgrep -f "novnc_proxy" > /dev/null
-then
-    echo "noVNC proxy is already running."
+if pgrep -f "novnc_proxy" > /dev/null; then
+    echo "noVNC proxy 已在运行。"
 else
     echo "Starting noVNC proxy..."
-    nohup ./noVNC/utils/novnc_proxy --vnc localhost:$VNC_PORT --listen 26380 &> /dev/null &
-    echo "noVNC proxy started in the background."
+    nohup ./noVNC/utils/novnc_proxy \
+        --vnc localhost:$VNC_PORT \
+        --listen 26380 \
+        &> /dev/null &
+    echo "noVNC proxy started in the background (listening on port 26380)."
 fi
+
+##############################################################################
+# 最后输出信息
+##############################################################################
+echo "=== 安装和配置已完成 ==="
+echo "Server ID: $SERVER_ID"
+echo "App ID: $APP_ID"
+echo
+echo "VNC 用户名:  $VNCUSER"
+echo "VNC 密码:    $PASSWORD"
+echo "VNC 端口:    $VNC_PORT  (对应显示号 :1)"
+echo
+echo "可以通过远程桌面客户端 (RDP) 连接: <服务器IP>:3389 (用户名: $VNCUSER)"
+echo "或使用任意 VNC Viewer 连接: <服务器IP>:$VNC_PORT"
+echo "noVNC Web 访问地址: http://<服务器IP>:26380/vnc.html"
