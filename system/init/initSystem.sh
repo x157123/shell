@@ -233,13 +233,4 @@ fi
 # 最后输出信息
 ##############################################################################
 echo "=== 安装和配置已完成 ==="
-echo "Server ID: $SERVER_ID"
-echo "App ID: $APP_ID"
-echo
-echo "VNC 用户名:  $VNCUSER"
-echo "VNC 密码:    $PASSWORD"
-echo "VNC 端口:    $VNC_PORT  (对应显示号 :1)"
-echo
-echo "可以通过远程桌面客户端 (RDP) 连接: <服务器IP>:3389 (用户名: $VNCUSER)"
-echo "或使用任意 VNC Viewer 连接: <服务器IP>:$VNC_PORT"
-echo "noVNC Web 访问地址: http://<服务器IP>:26380/vnc.html"
+echo -e "\n"
