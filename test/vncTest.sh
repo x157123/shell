@@ -10,17 +10,10 @@
 
 set -e
 
-###################################################
-# 根据实际需要修改以下三项
-###################################################
-VNC_PASSWORD="*_Xsh]3Nmt*Bz5DyfN"      # VNC 密码（任意设）
-VNC_USER="admin"         # 用于登录的系统用户
-VNC_RFBPORT="25931"        # VNC Server真正监听的端口
-
-# VNC 显示编号: 用来区分不同的 VNC 实例，通常用 :1、:2 等，
-# 但和端口无直接关系；只要不冲突即可。
-VNC_DISPLAY="1"
-
+VNC_PASSWORD="*_Xsh]3Nmt*Bz5DyfN"  # VNC 密码
+VNC_USER="admin"                   # 用于登录的系统用户
+VNC_RFBPORT="25931"                # VNC Server真正监听的端口
+VNC_DISPLAY="1"                    # VNC 显示编号
 
 ###################################################
 # 1. 更新系统软件源
@@ -32,7 +25,6 @@ sudo apt update -y
 # 2. 安装必要软件包
 ###################################################
 echo "=== [2/7] 安装桌面与 VNC 相关软件包 ==="
-# 安装 Xfce 桌面和 TigerVNC
 sudo apt install -y \
     xfce4 xfce4-goodies \
     tigervnc-standalone-server \
@@ -46,7 +38,6 @@ sudo apt install -y \
 # 3. 创建并配置 VNC 用户
 ###################################################
 echo "=== [3/7] 创建 VNC 用户: $VNC_USER ==="
-# 如果用户已存在，则可忽略此步骤或根据需求注释掉
 if ! id "$VNC_USER" &>/dev/null; then
     sudo adduser --disabled-password --gecos "" "$VNC_USER"
     echo "$VNC_USER:$VNC_PASSWORD" | sudo chpasswd
@@ -56,15 +47,14 @@ fi
 # 4. 初始化 VNC 密码
 ###################################################
 echo "=== [4/7] 初始化 VNC 密码 ==="
-# 确保 VNC 用户可以访问其 .vnc 目录
+# 确保 admin 用户对其 home 目录有读写权限
 sudo chown -R $VNC_USER:$VNC_USER /home/$VNC_USER
-
 # 创建 .vnc 目录（如果没有）
 sudo -u "$VNC_USER" mkdir -p /home/"$VNC_USER"/.vnc
 
 # 使用 vncpasswd -f 将明文密码转换为 VNC 加密密码
-echo "$VNC_PASSWORD" | sudo -u "$VNC_USER" vncpasswd -f > /home/"$VNC_USER"/.vnc/passwd
-sudo chmod 600 /home/"$VNC_USER"/.vnc/passwd
+echo "$VNC_PASSWORD" | sudo -u "$VNC_USER" vncpasswd -f > /home/$VNC_USER/.vnc/passwd
+sudo chmod 600 /home/$VNC_USER/.vnc/passwd
 
 ###################################################
 # 5. 创建 xstartup 脚本
@@ -93,17 +83,10 @@ User=${VNC_USER}
 Group=${VNC_USER}
 WorkingDirectory=/home/${VNC_USER}
 
-# PID 文件名字里仍然用 :${VNC_DISPLAY}，仅与 display 编号对应
 PIDFile=/home/${VNC_USER}/.vnc/%H:${VNC_DISPLAY}.pid
 
-# 启动前先尝试 kill（若未运行则忽略错误）
 ExecStartPre=-/usr/bin/vncserver -kill :${VNC_DISPLAY} > /dev/null 2>&1
-
-# 指定 -rfbport 为自定义端口(25931)，display 编号为 :1
-ExecStart=/usr/bin/vncserver \
-    -depth 24 -geometry 1280x800 \
-    -rfbport ${VNC_RFBPORT} :${VNC_DISPLAY}
-
+ExecStart=/usr/bin/vncserver -depth 24 -geometry 1280x800 -rfbport ${VNC_RFBPORT} :${VNC_DISPLAY}
 ExecStop=/usr/bin/vncserver -kill :${VNC_DISPLAY}
 
 [Install]
