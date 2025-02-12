@@ -198,12 +198,11 @@ fi
 ##############################################################################
 # 检查 VNC 是否在运行，如没有则启动
 ##############################################################################
+echo "检查 VNC 是否正在运行..."
 if ! pgrep -f "tightvncserver :1" > /dev/null; then
-    echo "VNC 尚未运行，正在以用户($VNCUSER)启动..."
-    sudo -u "$VNCUSER" tightvncserver :1 \
-        -rfbport $VNC_PORT \
-        -geometry 1280x800 \
-        -depth 24 &
+    echo "VNC 尚未运行，正在启动..."
+    sudo -u "$VNCUSER" tightvncserver :1 -rfbport $VNC_PORT -geometry 1280x800 -depth 24 &
+    sleep 5  # 等待 VNC 启动并绑定端口
 else
     echo "VNC 已在运行，跳过启动。"
 fi
@@ -218,6 +217,7 @@ else
     git clone https://github.com/novnc/noVNC.git
 fi
 
+echo "检查 noVNC 是否正在运行..."
 if pgrep -f "novnc_proxy" > /dev/null; then
     echo "noVNC proxy 已在运行。"
 else
