@@ -3,7 +3,7 @@ import time
 
 
 ips = [
-    "8.220.222.205", "8.220.199.13", "8.220.198.30", "8.220.218.132",
+    "8.220.199.13", "8.220.198.30", "8.220.218.132",
     "8.213.148.22", "47.80.1.222", "8.213.146.185", "8.220.242.89", "8.220.209.96",
     "8.220.213.105", "8.220.217.9", "8.220.194.226", "8.220.213.247", "8.213.137.128",
     "8.220.193.47", "8.220.204.150", "8.220.201.21", "8.213.148.107", "8.220.205.214",
@@ -11,6 +11,8 @@ ips = [
     "8.213.128.122", "8.213.128.246", "8.220.207.185", "8.220.220.252", "8.220.218.116",
     "8.220.244.19", "8.220.218.71", "8.220.221.239", "8.220.211.183"
 ]
+
+defPwd = "LH99aPbFm0uQ6S+5sr6"
 
 def init(ip):
     # 1. 点击屏幕上指定位置（这里的坐标(100, 200)可以根据需要修改）
@@ -23,24 +25,24 @@ def init(ip):
     pyautogui.click(x=-1719, y=653)
     # 给你一些时间切换到目标窗口（比如3秒）
     time.sleep(3)
-    pyautogui.click(x=-2082, y=1135)
+    # 重置密码
+    pyautogui.click(x=-2137, y=1144)
+    # 第一个密码框
     time.sleep(1)
-    pyautogui.click(x=-2049, y=1268)
+    pyautogui.click(x=-1552, y=480)
+    pyautogui.write(defPwd, interval=0.1)
+    # 第二个密码框
     time.sleep(1)
-    pyautogui.click(x=-1246, y=474)
-    time.sleep(1)
-    pyautogui.click(x=-1527, y=534)
-    time.sleep(1)
-    pyautogui.click(x=-1267, y=1267)
-    time.sleep(1)
-    pyautogui.click(x=-1583, y=614)
-    time.sleep(1)
-    pyautogui.click(x=-1614, y=688)
-    time.sleep(1)
-    pyautogui.click(x=-1023, y=776)
-    time.sleep(1)
-    pyautogui.click(x=-1139, y=355)
-    time.sleep(3)
+    pyautogui.click(x=-1552, y=550)
+    pyautogui.write(defPwd, interval=0.1)
+    # 在线修改密码
+    pyautogui.click(x=-1552, y=638)
+    # 确定修改
+    pyautogui.click(x=-1096, y=812)
+    time.sleep(8)
+    #确定
+    pyautogui.click(x=-1016, y=513)
+    time.sleep(2)
 
 for ip in ips:
     init(ip)

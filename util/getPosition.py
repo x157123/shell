@@ -23,13 +23,13 @@ def record_positions():
             x, y = pyautogui.position()
             print(f"鼠标位置：X = {x}, Y = {y}")
             # 可根据需要调整记录频率（单位：秒）
-            time.sleep(0.1)
+            time.sleep(1)
         else:
             # 未处于记录状态时，稍作休眠，避免 CPU 占用过高
             time.sleep(0.1)
 
-# 注册 F7 热键，每次按下 F7 切换记录状态
-keyboard.add_hotkey('F7', toggle_recording)
+# 注册 F4 热键，每次按下 F4 切换记录状态
+keyboard.add_hotkey('F4', toggle_recording)
 
 # 启动后台线程，负责持续记录鼠标位置
 record_thread = threading.Thread(target=record_positions, daemon=True)
