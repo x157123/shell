@@ -15,7 +15,9 @@ PASSWORD="$2"
 
 # 检查用户是否已存在
 if id "$USER" &>/dev/null; then
-    echo "用户 $USER 已存在，跳过创建步骤"
+    echo "用户 $USER 已存在，更新密码..."
+    echo "$USER:$PASSWORD" | chpasswd
+    echo "用户 $USER 的密码已更新。"
 else
     echo "创建用户 $USER"
     # 创建用户，指定默认 shell 为 /bin/bash 并建立 home 目录
