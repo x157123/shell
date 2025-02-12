@@ -217,8 +217,8 @@ def monitor_switch(driver, client, serverId, appId, public_key):
             state = switch_button.get_attribute("aria-checked")
             if state == "true":
                 print("已连接到主网络。")
-                if total > 0 or count > 360:
-                    if count > 300:
+                if total > 0 or count > 10:
+                    if count > 10:
                         app_info = get_app_info_integral(serverId, appId, public_key, get_points(driver), 2, '运行中， 并采集积分。')
                         client.publish(TOPIC, json.dumps(app_info))
                         count = 0
@@ -228,7 +228,7 @@ def monitor_switch(driver, client, serverId, appId, public_key):
                 total = 0
             else:
                 if toggle_switch(driver):
-                    if total > 60:
+                    if total > 5:
                         print("检查过程中出现异常：未连接到主网络")
                         app_info = get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络')
                         client.publish(TOPIC, json.dumps(app_info))
