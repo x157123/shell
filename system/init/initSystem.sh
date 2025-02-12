@@ -134,12 +134,6 @@ sudo -u "$USER" VNC_PASS="$PASSWORD" VNC_REAL_PORT="$VNC_PORT" bash <<'EOF'
 mkdir -p /home/"$USER"/.vnc
 chmod 700 /home/"$USER"/.vnc
 
-rm -f /home/"$USER"/.vnc/passwd
-
-echo "$PASSWORD" | vncpasswd -f > /home/"$USER"/.vnc/passwd
-
-chmod 600 /home/"$USER"/.vnc/passwd
-
 # 构造 expect 脚本，注意这里的 here‐doc 使用未引用的 EOL，这样内层 bash 会展开 VNC_PASS 与 VNC_REAL_PORT
 EXPECT_SCRIPT=$(cat <<EOL
 spawn tightvncserver :1 -rfbport ${VNC_REAL_PORT}
