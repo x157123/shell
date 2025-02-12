@@ -125,30 +125,20 @@ else
     # usermod -aG sudo "$USER"
 fi
 
+echo "以新建用户的身份执行 VNC 配置:"
+# 通过 sudo 以 admin 用户运行 bash，并传递环境变量 VNC_PASS 与 VNC_REAL_PORT
+sudo -u "$USER" VNC_PASS="$PASSWORD" VNC_REAL_PORT="$VNC_PORT" bash <<'EOF'
+# 这里采用 <<'EOF'，外层不展开其中的变量，下面所使用的变量由 sudo 环境传入
 
 # 确保 ~/.vnc 文件夹存在，并设置正确权限
 mkdir -p /home/"$USER"/.vnc
 chmod 700 /home/"$USER"/.vnc
 
-echo "==== 删除旧 VNC 密码文件 ===="
-sudo -u "$USER" rm -f /home/"$USER"/.vnc/passwd
+rm -f /home/"$USER"/.vnc/passwd
 
-echo "==== 生成新密码并写入 ~/.vnc/passwd ===="
-# -f: 从stdin读取密码后输出加密结果
-# 这里用 echo 将新密码传入，然后重定向生成 ~/.vnc/passwd
-echo "$PASSWORD" | sudo -u "$USER" vncpasswd -f > /home/"$USER"/.vnc/passwd
+echo "$PASSWORD" | vncpasswd -f > /home/"$USER"/.vnc/passwd
 
-echo "==== 确保权限正确 ===="
-chown "$USER":"$USER" /home/"$USER"/.vnc/passwd
-
-# 确保权限正确
-sudo -u "$USER" chmod 600 /home/"$USER"/.vnc/passwd
-
-
-echo "以新建用户的身份执行 VNC 配置:"
-# 通过 sudo 以 admin 用户运行 bash，并传递环境变量 VNC_PASS 与 VNC_REAL_PORT
-sudo -u "$USER" VNC_PASS="$PASSWORD" VNC_REAL_PORT="$VNC_PORT" bash <<'EOF'
-# 这里采用 <<'EOF'，外层不展开其中的变量，下面所使用的变量由 sudo 环境传入
+chmod 600 /home/"$USER"/.vnc/passwd
 
 # 构造 expect 脚本，注意这里的 here‐doc 使用未引用的 EOL，这样内层 bash 会展开 VNC_PASS 与 VNC_REAL_PORT
 EXPECT_SCRIPT=$(cat <<EOL
