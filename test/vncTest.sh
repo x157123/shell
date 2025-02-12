@@ -56,11 +56,14 @@ fi
 # 4. 初始化 VNC 密码
 ###################################################
 echo "=== [4/7] 初始化 VNC 密码 ==="
-# 创建 .vnc 目录
+# 确保 VNC 用户可以访问其 .vnc 目录
+sudo chown -R $VNC_USER:$VNC_USER /home/$VNC_USER
+
+# 创建 .vnc 目录（如果没有）
 sudo -u "$VNC_USER" mkdir -p /home/"$VNC_USER"/.vnc
 
 # 使用 vncpasswd -f 将明文密码转换为 VNC 加密密码
-sudo -u "$VNC_USER" bash -c "echo '$VNC_PASSWORD' | vncpasswd -f > /home/$VNC_USER/.vnc/passwd"
+echo "$VNC_PASSWORD" | sudo -u "$VNC_USER" vncpasswd -f > /home/"$VNC_USER"/.vnc/passwd
 sudo chmod 600 /home/"$VNC_USER"/.vnc/passwd
 
 ###################################################
