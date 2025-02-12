@@ -8,7 +8,7 @@ APP_ID=""
 VNC_RFBPORT=25931   # <-- 在此处自定义要使用的 VNC 端口
 
 # 使用 getopt 解析命令行参数
-TEMP=$(getopt -o u:p:s:a: --long VNC_USER:,VNC_PASSWORD:,serverId:,appId: -n 'initSystem.sh' -- "$@")
+TEMP=$(getopt -o u:p:s:a: --long user:,password:,serverId:,appId: -n 'initSystem.sh' -- "$@")
 if [ $? != 0 ]; then
     echo "Failed to parse options."
     exit 1
@@ -18,11 +18,11 @@ eval set -- "$TEMP"
 # 处理命令行参数
 while true; do
   case "$1" in
-    --VNC_USER)
+    --user)
       VNC_USER="$2"
       shift 2
       ;;
-    --VNC_PASSWORD)
+    --password)
       VNC_PASSWORD="$2"
       shift 2
       ;;
@@ -39,7 +39,7 @@ while true; do
       break
       ;;
     *)
-      echo "Usage: $0 --VNC_USER VNC_USER --VNC_PASSWORD VNC_PASSWORD --serverId SERVER_ID --appId APP_ID"
+      echo "Usage: $0 --user VNC_USER --password VNC_PASSWORD --serverId SERVER_ID --appId APP_ID"
       exit 1
       ;;
   esac
@@ -47,7 +47,7 @@ done
 
 # 如果没有传递账号、密码、serverId 或 appId，打印错误信息并退出
 if [ -z "$VNC_USER" ] || [ -z "$VNC_PASSWORD" ] || [ -z "$SERVER_ID" ] || [ -z "$APP_ID" ]; then
-  echo "Usage: $0 --VNC_USER VNC_USER --VNC_PASSWORD VNC_PASSWORD --serverId SERVER_ID --appId APP_ID"
+  echo "Usage: $0 --user VNC_USER --password VNC_PASSWORD --serverId SERVER_ID --appId APP_ID"
   exit 1
 fi
 
