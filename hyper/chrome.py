@@ -230,7 +230,7 @@ def main(client, serverId, appId, decryptKey):
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
     # 解密并发送解密结果
     public_key_tmp = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'publicKey')
-
+    logger.info(f"获取公共key {public_key} ---：{public_key_tmp}")
     if public_key_tmp is not None and public_key != public_key_tmp:
         div_el = get_element(tab, "x://div[contains(@class, 'cursor-text')]", timeout=5)
         if div_el is not None:
