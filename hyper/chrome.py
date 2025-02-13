@@ -238,14 +238,16 @@ def main(client, serverId, appId, decryptKey):
     public_key_tmp = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'publicKey')
     logger.info(f"获取公共key {public_key} ---：{public_key_tmp}")
     if public_key_tmp is not None and public_key != public_key_tmp:
-        div_el = get_element(tab, "x://div[contains(@class, 'cursor-text')]", timeout=5)
-        if div_el is not None:
-            # 聚焦
-            div_el.click()
-            # 发送密钥
-            div_el.send_keys(decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'privateKey'))
-            # 确认导入
-            click_element(tab, "x://button[normalize-space()='IMPORT KEY']")
+        if click_element(tab,
+                         "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
+            div_el = get_element(tab, "x://div[contains(@class, 'cursor-text')]", timeout=5)
+            if div_el is not None:
+                # 聚焦
+                div_el.click()
+                # 发送密钥
+                div_el.send_keys(decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'privateKey'))
+                # 确认导入
+                click_element(tab, "x://button[normalize-space()='IMPORT KEY']")
     else:
         # 获取私钥：点击按钮后从剪贴板读取
         if click_element(tab,
