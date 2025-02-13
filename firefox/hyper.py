@@ -367,16 +367,9 @@ def main(client, serverId, appId, decryptKey, user):
     client.publish(TOPIC, json.dumps(get_app_info(serverId, appId, 1, '启动服务。')))
     # 初始化浏览器驱动并打开目标页面
 
-    profile_dirs = glob.glob('/home/' + user + '/.mozilla/firefox/*.default')
-    if not profile_dirs:
-        client.publish(TOPIC, json.dumps(get_app_info(serverId, appId, 3, '启动服务文件夹异常。')))
-        raise Exception("未找到符合条件的 Firefox 配置文件夹！")
-    profile_path = profile_dirs[0]  # 取第一个匹配的文件夹
-
     firefox_options = Options()
     firefox_options.add_argument('-profile')
-    firefox_options.add_argument(profile_path)
-
+    firefox_options.add_argument('/home/' + user + '/.mozilla/firefox/hyper')  # 替换为实际路径
     driver = webdriver.Firefox(options=firefox_options)
     driver.get("https://node.hyper.space")
 
