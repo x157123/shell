@@ -150,11 +150,7 @@ echo "google-chrome 已成功启动，9515 端口正在监听。"
 # 执行远程 Python 脚本
 echo "开始执行 /opt/chrome.py ..."
 nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperOutput.log 2>&1 &
-EOF
 
-# 执行远程 Python 脚本
-echo "开始执行 /opt/chrome.py ..."
-# 若需要脚本以该用户身份执行，使用 sudo -u。如果 python3 路径不一致，可改为绝对路径
-nohup sudo -u "$SUDO_USER" -i python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" > chromeOutput.log 2>&1 &
+EOF
 
 echo "脚本已在后台执行，日志输出至 chromeOutput.log"
