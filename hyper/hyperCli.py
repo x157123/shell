@@ -184,9 +184,9 @@ def main(client, serverId, appId, decryptKey):
     print("===== 检测是否已启动 =====")
     status_output = run_command_blocking("/root/.aios/aios-cli status")
     if "Daemon running on" in status_output:
-        print("程序正在运行中。")
-        return
-    print("安装成功！")
+        print("杀掉程序。")
+        run_command_blocking("/root/.aios/aios-cli kill")
+    print("检查结束！")
 
     # 2. 启动后端服务（后台运行，不阻塞）
     subprocess.Popen("/root/.aios/aios-cli start", shell=True)
