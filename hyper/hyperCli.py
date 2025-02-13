@@ -46,7 +46,14 @@ def fetch_points():
     """
     while True:
         print("\n===== 积分查询输出 =====")
-        run_command_blocking("/root/.aios/aios-cli hive points")
+        login_output = run_command_blocking("/root/.aios/aios-cli hive points")
+        points = None
+        public_match = re.search(r"Points:\s*(\S+)", login_output)
+        if public_match:
+            points = public_match.group(1)
+        print(f"points: {points}")
+        print("获取积分完成。")
+
         time.sleep(600)  # 600 秒 = 10 分钟
 
 def read_file(file_path):
@@ -114,7 +121,6 @@ def create_mqtt_client(broker, port, username, password, topic):
 
 
 # ========== MQTT 事件回调函数（MQTTv5） ==========
-
 def on_connect(client, userdata, flags, reason_code, properties=None):
     """
     当客户端与 Broker 建立连接后触发
