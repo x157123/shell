@@ -7,13 +7,14 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.options import Options
 import paho.mqtt.client as mqtt
 import json
-import time
 import argparse
 import requests
 import base64
+import glob
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 from selenium.webdriver.common.action_chains import ActionChains
+
 
 def read_file(file_path):
     """从文件中读取内容并去除多余空白"""
@@ -22,6 +23,7 @@ def read_file(file_path):
             return file.read().strip()
     except FileNotFoundError:
         raise ValueError(f"文件未找到: {file_path}")
+
 
 def decrypt_aes_ecb(secret_key, data_encrypted_base64):
     """
@@ -167,7 +169,6 @@ def get_points(driver):
 
 
 def retrieve_private_key(driver, appId, decryptKey):
-
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
 
@@ -220,13 +221,15 @@ def monitor_switch(driver, client, serverId, appId, public_key):
                 if state == "true":
                     client.publish(TOPIC, json.dumps(get_app_info(serverId, appId, 2, '浏览器启动,已连接到主网。')))
                 else:
-                    client.publish(TOPIC, json.dumps(get_app_info(serverId, appId, 3, '浏览器启动,检查过程中出现异常：未连接到主网络。')))
+                    client.publish(TOPIC, json.dumps(
+                        get_app_info(serverId, appId, 3, '浏览器启动,检查过程中出现异常：未连接到主网络。')))
                 index = 10
             if state == "true":
                 print("已连接到主网络。")
                 if total > 0 or count > 10:
                     if count > 10:
-                        app_info = get_app_info_integral(serverId, appId, public_key, get_points(driver), 2, '运行中， 并采集积分。')
+                        app_info = get_app_info_integral(serverId, appId, public_key, get_points(driver), 2,
+                                                         '运行中， 并采集积分。')
                         client.publish(TOPIC, json.dumps(app_info))
                         count = 0
                     else:
@@ -277,6 +280,7 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
         "operationType": f"{operationType}",
         "description": f"{description}",
     }
+
 
 def create_mqtt_client(broker, port, username, password, topic):
     """
@@ -363,9 +367,15 @@ def main(client, serverId, appId, decryptKey, user):
     client.publish(TOPIC, json.dumps(get_app_info(serverId, appId, 1, '启动服务。')))
     # 初始化浏览器驱动并打开目标页面
 
+    profile_dirs = glob.glob('/home/' + user + '/.mozilla/firefox/*.default')
+    if not profile_dirs:
+        client.publish(TOPIC, json.dumps(get_app_info(serverId, appId, 3, '启动服务文件夹异常。')))
+        raise Exception("未找到符合条件的 Firefox 配置文件夹！")
+    profile_path = profile_dirs[0]  # 取第一个匹配的文件夹
+
     firefox_options = Options()
     firefox_options.add_argument('-profile')
-    firefox_options.add_argument('/home/' + user +'/.mozilla/firefox/hyper')  # 替换为实际路径
+    firefox_options.add_argument(profile_path)
 
     driver = webdriver.Firefox(options=firefox_options)
     driver.get("https://node.hyper.space")

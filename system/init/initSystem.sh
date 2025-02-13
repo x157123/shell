@@ -132,6 +132,8 @@ else
     # usermod -aG sudo "$VNCUSER"
 fi
 
+sleep 2
+
 ##############################################################################
 # 以新建用户身份执行 VNC 配置
 ##############################################################################
@@ -157,10 +159,10 @@ send "n\r"
 expect eof
 EOL
 )
-
+  sleep 2
   # 如果 VNC 服务器已经启动，先关闭以免重复配置
   tightvncserver -kill :1 >/dev/null 2>&1 || true
-
+  sleep 2
   # 使用 expect 脚本自动输入密码（避免人工干预）
   expect -c "$EXPECT_SCRIPT"
 
@@ -191,6 +193,7 @@ chown $VNCUSER:$VNCUSER /home/$VNCUSER/.xsession
 if ! service xrdp status | grep -q "running"; then
     echo "XRDP未运行，正在启动..."
     service xrdp start
+    sleep 10
 else
     echo "XRDP已在运行。"
 fi
@@ -202,7 +205,7 @@ echo "检查 VNC 是否正在运行..."
 if ! pgrep -f "tightvncserver :1" > /dev/null; then
     echo "VNC 尚未运行，正在启动..."
     sudo -u "$VNCUSER" tightvncserver :1 -rfbport $VNC_PORT -geometry 1280x800 -depth 24 &
-    sleep 5  # 等待 VNC 启动并绑定端口
+    sleep 10  # 等待 VNC 启动并绑定端口
 else
     echo "VNC 已在运行，跳过启动。"
 fi
