@@ -103,7 +103,7 @@ echo "安装/升级 drissionpage ..."
 pip3 install --upgrade drissionpage
 
 # 安装剪切板
-apt-get install xclip
+sufo apt-get install xclip
 
 # 安装其他插件
 pip3 install --no-cache-dir psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
