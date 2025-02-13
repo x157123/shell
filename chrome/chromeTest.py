@@ -2,9 +2,6 @@ import time
 from DrissionPage._base.chromium import Chromium
 from DrissionPage._configs.chromium_options import ChromiumOptions
 from DrissionPage._base.wait import Wait
-import paho.mqtt.client as mqtt
-import json
-import argparse
 from loguru import logger
 import pyperclip
 
@@ -101,101 +98,6 @@ def get_app_info(serverId, appId, operationType, description):
     }
 
 
-
-# =================================================   MQTT   ======================================
-def create_mqtt_client(broker, port, username, password, topic):
-    """
-    创建并配置MQTT客户端，使用 MQTTv5 回调方式
-    protocol=mqtt.MQTTv5 来避免旧版回调弃用警告
-    """
-    client = mqtt.Client(
-        protocol=mqtt.MQTTv5,  # 指定使用 MQTTv5
-        userdata={"topic": topic}  # 传递自定义数据
-    )
-    client.username_pw_set(username, password)
-
-    # 注册回调函数（使用 v5 风格签名）
-    client.on_connect = on_connect
-    client.on_disconnect = on_disconnect
-    client.on_message = on_message
-
-    # 尝试连接到 Broker
-    try:
-        client.connect(broker, port, keepalive=60)
-    except Exception as e:
-        raise ConnectionError(f"Error connecting to broker: {e}")
-
-    return client
-
-
-# ========== MQTT 事件回调函数（MQTTv5） ==========
-def on_connect(client, userdata, flags, reason_code, properties=None):
-    """
-    当客户端与 Broker 建立连接后触发
-    reason_code = 0 表示连接成功，否则为失败码
-    """
-    if reason_code == 0:
-        print("Connected to broker successfully.")
-        # 仅发布消息，去除订阅
-        pass
-    else:
-        print(f"Connection failed with reason code: {reason_code}")
-
-
-def on_disconnect(client, userdata, reason_code, properties=None):
-    """
-    当客户端与 Broker 断开连接后触发
-    可以在此处进行自动重连逻辑
-    """
-    print(f"Disconnected from broker, reason_code: {reason_code}")
-    # 如果 reason_code != 0，则表示非正常断开
-    while True:
-        try:
-            print("Attempting to reconnect...")
-            client.reconnect()
-            print("Reconnected successfully.")
-            break
-        except Exception as e:
-            print(f"Reconnect failed: {e}")
-            time.sleep(5)  # 等待 5 秒后重试
-
-
-def on_message(client, userdata, msg):
-    """
-    当收到订阅主题的新消息时触发
-    v5 中的 on_message 参数与 v3.x 相同： (client, userdata, message)
-    """
-    print(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
-# =================================================   MQTT   ======================================
-
-
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="启动服务器信息推送脚本")
-    parser.add_argument("--serverId", type=str, help="服务ID", required=True)
-    parser.add_argument("--appId", type=str, help="应用ID", required=True)
-    args = parser.parse_args()
-
-    # MQTT 配置
-    BROKER = "150.109.5.143"
-    PORT = 1883
-    TOPIC = "appInfo"
-    USERNAME = "userName"
-    PASSWORD = "liuleiliulei"
-
-    # 创建 MQTT 客户端
-    client = create_mqtt_client(BROKER, PORT, USERNAME, PASSWORD, TOPIC)
-    client.loop_start()
-    
-    try:
-        main()
-        while True:
-            time.sleep(60)  # 每 60 秒发送一次
-            # 获取应用信息并发送
-            app_info = get_app_info(args.serverId, args.appId, 2, '运行中，获取相应数据')
-            client.publish(TOPIC, json.dumps(app_info))
-    except KeyboardInterrupt:
-        print("Exiting...")
-    finally:
-        client.loop_stop()
-        client.disconnect()
+    main()
 
