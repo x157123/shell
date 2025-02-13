@@ -53,6 +53,20 @@ if [ -z "$USER" ]; then
   echo "Warning: --user 未指定，将默认以 admin 身份执行相关操作（如需特定用户，请使用 --user）"
 fi
 
+
+# 安装 Google Chrome（可选，如需浏览器功能）
+if ! dpkg -l | grep -q "google-chrome-stable"; then
+    echo "=== 安装 Google Chrome ==="
+    wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    if [ ! -f google-chrome-stable_current_amd64.deb ]; then
+        echo "Google Chrome 下载失败"
+        exit 1
+    fi
+    apt-get install -y ./google-chrome-stable_current_amd64.deb
+    rm -f google-chrome-stable_current_amd64.deb
+fi
+
+
 # 如果 /opt/chrome.py 存在，则先删除旧文件
 if [ -f /opt/chrome.py ]; then
     echo "/opt/chrome.py 已存在，正在删除旧文件..."
@@ -60,8 +74,8 @@ if [ -f /opt/chrome.py ]; then
 fi
 
 # 下载并执行远程 Python 脚本
-echo "开始下载脚本：https://www.15712345.xyz/yml/prod/chrome.py ..."
-wget -O /opt/chrome.py https://www.15712345.xyz/yml/prod/chrome.py
+echo "开始下载脚本：https://www.15712345.xyz/shell/hyper/chrome.py ..."
+wget -O /opt/chrome.py https://www.15712345.xyz/shell/hyper/chrome.py
 if [ ! -f /opt/chrome.py ]; then
     echo "脚本下载失败，请检查网络连接或 URL 是否正确。"
     exit 1
@@ -80,6 +94,12 @@ fi
 # 如果想让指定用户安装，则放到 sudo -u $USER -i 环境中执行
 echo "安装/升级 drissionpage ..."
 pip3 install --upgrade drissionpage
+
+# 安装剪切板
+apt-get install xclip
+
+# 安装其他插件
+pip3 install --no-cache-dir psutil requests paho-mqtt selenium pycryptodome
 
 # 以特定用户启动 chrome
 # 如果未指定 --user，则默认用 admin（或你想要的其它用户）
@@ -104,11 +124,11 @@ if screen -list | grep -q "\.chrome"; then
 fi
 
 # 设置 DISPLAY 环境变量，根据实际情况修改
-export DISPLAY=:1
+export DISPLAY=:23
 
 echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
-screen -dmS chrome bash -c "export DISPLAY=:1; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security"
-# screen -dmS chrome bash -c "export DISPLAY=:1; google-chrome --remote-debugging-port=9515 --no-first-run --disable-gpu-blocklist --disable-software-rasterizer=false --use-gl=swiftshader --enable-features=Vulkan --enable-unsafe-webgpu"
+screen -dmS chrome bash -c "export DISPLAY=:23; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security"
+# screen -dmS chrome bash -c "export DISPLAY=:23; google-chrome --remote-debugging-port=9515 --no-first-run --disable-gpu-blocklist --disable-software-rasterizer=false --use-gl=swiftshader --enable-features=Vulkan --enable-unsafe-webgpu"
 
 MAX_WAIT=30   # 最大等待时间，单位秒
 counter=0
@@ -122,6 +142,10 @@ while ! lsof -i:9515 -sTCP:LISTEN >/dev/null 2>&1; do
 done
 
 echo "google-chrome 已成功启动，9515 端口正在监听。"
+
+# 执行远程 Python 脚本
+echo "开始执行 /opt/chrome.py ..."
+nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperOutput.log 2>&1 &
 EOF
 
 # 执行远程 Python 脚本
