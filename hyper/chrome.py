@@ -336,7 +336,7 @@ if __name__ == '__main__':
     parser.add_argument("--serverId", type=str, help="服务ID", required=True)
     parser.add_argument("--appId", type=str, help="应用ID", required=True)
     parser.add_argument("--decryptKey", type=str, help="解密key", required=True)
-    parser.add_argument("--user", type=str, help="解密key", required=True)
+    parser.add_argument("--user", type=str, help="执行用户", required=True)
     args = parser.parse_args()
 
     # MQTT 配置

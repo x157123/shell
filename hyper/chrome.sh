@@ -58,6 +58,8 @@ if [ -z "$USER" ]; then
   echo "Warning: --user 未指定，将默认以 admin 身份执行相关操作（如需特定用户，请使用 --user）"
 fi
 
+echo "APP_ID: $APP_ID"
+echo "SERVER_ID: $SERVER_ID"
 
 # 安装 Google Chrome（可选，如需浏览器功能）
 if ! dpkg -l | grep -q "google-chrome-stable"; then
@@ -149,7 +151,7 @@ echo "google-chrome 已成功启动，9515 端口正在监听。"
 
 # 执行远程 Python 脚本
 echo "开始执行 /opt/chrome.py ..."
-nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperOutput.log 2>&1 &
+nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperChromeOutput.log 2>&1 &
 
 EOF
 
