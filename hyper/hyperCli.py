@@ -128,8 +128,8 @@ def on_connect(client, userdata, flags, reason_code, properties=None):
     """
     if reason_code == 0:
         print("Connected to broker successfully.")
-        # 订阅主题（从 userdata 中获取）
-        client.subscribe(userdata["topic"])
+        # 仅发布消息，去除订阅
+        pass
     else:
         print(f"Connection failed with reason code: {reason_code}")
 

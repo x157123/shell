@@ -58,6 +58,7 @@ if [ -z "$USER" ]; then
   echo "Warning: --user 未指定，将默认以 admin 身份执行相关操作（如需特定用户，请使用 --user）"
 fi
 
+# 解密插件
 pip3 install pycryptodome
 
 #########################
