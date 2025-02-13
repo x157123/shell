@@ -110,6 +110,14 @@ sudo apt-get install xclip
 # 安装其他插件
 pip3 install --no-cache-dir psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
 
+# 查找运行中的 chrome.py 进程（使用完整命令匹配）
+pids=$(pgrep -f "python3 /opt/chrome.py")
+if [ -n "$pids" ]; then
+    echo "检测到正在运行的实例: $pids，准备终止..."
+    # 注意：kill -9 是强制终止，可根据实际情况换成 kill
+    kill -9 $pids
+fi
+
 # 以特定用户启动 chrome
 # 如果未指定 --user，则默认用 admin（或你想要的其它用户）
 SUDO_USER="${USER:-admin}"
