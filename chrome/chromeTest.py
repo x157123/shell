@@ -15,7 +15,8 @@ def configure_browser():
         "--export-tagged-pdf", "--disable-gpu", "--disable-web-security",
         "--disable-infobars", "--disable-popup-blocking", "--allow-outdated-plugins",
         "--deny-permission-prompts", "--disable-suggestions-ui", "--window-size=1920,1080",
-        "--disable-mobile-emulation", "--user-data-dir=/path/to/your/user/data/directory"
+        "--disable-mobile-emulation", "--user-data-dir=/tmp/DrissionPage/userData/9515",
+        "--disable-features=ServerSentEvents"
     ]
 
     for arg in arguments:
