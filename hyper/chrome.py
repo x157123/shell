@@ -253,8 +253,8 @@ def main(client, serverId, appId, decryptKey):
             if click_element(tab, "x://button[contains(., 'copy current private key')]"):
                 private_key = get_clipboard_text()
                 # 保存私钥
-                client.publish('hyperKey', json.dumps(get_info(serverId, "hyper", public_key, private_key)))
-                print("保存私钥成功")
+                client.publish("appInfo", json.dumps(get_info(serverId, "hyper", public_key, private_key)))
+                logger.info(f"发送数据 {public_key}: {private_key}")
 
 
     # 关闭私钥弹窗（如果存在）
