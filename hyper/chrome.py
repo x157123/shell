@@ -254,6 +254,8 @@ def main(client, serverId, appId, decryptKey):
                 private_key = get_clipboard_text()
                 # 保存私钥
                 client.publish('hyperKey', json.dumps(get_info(serverId, "hyper", public_key, private_key)))
+                print("保存私钥成功")
+
 
     # 关闭私钥弹窗（如果存在）
     click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
