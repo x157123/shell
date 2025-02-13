@@ -110,7 +110,7 @@ pip3 install --no-cache-dir psutil requests paho-mqtt selenium pycryptodome logu
 # 如果未指定 --user，则默认用 admin（或你想要的其它用户）
 SUDO_USER="${USER:-admin}"
 
-sudo -u "$SUDO_USER" -i bash <<'EOF'
+sudo -u "$SUDO_USER" -i bash <<EOF
 # 内部脚本：用以特定用户的身份执行
 
 # 检查 9515 端口是否被占用
