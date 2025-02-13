@@ -28,7 +28,8 @@ def configure_browser():
     for arg in arguments:
         co.set_argument(arg)
 
-    co.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
+    co.set_user_agent(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
 
     browser = Chromium(co)
     tab = browser.new_tab(url="https://node.hyper.space/")
@@ -63,6 +64,7 @@ def click_element(tab, xpath, timeout=2, interval=0.5):
                 logger.error(f"未找到元素")
                 return False
         time.sleep(interval)
+
 
 def get_element(tab, xpath, timeout=2, interval=0.5):
     """
@@ -196,7 +198,9 @@ def monitor_switch(tab, client, serverId, appId, public_key):
 
             if error > 5:
                 print("检查过程中出现异常：未连接到主网络")
-                client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络')))
+                client.publish("appInfo",
+                               json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络')))
+                error = 0
 
             if total > 60:
                 # 获取积分
@@ -204,15 +208,15 @@ def monitor_switch(tab, client, serverId, appId, public_key):
                 # 关闭私钥弹窗（如果存在）
                 click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
                 if points is not None and points != "":
-                    app_info = get_app_info_integral(serverId, appId, public_key, points, 2,'运行中， 并采集积分。')
+                    app_info = get_app_info_integral(serverId, appId, public_key, points, 2, '运行中， 并采集积分。')
                     client.publish("appInfo", json.dumps(app_info))
                     total = 0
             total += 1
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
 
-def main(client, serverId, appId, decryptKey):
 
+def main(client, serverId, appId, decryptKey):
     public_key = ""
 
     # 启动浏览器
@@ -244,7 +248,8 @@ def main(client, serverId, appId, decryptKey):
             click_element(tab, "x://button[normalize-space()='IMPORT KEY']")
     else:
         # 获取私钥：点击按钮后从剪贴板读取
-        if click_element(tab, "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
+        if click_element(tab,
+                         "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
             if click_element(tab, "x://button[contains(., 'copy current private key')]"):
                 private_key = get_clipboard_text()
                 # 保存私钥
@@ -321,6 +326,8 @@ def on_message(client, userdata, msg):
     v5 中的 on_message 参数与 v3.x 相同： (client, userdata, message)
     """
     print(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
+
+
 # =================================================   MQTT   ======================================
 
 
@@ -353,4 +360,3 @@ if __name__ == '__main__':
     client.loop_start()
     # 启动网络循环
     main(client, args.serverId, args.appId, args.decryptKey)
-
