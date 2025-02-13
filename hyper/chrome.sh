@@ -102,7 +102,10 @@ fi
 echo "安装/升级 drissionpage ..."
 pip3 install --upgrade drissionpage
 
+export DISPLAY=:1
 
+# 安装剪切板
+sudo apt-get install xclip
 
 # 安装其他插件
 pip3 install --no-cache-dir psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
@@ -131,9 +134,6 @@ fi
 
 # 设置 DISPLAY 环境变量，根据实际情况修改
 export DISPLAY=:1
-
-# 安装剪切板
-sudo apt-get install xclip
 
 echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
 screen -dmS chrome bash -c "export DISPLAY=:1; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security"
