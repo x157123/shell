@@ -280,7 +280,7 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
         "description": f"{description}",
     }
 
-
+# =================================================   MQTT   ======================================
 def create_mqtt_client(broker, port, username, password, topic):
     """
     创建并配置MQTT客户端，使用 MQTTv5 回调方式
@@ -307,7 +307,6 @@ def create_mqtt_client(broker, port, username, password, topic):
 
 
 # ========== MQTT 事件回调函数（MQTTv5） ==========
-
 def on_connect(client, userdata, flags, reason_code, properties=None):
     """
     当客户端与 Broker 建立连接后触发
@@ -345,6 +344,7 @@ def on_message(client, userdata, msg):
     v5 中的 on_message 参数与 v3.x 相同： (client, userdata, message)
     """
     print(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
+# =================================================   MQTT   ======================================
 
 
 def post_info(url, server_id, public_key, private_key):
