@@ -4,9 +4,10 @@ USER=""
 PASSWORD=""
 SERVER_ID=""
 APP_ID=""
+DECRYPT_KEY=""
 
 # 使用 getopt 解析命令行参数
-TEMP=$(getopt -o u:p:s:a: --long user:,password:,serverId:,appId: -n 'startChrome.sh' -- "$@")
+TEMP=$(getopt -o u:p:k:s:a: --long user:,password:,decryptKey:,serverId:,appId: -n 'startChrome.sh' -- "$@")
 if [ $? != 0 ]; then
     echo "Failed to parse options."
     exit 1
@@ -21,6 +22,10 @@ while true; do
             ;;
         -p|--password)
             PASSWORD=$2
+            shift 2
+            ;;
+        -k|--decryptKey)
+            DECRYPT_KEY=$2
             shift 2
             ;;
         -s|--serverId)
