@@ -104,7 +104,7 @@ pip3 install --upgrade drissionpage
 apt-get install xclip
 
 # 安装其他插件
-pip3 install --no-cache-dir psutil requests paho-mqtt selenium pycryptodome
+pip3 install --no-cache-dir psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
 
 # 以特定用户启动 chrome
 # 如果未指定 --user，则默认用 admin（或你想要的其它用户）
