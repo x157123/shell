@@ -88,12 +88,12 @@ def main():
     click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
 
     # 获取公钥：点击按钮后从剪贴板读取
-    if click_element(tab, "x://p[contains(text(), 'Public Key:')]/following-sibling::div//button"):
+    if click_element(tab, "x://p[text()='Public Key:']/following-sibling::div//button"):
         public_key = get_clipboard_text()
 
     # 获取私钥：点击按钮后从剪贴板读取
     if click_element(tab, "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
-        if click_element(tab, "//button[contains(., 'copy current private key')]"):
+        if click_element(tab, "x://button[contains(., 'copy current private key')]"):
             private_key = get_clipboard_text()
 
     # 关闭私钥弹窗（如果存在）
@@ -102,6 +102,8 @@ def main():
     # 获取积分:
     get_points(tab)
 
+    # 关闭私钥弹窗（如果存在）
+    click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
 
 
 def get_app_info(serverId, appId, operationType, description):
