@@ -1,7 +1,6 @@
 import time
 from DrissionPage._base.chromium import Chromium
 from DrissionPage._configs.chromium_options import ChromiumOptions
-from DrissionPage._base.wait import Wait
 from loguru import logger
 import pyperclip
 
@@ -29,19 +28,34 @@ def configure_browser():
     return tab
 
 
-def click_element(tab, xpath, timeout=2):
-    """点击页面元素，若元素不存在则返回False"""
-    try:
-        element = Wait(tab, timeout=timeout).until(xpath)
-        element.click()
-        logger.info(f"Clicked the element: {xpath}")
-        return True
-    except TimeoutError:
-        logger.info(f"No element found for XPath: {xpath} within {timeout} seconds.")
-        return False
-    except Exception as e:
-        logger.error(f"Error while clicking element {xpath}: {e}")
-        return False
+def click_element(tab, xpath, timeout=2, interval=0.5):
+    """
+    尝试点击页面元素，若元素在超时时间内无法找到或点击失败则返回False。
+    :param tab:        DrissionPage 或 Selenium 中的 tab 对象
+    :param xpath:      要查找的元素的 XPath
+    :param timeout:    最长等待时间（秒）
+    :param interval:   每次重试的间隔时间（秒）
+    :return:           bool
+    """
+    start_time = time.time()
+
+    while True:
+        # 如果超时则退出循环
+        if time.time() - start_time > timeout:
+            logger.info(f"未在 {timeout} 秒内找到元素：{xpath}")
+            return False
+        # 在当前页面查找元素
+        element = tab.ele(xpath)
+        if element:
+            # 找到元素后尝试点击
+            try:
+                element.click()
+                logger.info(f"成功点击元素：{xpath}")
+                return True
+            except Exception as e:
+                logger.error(f"点击元素 {xpath} 时发生异常：{e}")
+                return False
+        time.sleep(interval)
 
 
 def get_clipboard_text():
