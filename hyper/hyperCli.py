@@ -198,9 +198,9 @@ def main(client, serverId, appId, decryptKey):
 
     # 5. 关联密钥
     # 从文件加载密文
-    encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
+    # encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
     # 解密并发送解密结果
-    private_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64)
+    private_key = None
 
     # Hive 登录，提取 Public 和 Private Key
     print("开始 Hive 登录...")
