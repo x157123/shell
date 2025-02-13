@@ -10,7 +10,6 @@ import json
 import argparse
 import requests
 import base64
-import glob
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 from selenium.webdriver.common.action_chains import ActionChains
@@ -171,9 +170,9 @@ def get_points(driver):
 def retrieve_private_key(driver, appId, decryptKey):
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
-
     # 解密并发送解密结果
     private_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64)
+
     if private_key is not None:
         print("找到的 privateKey:", private_key)
         xpath = "//div[contains(@class, 'cursor-text')]"
@@ -352,7 +351,7 @@ def post_info(url, server_id, public_key, private_key):
     """
     向指定的 URL 发送 POST 请求，参数以 JSON 格式传递
     """
-    data = get_info(server_id, public_key, private_key)
+    data = get_info(server_id, 'hyper', public_key, private_key)
     try:
         response = requests.post(url, json=data)  # 使用 json 参数，requests 会自动设置 Content-Type 为 application/json
         response.raise_for_status()  # 如果响应状态码不是 200 系列，将抛出异常
