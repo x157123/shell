@@ -1,12 +1,15 @@
 import time
 from DrissionPage._base.chromium import Chromium
 from DrissionPage._configs.chromium_options import ChromiumOptions
-from DrissionPage._base.wait import Wait
 import paho.mqtt.client as mqtt
 import json
 import argparse
 from loguru import logger
 import pyperclip
+import base64
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+import random
 
 
 def configure_browser():
@@ -32,19 +35,60 @@ def configure_browser():
     return tab
 
 
-def click_element(tab, xpath, timeout=2):
-    """点击页面元素，若元素不存在则返回False"""
-    try:
-        element = Wait(tab, timeout=timeout).until(xpath)
-        element.click()
-        logger.info(f"Clicked the element: {xpath}")
-        return True
-    except TimeoutError:
-        logger.info(f"No element found for XPath: {xpath} within {timeout} seconds.")
-        return False
-    except Exception as e:
-        logger.error(f"Error while clicking element {xpath}: {e}")
-        return False
+def click_element(tab, xpath, timeout=2, interval=0.5):
+    """
+    尝试点击页面元素，若元素在超时时间内无法找到或点击失败则返回False。
+    :param tab:        DrissionPage 或 Selenium 中的 tab 对象
+    :param xpath:      要查找的元素的 XPath
+    :param timeout:    最长等待时间（秒）
+    :param interval:   每次重试的间隔时间（秒）
+    :return:           bool
+    """
+    start_time = time.time()
+
+    while True:
+        # 如果超时则退出循环
+        if time.time() - start_time > timeout:
+            logger.info(f"未在 {timeout} 秒内找到元素：{xpath}")
+            return False
+        # 在当前页面查找元素
+        element = tab.ele(xpath)
+        if element:
+            # 找到元素后尝试点击
+            try:
+                element.click()
+                logger.info(f"成功点击元素：{xpath}")
+                return True
+            except Exception as e:
+                logger.error(f"未找到元素")
+                return False
+        time.sleep(interval)
+
+def get_element(tab, xpath, timeout=2, interval=0.5):
+    """
+    尝试点击页面元素，若元素在超时时间内无法找到或点击失败则返回False。
+    :param tab:        DrissionPage 或 Selenium 中的 tab 对象
+    :param xpath:      要查找的元素的 XPath
+    :param timeout:    最长等待时间（秒）
+    :param interval:   每次重试的间隔时间（秒）
+    :return:           bool
+    """
+    start_time = time.time()
+
+    while True:
+        # 如果超时则退出循环
+        if time.time() - start_time > timeout:
+            logger.info(f"未在 {timeout} 秒内找到元素：{xpath}")
+            return None
+        # 在当前页面查找元素
+        element = tab.ele(xpath)
+        if element:
+            # 找到元素后尝试点击
+            try:
+                return element
+            except Exception as e:
+                logger.error(f"点击元素 {xpath} 时发生异常：{e}")
+        time.sleep(interval)
 
 
 def get_clipboard_text():
@@ -64,33 +108,57 @@ def get_points(tab):
         # 获取该 div 中的文本
         text = target_div.text
         logger.info(f"Text from the div: {text}")
+        return text
 
 
-def main():
-    # 启动浏览器
-    tab = configure_browser()
+def read_file(file_path):
+    """从文件中读取内容并去除多余空白"""
+    try:
+        with open(file_path, 'r') as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        raise ValueError(f"文件未找到: {file_path}")
 
-    # 关闭弹窗（如果存在）
-    click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
 
-    # 切换按钮（将状态从未开启变为开启）
-    click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
+def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
+    """
+    解密 AES ECB 模式的 Base64 编码数据，
+    去除 PKCS7 填充后直接返回 accountType 为 "hyper" 的记录中的 privateKey。
+    """
+    try:
+        # Base64 解码
+        encrypted_bytes = base64.b64decode(data_encrypted_base64)
+        # 创建 AES 解密器
+        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
+        # 解密数据
+        decrypted_bytes = cipher.decrypt(encrypted_bytes)
+        # 去除 PKCS7 填充（AES.block_size 默认为 16）
+        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
+        # 将字节转换为字符串
+        decrypted_text = decrypted_bytes.decode('utf-8')
 
-    # 获取公钥：点击按钮后从剪贴板读取
-    if click_element(tab, "x://p[contains(text(), 'Public Key:')]/following-sibling::div//button"):
-        public_key = get_clipboard_text()
+        # 解析 JSON 字符串为 Python 对象（通常为列表）
+        data_list = json.loads(decrypted_text)
 
-    # 获取私钥：点击按钮后从剪贴板读取
-    if click_element(tab, "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
-        if click_element(tab, "//button[contains(., 'copy current private key')]"):
-            private_key = get_clipboard_text()
+        # 遍历数组，查找 accountType 为 "hyper" 的第一个记录
+        for item in data_list:
+            if item.get('accountType') == 'hyper':
+                return item.get(key)
 
-    # 关闭私钥弹窗（如果存在）
-    click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
+        # 没有找到匹配的记录，返回 None
+        return None
 
-    # 获取积分:
-    get_points(tab)
+    except Exception as e:
+        raise ValueError(f"解密失败: {e}")
 
+
+def get_info(server_id, account_type, public_key, private_key):
+    return {
+        "serverId": f"{server_id}",
+        "accountType": f"{account_type}",
+        "publicKey": f"{public_key}",
+        "privateKey": f"{private_key}"
+    }
 
 
 def get_app_info(serverId, appId, operationType, description):
@@ -101,6 +169,90 @@ def get_app_info(serverId, appId, operationType, description):
         "description": f"{description}",
     }
 
+
+def get_app_info_integral(serverId, appId, public_key, integral, operationType, description):
+    return {
+        "serverId": f"{serverId}",
+        "applicationId": f"{appId}",
+        "publicKey": f"{public_key}",
+        "integral": f"{integral}",
+        "operationType": f"{operationType}",
+        "description": f"{description}",
+    }
+
+
+def monitor_switch(tab, client, serverId, appId, public_key):
+    total = 0
+    error = 0
+    num = random.randint(60, 120)
+    while True:
+        try:
+            time.sleep(num)
+
+            if click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5):
+                error += 1
+
+            if error > 5:
+                print("检查过程中出现异常：未连接到主网络")
+                client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络')))
+
+            if total > 60:
+                # 获取积分
+                points = get_points(tab)
+                # 关闭私钥弹窗（如果存在）
+                click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
+                if points is not None and points != "":
+                    app_info = get_app_info_integral(serverId, appId, public_key, points, 2,'运行中， 并采集积分。')
+                    client.publish("appInfo", json.dumps(app_info))
+                    total = 0
+            total += 1
+        except Exception as e:
+            client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
+
+def main(client, serverId, appId, decryptKey):
+
+    public_key = ""
+
+    # 启动浏览器
+    tab = configure_browser()
+
+    # 关闭弹窗（如果存在）
+    click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
+
+    # 切换按钮（将状态从未开启变为开启）
+    click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
+
+    # 获取公钥：点击按钮后从剪贴板读取
+    if click_element(tab, "x://p[text()='Public Key:']/following-sibling::div//button"):
+        public_key = get_clipboard_text()
+
+    # 从文件加载密文
+    encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
+    # 解密并发送解密结果
+    public_key_tmp = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'publicKey')
+
+    if public_key_tmp is not None and public_key != public_key_tmp:
+        div_el = get_element(tab, "x://div[contains(@class, 'cursor-text')]", timeout=5)
+        if div_el is not None:
+            # 聚焦
+            div_el.click()
+            # 发送密钥
+            div_el.send_keys(decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'privateKey'))
+            # 确认导入
+            click_element(tab, "x://button[normalize-space()='IMPORT KEY']")
+    else:
+        # 获取私钥：点击按钮后从剪贴板读取
+        if click_element(tab, "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
+            if click_element(tab, "x://button[contains(., 'copy current private key')]"):
+                private_key = get_clipboard_text()
+                # 保存私钥
+                client.publish('hyperKey', json.dumps(get_info(serverId, "hyper", public_key, private_key)))
+
+    # 关闭私钥弹窗（如果存在）
+    click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
+
+    # 进入循环，持续监控切换按钮状态
+    monitor_switch(tab, client, serverId, appId, public_key)
 
 
 # =================================================   MQTT   ======================================
@@ -170,33 +322,15 @@ def on_message(client, userdata, msg):
 # =================================================   MQTT   ======================================
 
 
+def get_app_info(serverId, appId, operationType, description):
+    return {
+        "serverId": f"{serverId}",
+        "applicationId": f"{appId}",
+        "operationType": f"{operationType}",
+        "description": f"{description}",
+    }
+
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="启动服务器信息推送脚本")
-    parser.add_argument("--serverId", type=str, help="服务ID", required=True)
-    parser.add_argument("--appId", type=str, help="应用ID", required=True)
-    args = parser.parse_args()
-
-    # MQTT 配置
-    BROKER = "150.109.5.143"
-    PORT = 1883
-    TOPIC = "appInfo"
-    USERNAME = "userName"
-    PASSWORD = "liuleiliulei"
-
-    # 创建 MQTT 客户端
-    client = create_mqtt_client(BROKER, PORT, USERNAME, PASSWORD, TOPIC)
-    client.loop_start()
-    
-    try:
-        main()
-        while True:
-            time.sleep(60)  # 每 60 秒发送一次
-            # 获取应用信息并发送
-            app_info = get_app_info(args.serverId, args.appId, 2, '运行中，获取相应数据')
-            client.publish(TOPIC, json.dumps(app_info))
-    except KeyboardInterrupt:
-        print("Exiting...")
-    finally:
-        client.loop_stop()
-        client.disconnect()
+    main()
 

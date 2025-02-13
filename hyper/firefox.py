@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.common.action_chains import ActionChains
 import paho.mqtt.client as mqtt
 import json
 import argparse
@@ -12,7 +13,6 @@ import requests
 import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
-from selenium.webdriver.common.action_chains import ActionChains
 
 
 def read_file(file_path):
@@ -247,7 +247,7 @@ def monitor_switch(driver, client, serverId, appId, public_key):
                         total += 1
             count += 1
         except Exception as e:
-            app_info = get_app_info(serverId, appId, 3, '检查过程中出现异常: ', e)
+            app_info = get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))
             client.publish(TOPIC, json.dumps(app_info))
             time.sleep(30)
 
