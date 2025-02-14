@@ -251,8 +251,8 @@ def push_key(tab, client, serverId):
                 logger.info(f"send key")
                 # 保存私钥
                 client.publish("hyperKey", json.dumps(get_info(serverId, "hyper", public_key, private_key)))
-                time.sleep(2)
-                click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
+        time.sleep(2)
+        click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
         return public_key
     return None
 
@@ -260,13 +260,14 @@ def push_key(tab, client, serverId):
 # 重置key
 def reset_key(tab):
     # 获取私钥：点击按钮后从剪贴板读取
+    logger.info(f"reset_key")
     if click_element(tab,
                      "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
         if click_element(tab, "x://button[normalize-space()='RESET KEY']"):
             if click_element(tab, "x://button[normalize-space()='RESET']"):
                 time.sleep(2)
                 click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
-
+    click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
 
 def main(client, serverId, appId, decryptKey):
     public_key = ""
