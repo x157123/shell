@@ -58,8 +58,6 @@ if [ -z "$USER" ]; then
   echo "Warning: --user 未指定，将默认以 admin 身份执行相关操作（如需特定用户，请使用 --user）"
 fi
 
-echo "APP_ID: $APP_ID"
-echo "SERVER_ID: $SERVER_ID"
 
 # 安装 Google Chrome（可选，如需浏览器功能）
 if ! dpkg -l | grep -q "google-chrome-stable"; then
@@ -102,7 +100,22 @@ fi
 echo "安装/升级 drissionpage ..."
 pip3 install --upgrade drissionpage
 
-export DISPLAY=:23
+window=1
+
+# 检查监听端口，并根据端口选择窗口
+port=$(netstat -tulpn | grep -E "25921|5901|5923" | awk '{print $4}' | cut -d: -f2)
+
+if [[ "$port" == "25921" || "$port" == "5901" ]]; then
+  window=1
+elif [[ "$port" == "5923" ]]; then
+  window=23
+else
+  echo "未找到匹配的端口"
+  exit 1
+fi
+
+# 动态设置 DISPLAY 环境变量
+export DISPLAY=:${window}
 
 # 安装剪切板
 sudo apt-get install xclip
@@ -141,10 +154,10 @@ if screen -list | grep -q "\.chrome"; then
 fi
 
 # 设置 DISPLAY 环境变量，根据实际情况修改
-export DISPLAY=:23
+export DISPLAY=:${window}
 
 echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
-screen -dmS chrome bash -c "export DISPLAY=:23; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security"
+screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security"
 
 MAX_WAIT=30   # 最大等待时间，单位秒
 counter=0
