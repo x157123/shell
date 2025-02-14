@@ -251,6 +251,8 @@ def push_key(tab, client, serverId):
                 logger.info(f"send key")
                 # 保存私钥
                 client.publish("hyperKey", json.dumps(get_info(serverId, "hyper", public_key, private_key)))
+                time.sleep(2)
+                click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
         return public_key
     return None
 
