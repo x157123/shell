@@ -10,6 +10,7 @@ import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import random
+import pyautogui
 
 
 def configure_browser():
@@ -247,8 +248,7 @@ def main(client, serverId, appId, decryptKey):
                 # 发送密钥
                 private_Key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'privateKey')
                 logger.info(f"写入私key {private_Key} ")
-                textarea = tab.ele('x://textarea[@placeholder="Faste your key here"]')
-                textarea.send_keys(private_Key)
+                pyautogui.write(private_Key, interval=0.1)
                 time.sleep(1)
                 # 确认导入
                 click_element(tab, "x://button[normalize-space()='IMPORT KEY']")
