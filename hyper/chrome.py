@@ -80,7 +80,7 @@ def get_element(tab, xpath, timeout=2, interval=0.5):
     while True:
         # 如果超时则退出循环
         if time.time() - start_time > timeout:
-            logger.info(f"未在 {timeout} 秒内找到元素：{xpath}")
+            # logger.info(f"未在 {timeout} 秒内找到元素：{xpath}")
             return None
         # 在当前页面查找元素
         element = tab.ele(xpath)
@@ -97,7 +97,7 @@ def get_clipboard_text():
     """从剪贴板获取文本"""
     time.sleep(1)  # 确保剪贴板内容更新
     clipboard_text = pyperclip.paste()
-    logger.info(f"Clipboard text: {clipboard_text}")
+    # logger.info(f"Clipboard text: {clipboard_text}")
     return clipboard_text
 
 
@@ -109,7 +109,7 @@ def get_points(tab):
         target_div = tab.ele("x://div[text()='Accumlated points']/following-sibling::div")
         # 获取该 div 中的文本
         text = target_div.text
-        logger.info(f"Text from the div: {text}")
+        # logger.info(f"Text from the div: {text}")
         return text
 
 
