@@ -185,10 +185,16 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
     }
 
 
-def monitor_switch(tab, client, serverId, appId, public_key):
+def monitor_switch(tab, client, serverId, appId, public_key_tmp):
     total = 0
     error = 5
+    first = 0
     num = random.randint(60, 80)
+    public_key = ''
+    if public_key_tmp is None:
+        first = 1
+    else:
+        public_key = public_key_tmp
     while True:
         try:
             time.sleep(num)
@@ -198,29 +204,66 @@ def monitor_switch(tab, client, serverId, appId, public_key):
                 error += 1
             else:
                 logger.info("已连接到主网络")
+                if first > 0:
+                    # 如果是第一次连接 推送key到服务器上
+                    push_key(tab, client, serverId)
+                    first = 0
                 if error > 0:
                     client.publish("appInfo",
                                    json.dumps(get_app_info(serverId, appId, 2, '已连接到主网络')))
                     error = 0
+                if total > 60:
+                    # 获取积分 每循环60次检测 获取一次积分
+                    points = get_points(tab)
+                    # 关闭积分弹窗（如果存在）
+                    click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
+                    if points is not None and points != "":
+                        app_info = get_app_info_integral(serverId, appId, public_key, points, 2, '运行中， 并到采集积分:' + str(points))
+                        client.publish("appInfo", json.dumps(app_info))
+                        total = 0
 
             if error > 5:
                 logger.info("检查过程中出现异常：未连接到主网络")
-                client.publish("appInfo",
-                               json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络')))
+                if first > 0:
+                    reset_key(tab)
+                    client.publish("appInfo",
+                                   json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络,重置私钥')))
+                else:
+                    client.publish("appInfo",
+                                   json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络')))
                 error = 0
 
-            if total > 60:
-                # 获取积分
-                points = get_points(tab)
-                # 关闭积分弹窗（如果存在）
-                click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
-                if points is not None and points != "":
-                    app_info = get_app_info_integral(serverId, appId, public_key, points, 2, '运行中， 并到采集积分:' + str(points))
-                    client.publish("appInfo", json.dumps(app_info))
-                    total = 0
             total += 1
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
+
+
+# 获取key
+def push_key(tab, client, serverId):
+    # 获取公钥：点击按钮后从剪贴板读取
+    if click_element(tab, "x://p[text()='Public Key:']/following-sibling::div//button"):
+        public_key = get_clipboard_text()
+        # 获取私钥：点击按钮后从剪贴板读取
+        if click_element(tab,
+                         "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
+            if click_element(tab, "x://button[contains(., 'copy current private key')]"):
+                private_key = get_clipboard_text()
+                logger.info(f"send key")
+                # 保存私钥
+                client.publish("hyperKey", json.dumps(get_info(serverId, "hyper", public_key, private_key)))
+        return public_key
+    return None
+
+
+# 重置key
+def reset_key(tab):
+    # 获取私钥：点击按钮后从剪贴板读取
+    if click_element(tab,
+                     "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
+        if click_element(tab, "x://button[normalize-space()='RESET KEY']"):
+            if click_element(tab, "x://button[normalize-space()='RESET']"):
+                time.sleep(2)
+                click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
 
 
 def main(client, serverId, appId, decryptKey):
@@ -258,21 +301,14 @@ def main(client, serverId, appId, decryptKey):
                 time.sleep(1)
                 # 确认导入
                 click_element(tab, "x://button[normalize-space()='IMPORT KEY']")
-    if public_key_tmp is None:
-        # 获取私钥：点击按钮后从剪贴板读取
-        if click_element(tab,
-                         "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
-            if click_element(tab, "x://button[contains(., 'copy current private key')]"):
-                private_key = get_clipboard_text()
-                logger.info(f"send key")
-                # 保存私钥
-                client.publish("hyperKey", json.dumps(get_info(serverId, "hyper", public_key, private_key)))
 
-    # 关闭私钥弹窗（如果存在）
-    click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
+        # 关闭私钥弹窗（如果存在）
+        click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
 
     # 进入循环，持续监控切换按钮状态
-    monitor_switch(tab, client, serverId, appId, public_key)
+    monitor_switch(tab, client, serverId, appId, public_key_tmp)
+
+
 
 
 # =================================================   MQTT   ======================================
