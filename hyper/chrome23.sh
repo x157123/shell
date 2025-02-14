@@ -4,9 +4,10 @@ USER=""
 PASSWORD=""
 SERVER_ID=""
 APP_ID=""
+DECRYPT_KEY=""
 
 # 使用 getopt 解析命令行参数
-TEMP=$(getopt -o u:p:s:a: --long user:,password:,serverId:,appId: -n 'startChrome.sh' -- "$@")
+TEMP=$(getopt -o u:p:k:s:a: --long user:,password:,decryptKey:,serverId:,appId: -n 'startChrome.sh' -- "$@")
 if [ $? != 0 ]; then
     echo "Failed to parse options."
     exit 1
@@ -21,6 +22,10 @@ while true; do
             ;;
         -p|--password)
             PASSWORD=$2
+            shift 2
+            ;;
+        -k|--decryptKey)
+            DECRYPT_KEY=$2
             shift 2
             ;;
         -s|--serverId)
@@ -53,6 +58,8 @@ if [ -z "$USER" ]; then
   echo "Warning: --user 未指定，将默认以 admin 身份执行相关操作（如需特定用户，请使用 --user）"
 fi
 
+echo "APP_ID: $APP_ID"
+echo "SERVER_ID: $SERVER_ID"
 
 # 安装 Google Chrome（可选，如需浏览器功能）
 if ! dpkg -l | grep -q "google-chrome-stable"; then
@@ -95,20 +102,27 @@ fi
 echo "安装/升级 drissionpage ..."
 pip3 install --upgrade drissionpage
 
-
-export DISPLAY=:1
+export DISPLAY=:23
 
 # 安装剪切板
 sudo apt-get install xclip
 
 # 安装其他插件
-pip3 install --no-cache-dir psutil requests paho-mqtt selenium pycryptodome
+pip3 install --no-cache-dir psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
+
+# 查找运行中的 chrome.py 进程（使用完整命令匹配）
+pids=$(pgrep -f "python3 /opt/chrome.py")
+if [ -n "$pids" ]; then
+    echo "检测到正在运行的实例: $pids，准备终止..."
+    # 注意：kill -9 是强制终止，可根据实际情况换成 kill
+    kill -9 $pids
+fi
 
 # 以特定用户启动 chrome
 # 如果未指定 --user，则默认用 admin（或你想要的其它用户）
 SUDO_USER="${USER:-admin}"
 
-sudo -u "$SUDO_USER" -i bash <<'EOF'
+sudo -u "$SUDO_USER" -i bash <<EOF
 # 内部脚本：用以特定用户的身份执行
 
 # 检查 9515 端口是否被占用
@@ -131,7 +145,6 @@ export DISPLAY=:23
 
 echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
 screen -dmS chrome bash -c "export DISPLAY=:23; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security"
-# screen -dmS chrome bash -c "export DISPLAY=:23; google-chrome --remote-debugging-port=9515 --no-first-run --disable-gpu-blocklist --disable-software-rasterizer=false --use-gl=swiftshader --enable-features=Vulkan --enable-unsafe-webgpu"
 
 MAX_WAIT=30   # 最大等待时间，单位秒
 counter=0
@@ -146,14 +159,11 @@ done
 
 echo "google-chrome 已成功启动，9515 端口正在监听。"
 
-# 执行远程 Python 脚本
-echo "开始执行 /opt/chrome.py ..."
-nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperOutput.log 2>&1 &
 EOF
 
 # 执行远程 Python 脚本
 echo "开始执行 /opt/chrome.py ..."
-# 若需要脚本以该用户身份执行，使用 sudo -u。如果 python3 路径不一致，可改为绝对路径
-nohup sudo -u "$SUDO_USER" -i python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" > chromeOutput.log 2>&1 &
+nohup sudo -u "$SUDO_USER" -i nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperChromeOutput.log 2>&1 &
+
 
 echo "脚本已在后台执行，日志输出至 chromeOutput.log"
