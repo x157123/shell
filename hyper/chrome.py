@@ -253,7 +253,7 @@ def main(client, serverId, appId, decryptKey):
                 div_el.click()
                 # 发送密钥
                 private_Key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'privateKey')
-                # logger.info(f"写入私key {private_Key} ")
+                logger.info(f"write key")
                 tab.actions.type(private_Key)
                 time.sleep(1)
                 # 确认导入
@@ -264,6 +264,7 @@ def main(client, serverId, appId, decryptKey):
                          "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
             if click_element(tab, "x://button[contains(., 'copy current private key')]"):
                 private_key = get_clipboard_text()
+                logger.info(f"send key")
                 # 保存私钥
                 client.publish("appInfo", json.dumps(get_info(serverId, "hyper", public_key, private_key)))
 
