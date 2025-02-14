@@ -258,7 +258,7 @@ def main(client, serverId, appId, decryptKey):
                 time.sleep(1)
                 # 确认导入
                 click_element(tab, "x://button[normalize-space()='IMPORT KEY']")
-    else:
+    if public_key_tmp is None:
         # 获取私钥：点击按钮后从剪贴板读取
         if click_element(tab,
                          "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
