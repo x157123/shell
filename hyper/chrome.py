@@ -50,7 +50,7 @@ def click_element(tab, xpath, timeout=2, interval=0.5):
     while True:
         # 如果超时则退出循环
         if time.time() - start_time > timeout:
-            logger.info(f"未在 {timeout} 秒内找到元素：{xpath}")
+            # logger.info(f"未在 {timeout} 秒内找到元素：{xpath}")
             return False
         # 在当前页面查找元素
         element = tab.ele(xpath)
@@ -58,10 +58,10 @@ def click_element(tab, xpath, timeout=2, interval=0.5):
             # 找到元素后尝试点击
             try:
                 element.click()
-                logger.info(f"成功点击元素：{xpath}")
+                # logger.info(f"成功点击元素：{xpath}")
                 return True
             except Exception as e:
-                logger.error(f"未找到元素")
+                # logger.error(f"未找到元素")
                 return False
         time.sleep(interval)
 
@@ -139,7 +139,7 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
         # 将字节转换为字符串
         decrypted_text = decrypted_bytes.decode('utf-8')
 
-        logger.info(f"获取数据中的 {key}: {decrypted_text}")
+        # logger.info(f"获取数据中的 {key}: {decrypted_text}")
 
         # 解析 JSON 字符串为 Python 对象（通常为列表）
         data_list = json.loads(decrypted_text)
@@ -187,17 +187,24 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
 
 def monitor_switch(tab, client, serverId, appId, public_key):
     total = 0
-    error = 0
-    num = random.randint(60, 120)
+    error = 5
+    num = random.randint(60, 80)
     while True:
         try:
             time.sleep(num)
 
             if click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5):
+                logger.info("未连接到主网络")
                 error += 1
+            else:
+                logger.info("已连接到主网络")
+                if error > 0:
+                    client.publish("appInfo",
+                                   json.dumps(get_app_info(serverId, appId, 2, '已连接到主网络')))
+                    error = 0
 
             if error > 5:
-                print("检查过程中出现异常：未连接到主网络")
+                logger.info("检查过程中出现异常：未连接到主网络")
                 client.publish("appInfo",
                                json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络')))
                 error = 0
@@ -205,10 +212,10 @@ def monitor_switch(tab, client, serverId, appId, public_key):
             if total > 60:
                 # 获取积分
                 points = get_points(tab)
-                # 关闭私钥弹窗（如果存在）
+                # 关闭积分弹窗（如果存在）
                 click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
                 if points is not None and points != "":
-                    app_info = get_app_info_integral(serverId, appId, public_key, points, 2, '运行中， 并采集积分。')
+                    app_info = get_app_info_integral(serverId, appId, public_key, points, 2, '运行中， 并到采集积分:' + str(points))
                     client.publish("appInfo", json.dumps(app_info))
                     total = 0
             total += 1
@@ -236,7 +243,7 @@ def main(client, serverId, appId, decryptKey):
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
     # 解密并发送解密结果
     public_key_tmp = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'publicKey')
-    logger.info(f"获取公共key {public_key} ---：{public_key_tmp}")
+    # logger.info(f"获取公共key {public_key} ---：{public_key_tmp}")
     if public_key_tmp is not None and public_key != public_key_tmp:
         if click_element(tab,
                          "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
@@ -246,7 +253,7 @@ def main(client, serverId, appId, decryptKey):
                 div_el.click()
                 # 发送密钥
                 private_Key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'privateKey')
-                logger.info(f"写入私key {private_Key} ")
+                # logger.info(f"写入私key {private_Key} ")
                 tab.actions.type(private_Key)
                 time.sleep(1)
                 # 确认导入
