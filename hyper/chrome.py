@@ -212,8 +212,8 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp):
                         first = 0
                     else:
                         logger.info("send key error")
-                    time.sleep(2)
-                    click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
+                    # 关闭私钥弹窗（如果存在）
+                    click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
                     first = 0
                 if error > 0:
                     client.publish("appInfo",
@@ -272,7 +272,10 @@ def reset_key(tab):
             if click_element(tab, "x://button[normalize-space()='RESET']"):
                 time.sleep(2)
                 click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
-    click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
+
+    # 关闭私钥弹窗（如果存在）
+    click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
+
 
 def main(client, serverId, appId, decryptKey):
     public_key = ""
