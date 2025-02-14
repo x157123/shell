@@ -247,8 +247,7 @@ def main(client, serverId, appId, decryptKey):
                 # 发送密钥
                 private_Key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'privateKey')
                 logger.info(f"写入私key {private_Key} ")
-                textarea = tab.ele('x://textarea[@placeholder="Faste your key here"]')
-                textarea.send_keys(private_Key)
+                tab.actions.type(private_Key)
                 time.sleep(1)
                 # 确认导入
                 click_element(tab, "x://button[normalize-space()='IMPORT KEY']")
