@@ -131,8 +131,10 @@ if [ -n "$pids" ]; then
     kill -9 $pids
 fi
 
-sleep 2
 # 关闭浏览器
+sleep 2
+pkill chrome
+sleep 2
 pkill chrome
 sleep 2
 
