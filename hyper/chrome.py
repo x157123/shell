@@ -245,7 +245,9 @@ def main(client, serverId, appId, decryptKey):
                 # 聚焦
                 div_el.click()
                 # 发送密钥
-                tab.ele("x://div[contains(@class, 'cursor-text')]").send_keys(decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'privateKey'))
+                private_Key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'privateKey')
+                logger.info(f"写入私key {private_Key} ")
+                tab.ele("x://div[contains(@class, 'cursor-text')]").send_keys(private_Key)
                 time.sleep(2)
                 # 确认导入
                 click_element(tab, "x://button[normalize-space()='IMPORT KEY']")
@@ -257,7 +259,6 @@ def main(client, serverId, appId, decryptKey):
                 private_key = get_clipboard_text()
                 # 保存私钥
                 client.publish("appInfo", json.dumps(get_info(serverId, "hyper", public_key, private_key)))
-
 
     # 关闭私钥弹窗（如果存在）
     click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
