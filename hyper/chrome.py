@@ -206,7 +206,14 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp):
                 logger.info("已连接到主网络")
                 if first > 0:
                     # 如果是第一次连接 推送key到服务器上
-                    push_key(tab, client, serverId)
+                    key = push_key(tab, client, serverId)
+                    if key is not None:
+                        public_key = key
+                        first = 0
+                    else:
+                        logger.info("send key error")
+                    time.sleep(2)
+                    click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
                     first = 0
                 if error > 0:
                     client.publish("appInfo",
@@ -251,8 +258,6 @@ def push_key(tab, client, serverId):
                 logger.info(f"send key")
                 # 保存私钥
                 client.publish("hyperKey", json.dumps(get_info(serverId, "hyper", public_key, private_key)))
-                time.sleep(2)
-                click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5)
         return public_key
     return None
 
