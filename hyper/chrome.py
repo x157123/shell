@@ -245,7 +245,7 @@ def main(client, serverId, appId, decryptKey):
                 # 聚焦
                 div_el.click()
                 # 发送密钥
-                tab.driver.switch_to.active_element.send_keys(decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'privateKey'))
+                tab.ele("x://div[contains(@class, 'cursor-text')]").send_keys(decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'privateKey'))
                 time.sleep(2)
                 # 确认导入
                 click_element(tab, "x://button[normalize-space()='IMPORT KEY']")
