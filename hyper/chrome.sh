@@ -131,6 +131,11 @@ if [ -n "$pids" ]; then
     kill -9 $pids
 fi
 
+sleep 2
+# 关闭浏览器
+pkill chrome
+sleep 2
+
 # 以特定用户启动 chrome
 # 如果未指定 --user，则默认用 admin（或你想要的其它用户）
 SUDO_USER="${USER:-admin}"
