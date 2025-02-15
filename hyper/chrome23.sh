@@ -61,13 +61,13 @@ if [ -z "$USER" ]; then
 fi
 
 
-# 安装 Google Chrome（可选，如需浏览器功能）
+# 安装包的下载链接和文件名
 CHROME_DEB="google-chrome-stable_current_amd64.deb"
 CHROME_URL="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
 
 # 检查是否已安装 Google Chrome
-if ! dpkg-query -l | grep -q "^ii  google-chrome-stable"; then
-    echo "=== 开始安装 Google Chrome ==="
+if ! dpkg-query -l | grep -q "google-chrome-stable"; then
+    echo "=== Google Chrome 未安装，开始安装 ==="
 
     # 下载 Google Chrome 安装包
     if ! curl -sSL "$CHROME_URL" -o "$CHROME_DEB"; then
@@ -90,6 +90,7 @@ if ! dpkg-query -l | grep -q "^ii  google-chrome-stable"; then
 else
     echo "Google Chrome 已安装，跳过安装过程"
 fi
+
 
 echo "安装剪切板"
 # 尝试安装 xclip
