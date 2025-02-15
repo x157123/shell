@@ -186,7 +186,7 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
 
 
 def monitor_switch(tab, client, serverId, appId, public_key_tmp):
-    total = 0
+    total = 55
     error = 5
     first = 0
     num = random.randint(60, 80)
