@@ -219,6 +219,7 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp):
                     client.publish("appInfo",
                                    json.dumps(get_app_info(serverId, appId, 2, '已连接到主网络')))
                     error = 0
+
                 if total > 60:
                     # 获取积分 每循环60次检测 获取一次积分
                     points = get_points(tab)
