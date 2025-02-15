@@ -259,9 +259,9 @@ fi
 # 检查 VNC 是否在运行，如没有则启动
 ##############################################################################
 echo "检查 VNC 是否正在运行..."
-if ! pgrep -f "tightvncserver :23" > /dev/null; then
+if ! pgrep -f "tightvncserver :${window}" > /dev/null; then
     echo "VNC 尚未运行，正在启动..."
-    sudo -u "$USER" tightvncserver :23 -rfbport $VNC_PORT -geometry 1920x1080 -depth 24 &
+    sudo -u "$USER" tightvncserver :${window} -rfbport $VNC_PORT -geometry 1920x1080 -depth 24 &
     sleep 10  # 等待 VNC 启动并绑定端口
 else
     echo "VNC 已在运行，跳过启动。"
@@ -334,7 +334,7 @@ fi
 export DISPLAY=:${window}
 
 echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
-screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security"
+screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security  --user-data-dir=/tmp/DrissionPage/userData/9515  --no-sandbox"
 
 MAX_WAIT=30   # 最大等待时间，单位秒
 counter=0
