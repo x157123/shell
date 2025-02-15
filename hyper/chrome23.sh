@@ -121,15 +121,11 @@ pip3 install --upgrade drissionpage
 
 window=1
 
-# 检查监听端口，并根据端口选择窗口
-port=$(netstat -tulpn | grep -E "25921|5901|5923" | awk '{print $4}' | cut -d: -f2)
-
-if [[ "$port" == "25921" || "$port" == "5901" ]]; then
-  window=1
-elif [[ "$port" == "5923" ]]; then
-  window=23
+if ps aux | grep -q "[X]tightvnc"; then
+  echo "Xtightvnc 已启动"
+  window = $(ps aux | grep Xtightvnc | grep -v grep | awk '{sub(/:/, "", $12); print $12}' | head -n 1)
 else
-  echo "未找到匹配的端口,安装vnc"
+  echo "Xtightvnc 未启动,重新安装vnc"
   ##############################################################################
   # 安装桌面环境、VNC、XRDP等
   ##############################################################################
@@ -216,15 +212,11 @@ echo "等待5s"
 sleep 5
 
 echo "再次判断是否安装启动vnc"
-port=$(netstat -tulpn | grep -E "25921|5901|5923" | awk '{print $4}' | cut -d: -f2)
-if [[ "$port" == "25921" || "$port" == "5901" ]]; then
-  window=1
-  echo "桌面：1"
-elif [[ "$port" == "5923" ]]; then
-  echo "桌面：23"
-  window=23
+if ps aux | grep -q "[X]tightvnc"; then
+  echo "Xtightvnc 已启动"
+  window = $(ps aux | grep Xtightvnc | grep -v grep | awk '{sub(/:/, "", $12); print $12}' | head -n 1)
 else
-  echo "未找到匹配的端口,退出脚本"
+  echo "Xtightvnc未正常启动,退出脚本"
   exit 1
 fi
 
