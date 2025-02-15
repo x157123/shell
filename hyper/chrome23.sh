@@ -121,7 +121,7 @@ pip3 install --upgrade drissionpage
 
 window=1
 
-if ps aux | grep -q "[X]tightvnc"; then
+if netstat -tulpn | grep -q 'Xtightvnc'; then
   echo "Xtightvnc 已启动"
   window = $(ps aux | grep Xtightvnc | grep -v grep | awk '{sub(/:/, "", $12); print $12}' | head -n 1)
 else
@@ -212,9 +212,9 @@ echo "等待5s"
 sleep 5
 
 echo "再次判断是否安装启动vnc"
-if ps aux | grep -q "[X]tightvnc"; then
-  echo "Xtightvnc 已启动"
+if netstat -tulpn | grep -q 'Xtightvnc'; then
   window = $(ps aux | grep Xtightvnc | grep -v grep | awk '{sub(/:/, "", $12); print $12}' | head -n 1)
+  echo "Xtightvnc 已启动 $window"
 else
   echo "Xtightvnc未正常启动,退出脚本"
   exit 1
