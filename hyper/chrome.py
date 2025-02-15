@@ -139,7 +139,7 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
         # 将字节转换为字符串
         decrypted_text = decrypted_bytes.decode('utf-8')
 
-        logger.info(f"获取数据中的 {key}: {decrypted_text}")
+        # logger.info(f"获取数据中的 {key}: {decrypted_text}")
 
         # 解析 JSON 字符串为 Python 对象（通常为列表）
         data_list = json.loads(decrypted_text)
@@ -192,7 +192,7 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp):
     num = random.randint(60, 80)
     public_key = ''
     logger.info(f"read key: {public_key_tmp}")
-    if public_key_tmp is None:
+    if public_key_tmp is None or public_key == '':
         first = 1
     else:
         public_key = public_key_tmp
@@ -227,7 +227,8 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp):
                     # 关闭积分弹窗（如果存在）
                     click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
                     if points is not None and points != "":
-                        app_info = get_app_info_integral(serverId, appId, public_key, points, 2, '运行中， 并到采集积分:' + str(points))
+                        app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
+                                                         '运行中， 并到采集积分:' + str(points))
                         client.publish("appInfo", json.dumps(app_info))
                         total = 0
 
@@ -236,7 +237,8 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp):
                 if first > 0:
                     reset_key(tab)
                     client.publish("appInfo",
-                                   json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络,重置私钥')))
+                                   json.dumps(
+                                       get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络,重置私钥')))
                 else:
                     client.publish("appInfo",
                                    json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络')))
@@ -299,7 +301,7 @@ def main(client, serverId, appId, decryptKey):
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
     # 解密并发送解密结果
     public_key_tmp = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'publicKey')
-    logger.info(f"获取公共key {public_key} ---：{public_key_tmp}")
+    # logger.info(f"获取公共key {public_key} ---：{public_key_tmp}")
     if public_key_tmp is not None and public_key != public_key_tmp:
         if click_element(tab,
                          "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
@@ -320,8 +322,6 @@ def main(client, serverId, appId, decryptKey):
 
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab, client, serverId, appId, public_key_tmp)
-
-
 
 
 # =================================================   MQTT   ======================================
