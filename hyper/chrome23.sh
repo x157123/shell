@@ -62,15 +62,33 @@ fi
 
 
 # 安装 Google Chrome（可选，如需浏览器功能）
-if ! dpkg -l | grep -q "google-chrome-stable"; then
-    echo "=== 安装 Google Chrome ==="
-    wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-    if [ ! -f google-chrome-stable_current_amd64.deb ]; then
+CHROME_DEB="google-chrome-stable_current_amd64.deb"
+CHROME_URL="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+
+# 检查是否已安装 Google Chrome
+if ! dpkg-query -l | grep -q "^ii  google-chrome-stable"; then
+    echo "=== 开始安装 Google Chrome ==="
+
+    # 下载 Google Chrome 安装包
+    if ! curl -sSL "$CHROME_URL" -o "$CHROME_DEB"; then
         echo "Google Chrome 下载失败"
         exit 1
     fi
-    apt-get install -y ./google-chrome-stable_current_amd64.deb
-    rm -f google-chrome-stable_current_amd64.deb
+
+    echo "Google Chrome 下载成功，开始安装..."
+
+    # 安装下载的 .deb 包
+    if ! sudo dpkg -i "$CHROME_DEB"; then
+        echo "安装失败，正在修复依赖..."
+        sudo apt-get install -f -y  # 修复缺失的依赖
+    fi
+
+    # 清理下载的安装包
+    rm -f "$CHROME_DEB"
+
+    echo "Google Chrome 安装完成"
+else
+    echo "Google Chrome 已安装，跳过安装过程"
 fi
 
 echo "安装剪切板"
