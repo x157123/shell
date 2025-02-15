@@ -139,7 +139,7 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
         # 将字节转换为字符串
         decrypted_text = decrypted_bytes.decode('utf-8')
 
-        # logger.info(f"获取数据中的 {key}: {decrypted_text}")
+        logger.info(f"获取数据中的 {key}: {decrypted_text}")
 
         # 解析 JSON 字符串为 Python 对象（通常为列表）
         data_list = json.loads(decrypted_text)
