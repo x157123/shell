@@ -73,6 +73,16 @@ if ! dpkg -l | grep -q "google-chrome-stable"; then
     rm -f google-chrome-stable_current_amd64.deb
 fi
 
+echo "安装剪切板"
+# 尝试安装 xclip
+apt-get install -y xclip
+
+# 检查是否遇到 dpkg 中断错误
+if [ $? -ne 0 ]; then
+    echo "安装过程中出现问题，正在修复 dpkg ..."
+    sudo dpkg --configure -a
+    sudo apt-get install -y xclip  # 再次尝试安装
+fi
 
 # 如果 /opt/chrome.py 存在，则先删除旧文件
 if [ -f /opt/chrome.py ]; then
@@ -258,18 +268,6 @@ else
   exit 1
 fi
 
-# 动态设置 DISPLAY 环境变量
-export DISPLAY=:${window}
-
-# 尝试安装 xclip
-sudo apt-get install -y xclip
-
-# 检查是否遇到 dpkg 中断错误
-if [ $? -ne 0 ]; then
-    echo "安装过程中出现问题，正在修复 dpkg ..."
-    sudo dpkg --configure -a
-    sudo apt-get install -y xclip  # 再次尝试安装
-fi
 
 # 安装其他插件
 pip3 install --no-cache-dir psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
@@ -332,8 +330,6 @@ echo "google-chrome 已成功启动，9515 端口正在监听。"
 
 EOF
 
-echo "安装剪切板"
-apt-get install xclip
 
 # 执行远程 Python 脚本
 echo "开始执行 /opt/chrome.py ..."
