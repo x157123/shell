@@ -270,7 +270,7 @@ fi
 
 
 # 安装其他插件
-pip3 install --no-cache-dir psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
+pip3 install psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
 
 # 查找运行中的 chrome.py 进程（使用完整命令匹配）
 pids=$(pgrep -f "python3 /opt/chrome.py")
