@@ -325,7 +325,8 @@ EOF
 
 # 执行远程 Python 脚本
 echo "开始执行 /opt/chrome.py ..."
-nohup sudo -u "$SUDO_USER" -i nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperChromeOutput.log 2>&1 &
+nohup nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperChromeOutput.log 2>&1 &
+#nohup sudo -u "$SUDO_USER" -i nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperChromeOutput.log 2>&1 &
 
 
 echo "脚本已在后台执行，日志输出至 chromeOutput.log"
