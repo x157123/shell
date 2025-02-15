@@ -96,8 +96,9 @@ def get_element(tab, xpath, timeout=2, interval=0.5):
 def get_clipboard_text():
     """从剪贴板获取文本"""
     time.sleep(1)  # 确保剪贴板内容更新
+    pyperclip.set_clipboard('xclip')
     clipboard_text = pyperclip.paste()
-    # logger.info(f"Clipboard text: {clipboard_text}")
+    logger.info(f"Clipboard text: {clipboard_text}")
     return clipboard_text
 
 
@@ -301,7 +302,7 @@ def main(client, serverId, appId, decryptKey):
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
     # 解密并发送解密结果
     public_key_tmp = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'publicKey')
-    # logger.info(f"获取公共key {public_key} ---：{public_key_tmp}")
+    logger.info(f"获取公共key {public_key} ---：{public_key_tmp}")
     if public_key_tmp is not None and public_key != public_key_tmp:
         if click_element(tab,
                          "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
