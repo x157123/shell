@@ -191,6 +191,7 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp):
     first = 0
     num = random.randint(60, 80)
     public_key = ''
+    logger.info(f"read key: {public_key_tmp}")
     if public_key_tmp is None:
         first = 1
     else:
