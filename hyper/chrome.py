@@ -299,7 +299,7 @@ def main(client, serverId, appId, decryptKey):
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
     # 解密并发送解密结果
     public_key_tmp = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'publicKey')
-    # logger.info(f"获取公共key {public_key} ---：{public_key_tmp}")
+    logger.info(f"获取公共key {public_key} ---：{public_key_tmp}")
     if public_key_tmp is not None and public_key != public_key_tmp:
         if click_element(tab,
                          "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
