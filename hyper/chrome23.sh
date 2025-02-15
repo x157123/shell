@@ -246,12 +246,13 @@ INNEREOF
 fi
 
 echo "再次判断是否安装启动vnc"
+port=$(netstat -tulpn | grep -E "25921|5901|5923" | awk '{print $4}' | cut -d: -f2)
 if [[ "$port" == "25921" || "$port" == "5901" ]]; then
   window=1
 elif [[ "$port" == "5923" ]]; then
   window=23
 else
-  echo "未找到匹配的端口,安装vnc"
+  echo "未找到匹配的端口,退出脚本"
   exit 1
 fi
 
