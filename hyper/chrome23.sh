@@ -91,18 +91,6 @@ else
     echo "Google Chrome 已安装，跳过安装过程"
 fi
 
-
-echo "安装剪切板"
-# 尝试安装 xclip
-apt-get install -y xclip
-
-# 检查是否遇到 dpkg 中断错误
-if [ $? -ne 0 ]; then
-    echo "安装过程中出现问题，正在修复 dpkg ..."
-    sudo dpkg --configure -a
-    sudo apt-get install -y xclip  # 再次尝试安装
-fi
-
 # 如果 /opt/chrome.py 存在，则先删除旧文件
 if [ -f /opt/chrome.py ]; then
     echo "/opt/chrome.py 已存在，正在删除旧文件..."
@@ -338,11 +326,10 @@ screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-de
 
 EOF
 
-sleep 3
 MAX_WAIT=30   # 最大等待时间，单位秒
 counter=0
-# 使用 sudo 运行 lsof 以确保能检查端口
-while ! sudo lsof -i:9515 -sTCP:LISTEN >/dev/null 2>&1; do
+# 运行 lsof 以确保能检查端口
+while ! lsof -i:9515 -sTCP:LISTEN >/dev/null 2>&1; do
     sleep 1
     counter=$((counter+1))
     if [ $counter -ge $MAX_WAIT ]; then
@@ -354,9 +341,23 @@ done
 
 echo "google-chrome 启动成功，端口 9515 正在监听"
 
+sleep 3
+
+echo "安装剪切板"
+export DISPLAY=:${window}
+# 尝试安装 xclip
+apt-get install -y xclip
+
+# 检查是否遇到 dpkg 中断错误
+if [ $? -ne 0 ]; then
+    echo "安装过程中出现问题，正在修复 dpkg ..."
+    sudo dpkg --configure -a
+    sudo apt-get install -y xclip  # 再次尝试安装
+fi
+
 # 执行远程 Python 脚本
 echo "开始执行 /opt/chrome.py ..."
-nohup sudo -u "$SUDO_USER" -i python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperChromeOutput.log 2>&1 &
+nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperChromeOutput.log 2>&1 &
 #nohup sudo -u "$SUDO_USER" -i nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperChromeOutput.log 2>&1 &
 
 
