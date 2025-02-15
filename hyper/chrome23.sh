@@ -132,10 +132,10 @@ if netstat -tulpn | grep -q 'Xtightvnc'; then
 
   # 如果只有多个实例杀掉
   if [ "$pid_count" -gt 1 ]; then
-    # Get the last PID (which we want to keep)
+    # 获取最后一个
     last_pid=$(echo "$pids" | tail -n 1)
 
-    # Kill all the other PIDs except the last one
+    # 杀掉
     for pid in $pids; do
       if [ "$pid" != "$last_pid" ]; then
         kill -9 $pid
