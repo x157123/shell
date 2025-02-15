@@ -334,23 +334,25 @@ fi
 export DISPLAY=:${window}
 
 echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
-screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security  --user-data-dir=/tmp/DrissionPage/userData/9515  --no-sandbox"
+screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security  --user-data-dir=/tmp/DrissionPage/userData/9515"
 
+EOF
+
+sleep 3
 MAX_WAIT=30   # 最大等待时间，单位秒
 counter=0
-while ! lsof -i:9515 -sTCP:LISTEN >/dev/null 2>&1; do
+# 使用 sudo 运行 lsof 以确保能检查端口
+while ! sudo lsof -i:9515 -sTCP:LISTEN >/dev/null 2>&1; do
     sleep 1
     counter=$((counter+1))
     if [ $counter -ge $MAX_WAIT ]; then
         echo "等待 google-chrome 启动超时！"
         exit 1
     fi
+    echo "等待 google-chrome 启动中... 当前等待时间：$counter 秒"
 done
 
-echo "google-chrome 已成功启动，9515 端口正在监听。"
-
-EOF
-
+echo "google-chrome 启动成功，端口 9515 正在监听"
 
 # 执行远程 Python 脚本
 echo "开始执行 /opt/chrome.py ..."
