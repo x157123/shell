@@ -258,12 +258,18 @@ else
   exit 1
 fi
 
-apt-get install xclip
 # 动态设置 DISPLAY 环境变量
 export DISPLAY=:${window}
 
-# 安装剪切板
-sudo apt-get install xclip
+# 尝试安装 xclip
+sudo apt-get install -y xclip
+
+# 检查是否遇到 dpkg 中断错误
+if [ $? -ne 0 ]; then
+    echo "安装过程中出现问题，正在修复 dpkg ..."
+    sudo dpkg --configure -a
+    sudo apt-get install -y xclip  # 再次尝试安装
+fi
 
 # 安装其他插件
 pip3 install --no-cache-dir psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
