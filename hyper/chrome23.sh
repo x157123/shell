@@ -121,7 +121,33 @@ pip3 install --upgrade drissionpage
 
 window=1
 
+
 if netstat -tulpn | grep -q 'Xtightvnc'; then
+
+  # 获取所有 Xtightvnc 的进程 ID
+  pids=$(ps aux | grep Xtightvnc | grep -v grep | awk '{print $2}')
+
+  # 统计进程数量
+  pid_count=$(echo "$pids" | wc -l)
+
+  # 如果只有多个实例杀掉
+  if [ "$pid_count" -gt 1 ]; then
+    # Get the last PID (which we want to keep)
+    last_pid=$(echo "$pids" | tail -n 1)
+
+    # Kill all the other PIDs except the last one
+    for pid in $pids; do
+      if [ "$pid" != "$last_pid" ]; then
+        kill -9 $pid
+        echo "Killed process with PID: $pid"
+      fi
+    done
+  else
+    echo "Only one Xtightvnc process running, no action taken."
+  fi
+
+  sleep 4
+
   window=$(ps aux | grep Xtightvnc | grep -v grep | awk '{sub(/:/, "", $12); print $12}' | head -n 1)
   echo "Xtightvnc 已启动 $window"
 else
