@@ -212,6 +212,8 @@ INNEREOF
 
 fi
 
+echo "等待5s"
+sleep 5
 
 echo "再次判断是否安装启动vnc"
 port=$(netstat -tulpn | grep -E "25921|5901|5923" | awk '{print $4}' | cut -d: -f2)
