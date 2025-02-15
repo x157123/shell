@@ -217,62 +217,13 @@ XSTARTUP
 INNEREOF
 
   ##############################################################################
-  # XRDP 配置：让 XRDP 使用 Xfce4
-  ##############################################################################
-  echo "Configuring XRDP..."
-  echo "startxfce4" > /home/$USER/.xsession
-  chown $USER:$USER /home/$USER/.xsession
-
-  # 如 XRDP 未运行，则启动
-  if ! service xrdp status | grep -q "running"; then
-      echo "XRDP未运行，正在启动..."
-      service xrdp start
-      sleep 10
-  else
-      echo "XRDP已在运行。"
-  fi
-
-  ##############################################################################
-  # 检查 VNC 是否在运行，如没有则启动
-  ##############################################################################
-  echo "检查 VNC 是否正在运行..."
-  if ! pgrep -f "tightvncserver :23" > /dev/null; then
-      echo "VNC 尚未运行，正在启动..."
-      sudo -u "$USER" tightvncserver :23 -rfbport $VNC_PORT -geometry 1920x1080 -depth 24 &
-      sleep 10  # 等待 VNC 启动并绑定端口
-  else
-      echo "VNC 已在运行，跳过启动。"
-  fi
-  
-  ##############################################################################
-  # 安装 & 启动 noVNC
-  ##############################################################################
-  if [ -d "noVNC" ]; then
-      echo "noVNC 目录已存在，跳过 git clone。"
-  else
-      echo "Downloading noVNC repository..."
-      git clone https://github.com/novnc/noVNC.git
-  fi
-
-  echo "检查 noVNC 是否正在运行..."
-  if pgrep -f "novnc_proxy" > /dev/null; then
-      echo "noVNC proxy 已在运行。"
-  else
-      echo "Starting noVNC proxy..."
-      nohup ./noVNC/utils/novnc_proxy \
-          --vnc localhost:$VNC_PORT \
-          --listen 26380 \
-          &> /dev/null &
-      echo "noVNC proxy started in the background (listening on port 26380)."
-  fi
-
-  ##############################################################################
   # 最后输出信息
   ##############################################################################
   echo "=== 安装和配置已完成 ==="
   echo -e "\n"
 
 fi
+
 
 echo "再次判断是否安装启动vnc"
 port=$(netstat -tulpn | grep -E "25921|5901|5923" | awk '{print $4}' | cut -d: -f2)
@@ -285,6 +236,57 @@ elif [[ "$port" == "5923" ]]; then
 else
   echo "未找到匹配的端口,退出脚本"
   exit 1
+fi
+
+
+##############################################################################
+# XRDP 配置：让 XRDP 使用 Xfce4
+##############################################################################
+echo "Configuring XRDP..."
+echo "startxfce4" > /home/$USER/.xsession
+chown $USER:$USER /home/$USER/.xsession
+
+# 如 XRDP 未运行，则启动
+if ! service xrdp status | grep -q "running"; then
+    echo "XRDP未运行，正在启动..."
+    service xrdp start
+    sleep 10
+else
+    echo "XRDP已在运行。"
+fi
+
+##############################################################################
+# 检查 VNC 是否在运行，如没有则启动
+##############################################################################
+echo "检查 VNC 是否正在运行..."
+if ! pgrep -f "tightvncserver :23" > /dev/null; then
+    echo "VNC 尚未运行，正在启动..."
+    sudo -u "$USER" tightvncserver :23 -rfbport $VNC_PORT -geometry 1920x1080 -depth 24 &
+    sleep 10  # 等待 VNC 启动并绑定端口
+else
+    echo "VNC 已在运行，跳过启动。"
+fi
+
+##############################################################################
+# 安装 & 启动 noVNC
+##############################################################################
+if [ -d "noVNC" ]; then
+    echo "noVNC 目录已存在，跳过 git clone。"
+else
+    echo "Downloading noVNC repository..."
+    git clone https://github.com/novnc/noVNC.git
+fi
+
+echo "检查 noVNC 是否正在运行..."
+if pgrep -f "novnc_proxy" > /dev/null; then
+    echo "noVNC proxy 已在运行。"
+else
+    echo "Starting noVNC proxy..."
+    nohup ./noVNC/utils/novnc_proxy \
+        --vnc localhost:$VNC_PORT \
+        --listen 26380 \
+        &> /dev/null &
+    echo "noVNC proxy started in the background (listening on port 26380)."
 fi
 
 
