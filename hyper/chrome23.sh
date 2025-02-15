@@ -249,13 +249,16 @@ echo "再次判断是否安装启动vnc"
 port=$(netstat -tulpn | grep -E "25921|5901|5923" | awk '{print $4}' | cut -d: -f2)
 if [[ "$port" == "25921" || "$port" == "5901" ]]; then
   window=1
+  echo "桌面：1"
 elif [[ "$port" == "5923" ]]; then
+  echo "桌面：23"
   window=23
 else
   echo "未找到匹配的端口,退出脚本"
   exit 1
 fi
 
+apt-get install xclip
 # 动态设置 DISPLAY 环境变量
 export DISPLAY=:${window}
 
