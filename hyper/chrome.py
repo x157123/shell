@@ -95,7 +95,7 @@ def get_element(tab, xpath, timeout=2, interval=0.5):
 
 def get_clipboard_text():
     """从剪贴板获取文本"""
-    time.sleep(1)  # 确保剪贴板内容更新
+    time.sleep(3)  # 确保剪贴板内容更新
     pyperclip.set_clipboard('xclip')
     clipboard_text = pyperclip.paste()
     logger.info(f"Clipboard text: {clipboard_text}")
