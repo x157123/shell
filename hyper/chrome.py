@@ -104,7 +104,7 @@ def get_clipboard_text(user_name: str, display: str):
     if not clipboard_text:  # If clipboard is empty or None, fall back to xclip
         logger.info("Clipboard is empty or None. Trying xclip command.")
         # Dynamically build the command with the provided display and user name
-        command = f"export DISPLAY={display}; sudo -u {user_name} xclip -o"
+        command = f"export DISPLAY=:{display}; sudo -u {user_name} xclip -o"
         try:
             result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
             clipboard_text = result.stdout.strip()
