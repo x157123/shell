@@ -108,7 +108,7 @@ def get_clipboard_text(user_name: str, display: str):
         try:
             result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
             clipboard_text = result.stdout.strip()
-            logger.info(f"Clipboard text from xclip: {clipboard_text}")
+            # logger.info(f"Clipboard text from xclip: {clipboard_text}")
         except subprocess.CalledProcessError as e:
             logger.error(f"Error while getting clipboard content using xclip: {e}")
             clipboard_text = ""  # Set to empty string if there's an error with xclip
@@ -205,7 +205,7 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
 
 
 def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
-    total = 55
+    total = 60
     error = 5
     first = 0
     num = random.randint(60, 80)
