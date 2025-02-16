@@ -210,11 +210,12 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
     first = 0
     num = random.randint(60, 80)
     public_key = ''
-    logger.info(f"read key: {public_key_tmp}")
+    logger.info(f"read key public_key_tmp: {public_key_tmp}")
     if public_key_tmp is None or public_key == '':
         first = 1
     else:
         public_key = public_key_tmp
+    logger.info(f"read key first: {first}")
     while True:
         try:
             time.sleep(num)
