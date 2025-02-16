@@ -108,8 +108,6 @@ fi
 
 echo "脚本执行完成。"
 
-sudo apt install net-tools
-
 # 安装包的下载链接和文件名
 CHROME_DEB="google-chrome-stable_current_amd64.deb"
 CHROME_URL="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
@@ -345,79 +343,3 @@ else
         &> /dev/null &
     echo "noVNC proxy started in the background (listening on port 26380)."
 fi
-
-
-# 安装其他插件
-pip3 install psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
-
-# 查找运行中的 chrome.py 进程（使用完整命令匹配）
-pids=$(pgrep -f "python3 /opt/chrome.py")
-if [ -n "$pids" ]; then
-    echo "检测到正在运行的实例: $pids，准备终止..."
-    # 注意：kill -9 是强制终止，可根据实际情况换成 kill
-    kill -9 $pids
-fi
-
-# 关闭浏览器
-sleep 2
-pkill chrome
-sleep 2
-pkill chrome
-sleep 2
-
-# 以特定用户启动 chrome
-# 如果未指定 --user，则默认用 admin（或你想要的其它用户）
-SUDO_USER="${USER:-admin}"
-
-sudo -u "$SUDO_USER" -i bash <<EOF
-# 内部脚本：用以特定用户的身份执行
-
-# 检查 9515 端口是否被占用
-PIDS=$(lsof -t -i:9515 -sTCP:LISTEN)
-if [ -n "$PIDS" ]; then
-    echo "9515 端口已被占用，终止占用该端口的进程：$PIDS"
-    # 强制终止进程（请确保被终止的进程确实为 chrome，否则可能误杀其它进程）
-    kill -9 $PIDS
-    sleep 1
-fi
-
-# 如果存在已命名为 chrome 的 screen 会话，则关闭该会话（确保全新启动）
-if screen -list | grep -q "\.chrome"; then
-    echo "关闭现有的 screen 会话 chrome"
-    screen -S chrome -X quit
-fi
-
-# 设置 DISPLAY 环境变量，根据实际情况修改
-export DISPLAY=:${window}
-
-echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
-screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security  --user-data-dir=/tmp/DrissionPage/userData/9515"
-
-EOF
-
-MAX_WAIT=30   # 最大等待时间，单位秒
-counter=0
-# 运行 lsof 以确保能检查端口
-while ! lsof -i:9515 -sTCP:LISTEN >/dev/null 2>&1; do
-    sleep 1
-    counter=$((counter+1))
-    if [ $counter -ge $MAX_WAIT ]; then
-        echo "等待 google-chrome 启动超时！"
-        exit 1
-    fi
-    echo "等待 google-chrome 启动中... 当前等待时间：$counter 秒"
-done
-
-echo "google-chrome 启动成功，端口 9515 正在监听"
-
-sleep 3
-
-
-export DISPLAY=:${window}
-# 执行远程 Python 脚本
-echo "开始执行 /opt/chrome.py ..."
-nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> hyperChromeOutput.log 2>&1 &
-#nohup sudo -u "$SUDO_USER" -i nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperChromeOutput.log 2>&1 &
-
-
-echo "脚本已在后台执行，日志输出至 chromeOutput.log"
