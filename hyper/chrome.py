@@ -94,7 +94,7 @@ def get_element(tab, xpath, timeout=2, interval=0.5):
         time.sleep(interval)
 
 
-def get_clipboard_text(display: str, user_name: str):
+def get_clipboard_text(user_name: str, display: str):
     """从剪贴板获取文本"""
     time.sleep(3)  # Ensure clipboard content is updated
 
