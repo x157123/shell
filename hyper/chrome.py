@@ -10,6 +10,7 @@ import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import random
+import subprocess
 
 
 def configure_browser():
@@ -93,12 +94,29 @@ def get_element(tab, xpath, timeout=2, interval=0.5):
         time.sleep(interval)
 
 
-def get_clipboard_text():
+def get_clipboard_text(display: str, user_name: str):
     """从剪贴板获取文本"""
-    time.sleep(3)  # 确保剪贴板内容更新
-    pyperclip.set_clipboard('xclip')
-    clipboard_text = pyperclip.paste()
-    logger.info(f"Clipboard text: {clipboard_text}")
+    time.sleep(3)  # Ensure clipboard content is updated
+
+    # First, try to get the clipboard content using pyperclip
+    clipboard_text = pyperclip.paste().strip()
+
+    if not clipboard_text:  # If clipboard is empty or None, fall back to xclip
+        logger.info("Clipboard is empty or None. Trying xclip command.")
+        # Dynamically build the command with the provided display and user name
+        command = f"export DISPLAY={display}; sudo -u {user_name} xclip -o"
+        try:
+            result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
+            clipboard_text = result.stdout.strip()
+            logger.info(f"Clipboard text from xclip: {clipboard_text}")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Error while getting clipboard content using xclip: {e}")
+            clipboard_text = ""  # Set to empty string if there's an error with xclip
+
+    # If we still have no clipboard content, log it
+    if not clipboard_text:
+        logger.warning("Failed to retrieve clipboard content.")
+
     return clipboard_text
 
 
@@ -186,7 +204,7 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
     }
 
 
-def monitor_switch(tab, client, serverId, appId, public_key_tmp):
+def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
     total = 55
     error = 5
     first = 0
@@ -208,7 +226,7 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp):
                 logger.info("已连接到主网络")
                 if first > 0:
                     # 如果是第一次连接 推送key到服务器上
-                    key = push_key(tab, client, serverId)
+                    key = push_key(tab, client, serverId, user, display)
                     if key is not None:
                         public_key = key
                         first = 0
@@ -251,15 +269,15 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp):
 
 
 # 获取key
-def push_key(tab, client, serverId):
+def push_key(tab, client, serverId, user, display):
     # 获取公钥：点击按钮后从剪贴板读取
     if click_element(tab, "x://p[text()='Public Key:']/following-sibling::div//button"):
-        public_key = get_clipboard_text()
+        public_key = get_clipboard_text(user, display)
         # 获取私钥：点击按钮后从剪贴板读取
         if click_element(tab,
                          "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
             if click_element(tab, "x://button[contains(., 'copy current private key')]"):
-                private_key = get_clipboard_text()
+                private_key = get_clipboard_text(user, display)
                 logger.info(f"send key")
                 # 保存私钥
                 client.publish("hyperKey", json.dumps(get_info(serverId, "hyper", public_key, private_key)))
@@ -282,7 +300,7 @@ def reset_key(tab):
     click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
 
 
-def main(client, serverId, appId, decryptKey):
+def main(client, serverId, appId, decryptKey, user, display):
     public_key = ""
 
     # 启动浏览器
@@ -296,7 +314,7 @@ def main(client, serverId, appId, decryptKey):
 
     # 获取公钥：点击按钮后从剪贴板读取
     if click_element(tab, "x://p[text()='Public Key:']/following-sibling::div//button"):
-        public_key = get_clipboard_text()
+        public_key = get_clipboard_text(user, display)
 
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
@@ -322,7 +340,7 @@ def main(client, serverId, appId, decryptKey):
         click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
 
     # 进入循环，持续监控切换按钮状态
-    monitor_switch(tab, client, serverId, appId, public_key_tmp)
+    monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display)
 
 
 # =================================================   MQTT   ======================================
@@ -409,6 +427,7 @@ if __name__ == '__main__':
     parser.add_argument("--appId", type=str, help="应用ID", required=True)
     parser.add_argument("--decryptKey", type=str, help="解密key", required=True)
     parser.add_argument("--user", type=str, help="执行用户", required=True)
+    parser.add_argument("--display", type=str, help="执行窗口", required=True)
     args = parser.parse_args()
 
     # MQTT 配置
@@ -422,4 +441,4 @@ if __name__ == '__main__':
     client = create_mqtt_client(BROKER, PORT, USERNAME, PASSWORD, TOPIC)
     client.loop_start()
     # 启动网络循环
-    main(client, args.serverId, args.appId, args.decryptKey)
+    main(client, args.serverId, args.appId, args.decryptKey, args.user, args.display)
