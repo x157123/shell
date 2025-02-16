@@ -252,6 +252,11 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
                         client.publish("appInfo", json.dumps(app_info))
                         total = 0
 
+            if error == 4:
+                tab.refresh()
+                time.sleep(3)
+                logger.info("refresh page:")
+
             if error > 5:
                 logger.info("检查过程中出现异常：未连接到主网络")
                 if first > 0:
