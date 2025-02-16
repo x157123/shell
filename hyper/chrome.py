@@ -100,7 +100,7 @@ def get_clipboard_text(user_name: str, display: str):
 
     # First, try to get the clipboard content using pyperclip
     clipboard_text = pyperclip.paste().strip()
-
+    logger.info(f"Clipboard text: {clipboard_text}")
     if not clipboard_text:  # If clipboard is empty or None, fall back to xclip
         logger.info("Clipboard is empty or None. Trying xclip command.")
         # Dynamically build the command with the provided display and user name
