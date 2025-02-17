@@ -169,6 +169,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     if "Daemon running on" in status_output:
         logger.info("杀掉程序。")
         run_command_blocking("/root/.aios/aios-cli kill")
+        time.sleep(10)  # 等待 10 秒
     logger.info("检查结束！")
 
     # 2. 启动后端服务（后台运行，不阻塞）
