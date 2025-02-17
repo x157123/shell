@@ -225,14 +225,14 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
                 error += 1
             else:
                 # 检查页面是否响应
-                if tab.is_alive:
+                if "Aw, Snap!" in tab.html:
                     logger.info("page ok:")
                     print("页面正常")
                 else:
                     client.publish("appInfo",
                                    json.dumps(get_app_info(serverId, appId, 3, '页面崩溃')))
-                    tab.refresh()  # 重新加载页面
                     logger.info("refresh pages:")
+                    tab.refresh()  # 重新加载页面
                     time.sleep(5)
 
                 logger.info("已连接到主网络")
