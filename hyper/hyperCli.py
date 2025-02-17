@@ -221,7 +221,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     logger.info(f"Public Key: {public_key}")
     logger.info(f"Private Key: {private_key}")
     logger.info("whoami 命令执行完毕。")
-    client.publish("hyperCliKey", json.dumps(get_info(serverId, "hyperCli", public_key, private_key)))
+    client.publish("hyperCli", json.dumps(get_info(serverId, "hyperCli", public_key, private_key)))
 
     # 7. 执行 hive select-tier 5 命令
     logger.info("执行 hive select-tier 5 命令...")
