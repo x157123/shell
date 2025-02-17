@@ -224,6 +224,14 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
                 logger.info("未连接到主网络")
                 error += 1
             else:
+                # 检查页面是否响应
+                if tab.is_alive:
+                    print("页面正常")
+                else:
+                    tab.refresh()  # 重新加载页面
+                    logger.info("refresh pages:")
+                    time.sleep(5)
+
                 logger.info("已连接到主网络")
                 if first > 0:
                     # 如果是第一次连接 推送key到服务器上
