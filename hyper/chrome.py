@@ -226,6 +226,7 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
             else:
                 # 检查页面是否响应
                 if tab.is_alive:
+                    logger.info("page ok:")
                     print("页面正常")
                 else:
                     client.publish("appInfo",
@@ -233,6 +234,7 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
                     tab.refresh()  # 重新加载页面
                     logger.info("refresh pages:")
                     time.sleep(5)
+
                 logger.info("已连接到主网络")
                 if first > 0:
                     # 如果是第一次连接 推送key到服务器上
