@@ -137,22 +137,10 @@ def main(client, serverId, appId, decryptKey, user, display):
         stderr=subprocess.PIPE
     )
 
-    # 模拟按下回车键选择默认的 "Proceed with standard installation"
-    process.stdin.write(b"\n")
-    process.stdin.flush()
+    # 实时读取标准输出和标准错误流
+    stdout, stderr = process.communicate(input=b"\nY\nY\n")
 
-    # 模拟按下 'Y' 并确认同意条款
-    process.stdin.write(b"Y\n")
-    process.stdin.flush()
-
-    # 模拟按下 'Y' 并继续
-    process.stdin.write(b"Y\n")
-    process.stdin.flush()
-
-    # 获取输出和错误信息
-    stdout, stderr = process.communicate()
-
-    # 打印输出和错误信息
+    # 打印实时输出
     print(stdout.decode())
     if stderr:
         print(stderr.decode())

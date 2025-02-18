@@ -58,6 +58,9 @@ if [ -z "$USER" ]; then
   echo "Warning: --user 未指定，将默认以 admin 身份执行相关操作（如需特定用户，请使用 --user）"
 fi
 
+#sudo DEBIAN_FRONTEND=noninteractive apt update -y && sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y
+#sudo DEBIAN_FRONTEND=noninteractive apt install -y build-essential pkg-config libssl-dev git-all
+
 # 安装其他插件
 pip3 install psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
 
