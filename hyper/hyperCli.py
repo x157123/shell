@@ -164,6 +164,8 @@ def main(client, serverId, appId, decryptKey, user, display):
         return
     logger.info("安装成功！")
 
+    run_command_blocking("sudo chown -R root:root /root/.aios")
+
     logger.info("===== 检测是否已启动 =====")
     status_output = run_command_blocking("/root/.aios/aios-cli status")
     if "Daemon running on" in status_output:
@@ -247,7 +249,7 @@ def main(client, serverId, appId, decryptKey, user, display):
                                              '运行中， 并到采集积分:' + str(points))
             client.publish("appInfo", json.dumps(app_info))
             logger.info("获取积分完成。")
-            time.sleep(1800)
+            time.sleep(3600)
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
 
