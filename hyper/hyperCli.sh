@@ -63,6 +63,14 @@ pip3 install psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
 
 sudo mkdir -p /opt/hyper/
 
+# 查找运行中的 hyperCli.py 进程（使用完整命令匹配）
+pids=$(pgrep -f "python3 /opt/hyper/hyperCli.py")
+if [ -n "$pids" ]; then
+    echo "检测到正在运行的实例: $pids，准备终止..."
+    # 注意：kill -9 是强制终止，可根据实际情况换成 kill
+    kill -9 $pids
+fi
+
 # 如果 /opt/hyper/hyperCli.py 存在，则先删除旧文件
 if [ -f /opt/hyper/hyperCli.py ]; then
     echo "/opt/hyper/hyperCli.py 已存在，正在删除旧文件..."
