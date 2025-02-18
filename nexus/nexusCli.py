@@ -228,7 +228,7 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
 
         # 遍历数组，查找 accountType 为 "hyper" 的第一个记录
         for item in data_list:
-            if item.get('accountType') == 'hyperCli':
+            if item.get('accountType') == 'nexusCli':
                 return item.get(key)
 
         # 没有找到匹配的记录，返回 None
