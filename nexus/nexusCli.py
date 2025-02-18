@@ -39,45 +39,6 @@ def run_command_and_print(cmd, wait_for=None, print_output=True):
     return collected_output
 
 
-def read_file(file_path):
-    """从文件中读取内容并去除多余空白"""
-    try:
-        with open(file_path, 'r') as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        raise ValueError(f"文件未找到: {file_path}")
-
-def decrypt_aes_ecb(secret_key, data_encrypted_base64):
-    """
-    解密 AES ECB 模式的 Base64 编码数据，
-    去除 PKCS7 填充后直接返回 accountType 为 "hyper" 的记录中的 privateKey。
-    """
-    try:
-        # Base64 解码
-        encrypted_bytes = base64.b64decode(data_encrypted_base64)
-        # 创建 AES 解密器
-        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
-        # 解密数据
-        decrypted_bytes = cipher.decrypt(encrypted_bytes)
-        # 去除 PKCS7 填充（AES.block_size 默认为 16）
-        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
-        # 将字节转换为字符串
-        decrypted_text = decrypted_bytes.decode('utf-8')
-
-        # 解析 JSON 字符串为 Python 对象（通常为列表）
-        data_list = json.loads(decrypted_text)
-
-        # 遍历数组，查找 accountType 为 "hyper" 的第一个记录
-        for item in data_list:
-            if item.get('accountType') == 'nexusCli':
-                return item.get('privateKey')
-
-        # 没有找到匹配的记录，返回 None
-        return None
-
-    except Exception as e:
-        raise ValueError(f"解密失败: {e}")
-
 def create_mqtt_client(broker, port, username, password, topic):
     """
     创建并配置MQTT客户端，使用 MQTTv5 回调方式
@@ -160,7 +121,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
     # 获取密钥
-    private_Key = decrypt_aes_ecb(decryptKey, encrypted_data_base64)
+    private_Key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'privateKey')
 
     if private_Key is None:
         logger.info("未绑定密钥。")
