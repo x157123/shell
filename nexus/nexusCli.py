@@ -129,11 +129,33 @@ def main(client, serverId, appId, decryptKey, user, display):
         logger.info(f"绑定密钥。{private_Key}")
     # 1. 安装
     logger.info("===== 执行安装 =====")
-    install_output = run_command_blocking("curl https://cli.nexus.xyz/ | sh")
-    if "Installation completed successfully." not in install_output:
-        logger.info("安装失败或未检测到成功提示。")
-        return
-    logger.info("安装成功！")
+    # 启动安装命令
+    process = subprocess.Popen(
+        ["sh", "-c", "curl https://cli.nexus.xyz/ | sh"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+
+    # 模拟按下回车键选择默认的 "Proceed with standard installation"
+    process.stdin.write(b"\n")
+    process.stdin.flush()
+
+    # 模拟按下 'Y' 并确认同意条款
+    process.stdin.write(b"Y\n")
+    process.stdin.flush()
+
+    # 模拟按下 'Y' 并继续
+    process.stdin.write(b"Y\n")
+    process.stdin.flush()
+
+    # 获取输出和错误信息
+    stdout, stderr = process.communicate()
+
+    # 打印输出和错误信息
+    print(stdout.decode())
+    if stderr:
+        print(stderr.decode())
 
     # 获取积分
     while True:
