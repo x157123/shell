@@ -271,7 +271,7 @@ def main(client, serverId, appId, decryptKey, user, display):
 
     # 判断元素是否存在，存在则执行点击操作
     if div_ele:
-        div_ele.js_click()
+        div_ele.click(by_js=True)
         print("找到了包含 'bg-[#ffffff]' 的 div，已执行点击操作。")
     else:
         print("未找到包含 'bg-[#ffffff]' 的 div。")
