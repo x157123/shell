@@ -277,7 +277,7 @@ def main(client, serverId, appId, decryptKey, user, display):
         time.sleep(2)
 
         # 定位到包含 shadow DOM 的元素
-        shadow_host = tab.ele('data-testid="dynamic-modal-shadow"')
+        shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
         if shadow_host:
             # 进入 shadow DOM
             shadow_root = shadow_host.shadow_root
