@@ -457,7 +457,7 @@ EOF
 export DISPLAY=:${window}
 # 执行远程 Python 脚本
 echo "开始执行 /opt/nexus/nexusChrom.py ..."
-nohup python3 /opt/nexus/nexusChrom.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> nexusChromeOutput.log 2>&1 &
+nohup sudo -u "$SUDO_USER" -i nohup python3 /opt/nexus/nexusChrom.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> nexusChromeOutput.log 2>&1 &
 #nohup sudo -u "$SUDO_USER" -i nohup python3 /opt/nexus/nexusChrom.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperChromeOutput.log 2>&1 &
 
 
