@@ -35,7 +35,7 @@ def configure_browser(user):
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
 
     browser = Chromium(co)
-    tab = browser.new_tab(url="https://app.nexus.xyz")
+    tab = browser.latest_tab
     return tab
 
 
@@ -122,17 +122,6 @@ def get_clipboard_text(user_name: str, display: str):
     return clipboard_text
 
 
-def get_points(tab):
-    # 获取积分：点击按钮后从剪贴板读取
-    if click_element(tab, "x://button[.//span[text()='Points']]"):
-        time.sleep(3)  # 确保剪贴板内容更新
-        # 定位到指定的 div 元素并获取其文本内容
-        target_div = tab.ele("x://div[text()='Accumlated points']/following-sibling::div")
-        # 获取该 div 中的文本
-        text = target_div.text
-        # logger.info(f"Text from the div: {text}")
-        return text
-
 
 def read_file(file_path):
     """从文件中读取内容并去除多余空白"""
@@ -211,19 +200,6 @@ def monitor_switch(tab, client, serverId, appId, user, display):
     error = 5
     first = 0
     num = random.randint(10, 20)
-    handles = tab.window_handles
-    # 遍历所有页签
-    for handle in handles:
-        # 切换到该页签
-        tab.switch_to_window(handle)
-
-        # 获取当前页签的 title
-        current_title = tab.title
-        print(f"切换到页签: {current_title}")
-        # 如果当前页签的 title 与目标 title 匹配
-        if current_title == "Nexus OS":
-            print(f"切换到页签: {current_title}")
-            break
 
     while True:
         try:
