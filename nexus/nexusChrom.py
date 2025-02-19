@@ -24,7 +24,7 @@ def configure_browser(user):
         "--export-tagged-pdf", "--disable-gpu", "--disable-web-security",
         "--disable-infobars", "--disable-popup-blocking", "--allow-outdated-plugins",
         "--deny-permission-prompts", "--disable-suggestions-ui", "--window-size=1920,1080",
-        "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/9515",
+        "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/9516",
         "--disable-features=ServerSentEvents"
     ]
 
@@ -206,81 +206,51 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
     }
 
 
-def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
+def monitor_switch(tab, client, serverId, appId, user, display):
     total = 58
     error = 5
     first = 0
-    num = random.randint(60, 80)
-    public_key = ''
-    logger.info(f"read key public_key_tmp: {public_key_tmp}")
-    if public_key_tmp is None or public_key_tmp == '':
-        first = 1
-    else:
-        public_key = public_key_tmp
-    logger.info(f"read key first: {first}")
+    num = random.randint(10, 20)
     while True:
         try:
             time.sleep(num)
 
-            if click_element(tab, 'x://button[@role="switch" and @aria-checked="false"]', timeout=5):
-                logger.info("未连接到主网络")
-                error += 1
+            # 假设该元素可用以下 XPath 定位到（根据实际页面结构进行调整）
+            # 这里我们通过 class 里含有 'relative w-24 h-16 rounded-full cursor-pointer' 来定位
+            power_button_xpath = '//div[contains(@class, "relative w-24 h-16 rounded-full cursor-pointer")]'
+
+            # 获取元素
+            power_button_ele = tab.ele(power_button_xpath)
+
+            if not power_button_ele:
+                logger.info("未能找到电源切换按钮，请检查 XPath 是否正确。")
             else:
-                # 检查页面是否响应
-                # if "Aw, Snap!" in tab.html:
-                #     logger.info("page ok:")
-                #     print("页面正常")
-                # else:
-                #     client.publish("appInfo",
-                #                    json.dumps(get_app_info(serverId, appId, 3, '页面崩溃')))
-                #     logger.info("refresh pages:")
-                #     tab.refresh()  # 重新加载页面
-                #     time.sleep(5)
+                # 获取元素的 class 属性
+                class_val = power_button_ele.attr('class')
+                logger.info(f'按钮 class 属性为: {class_val}')
 
-                logger.info("已连接到主网络")
-                if first > 0:
-                    # 如果是第一次连接 推送key到服务器上
-                    key = push_key(tab, client, serverId, user, display)
-                    if key is not None:
-                        public_key = key
-                        first = 0
-                    else:
-                        logger.info("send key error")
-                    # 关闭私钥弹窗（如果存在）
-                    click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
-                    first = 0
-                if error > 0:
-                    client.publish("appInfo",
-                                   json.dumps(get_app_info(serverId, appId, 2, '已连接到主网络')))
-                    error = 0
-
-                if total > 60:
-                    # 获取积分 每循环60次检测 获取一次积分
-                    points = get_points(tab)
-                    # 关闭积分弹窗（如果存在）
-                    click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
-                    if points is not None and points != "":
-                        app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
-                                                         '运行中， 并到采集积分:' + str(points))
-                        client.publish("appInfo", json.dumps(app_info))
-                        total = 0
-
-            if error == 4:
-                tab.refresh()
-                time.sleep(3)
-                logger.info("refresh page:")
-
-            if error > 5:
-                logger.info("检查过程中出现异常：未连接到主网络")
-                if first > 0:
-                    reset_key(tab)
-                    client.publish("appInfo",
-                                   json.dumps(
-                                       get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络,重置私钥')))
+                # 判断是否为关闭状态（border-4 border-gray-400 bg-[#ffffff]）
+                # 只要判断一个或两个关键类名即可，也可以只判断部分(如 border-gray-400)来进行区分
+                if "border-gray-400" in class_val and "bg-[#ffffff]" in class_val:
+                    logger.info("检测到按钮处于关闭状态，准备点击切换为开启...")
+                    power_button_ele.click()
+                    logger.info("已点击按钮，等待页面响应。")
                 else:
-                    client.publish("appInfo",
-                                   json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常：未连接到主网络')))
-                error = 0
+                    logger.info("按钮已处于开启状态，无需操作。")
+
+
+            # 使用 XPath 查找包含 “NEX points” 的 div，再获取其前一个兄弟节点
+            xpath_for_nex_value = '//div[contains(text(), "NEX points")]/preceding-sibling::div'
+
+            # 获取元素
+            nex_value_ele = tab.ele(xpath_for_nex_value)
+
+            if nex_value_ele:
+                # 获取元素文本
+                value_text = nex_value_ele.text
+                print("NEX points 同层级的数值是：", value_text)
+            else:
+                print("未能找到包含 'NEX points' 的元素，或它的前一个兄弟元素。")
 
             total += 1
         except Exception as e:
@@ -328,7 +298,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     setup_wallet(tab, 37826)
     time.sleep(20)
     # 进入循环，持续监控切换按钮状态
-    # monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display)
+    monitor_switch(tab, client, serverId, appId, user, display)
 
 
 # =================================================   MQTT   ======================================
