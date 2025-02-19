@@ -311,19 +311,28 @@ def main(client, serverId, appId, decryptKey, user, display):
     else:
         logger.info("没有找到 'Sign up to earn NEX' 元素。")
 
-
+    time.sleep(3)
+    logger.info("再次查看是否需要联网。")
     # 定位到包含 shadow DOM 的元素
     shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
     if shadow_host:
         # 进入 shadow DOM
+        logger.info("找到122。")
         shadow_root = shadow_host.shadow_root
         if shadow_root:
+            logger.info("找到12。")
             newtwork = shadow_root.ele('x://button[@data-testid="SelectNetWorkButton"]')
             if newtwork:
+                logger.info("找到1。")
                 newtwork.click(by_js=True)
                 time.sleep(2)
                 myriad_pop(tab)
-
+            else:
+                logger.info("没有找到1。")
+        else:
+            logger.info("没有找到1。")
+    else:
+        logger.info("没有找到22。")
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab, client, serverId, appId, user, display)
 
