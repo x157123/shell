@@ -263,23 +263,23 @@ def main(client, serverId, appId, decryptKey, user, display):
     tab = configure_browser(user)
     logger.info(f"安装钱包")
     tab = setup_wallet(tab, 37826)
-    time.sleep(20)
+    time.sleep(3)
     tab = tab.browser.new_tab(url="https://app.nexus.xyz")
 
     # 点击 "Sign up to earn NEX" 元素
-    signup_ele = tab.ele('//div[text()="Sign up to earn NEX"]')
+    signup_ele = tab.ele('x://div[text()="Sign up to earn NEX"]')
     if signup_ele:
         signup_ele.click()
         # 根据实际情况调整等待时间，确保页面加载完成
         time.sleep(2)
 
         # 点击 "Continue with a wallet" 元素
-        wallet_ele = tab.ele('//p[contains(text(), "Continue with a wallet")]')
+        wallet_ele = tab.ele('x://p[contains(text(), "Continue with a wallet")]')
         if wallet_ele:
             wallet_ele.click()
             time.sleep(2)
             # 点击页面中显示 "Signma" 的元素
-            signma_ele = tab.ele('//span[text()="Signma"]')
+            signma_ele = tab.ele('x://span[text()="Signma"]')
             if signma_ele:
                 signma_ele.click()
             else:
