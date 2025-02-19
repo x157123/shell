@@ -258,12 +258,21 @@ def reset_key(tab):
 
 
 def main(client, serverId, appId, decryptKey, user, display):
-    public_key = ""
+    # 从文件加载密文
+    encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
+    # 解密并发送解密结果
+    public_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'publicKey')
+
+    if public_key is None:
+        client.publish("appInfo",
+                       json.dumps(get_app_info(serverId, appId, 3, '未绑定账号')))
+        return
+
     # 启动浏览器
     logger.info(f"start")
     tab = configure_browser(user)
     logger.info(f"安装钱包")
-    tab = setup_wallet(tab, 37826)
+    tab = setup_wallet(tab, public_key)
     time.sleep(3)
     tab = tab.browser.new_tab(url="https://app.nexus.xyz")
 
