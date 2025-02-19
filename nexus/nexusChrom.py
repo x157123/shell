@@ -211,6 +211,20 @@ def monitor_switch(tab, client, serverId, appId, user, display):
     error = 5
     first = 0
     num = random.randint(10, 20)
+    handles = tab.window_handles
+    # 遍历所有页签
+    for handle in handles:
+        # 切换到该页签
+        tab.switch_to_window(handle)
+
+        # 获取当前页签的 title
+        current_title = tab.title
+        print(f"切换到页签: {current_title}")
+        # 如果当前页签的 title 与目标 title 匹配
+        if current_title == "Nexus OS":
+            print(f"切换到页签: {current_title}")
+            break
+
     while True:
         try:
             time.sleep(num)
