@@ -251,6 +251,8 @@ cleanup() {
     exit 0
 }
 
+# === 参数解析部分 ===
+
 # 默认值
 TYPE=""
 KEY=""
@@ -284,6 +286,9 @@ while [ "$1" != "" ]; do
             ;;
     esac
 done
+
+# Debug 输出，检查参数解析结果
+echo "DEBUG: TYPE=$TYPE, KEY=$KEY"
 
 # 根据 TYPE 执行不同操作
 if [ "$TYPE" == "start" ]; then
