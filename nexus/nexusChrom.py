@@ -279,19 +279,19 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 点击 "Sign up to earn NEX" 元素
     signup_ele = tab.ele('x://div[text()="Sign up to earn NEX"]/ancestor::button')
     if signup_ele:
-        signup_ele.click()
+        signup_ele.click(by_js=True)
         # 根据实际情况调整等待时间，确保页面加载完成
         time.sleep(2)
 
         # 点击 "Continue with a wallet" 元素
         wallet_ele = tab.ele('x://p[contains(text(), "Continue with a wallet")]')
         if wallet_ele:
-            wallet_ele.click()
+            wallet_ele.click(by_js=True)
             time.sleep(2)
             # 点击页面中显示 "Signma" 的元素
             signma_ele = tab.ele('x://span[text()="Signma"]')
             if signma_ele:
-                signma_ele.click()
+                signma_ele.click(by_js=True)
             else:
                 print("没有找到 'Signma' 元素。")
         else:
