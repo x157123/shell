@@ -322,9 +322,11 @@ def reset_key(tab):
 def main(client, serverId, appId, decryptKey, user, display):
     public_key = ""
     # 启动浏览器
+    logger.info(f"start")
     tab = configure_browser()
+    logger.info(f"安装钱包")
     setup_wallet(tab, 37826)
-
+    time.sleep(20)
     # 进入循环，持续监控切换按钮状态
     # monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display)
 
