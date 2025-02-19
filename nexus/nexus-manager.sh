@@ -22,8 +22,10 @@ check_openssl_version() {
             return 1
         fi
 
-        local version=$(openssl version | cut -d' ' -f2)
-        local major_version=$(echo $version | cut -d'.' -f1)
+        local version
+        version=$(openssl version | cut -d' ' -f2)
+        local major_version
+        major_version=$(echo "$version" | cut -d'.' -f1)
 
         if [ "$major_version" -lt "3" ]; then
             if command -v apt &> /dev/null; then
@@ -82,7 +84,6 @@ check_dependencies() {
 
 download_program_files() {
     local files="cancer-diagnostic fast-fib"
-
     for file in $files; do
         local target_path="$PROGRAM_DIR/$file"
         if [ ! -f "$target_path" ]; then
@@ -138,7 +139,8 @@ download_files() {
 }
 
 generate_prover_id() {
-    local temp_output=$(mktemp)
+    local temp_output
+    temp_output=$(mktemp)
     tail -f "$temp_output" &
     local tail_pid=$!
 
@@ -155,7 +157,8 @@ generate_prover_id() {
     kill $prover_pid 2>/dev/null
     kill $tail_pid 2>/dev/null
 
-    local prover_id=$(grep -o 'Your current prover identifier is [^ ]*' "$temp_output" | cut -d' ' -f6)
+    local prover_id
+    prover_id=$(grep -o 'Your current prover identifier is [^ ]*' "$temp_output" | cut -d' ' -f6)
     if [ -n "$prover_id" ]; then
         echo "$prover_id" > "$PROVER_ID_FILE"
         echo -e "${GREEN}已生成并保存新的 Prover ID: $prover_id${NC}"
@@ -203,7 +206,8 @@ check_status() {
 
 show_prover_id() {
     if [ -f "$PROVER_ID_FILE" ]; then
-        local id=$(cat "$PROVER_ID_FILE")
+        local id
+        id=$(cat "$PROVER_ID_FILE")
         echo -e "${GREEN}当前 Prover ID: $id${NC}"
     else
         echo -e "${RED}未找到 Prover ID${NC}"
@@ -230,19 +234,15 @@ stop_prover() {
 
 update_nexus() {
     echo -e "${YELLOW}开始更新 Nexus...${NC}"
-
     stop_prover
     echo -e "${YELLOW}删除现有文件...${NC}"
     rm -f "$NEXUS_HOME/prover"
     rm -rf "$PROGRAM_DIR"/*
-
     echo -e "${YELLOW}重新安装 Nexus...${NC}"
     setup_directories
     check_dependencies
     download_files
-
     echo -e "${GREEN}更新完成！正在启动 Nexus...${NC}"
-
     start_prover
 }
 
@@ -266,15 +266,19 @@ eval set -- "$TEMP"
 # 解析命令行参数
 while true; do
     case "$1" in
-        -t|--type)    # -t 或 --type
+        -t|--type)
             TYPE=$2
             shift 2
             ;;
-        -k|--key)     # -k 或 --key
+        -k|--key)
             KEY=$2
             shift 2
             ;;
-        *)  # 处理未定义的选项
+        --)
+            shift
+            break
+            ;;
+        *)
             echo "Internal error!"
             exit 1
             ;;
