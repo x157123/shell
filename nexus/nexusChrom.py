@@ -66,11 +66,6 @@ def click_element(tab, xpath, timeout=2, interval=0.5):
                 return True
             except Exception as e:
                 # logger.error(f"未找到元素")
-                try:
-                    element.js_click()  # 使用 JavaScript 直接点击
-                    print("js_click 成功。")
-                except Exception as ex:
-                    print("使用 js_click 依然失败:", ex)
                 return False
         time.sleep(interval)
 
@@ -271,7 +266,15 @@ def main(client, serverId, appId, decryptKey, user, display):
     time.sleep(3)
     tab = tab.browser.new_tab(url="https://app.nexus.xyz")
 
-    click_element(tab, 'x://div[contains(@class, "bg-[#ffffff]")]', timeout=2)
+    # 定位 class 属性中包含 'bg-[#ffffff]' 的 div 元素
+    div_ele = tab.ele('x://div[contains(@class, "bg-[#ffffff]")]')
+
+    # 判断元素是否存在，存在则执行点击操作
+    if div_ele:
+        div_ele.js_click()
+        print("找到了包含 'bg-[#ffffff]' 的 div，已执行点击操作。")
+    else:
+        print("未找到包含 'bg-[#ffffff]' 的 div。")
 
     # 点击 "Sign up to earn NEX" 元素
     signup_ele = tab.ele('x://div[text()="Sign up to earn NEX"]/ancestor::button')
