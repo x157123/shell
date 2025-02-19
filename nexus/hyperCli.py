@@ -1,346 +1,433 @@
-import subprocess
-import time
-import re
-import paho.mqtt.client as mqtt
 import json
+import os
+import platform
+import random
+import time
+import uuid
+
+import requests
+from DrissionPage._base.chromium import Chromium
+from DrissionPage._configs.chromium_options import ChromiumOptions
 import argparse
-import base64
+from DrissionPage._functions.keys import Keys
 from loguru import logger
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import unpad
-
-def run_command_blocking(cmd, print_output=True):
-    """
-    执行命令，等待命令执行结束，并返回输出内容。
-    """
-    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    if print_output:
-        print(result.stdout)
-    return result.stdout
 
 
-def run_command_and_print(cmd, wait_for=None, print_output=True):
-    """
-    实时执行命令，打印输出。如果指定了 wait_for，当检测到该关键字时返回已收集的输出内容。
-    """
-    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    collected_output = ""
-    while True:
-        line = process.stdout.readline()
-        if line:
-            collected_output += line
-            if print_output:
-                print(line.strip())
-            if wait_for and wait_for in line:
-                break
-        if not line and process.poll() is not None:
-            break
-    process.wait()  # 确保进程退出
-    return collected_output
+class TaskSet:
+    def __init__(self, args):
+        self.co = ChromiumOptions()
+        self.meta_id = 'dholkoaddiccbagimjcfjaldcacogjgc'
+        self.arguments = [
+            "--accept-lang=en-US",
+            "--no-first-run",
+            "--force-color-profile=srgb",
+            "--disable-extensions-file-access-check",
+            "--metrics-recording-only",
+            "--password-store=basic",
+            "--use-mock-keychain",
+            "--export-tagged-pdf",
+            "--no-default-self.browser-check",
+            "--disable-background-tab-loading",
+            "--enable-features=NetworkService,NetworkServiceInProcess,LoadCryptoTokenExtension,PermuteTLSExtensions",
+            "--disable-gpu",
+            "--disable-web-security",
+            "--disable-features=OverlayScrollbar",
+            "--disable-infobars",
+            "--disable-popup-blocking",
+            "--allow-outdated-plugins",
+            "--always-authorize-plugins",
+            "--disable-features=FlashDeprecationWarning,EnablePasswordsAccountStorage,PrivacySandboxSettings4",
+            "--deny-permission-prompts",
+            "--disable-suggestions-ui",
+            "--hide-crash-restore-bubble",
+            "--window-size=1920,1080",
+            "--disable-mobile-emulation",
+        ]
+        if platform.system().lower() == 'windows':
+            self.co.set_paths(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
+            self.ex_path = r"D:\web3\signma_extension\dist\chrome-cloud"
+            self.co.set_user_data_path(r"E:\chrome_data")
+            self.meta_id = 'ohgmkpjifodfiomblclfpdhehohinlnn'
+        else:
+            self.co.set_paths(r"/opt/google/chrome/google-chrome")
+            self.ex_path = r"/home/ubuntu/extensions/chrome-cloud"
+            self.co.set_user_data_path(os.path.join("/home/ubuntu/task/chrome_data", uuid.uuid4().hex.lower()))
+        self.co.add_extension(self.ex_path)
 
+        self.co.set_user_agent(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+        )
+        self.co.set_local_port(int(args.index[-4:]) + random.randint(1000, 2000))
+        self.browser = Chromium(self.co)
+        self.tab = self.browser.latest_tab
+        self.res_info = None
 
-def read_file(file_path):
-    """从文件中读取内容并去除多余空白"""
-    try:
-        with open(file_path, 'r') as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        raise ValueError(f"文件未找到: {file_path}")
+    def signma_log(self, message: str, task_name: str, index: str, server_url: str):
+        url = "{}/service_route?service_name=signma_log&&task={}&&chain_id={}&&index={}&&msg={}"
+        if server_url is None:
+            server_url = "https://signma.bll06.xyz"
 
-def decrypt_aes_ecb(secret_key, data_encrypted_base64):
-    """
-    解密 AES ECB 模式的 Base64 编码数据，
-    去除 PKCS7 填充后直接返回 accountType 为 "hyper" 的记录中的 privateKey。
-    """
-    try:
-        # Base64 解码
-        encrypted_bytes = base64.b64decode(data_encrypted_base64)
-        # 创建 AES 解密器
-        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
-        # 解密数据
-        decrypted_bytes = cipher.decrypt(encrypted_bytes)
-        # 去除 PKCS7 填充（AES.block_size 默认为 16）
-        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
-        # 将字节转换为字符串
-        decrypted_text = decrypted_bytes.decode('utf-8')
+        print(url.format(server_url, task_name, "9004", index, message))
+        response = requests.get(
+            url.format(server_url, task_name, "9004", index, message), verify=False
+        )
 
-        # 解析 JSON 字符串为 Python 对象（通常为列表）
-        data_list = json.loads(decrypted_text)
+    def get_private_key(self, args):
+        private_key = None
+        url = '{}/service_route?service_name=get_private_key&&index={}&&pass_key={}'
 
-        # 遍历数组，查找 accountType 为 "hyper" 的第一个记录
-        for item in data_list:
-            if item.get('accountType') == 'hyperCli':
-                return item.get('privateKey')
+        if args.server_url is None:
+            server_url = 'https://signma.bll06.xyz'
+        else:
+            server_url = args.server_url
 
-        # 没有找到匹配的记录，返回 None
-        return None
-
-    except Exception as e:
-        raise ValueError(f"解密失败: {e}")
-
-def create_mqtt_client(broker, port, username, password, topic):
-    """
-    创建并配置MQTT客户端，使用 MQTTv5 回调方式
-    protocol=mqtt.MQTTv5 来避免旧版回调弃用警告
-    """
-    client = mqtt.Client(
-        protocol=mqtt.MQTTv5,  # 指定使用 MQTTv5
-        userdata={"topic": topic}  # 传递自定义数据
-    )
-    client.username_pw_set(username, password)
-
-    # 注册回调函数（使用 v5 风格签名）
-    client.on_connect = on_connect
-    client.on_disconnect = on_disconnect
-    client.on_message = on_message
-
-    # 尝试连接到 Broker
-    try:
-        client.connect(broker, port, keepalive=60)
-    except Exception as e:
-        raise ConnectionError(f"Error connecting to broker: {e}")
-
-    return client
-
-
-# ========== MQTT 事件回调函数（MQTTv5） ==========
-def on_connect(client, userdata, flags, reason_code, properties=None):
-    """
-    当客户端与 Broker 建立连接后触发
-    reason_code = 0 表示连接成功，否则为失败码
-    """
-    if reason_code == 0:
-        logger.info("Connected to broker successfully.")
-        # 仅发布消息，去除订阅
-        pass
-    else:
-        logger.info(f"Connection failed with reason code: {reason_code}")
-
-
-def on_disconnect(client, userdata, reason_code, properties=None):
-    """
-    当客户端与 Broker 断开连接后触发
-    可以在此处进行自动重连逻辑
-    """
-    logger.info(f"Disconnected from broker, reason_code: {reason_code}")
-    # 如果 reason_code != 0，则表示非正常断开
-    while True:
         try:
-            logger.info("Attempting to reconnect...")
-            client.reconnect()
-            logger.info("Reconnected successfully.")
-            break
-        except Exception as e:
-            logger.info(f"Reconnect failed: {e}")
-            time.sleep(5)  # 等待 5 秒后重试
+            response = requests.get(url.format(server_url, args.index, args.pass_key), verify=False)
+            if response.status_code == 200:
+                private_key = response.json()['data']['privateAddress']
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Request failed: {e}")
 
+        return private_key
 
-def on_message(client, userdata, msg):
-    """
-    当收到订阅主题的新消息时触发
-    v5 中的 on_message 参数与 v3.x 相同： (client, userdata, message)
-    """
-    logger.info(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
+    def navigate_and_click(self, url, element_selector, wait_time=1):
+        """通用方法：导航到URL并点击指定元素xxx"""
+        self.tab.get(url=url)
+        if self.tab.wait.ele_displayed(element_selector, timeout=10):
+            self.tab.ele(element_selector).click()
+            time.sleep(wait_time)
 
+    def setup_wallet(self, args):
+        self.tab = self.browser.new_tab(url="chrome://extensions/")
+        time.sleep(3)
 
-def write_to_file(file_path, content):
-    """
-    将给定的内容写入到指定的文件中。
-    """
-    try:
-        with open(file_path, 'w') as file:
-            file.write(content)
-        logger.info(f"内容成功写入到 {file_path}")
-    except Exception as e:
-        logger.info(f"写入文件时发生错误: {e}")
+        toggle_ele = (
+            self.tab.ele(
+                "x://html/body/extensions-manager"
+            )  # /html/body/extensions-manager
+            .shadow_root.ele('x://*[@id="viewManager"]')
+            .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
+            .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
+            .shadow_root.ele("tag:cr-toggle@@id=enableToggle")
+        )
 
+        refresh_ele = (
+            self.tab.ele(
+                "x://html/body/extensions-manager"
+            )  # /html/body/extensions-manager
+            .shadow_root.ele('x://*[@id="viewManager"]')
+            .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
+            .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
+            .shadow_root.ele("tag:cr-icon-button@@id=dev-reload-button")
+        )
 
-def main(client, serverId, appId, decryptKey, user, display):
-    # 1. 安装
-    logger.info("===== 执行安装 =====")
-    install_output = run_command_blocking("curl https://download.hyper.space/api/install | bash")
-    if "Installation completed successfully." not in install_output:
-        logger.info("安装失败或未检测到成功提示。")
-        return
-    logger.info("安装成功！")
+        toggle_ele.attr("aria-pressed")
+        if toggle_ele.attr("aria-pressed") == "false":
+            toggle_ele.click()
 
-    run_command_blocking("sudo chown -R root:root /root/.aios")
+        refresh_ele.click()
 
-    logger.info("===== 检测是否已启动 =====")
-    status_output = run_command_blocking("/root/.aios/aios-cli status")
-    if "Daemon running on" in status_output:
-        logger.info("杀掉程序。")
-        run_command_blocking("/root/.aios/aios-cli kill")
-        time.sleep(10)  # 等待 10 秒
-    logger.info("检查结束！")
+        time.sleep(2)
+        wallet_tab = self.browser.new_tab(
+            url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
+        )
 
-    # 2. 启动后端服务（后台运行，不阻塞）
-    subprocess.Popen("/root/.aios/aios-cli start", shell=True)
-    logger.info("后端命令已启动。")
-    time.sleep(5)  # 等待后端服务启动
+        time.sleep(3)
+        index_input_path = (
+            "x://html/body/div/div[1]/div[4]/section/div/section/div/div/input"
+        )
+        wallet_tab.ele(index_input_path).input(args.index, clear=True)
+        index_button_path = "tag:button@@id=existingWallet"
+        index_set_button = wallet_tab.ele(index_button_path)
 
-    # 3. 下载大模型，等待输出中出现 "Download complete"
-    logger.info("开始下载大模型...")
-    run_command_and_print(
-        "/root/.aios/aios-cli models add hf:bartowski/Llama-3.2-1B-Instruct-GGUF:"
-        "Llama-3.2-1B-Instruct-Q8_0.gguf", wait_for="Download complete"
-    )
-    logger.info("下载完成！")
+        index_set_button.click()
 
-    # 4. 执行 infer 命令
-    logger.info("执行 infer 命令...")
-    run_command_and_print(
-        "/root/.aios/aios-cli infer --model hf:bartowski/Llama-3.2-1B-Instruct-GGUF:"
-        "Llama-3.2-1B-Instruct-Q8_0.gguf --prompt 'What is 1+1 equal to?'"
-    )
-    logger.info("推理命令执行完毕。")
+    def close_browser(self):
+        """关闭浏览器并清理资源"""
+        self.browser.reconnect()
+        self.browser.close_tabs(tabs_or_ids=self.tab, others=True)
+        self.browser.quit(timeout=60, force=True, del_data=True)
 
-    # # 5. 关联密钥
-    # # 从文件加载密文
-    # encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
-    # # 解密并发送解密结果
-    # private_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'publicKey')
+    def myriad_pop(self):
+        if len(self.browser.get_tabs(title="Auth · Privy")) > 0:
+            pop_tab = self.browser.get_tab(title="Auth · Privy")
+            if pop_tab.url is not None:
+                browser_extension_path = "tag:span@@text()=Browser Extension"
+                if 'cross-app/connect?' in pop_tab.url:
+                    approve_path = "tag:button@@text()=Approve"
+                    wallet_path = "tag:div@@text()=Continue with a wallet"
+                    if pop_tab.wait.ele_displayed(browser_extension_path, timeout=0.5) is not False:
+                        pop_tab.actions.move_to(browser_extension_path)
+                        pop_tab.ele(browser_extension_path).click()
+                    elif pop_tab.wait.ele_displayed(wallet_path,timeout=0.5) is not False:
+                        pop_tab.actions.move_to(wallet_path)
+                        pop_tab.ele(wallet_path).click()
+                    elif pop_tab.wait.ele_displayed(approve_path,timeout=0.5) is not False:
+                        pop_tab.actions.move_to(approve_path)
+                        pop_tab.ele(approve_path).click()
 
-    # Hive 登录，提取 Public 和 Private Key
-    logger.info("开始 Hive 登录...")
-    run_command_and_print("/root/.aios/aios-cli hive login", wait_for="Authenticated successfully!")
+                elif "cross-app/transact?" in pop_tab.url:
+                    wallet_path = "tag:div@@text()=Continue with a wallet"
+                    sign_con_path = "tag:button@@text()=Sign and continue"
+                    if pop_tab.wait.ele_displayed(sign_con_path,timeout=0.5) is not False:
+                        pop_tab.actions.move_to(sign_con_path)
+                        pop_tab.ele(sign_con_path).click()
+                    elif pop_tab.wait.ele_displayed(wallet_path,timeout=0.5) is not False:
+                        pop_tab.actions.move_to(wallet_path)
+                        pop_tab.ele(wallet_path).click()
+                    elif pop_tab.wait.ele_displayed(browser_extension_path) is not False:
+                        pop_tab.actions.move_to(browser_extension_path)
+                        pop_tab.ele(browser_extension_path).click()
 
-    # if public_key is not None:
-    #     logger.info("已配置了key...")
-    # else:
+        if len(self.browser.get_tabs(title="Signma")) > 0:
+            pop_tab = self.browser.get_tab(title="Signma")
 
-    # 执行 hive whoami 命令
-    logger.info("执行 hive whoami 命令...")
-    login_output = run_command_blocking("/root/.aios/aios-cli hive whoami")
-    public_key = None
-    private_key = None
-    public_match = re.search(r"Public:\s*(\S+)", login_output)
-    private_match = re.search(r"Private:\s*(\S+)", login_output)
-    if public_match:
-        public_key = public_match.group(1)
-    if private_match:
-        private_key = private_match.group(1)
-    logger.info(f"Public Key: {public_key}")
-    logger.info(f"Private Key: {private_key}")
-    logger.info("whoami 命令执行完毕。")
-    client.publish("hyperCli", json.dumps(get_info(serverId, "hyperCli", public_key, private_key)))
+            back_path = 'x://*[@id="sign-root"]/div/div/section/main/div[1]/section[1]/div/button'
+            conn_path = "tag:div@@class=jsx-3858486283 button_content@@text()=连接"
+            sign_enable_path = (
+                "tag:button@@class=jsx-3858486283 button large primaryGreen"
+            )
 
-    # 7. 执行 hive select-tier 5 命令
-    logger.info("执行 hive select-tier 5 命令...")
-    run_command_blocking("/root/.aios/aios-cli hive select-tier 5")
-    logger.info("select-tier 命令执行完毕。")
+            sign_blank_path = (
+                "tag:div@@class=jsx-1443409666 subtext@@text()^希望您使用您的登录"
+            )
 
-    # 8. 执行 hive connect 命令
-    logger.info("执行 hive connect 命令...")
-    run_command_blocking("/root/.aios/aios-cli hive connect")
-    logger.info("connect 命令执行完毕。")
+            if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fdapp-permission':
+                if pop_tab.ele(back_path) is not None:
+                    pop_tab.ele(back_path).click()
+                time.sleep(2)
 
-    # 获取积分
-    while True:
+                if pop_tab.ele(conn_path) is not None:
+                    pop_tab.ele(conn_path).click()
+                    time.sleep(3)
+            elif "chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign":
+                while pop_tab.wait.ele_displayed(sign_enable_path, timeout=3) is False:
+                    if pop_tab.wait.ele_displayed(sign_blank_path, timeout=3):
+                        pop_tab.actions.move_to(sign_blank_path)
+                        pop_tab.ele(sign_blank_path).click()
+                        time.sleep(2)
+
+                if pop_tab.ele(sign_enable_path) is not None:
+                    pop_tab.ele(sign_enable_path).click()
+
+    def myriad(self, args):
         try:
-            logger.info("\n===== 积分查询输出 =====")
-            login_output = run_command_blocking("/root/.aios/aios-cli hive points")
-            points = None
-            public_match = re.search(r"Points:\s*(\S+)", login_output)
-            if public_match:
-                points = public_match.group(1)
-            logger.info(f"points: {points}")
-            app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
-                                             '运行中， 并到采集积分:' + str(points))
-            client.publish("appInfo", json.dumps(app_info))
-            logger.info("获取积分完成。")
-            time.sleep(3600)
+            if len(self.browser.get_tabs(title="Signma")) > 0:
+                self.browser.get_tab(title="Signma").close()
+
+            self.tab.get("https://myriad.markets", timeout=60)
+
+            time.sleep(5)
+            # 接受cookie
+            accept_path = (
+                "tag:button@@id=CybotCookiebotDialogBodyButtonAccept@@text()=Allow all"
+            )
+
+            if self.tab.wait.ele_displayed(accept_path, timeout=5):
+                self.tab.ele(accept_path).click()
+            # 连接钱包
+            connect_path = "tag:button@@data-id=connect-wallet-button"
+            img_path = 'tag:img@src=https://myriad.markets/ui/myriad-icon-avatar-placeholder.svg'
+            claim_button_path = "tag:div@@class^text-text-sub-600@@text()^Limbo"
+
+            avali_button_path = "tag:div@@class=relative@@text()^Available in "
+
+            if self.tab.wait.ele_displayed(img_path, timeout=5):
+                i = 0
+            elif self.tab.wait.ele_displayed(connect_path, timeout=5):
+                self.tab.ele(connect_path).click()
+                time.sleep(5)
+                for i in range(10):
+                    # logger.info(f'第{i}次循环')
+                    self.myriad_pop()
+                    time.sleep(5)
+
+                time.sleep(5)
+                i = 1
+                while (
+                        self.tab.wait.ele_displayed(claim_button_path, timeout=2) is False
+                        and self.tab.wait.ele_displayed(avali_button_path, timeout=1) is False
+                ) and self.tab.wait.ele_displayed(
+                    "tag:div@@class=relative@@text()=Sign in to Claim", timeout=1
+                ) is not False:
+                    self.tab.ele("tag:div@@class=relative@@text()=Sign in to Claim").click()
+                    time.sleep(5)
+
+                    if len(self.browser.get_tabs(title="Myriad | DASTAN")) > 0:
+                        sign_in_tab = self.browser.get_tab(title="Myriad | DASTAN")
+
+                        sign_in_path = "tag:span@@class=text-sm font-medium px-1@@text()=Sign in with Abstract"
+
+                        if sign_in_tab.wait.ele_displayed(sign_in_path, timeout=3):
+                            sign_in_tab.actions.move_to(sign_in_path)
+                            sign_in_tab.ele(sign_in_path).click()
+                            time.sleep(10)
+
+            for i in range(2):
+                # logger.info(f'第{i}次补充循环')
+                self.myriad_pop()
+                time.sleep(2)
+
+
+            time.sleep(3)
+
+            self.tab.get("https://myriad.markets", timeout=5)
+            self.tab.wait.load_start()
+            time.sleep(10)
+            if self.tab.wait.ele_displayed(claim_button_path, timeout=10) is not False:
+                self.tab.ele(claim_button_path).click()
+                time.sleep(2)
+                # if self.tab.wait.ele_displayed(avali_button_path, timeout=1) is False:
+                save_wallet_path = "tag:div@@text()=Save to Wallet"
+                close_path = "tag:div@@text()=Close"
+                if self.tab.wait.ele_displayed(close_path, timeout=3) is not False:
+                    self.tab.ele(close_path).click()
+                    self.tab.ele(claim_button_path).click()
+                    time.sleep(2)
+
+                if self.tab.wait.ele_displayed(close_path, timeout=3) is False:
+                    conf_count = 0
+                    while (
+                            self.tab.wait.ele_displayed(save_wallet_path, timeout=3)
+                            is False
+                            and conf_count < 2
+                    ):
+                        time.sleep(3)
+                        conf_count = conf_count + 1
+
+                    if self.tab.wait.ele_displayed(save_wallet_path, timeout=3):
+                        self.tab.actions.move_to(save_wallet_path)
+                        self.tab.ele(save_wallet_path).click()
+                        time.sleep(2)
+                else:
+                    self.tab.ele(close_path).click()
+
+            self.myriad_pop()
+
+            self.tab.get("https://myriad.markets/markets", timeout=30)
+            time.sleep(5)
+            market_list = self.tab.eles(
+                "tag:div@@class=relative group/gcontainer@@style=padding: 1px;"
+            )
+
+            market_item = random.choice(market_list)
+
+            market_url = market_item.s_ele(
+                "tag:a@@class=gap-2 flex items-center min-h-[44px] mt-3 px-4 linkbox__overlay"
+            ).attr("href")
+
+            self.tab.get(market_url, timeout=5)
+
+            time.sleep(5)
+
+            buy_path = "tag:div@@class=relative truncate@@text()=Buy"
+
+            while self.tab.wait.ele_displayed(buy_path) is False:
+                time.sleep(5)
+
+            if self.tab.wait.ele_displayed(buy_path, timeout=30):
+                self.tab.actions.move_to(buy_path)
+                time.sleep(1)
+                self.tab.ele(buy_path).click()
+                time.sleep(5)
+
+            confirm_path = "tag:div@@class=relative@@text()=Confirm"
+
+            while self.tab.wait.ele_displayed(confirm_path) is False:
+                time.sleep(2)
+
+            if self.tab.wait.ele_displayed(confirm_path, timeout=20):
+                self.tab.actions.move_to(confirm_path)
+                self.tab.ele(confirm_path).click()
+                time.sleep(5)
+
+            time.sleep(15)
+
+            approve_path = "tag:button@@text()=Approve"
+
+            not_now_path = "tag:button@@text()=Not now"
+
+            buy_count = 0
+            while len(self.browser.get_tabs(title="Auth · Privy")) == 0 and buy_count < 15:
+                time.sleep(2)
+                buy_count = buy_count + 1
+
+            if len(self.browser.get_tabs(title="Auth · Privy")) > 0:
+                approve_tab = self.browser.get_tab(title="Auth · Privy")
+
+                if (
+                        approve_tab.wait.ele_displayed(approve_path, timeout=30)
+                        and approve_tab.wait.ele_displayed("tag:span@@text()^\$0", timeout=3)
+                        and approve_tab.wait.ele_displayed(
+                    "tag:span@@text()=Sponsored", timeout=1
+                )
+                ):
+                    # time.sleep(5)
+                    approve_tab.actions.move_to(approve_path)
+                    approve_tab.ele(approve_path).click()
+                    time.sleep(20)
+                    # approve_tab = self.browser.get_tab(title="Auth · Privy")
+                    done_count = 0
+                    retry_path = "tag:button@@text()=Retry transaction"
+                    all_path = "tag:button@@text()=All Done"
+                    while (
+                            approve_tab.wait.ele_displayed(all_path, timeout=3) is False
+                            and done_count < 6
+                    ):
+                        time.sleep(2)
+                        approve_tab = self.browser.get_tab(title="Auth · Privy")
+                        done_count = done_count + 1
+
+                    if approve_tab.wait.ele_displayed(retry_path, timeout=1) is not False:
+                        self.res_info = "approve参数错误,跳过"
+                    elif approve_tab.wait.ele_displayed(all_path, timeout=10) is not False:
+                        approve_tab.ele(all_path).click()
+
+                        time.sleep(8)
+                        self.res_info = "成功处理"
+                    else:
+                        self.res_info = "未获取到all done按钮"
+                else:
+                    if len(self.browser.get_tabs(title="Auth · Privy")) > 0:
+                        approve_tab.ele(not_now_path).click()
+                    self.res_info = "交易数据错误,跳过"
+            else:
+                # No markets found. Try changing the filters.
+                if len(self.browser.get_tabs(title="Auth · Privy")) > 0:
+                    self.tab(not_now_path).click()
+            time.sleep(10)
+            self.tab.get("https://myriad.markets/profile", timeout=5)
+
+            time.sleep(3)
+            if self.tab.wait.ele_displayed("tag:div@@text()=No markets found. Try changing the filters.", timeout=10):
+                self.res_info = "无交易记录"
+            else:
+                self.res_info = "有交易记录,交易成功"
+
+
+
         except Exception as e:
-            client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
+            logger.info(f"---------发生异常：{str(e)}-----------------")
+            self.res_info = f"发生异常：{str(e)}"
+        finally:
+            self.signma_log(self.res_info, all_args.task, all_args.index,"https://signma.bll06.xyz")
 
-def get_info(server_id, account_type, public_key, private_key):
-    return {
-        "serverId": f"{server_id}",
-        "accountType": f"{account_type}",
-        "publicKey": f"{public_key}",
-        "privateKey": f"{private_key}"
-    }
-
-
-def get_app_info(serverId, appId, operationType, description):
-    return {
-        "serverId": f"{serverId}",
-        "applicationId": f"{appId}",
-        "operationType": f"{operationType}",
-        "description": f"{description}",
-    }
-
-
-def get_app_info_integral(serverId, appId, public_key, integral, operationType, description):
-    return {
-        "serverId": f"{serverId}",
-        "applicationId": f"{appId}",
-        "publicKey": f"{public_key}",
-        "integral": f"{integral}",
-        "operationType": f"{operationType}",
-        "description": f"{description}",
-    }
-
-def read_file(file_path):
-    """从文件中读取内容并去除多余空白"""
-    try:
-        with open(file_path, 'r') as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        raise ValueError(f"文件未找到: {file_path}")
-
-
-def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
-    """
-    解密 AES ECB 模式的 Base64 编码数据，
-    去除 PKCS7 填充后直接返回 accountType 为 "hyper" 的记录中的 privateKey。
-    """
-    try:
-        # Base64 解码
-        encrypted_bytes = base64.b64decode(data_encrypted_base64)
-        # 创建 AES 解密器
-        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
-        # 解密数据
-        decrypted_bytes = cipher.decrypt(encrypted_bytes)
-        # 去除 PKCS7 填充（AES.block_size 默认为 16）
-        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
-        # 将字节转换为字符串
-        decrypted_text = decrypted_bytes.decode('utf-8')
-
-        # logger.info(f"获取数据中的 {key}: {decrypted_text}")
-
-        # 解析 JSON 字符串为 Python 对象（通常为列表）
-        data_list = json.loads(decrypted_text)
-
-        # 遍历数组，查找 accountType 为 "hyper" 的第一个记录
-        for item in data_list:
-            if item.get('accountType') == 'hyperCli':
-                return item.get(key)
-
-        # 没有找到匹配的记录，返回 None
-        return None
-
-    except Exception as e:
-        raise ValueError(f"解密失败: {e}")
+            # res = requests.request("POST", self.log_url, headers=headers, data=payload)
+            logger.info(f"---------完成情况：no-----------------")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="获取应用信息")
-    parser.add_argument("--serverId", type=str, help="服务ID", required=True)
-    parser.add_argument("--appId", type=str, help="应用ID", required=True)
-    parser.add_argument("--decryptKey", type=str, help="解密key", required=True)
-    parser.add_argument("--user", type=str, help="执行用户", required=True)
-    parser.add_argument("--display", type=str, help="执行窗口", required=True)
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(description="This script accepts args.")
+    parser.add_argument('--type', type=str, help='operation type')
+    parser.add_argument('--task', type=str, help='task name')
+    parser.add_argument('--index', type=str, help='index')
+    all_args = parser.parse_args()
+    task_set = TaskSet(all_args)
 
-    # MQTT 配置
-    BROKER = "150.109.5.143"
-    PORT = 1883
-    TOPIC = "appInfo"
-    USERNAME = "userName"
-    PASSWORD = "liuleiliulei"
+    try:
 
-    # 创建 MQTT 客户端
-    client = create_mqtt_client(BROKER, PORT, USERNAME, PASSWORD, TOPIC)
-    client.loop_start()
-    main(client, args.serverId, args.appId, args.decryptKey, args.user, args.display)
+        if all_args.type == 'myriad':
+            task_set.setup_wallet(all_args)
+            task_set.myriad(all_args)
+    finally:
+        task_set.close_browser()
