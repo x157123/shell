@@ -209,9 +209,9 @@ def monitor_switch(tab, client, serverId, appId, user, display):
             # 判断元素是否存在，存在则执行点击操作
             if div_ele:
                 div_ele.click(by_js=True)
-                print("离线，已执行点击操作。")
+                logger.info("离线，已执行点击操作。")
             else:
-                print("在线。")
+                logger.info("在线。")
 
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
@@ -265,9 +265,9 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 判断元素是否存在，存在则执行点击操作
     if div_ele:
         div_ele.click(by_js=True)
-        print("找到了包含 'bg-[#ffffff]' 的 div，已执行点击操作。")
+        logger.info("找到了包含 'bg-[#ffffff]' 的 div，已执行点击操作。")
     else:
-        print("未找到包含 'bg-[#ffffff]' 的 div。")
+        logger.info("未找到包含 'bg-[#ffffff]' 的 div。")
 
     # 点击 "Sign up to earn NEX" 元素
     signup_ele = tab.ele('x://div[text()="Sign up to earn NEX"]/ancestor::button')
@@ -286,11 +286,11 @@ def main(client, serverId, appId, decryptKey, user, display):
             if signma_ele:
                 signma_ele.click(by_js=True)
             else:
-                print("没有找到 'Signma' 元素。")
+                logger.info("没有找到 'Signma' 元素。")
         else:
-            print("没有找到 'Continue with a wallet' 元素。")
+            logger.info("没有找到 'Continue with a wallet' 元素。")
     else:
-        print("没有找到 'Sign up to earn NEX' 元素。")
+        logger.info("没有找到 'Sign up to earn NEX' 元素。")
 
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab, client, serverId, appId, user, display)
@@ -329,11 +329,11 @@ def on_connect(client, userdata, flags, reason_code, properties=None):
     reason_code = 0 表示连接成功，否则为失败码
     """
     if reason_code == 0:
-        print("Connected to broker successfully.")
+        logger.info("Connected to broker successfully.")
         # 仅发布消息，去除订阅
         pass
     else:
-        print(f"Connection failed with reason code: {reason_code}")
+        logger.info(f"Connection failed with reason code: {reason_code}")
 
 
 def on_disconnect(client, userdata, reason_code, properties=None):
@@ -341,16 +341,16 @@ def on_disconnect(client, userdata, reason_code, properties=None):
     当客户端与 Broker 断开连接后触发
     可以在此处进行自动重连逻辑
     """
-    print(f"Disconnected from broker, reason_code: {reason_code}")
+    logger.info(f"Disconnected from broker, reason_code: {reason_code}")
     # 如果 reason_code != 0，则表示非正常断开
     while True:
         try:
-            print("Attempting to reconnect...")
+            logger.info("Attempting to reconnect...")
             client.reconnect()
-            print("Reconnected successfully.")
+            logger.info("Reconnected successfully.")
             break
         except Exception as e:
-            print(f"Reconnect failed: {e}")
+            logger.info(f"Reconnect failed: {e}")
             time.sleep(5)  # 等待 5 秒后重试
 
 
@@ -359,7 +359,7 @@ def on_message(client, userdata, msg):
     当收到订阅主题的新消息时触发
     v5 中的 on_message 参数与 v3.x 相同： (client, userdata, message)
     """
-    print(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
+    logger.info(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
 
 
 # =================================================   MQTT   ======================================
