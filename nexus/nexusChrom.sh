@@ -385,6 +385,12 @@ else
 fi
 
 
+# 如果 /opt/nexus/nexus-manager.sh 存在，则先删除旧文件
+if [ -f /opt/nexus/nexus-manager.sh ]; then
+    echo "/opt/nexus/nexus-manager.sh 已存在，正在删除旧文件..."
+    /opt/nexus/nexus-manager.sh -t stop
+fi
+
 # 安装其他插件
 pip3 install psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
 
