@@ -299,7 +299,7 @@ def main(client, serverId, appId, decryptKey, user, display):
                         # 进入 shadow DOM
                         shadow_root = shadow_host.shadow_root
                         if shadow_root:
-                            newtwork = shadow_root.ele('x://button[@data-testid="SelectNetWorkButton"]')
+                            newtwork = shadow_root.ele('x://button[data-testid="SelectNetworkButton"]')
                             if newtwork:
                                 newtwork.click(by_js=True)
                                 time.sleep(2)
