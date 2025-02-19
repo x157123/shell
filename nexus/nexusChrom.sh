@@ -158,6 +158,40 @@ if [ ! -f /opt/nexus/nexusChrom.py ]; then
     exit 1
 fi
 
+# 目录路径
+DIR="/home/"$USER"/extensions/chrome-cloud"
+# 文件下载地址
+URL="https://www.15712345.xyz/chrome-cloud.tar"
+# 解压后的目标目录
+TARGET_DIR="/home/"$USER"/extensions/"
+
+# 判断目录是否存在
+if [ ! -d "$DIR" ]; then
+  # 目录不存在，创建目录
+  mkdir -p "$DIR"
+  echo "目录 $DIR 已创建。"
+
+  # 下载文件
+  echo "下载文件..."
+  wget -O /tmp/chrome-cloud.tar "$URL"
+
+  # 解压文件
+  echo "解压文件..."
+  tar -xvf /tmp/chrome-cloud.tar -C "$TARGET_DIR"
+
+  # 删除下载的 tar 文件
+  rm /tmp/chrome-cloud.tar
+
+  # 授权给 ubuntu 用户
+  echo "授权目录 $DIR 给 ubuntu 用户..."
+  chown -R "$USER":"$USER" "$DIR"
+
+  echo "授权完成。"
+else
+  echo "目录 $DIR 已存在，跳过下载和解压。"
+fi
+
+
 echo "为 /opt/nexus/nexusChrom.py 设置可执行权限..."
 chmod +x /opt/nexus/nexusChrom.py
 
