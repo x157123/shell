@@ -222,7 +222,8 @@ def monitor_switch(tab, client, serverId, appId, user, display):
                     i = 0
                     logger.info("发送消息给服务器。")
                 else:
-                    check(tab)
+                    client.publish("appInfo",
+                                   json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常')))
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
 
