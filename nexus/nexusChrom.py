@@ -301,7 +301,7 @@ def main(client, serverId, appId, decryptKey, user, display):
                         if shadow_root:
                             newtwork = shadow_root.ele('x://button[@data-testid="SelectNetWorkButton"]')
                             if newtwork:
-                                signma_ele.click(by_js=True)
+                                newtwork.click(by_js=True)
                                 time.sleep(2)
                                 myriad_pop(tab)
                 else:
@@ -317,7 +317,7 @@ def main(client, serverId, appId, decryptKey, user, display):
             if shadow_root:
                 newtwork = shadow_root.ele('x://button[@data-testid="SelectNetWorkButton"]')
                 if newtwork:
-                    signma_ele.click(by_js=True)
+                    newtwork.click(by_js=True)
                     time.sleep(2)
                     myriad_pop(tab)
     else:
