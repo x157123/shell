@@ -299,7 +299,7 @@ def main(client, serverId, appId, decryptKey, user, display):
                         # 进入 shadow DOM
                         shadow_root = shadow_host.shadow_root
                         if shadow_root:
-                            newtwork = shadow_root.ele('x://button[data-testid="SelectNetworkButton"]')
+                            newtwork = shadow_root.ele('x://@button[data-testid="SelectNetworkButton"]')
                             if newtwork:
                                 newtwork.click(by_js=True)
                                 time.sleep(2)
@@ -321,7 +321,7 @@ def main(client, serverId, appId, decryptKey, user, display):
         shadow_root = shadow_host.shadow_root
         if shadow_root:
             logger.info("找到12。")
-            newtwork = shadow_root.ele('x://button[data-testid="SelectNetworkButton"]')
+            newtwork = shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]')
             if newtwork:
                 logger.info("找到1。")
                 newtwork.click(by_js=True)
