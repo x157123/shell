@@ -253,57 +253,59 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
+
+# 默认值
+TYPE=""
+KEY=""
+
 # 使用 getopt 解析命令行参数
-TEMP=$(getopt -o 1234567 -l "help" -- "$@")
+TEMP=$(getopt -o t:k --long type:,key: -n 'startNexus.sh' -- "$@")
 if [ $? != 0 ]; then
     echo "Failed to parse options."
     exit 1
 fi
 eval set -- "$TEMP"
 
-# 解析命令行参数
 while true; do
     case "$1" in
-        1)  # 对应原来的 -1 选项
-            setup_directories
-            check_dependencies
-            download_files
-            start_prover
+        -t|--type)
+            TYPE=$2
+            shift 2
             ;;
-        2)  # 对应原来的 -2 选项
-            check_status
+        -p|--key)
+            KEY=$2
+            shift 2
             ;;
-        3)  # 对应原来的 -3 选项
-            show_prover_id
-            ;;
-        4)  # 对应原来的 -4 选项
-            set_prover_id "$2"
-            shift
-            ;;
-        5)  # 对应原来的 -5 选项
-            stop_prover
-            ;;
-        6)  # 对应原来的 -6 选项
-            update_nexus
-            ;;
-        7)  # 对应原来的 -7 选项
-            echo -e "\n${GREEN}感谢使用！${NC}"
-            cleanup
-            ;;
-        --help)  # 显示帮助信息
-            echo "Usage: $0 [option]"
-            echo "1: 安装并启动 Nexus"
-            echo "2: 查看当前运行状态"
-            echo "3: 查看 Prover ID"
-            echo "4: 设置 Prover ID"
-            echo "5: 停止 Nexus"
-            echo "6: 更新 Nexus"
-            echo "7: 退出"
-            ;;
-        *)  # 如果没有匹配的选项，则退出
-            echo -e "${RED}无效的选择${NC}"
+        *)
+            echo "Internal error!"
             exit 1
             ;;
     esac
-    shift
 done
+
+if [ TYPE == "start" ]; then
+  setup_directories
+  check_dependencies
+  download_files
+  start_prover
+fi
+
+if [ TYPE == "stop" ]; then
+  stop_prover
+fi
+
+if [ TYPE == "status" ]; then
+  check_status
+fi
+
+if [ TYPE == "id" ]; then
+  show_prover_id
+fi
+
+if [ TYPE == "set" ]; then
+  set_prover_id "$KEY"
+fi
+
+if [ TYPE == "update" ]; then
+  update_nexus
+fi
