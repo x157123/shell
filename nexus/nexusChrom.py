@@ -321,7 +321,7 @@ def main(client, serverId, appId, decryptKey, user, display):
         shadow_root = shadow_host.shadow_root
         if shadow_root:
             logger.info("找到12。")
-            newtwork = shadow_root.ele('x://button[@data-testid="SelectNetWorkButton"]')
+            newtwork = shadow_root.ele('x://button[data-testid="SelectNetworkButton"]')
             if newtwork:
                 logger.info("找到1。")
                 newtwork.click(by_js=True)
