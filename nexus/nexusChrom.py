@@ -215,44 +215,23 @@ def monitor_switch(tab, client, serverId, appId, user, display):
         try:
             time.sleep(num)
 
-            # 假设该元素可用以下 XPath 定位到（根据实际页面结构进行调整）
-            # 这里我们通过 class 里含有 'relative w-24 h-16 rounded-full cursor-pointer' 来定位
-            power_button_xpath = '//div[contains(@class, "relative w-24 h-16 rounded-full cursor-pointer")]'
+            # 1. 先定位到外部 div（class 中包含 "transition-transform"）
+            # 2. 在该 div 内部查找 class 中包含 "invert" 的 img
+            xpath_for_invert_img = (
+                'x://div[contains(@class, "transition-transform")]'
+                '//img[contains(@class, "invert")]'
+            )
 
-            # 获取元素
-            power_button_ele = tab.ele(power_button_xpath)
+            # 等待并获取该 img 元素
+            invert_img_ele = tab.ele(xpath_for_invert_img)
 
-            if not power_button_ele:
-                logger.info("未能找到电源切换按钮，请检查 XPath 是否正确。")
+            if invert_img_ele:
+                logger.info("找到外部 div 内带 'invert' class 的 img，执行点击...")
+                invert_img_ele.click()
+                logger.info("点击完毕。")
             else:
-                # 获取元素的 class 属性
-                class_val = power_button_ele.attr('class')
-                logger.info(f'按钮 class 属性为: {class_val}')
+                logger.info("未能在外部 div 中找到带 'invert' class 的 img，可能无需点击或请检查定位。")
 
-                # 判断是否为关闭状态（border-4 border-gray-400 bg-[#ffffff]）
-                # 只要判断一个或两个关键类名即可，也可以只判断部分(如 border-gray-400)来进行区分
-                if "border-gray-400" in class_val and "bg-[#ffffff]" in class_val:
-                    logger.info("检测到按钮处于关闭状态，准备点击切换为开启...")
-                    power_button_ele.click()
-                    logger.info("已点击按钮，等待页面响应。")
-                else:
-                    logger.info("按钮已处于开启状态，无需操作。")
-
-
-            # 使用 XPath 查找包含 “NEX points” 的 div，再获取其前一个兄弟节点
-            xpath_for_nex_value = '//div[contains(text(), "NEX points")]/preceding-sibling::div'
-
-            # 获取元素
-            nex_value_ele = tab.ele(xpath_for_nex_value)
-
-            if nex_value_ele:
-                # 获取元素文本
-                value_text = nex_value_ele.text
-                print("NEX points 同层级的数值是：", value_text)
-            else:
-                print("未能找到包含 'NEX points' 的元素，或它的前一个兄弟元素。")
-
-            total += 1
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
 
