@@ -351,11 +351,11 @@ def get_app_info(serverId, appId, operationType, description):
 
 
 def setup_wallet(self, key):
-    self = self.browser.new_tab(url="chrome://extensions/")
+    extensions = self.browser.new_tab(url="chrome:///")
     time.sleep(3)
 
     toggle_ele = (
-        self.ele(
+        extensions.ele(
             "x://html/body/extensions-manager"
         )  # /html/body/extensions-manager
         .shadow_root.ele('x://*[@id="viewManager"]')
@@ -365,7 +365,7 @@ def setup_wallet(self, key):
     )
 
     refresh_ele = (
-        self.ele(
+        extensions.ele(
             "x://html/body/extensions-manager"
         )  # /html/body/extensions-manager
         .shadow_root.ele('x://*[@id="viewManager"]')
@@ -381,7 +381,7 @@ def setup_wallet(self, key):
     refresh_ele.click()
 
     time.sleep(2)
-    wallet_tab = self.browser.new_tab(
+    wallet_tab = extensions.browser.new_tab(
         url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
     )
 
