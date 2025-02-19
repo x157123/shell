@@ -174,15 +174,15 @@ start_prover() {
     cd "$NEXUS_HOME" || exit
 
     if [ ! -f "$PROVER_ID_FILE" ]; then
-        echo -e "${YELLOW}请输入您的 Prover ID${NC}"
-        echo -e "${YELLOW}如果您还没有 Prover ID，直接按回车将自动生成${NC}"
+        echo -e "${YELLOW}Please enter your Prover ID${NC}"
+        echo -e "${YELLOW}If you don't have a Prover ID, press Enter to automatically generate one${NC}"
         read -p "Prover ID > " input_id
 
         if [ -n "$input_id" ]; then
             echo "$input_id" > "$PROVER_ID_FILE"
-            echo -e "${GREEN}已保存 Prover ID: $input_id${NC}"
+            echo -e "${GREEN}Saved Prover ID: $input_id${NC}"
         else
-            echo -e "${YELLOW}将自动生成新的 Prover ID...${NC}"
+            echo -e "${YELLOW}A new Prover ID will be automatically generated...${NC}"
         fi
     fi
 
