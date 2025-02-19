@@ -397,13 +397,16 @@ def myriad_pop(self):
             if pop_tab.ele(back_path) is not None:
                 try:
                     pop_tab.ele(back_path).click()
+                    time.sleep(2)
                 except Exception as e:
-                    pop_tab.ele(conn_path).click()
-            time.sleep(2)
+                    logger.info(f"点击button失败")
 
             if pop_tab.ele(conn_path) is not None:
-                pop_tab.ele(conn_path).click()
-                time.sleep(3)
+                try:
+                    pop_tab.ele(conn_path).click()
+                    time.sleep(3)
+                except Exception as e:
+                    logger.info(f"点击连接失败")
         elif "chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign":
             while pop_tab.wait.ele_displayed(sign_enable_path, timeout=3) is False:
                 if pop_tab.wait.ele_displayed(sign_blank_path, timeout=3):
