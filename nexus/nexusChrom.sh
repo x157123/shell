@@ -61,6 +61,12 @@ if [ -z "$USER" ]; then
 fi
 
 
+# 如果 /opt/nexus/nexus-manager.sh 存在，则先删除旧文件
+if [ -f /opt/nexus/nexus-manager.sh ]; then
+    echo "/opt/nexus/nexus-manager.sh 已存在，正在删除旧文件..."
+    /opt/nexus/nexus-manager.sh -t stop
+fi
+
 echo "安装剪切板"
 # 尝试安装 xclip
 echo "尝试安装 xclip..."
@@ -382,13 +388,6 @@ else
         --listen 26380 \
         &> /dev/null &
     echo "noVNC proxy started in the background (listening on port 26380)."
-fi
-
-
-# 如果 /opt/nexus/nexus-manager.sh 存在，则先删除旧文件
-if [ -f /opt/nexus/nexus-manager.sh ]; then
-    echo "/opt/nexus/nexus-manager.sh 已存在，正在删除旧文件..."
-    /opt/nexus/nexus-manager.sh -t stop
 fi
 
 # 安装其他插件
