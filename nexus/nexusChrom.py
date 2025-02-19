@@ -321,7 +321,7 @@ def main(client, serverId, appId, decryptKey, user, display):
                                 newtwork = shadow_root.ele('x://@button[data-testid="SelectNetworkButton"]')
                                 if newtwork:
                                     newtwork.click(by_js=True)
-                                    time.sleep(2)
+                                    time.sleep(5)
                                     myriad_pop(tab)
                 else:
                     logger.info("没有找到 'Signma' 元素。")
@@ -346,6 +346,7 @@ def main(client, serverId, appId, decryptKey, user, display):
                 newtwork.click(by_js=True)
                 time.sleep(2)
                 myriad_pop(tab)
+                time.sleep(2)
             else:
                 logger.info("没有找到1。")
         else:
