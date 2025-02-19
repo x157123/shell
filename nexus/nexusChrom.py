@@ -203,22 +203,15 @@ def monitor_switch(tab, client, serverId, appId, user, display):
         try:
             time.sleep(num)
 
-            # 1. 先定位到外部 div（class 中包含 "transition-transform"）
-            # 2. 在该 div 内部查找 class 中包含 "invert" 的 img
-            xpath_for_invert_img = (
-                'x://div[contains(@class, "transition-transform")]'
-                '//img[contains(@class, "invert")]'
-            )
+            # 定位 class 属性中包含 'bg-[#ffffff]' 的 div 元素
+            div_ele = tab.ele('x://div[contains(@class, "bg-[#ffffff]")]')
 
-            # 等待并获取该 img 元素
-            invert_img_ele = tab.ele(xpath_for_invert_img)
-
-            if invert_img_ele:
-                logger.info("找到外部 div 内带 'invert' class 的 img，执行点击...")
-                invert_img_ele.click()
-                logger.info("点击完毕。")
+            # 判断元素是否存在，存在则执行点击操作
+            if div_ele:
+                div_ele.click(by_js=True)
+                print("离线，已执行点击操作。")
             else:
-                logger.info("未能在外部 div 中找到带 'invert' class 的 img，可能无需点击或请检查定位。")
+                print("在线。")
 
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
