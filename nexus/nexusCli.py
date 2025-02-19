@@ -8,6 +8,8 @@ import base64
 from loguru import logger
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
+import threading
+import sys
 
 def run_command_blocking(cmd, print_output=True):
     """
@@ -116,6 +118,26 @@ def write_to_file(file_path, content):
         logger.info(f"写入文件时发生错误: {e}")
 
 
+def read_output(process, key):
+    """
+    实时读取子进程输出，并在检测到提示后发送输入。
+    """
+    for line in iter(process.stdout.readline, ''):
+        sys.stdout.write(line)
+        sys.stdout.flush()
+        # 检测到第一个提示：无 Prover ID 时按回车
+        if "If you don't have a Prover ID, press Enter to automatically generate one" in line:
+            time.sleep(1)
+            if key is None:
+                process.stdin.write("\n")
+                process.stdin.flush()
+            # 检测到第二个提示：需要输入动态字符串（请根据实际提示调整匹配内容）
+            else:
+                process.stdin.write(key + "\n")
+                process.stdin.flush()
+    process.stdout.close()
+
+
 def main(client, serverId, appId, decryptKey, user, display):
 
     # 从文件加载密文
@@ -130,40 +152,37 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 1. 安装
     logger.info("===== 执行安装 =====")
     # 启动外部命令
+    command = ["/opt/nexus/nexus-manager.sh", "-t", "start"]
     process = subprocess.Popen(
-        ["/opt/nexus/nexus-manager.sh", "-1"],  # 执行的命令及参数
-        stdin=subprocess.PIPE,  # 使用管道向进程写入输入
-        stdout=subprocess.PIPE,  # 获取标准输出
-        stderr=subprocess.PIPE,  # 获取标准错误输出
-        text=True  # 使用文本模式而非字节模式
+        command,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1
     )
 
-    # 读取输出并检查是否需要输入 Prover ID
-    output, error = process.communicate()
+    # 开启线程实时读取输出并发送输入
+    thread = threading.Thread(target=read_output, args=(process, private_Key))
+    thread.start()
 
-    # 如果输出中包含提示 Prover ID 的信息，自动输入 Prover ID
-    if "Please enter your Prover ID" in output:
+    # 等待子进程结束
+    process.wait()
+    thread.join()
 
-        if private_Key is not None:
-            process.stdin.write(private_Key + "\n")  # 输入指定的 Prover ID
-            logger.info(f"input Prover ID: {private_Key}")
-        else:
-            process.stdin.write("\n")  # 如果 prover_id 为 None，则按下回车
-            logger.info("自动按下回车生成 Prover ID")
+    time.sleep(3)
 
-        process.stdin.flush()  # 确保输入被写入
-
-    # 获取更新后的输出
-    output, error = process.communicate()
-
-    # 打印命令的输出和错误信息
-    logger.info("Output:", output)
-    if error:
-        logger.info("Error:", error)
-
-    # 等待进程结束并返回状态码
-    return_code = process.returncode
-    logger.info("Return code:", return_code)
+    # if private_Key is not None:
+    #     # 定义命令及参数
+    #     command = ["/opt/nexus/nexus-manager.sh", "-t", "set", "-k", private_Key]
+    #
+    #     # 执行命令，并捕获输出和错误信息
+    #     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    #
+    #     # 输出返回结果
+    #     print("返回码:", result.returncode)
+    #     print("标准输出:", result.stdout)
+    #     print("错误输出:", result.stderr)
 
     # 获取积分
     while True:
