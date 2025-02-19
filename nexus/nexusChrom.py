@@ -266,15 +266,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     time.sleep(3)
     tab = tab.browser.new_tab(url="https://app.nexus.xyz")
 
-    # 定位 class 属性中包含 'bg-[#ffffff]' 的 div 元素
-    div_ele = tab.ele('x://div[contains(@class, "bg-[#ffffff]")]')
-
-    # 判断元素是否存在，存在则执行点击操作
-    if div_ele:
-        div_ele.click()
-        print("找到了包含 'bg-[#ffffff]' 的 div，已执行点击操作。")
-    else:
-        print("未找到包含 'bg-[#ffffff]' 的 div。")
+    click_element(tab, 'x://div[contains(@class, "bg-[#ffffff]")]', timeout=2)
 
     # 点击 "Sign up to earn NEX" 元素
     signup_ele = tab.ele('x://div[text()="Sign up to earn NEX"]/ancestor::button')
