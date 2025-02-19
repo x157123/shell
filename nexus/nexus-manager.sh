@@ -256,7 +256,7 @@ TYPE=""
 KEY=""
 
 # 使用 getopt 解析命令行参数
-TEMP=$(getopt -o t:k --long type:,key: -n 'startNexus.sh' -- "$@")
+TEMP=$(getopt -o t:k --long type:,key: -n 'nexus-manager.sh' -- "$@")
 if [ $? != 0 ]; then
     echo "Failed to parse options."
     exit 1
@@ -264,7 +264,7 @@ fi
 eval set -- "$TEMP"
 
 # 解析命令行参数
-while true; do
+while [ "$1" != "" ]; do
     case "$1" in
         -t|--type)
             TYPE=$2
