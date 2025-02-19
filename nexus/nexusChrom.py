@@ -293,12 +293,17 @@ def main(client, serverId, appId, decryptKey, user, display):
                     signma_ele.click(by_js=True)
                     time.sleep(2)
                     myriad_pop(tab)
-                    newtwork = shadow_root.ele('x://button[@data-testid="SelectNetWorkButton"]')
-                    if newtwork:
-                        signma_ele.click(by_js=True)
-                        time.sleep(2)
-                        myriad_pop(tab)
-
+                    # 定位到包含 shadow DOM 的元素
+                    shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+                    if shadow_host:
+                        # 进入 shadow DOM
+                        shadow_root = shadow_host.shadow_root
+                        if shadow_root:
+                            newtwork = shadow_root.ele('x://button[@data-testid="SelectNetWorkButton"]')
+                            if newtwork:
+                                signma_ele.click(by_js=True)
+                                time.sleep(2)
+                                myriad_pop(tab)
                 else:
                     logger.info("没有找到 'Signma' 元素。")
         else:
