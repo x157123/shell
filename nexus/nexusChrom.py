@@ -221,35 +221,9 @@ def monitor_switch(tab, client, serverId, appId, user, display):
                                    json.dumps(get_app_info(serverId, appId, 2, '已连接到主网络')))
                     i = 0
                     logger.info("发送消息给服务器。")
-                else:
-                    client.publish("appInfo",
-                                   json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常')))
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
 
-
-def check(tab):
-    logger.info("再次查看是否需要联网。")
-    # 定位到包含 shadow DOM 的元素
-    shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-    if shadow_host:
-        # 进入 shadow DOM
-        logger.info("找到122。")
-        shadow_root = shadow_host.shadow_root
-        if shadow_root:
-            logger.info("找到12。")
-            newtwork = shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]')
-            if newtwork:
-                logger.info("找到1。")
-                newtwork.click(by_js=True)
-                time.sleep(2)
-                myriad_pop(tab)
-            else:
-                logger.info("没有找到1。")
-        else:
-            logger.info("没有找到1。")
-    else:
-        logger.info("没有找到22。")
 
 # 获取key
 def push_key(tab, client, serverId, user, display):
@@ -338,9 +312,6 @@ def main(client, serverId, appId, decryptKey, user, display):
                     time.sleep(2)
                     myriad_pop(tab)
                     # 定位到包含 shadow DOM 的元素
-                    logger.info("钱包延迟5秒。")
-                    time.sleep(5)
-                    logger.info("钱包延迟5秒结束。")
                     shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
                     if shadow_host:
                         # 进入 shadow DOM
@@ -358,7 +329,51 @@ def main(client, serverId, appId, decryptKey, user, display):
     else:
         logger.info("没有找到 'Sign up to earn NEX' 元素。")
 
-    check(tab)
+    time.sleep(3)
+    logger.info("再次查看是否需要联网。")
+    # 定位到包含 shadow DOM 的元素
+    shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+    if shadow_host:
+        # 进入 shadow DOM
+        logger.info("找到122。")
+        shadow_root = shadow_host.shadow_root
+        if shadow_root:
+            logger.info("找到12。")
+            newtwork = shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]')
+            if newtwork:
+                logger.info("找到1。")
+                newtwork.click(by_js=True)
+                time.sleep(2)
+                myriad_pop(tab)
+            else:
+                logger.info("没有找到1。")
+        else:
+            logger.info("没有找到1。")
+    else:
+        logger.info("没有找到22。")
+
+    time.sleep(3)
+    logger.info("再次查看是否需要联网。")
+    # 定位到包含 shadow DOM 的元素
+    shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+    if shadow_host:
+        # 进入 shadow DOM
+        logger.info("找到12233。")
+        shadow_root = shadow_host.shadow_root
+        if shadow_root:
+            logger.info("找到123。")
+            newtwork = shadow_root.ele('x://button[text()=“Continue“]')
+            if newtwork:
+                logger.info("找到13。")
+                newtwork.click(by_js=True)
+                time.sleep(2)
+                myriad_pop(tab)
+            else:
+                logger.info("没有找到13。")
+        else:
+            logger.info("没有找到13。")
+    else:
+        logger.info("没有找到223。")
 
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab, client, serverId, appId, user, display)
