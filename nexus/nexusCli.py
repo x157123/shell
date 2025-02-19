@@ -189,7 +189,7 @@ def main(client, serverId, appId, decryptKey, user, display):
         try:
             # app_info = get_app_info_integral(serverId, appId, private_Key, points, 2, '运行中， 并到采集积分:' + str(points))
             # client.publish("appInfo", json.dumps(app_info))
-            time.sleep(30)
+            time.sleep(400)
             logger.info("测试！")
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
