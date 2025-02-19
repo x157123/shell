@@ -253,60 +253,67 @@ cleanup() {
 
 # === 参数解析部分 ===
 
-# 默认值
+# === 参数解析部分 ===
+
 TYPE=""
 KEY=""
 
-# 使用 getopt 解析命令行参数
-TEMP=$(getopt -o t:k --long type:,key: -n 'nexus-manager.sh' -- "$@")
-if [ $? != 0 ]; then
-    echo "Failed to parse options."
-    exit 1
-fi
-eval set -- "$TEMP"
-
-# 解析命令行参数
-while [ "$1" != "" ]; do
+# 使用简单的 while 循环解析参数（兼容性好）
+while [[ $# -gt 0 ]]; do
     case "$1" in
         -t|--type)
-            TYPE=$2
-            shift 2
+            if [[ -n "$2" ]]; then
+                TYPE="$2"
+                shift 2
+            else
+                echo "Error: Missing value for $1"
+                exit 1
+            fi
             ;;
         -k|--key)
-            KEY=$2
-            shift 2
-            ;;
-        --)
-            shift
-            break
+            if [[ -n "$2" ]]; then
+                KEY="$2"
+                shift 2
+            else
+                echo "Error: Missing value for $1"
+                exit 1
+            fi
             ;;
         *)
-            echo "Internal error!"
+            echo "Unknown parameter: $1"
             exit 1
             ;;
     esac
 done
 
-# Debug 输出，检查参数解析结果
-echo "DEBUG: TYPE=$TYPE, KEY=$KEY"
+# 调试输出（可选）
+echo "DEBUG: TYPE = '$TYPE', KEY = '$KEY'"
 
 # 根据 TYPE 执行不同操作
-if [ "$TYPE" == "start" ]; then
-  setup_directories
-  check_dependencies
-  download_files
-  start_prover
-elif [ "$TYPE" == "stop" ]; then
-  stop_prover
-elif [ "$TYPE" == "status" ]; then
-  check_status
-elif [ "$TYPE" == "id" ]; then
-  show_prover_id
-elif [ "$TYPE" == "set" ]; then
-  set_prover_id "$KEY"
-elif [ "$TYPE" == "update" ]; then
-  update_nexus
-else
-  echo "Invalid TYPE specified."
-  exit 1
-fi
+case "$TYPE" in
+    start)
+        setup_directories
+        check_dependencies
+        download_files
+        start_prover
+        ;;
+    stop)
+        stop_prover
+        ;;
+    status)
+        check_status
+        ;;
+    id)
+        show_prover_id
+        ;;
+    set)
+        set_prover_id "$KEY"
+        ;;
+    update)
+        update_nexus
+        ;;
+    *)
+        echo "Invalid TYPE specified."
+        exit 1
+        ;;
+esac
