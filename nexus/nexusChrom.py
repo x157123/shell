@@ -13,11 +13,11 @@ import random
 import subprocess
 
 
-def configure_browser():
+def configure_browser(user):
     """配置并启动浏览器"""
     co = (ChromiumOptions().set_local_port(9515)
           .set_paths(r"/opt/google/chrome/google-chrome")
-          .add_extension(r"/home/ubuntu/extensions/chrome-cloud"))
+          .add_extension(r"/home/"+user+"/extensions/chrome-cloud"))
     arguments = [
         "--accept-lang=en-US", "--no-first-run", "--force-color-profile=srgb",
         "--metrics-recording-only", "--password-store=basic", "--use-mock-keychain",
@@ -323,7 +323,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     public_key = ""
     # 启动浏览器
     logger.info(f"start")
-    tab = configure_browser()
+    tab = configure_browser(user)
     logger.info(f"安装钱包")
     setup_wallet(tab, 37826)
     time.sleep(20)
