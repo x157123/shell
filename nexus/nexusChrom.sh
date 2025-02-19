@@ -429,7 +429,7 @@ fi
 export DISPLAY=:${window}
 
 echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
-screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security  --user-data-dir=/tmp/DrissionPage/userData/9515"
+screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --user-data-dir=/tmp/nexus/userData/9515"
 
 EOF
 
