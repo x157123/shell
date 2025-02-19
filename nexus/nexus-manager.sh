@@ -254,30 +254,30 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 # 解析命令行参数
-while getopts "1-7s:" opt; do
+while getopts "a-b-c-d-e-f-g-s:" opt; do
     case $opt in
-        1)
+        a)
             setup_directories
             check_dependencies
             download_files
             start_prover
             ;;
-        2)
+        b)
             check_status
             ;;
-        3)
+        c)
             show_prover_id
             ;;
-        4)
+        d)
             set_prover_id "$OPTARG"
             ;;
-        5)
+        e)
             stop_prover
             ;;
-        6)
+        f)
             update_nexus
             ;;
-        7)
+        g)
             echo -e "\n${GREEN}感谢使用！${NC}"
             cleanup
             ;;
