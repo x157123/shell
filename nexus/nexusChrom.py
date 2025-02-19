@@ -337,7 +337,9 @@ def main(client, serverId, appId, decryptKey, user, display):
                     time.sleep(2)
                     myriad_pop(tab)
                     # 定位到包含 shadow DOM 的元素
+                    logger.info("钱包延迟5秒。")
                     time.sleep(5)
+                    logger.info("钱包延迟5秒结束。")
                     shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
                     if shadow_host:
                         # 进入 shadow DOM
