@@ -17,14 +17,14 @@ def configure_browser(user):
     """配置并启动浏览器"""
     co = (ChromiumOptions().set_local_port(9515)
           .set_paths(r"/opt/google/chrome/google-chrome")
-          .add_extension(r"/home/"+user+"/extensions/chrome-cloud"))
+          .add_extension(r"/home/" + user + "/extensions/chrome-cloud"))
     arguments = [
         "--accept-lang=en-US", "--no-first-run", "--force-color-profile=srgb",
         "--metrics-recording-only", "--password-store=basic", "--use-mock-keychain",
         "--export-tagged-pdf", "--disable-gpu", "--disable-web-security",
         "--disable-infobars", "--disable-popup-blocking", "--allow-outdated-plugins",
         "--deny-permission-prompts", "--disable-suggestions-ui", "--window-size=1920,1080",
-        "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/9517",
+        "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/9515",
         "--disable-features=ServerSentEvents"
     ]
 
@@ -123,7 +123,6 @@ def get_clipboard_text(user_name: str, display: str):
     return clipboard_text
 
 
-
 def read_file(file_path):
     """从文件中读取内容并去除多余空白"""
     try:
@@ -198,7 +197,7 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
 
 def monitor_switch(tab, client, serverId, appId, user, display):
     num = random.randint(10, 20)
-
+    i = 999
     while True:
         try:
             time.sleep(num)
@@ -213,6 +212,14 @@ def monitor_switch(tab, client, serverId, appId, user, display):
             else:
                 logger.info("在线。")
 
+            i += 1
+
+            if i > 1000:
+                signup_ele = tab.ele('x://div[text()="Earnings"]')
+                if signup_ele:
+                    client.publish("appInfo",
+                                   json.dumps(get_app_info(serverId, appId, 2, '已连接到主网络')))
+                    i = 0
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
 
@@ -335,6 +342,7 @@ def main(client, serverId, appId, decryptKey, user, display):
         logger.info("没有找到22。")
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab, client, serverId, appId, user, display)
+
 
 def myriad_pop(self):
     if len(self.browser.get_tabs(title="Signma")) > 0:
