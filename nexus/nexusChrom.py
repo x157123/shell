@@ -363,7 +363,7 @@ def main(client, serverId, appId, decryptKey, user, display):
         shadow_root = shadow_host.shadow_root
         if shadow_root:
             logger.info("找到123。")
-            newtwork = shadow_root.ele('x://button[text()="Continue"]')
+            newtwork = shadow_root.ele('x://button[.//span[text()="Continue"]]')
             if newtwork:
                 logger.info("找到13。")
                 newtwork.click(by_js=True)
