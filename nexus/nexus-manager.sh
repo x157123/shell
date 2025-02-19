@@ -211,9 +211,8 @@ show_prover_id() {
 }
 
 set_prover_id() {
-    read -p "请输入新的 Prover ID: " new_id
-    if [ -n "$new_id" ]; then
-        echo "$new_id" > "$PROVER_ID_FILE"
+    if [ -n "$1" ]; then
+        echo "$1" > "$PROVER_ID_FILE"
         echo -e "${GREEN}Prover ID 已更新${NC}"
     else
         echo -e "${RED}Prover ID 不能为空${NC}"
@@ -255,7 +254,7 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 # 解析命令行参数
-while getopts "1-7" opt; do
+while getopts "1-7s:" opt; do
     case $opt in
         1)
             setup_directories
@@ -270,7 +269,7 @@ while getopts "1-7" opt; do
             show_prover_id
             ;;
         4)
-            set_prover_id
+            set_prover_id "$OPTARG"
             ;;
         5)
             stop_prover
