@@ -351,7 +351,7 @@ def get_app_info(serverId, appId, operationType, description):
 
 
 def setup_wallet(self, key):
-    extensions = self.browser.new_tab(url="chrome:///")
+    extensions = self.browser.new_tab(url="chrome://extensions/")
     time.sleep(3)
 
     toggle_ele = (
