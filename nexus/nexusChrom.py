@@ -35,6 +35,7 @@ def configure_browser(user):
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
 
     browser = Chromium(co)
+    # tab = browser.new_tab(url="https://app.nexus.xyz")
     tab = browser.latest_tab
     return tab
 
@@ -266,6 +267,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     logger.info(f"安装钱包")
     setup_wallet(tab, 37826)
     time.sleep(20)
+    tab = client.new_tab(url="https://app.nexus.xyz")
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab, client, serverId, appId, user, display)
 
