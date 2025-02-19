@@ -149,36 +149,6 @@ class TaskSet:
         self.browser.quit(timeout=60, force=True, del_data=True)
 
     def myriad_pop(self):
-        if len(self.browser.get_tabs(title="Auth · Privy")) > 0:
-            pop_tab = self.browser.get_tab(title="Auth · Privy")
-            if pop_tab.url is not None:
-                browser_extension_path = "tag:span@@text()=Browser Extension"
-                if 'cross-app/connect?' in pop_tab.url:
-                    approve_path = "tag:button@@text()=Approve"
-                    wallet_path = "tag:div@@text()=Continue with a wallet"
-                    if pop_tab.wait.ele_displayed(browser_extension_path, timeout=0.5) is not False:
-                        pop_tab.actions.move_to(browser_extension_path)
-                        pop_tab.ele(browser_extension_path).click()
-                    elif pop_tab.wait.ele_displayed(wallet_path,timeout=0.5) is not False:
-                        pop_tab.actions.move_to(wallet_path)
-                        pop_tab.ele(wallet_path).click()
-                    elif pop_tab.wait.ele_displayed(approve_path,timeout=0.5) is not False:
-                        pop_tab.actions.move_to(approve_path)
-                        pop_tab.ele(approve_path).click()
-
-                elif "cross-app/transact?" in pop_tab.url:
-                    wallet_path = "tag:div@@text()=Continue with a wallet"
-                    sign_con_path = "tag:button@@text()=Sign and continue"
-                    if pop_tab.wait.ele_displayed(sign_con_path,timeout=0.5) is not False:
-                        pop_tab.actions.move_to(sign_con_path)
-                        pop_tab.ele(sign_con_path).click()
-                    elif pop_tab.wait.ele_displayed(wallet_path,timeout=0.5) is not False:
-                        pop_tab.actions.move_to(wallet_path)
-                        pop_tab.ele(wallet_path).click()
-                    elif pop_tab.wait.ele_displayed(browser_extension_path) is not False:
-                        pop_tab.actions.move_to(browser_extension_path)
-                        pop_tab.ele(browser_extension_path).click()
-
         if len(self.browser.get_tabs(title="Signma")) > 0:
             pop_tab = self.browser.get_tab(title="Signma")
 

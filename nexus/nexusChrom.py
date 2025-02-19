@@ -24,7 +24,7 @@ def configure_browser(user):
         "--export-tagged-pdf", "--disable-gpu", "--disable-web-security",
         "--disable-infobars", "--disable-popup-blocking", "--allow-outdated-plugins",
         "--deny-permission-prompts", "--disable-suggestions-ui", "--window-size=1920,1080",
-        "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/9515",
+        "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/9516",
         "--disable-features=ServerSentEvents"
     ]
 
@@ -291,6 +291,14 @@ def main(client, serverId, appId, decryptKey, user, display):
                 signma_ele = shadow_root.ele('x://span[text()="Signma"]')
                 if signma_ele:
                     signma_ele.click(by_js=True)
+                    time.sleep(2)
+                    myriad_pop(tab)
+                    newtwork = shadow_root.ele('x://button[@data-testid="SelectNetWorkButton"]')
+                    if newtwork:
+                        signma_ele.click(by_js=True)
+                        time.sleep(2)
+                        myriad_pop(tab)
+
                 else:
                     logger.info("没有找到 'Signma' 元素。")
         else:
@@ -300,6 +308,38 @@ def main(client, serverId, appId, decryptKey, user, display):
 
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab, client, serverId, appId, user, display)
+
+def myriad_pop(self):
+    if len(self.browser.get_tabs(title="Signma")) > 0:
+        pop_tab = self.browser.get_tab(title="Signma")
+
+        back_path = 'x://*[@id="sign-root"]/div/div/section/main/div[1]/section[1]/div/button'
+        conn_path = "tag:div@@class=jsx-3858486283 button_content@@text()=连接"
+        sign_enable_path = (
+            "tag:button@@class=jsx-3858486283 button large primaryGreen"
+        )
+
+        sign_blank_path = (
+            "tag:div@@class=jsx-1443409666 subtext@@text()^希望您使用您的登录"
+        )
+
+        if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fdapp-permission':
+            if pop_tab.ele(back_path) is not None:
+                pop_tab.ele(back_path).click()
+            time.sleep(2)
+
+            if pop_tab.ele(conn_path) is not None:
+                pop_tab.ele(conn_path).click()
+                time.sleep(3)
+        elif "chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign":
+            while pop_tab.wait.ele_displayed(sign_enable_path, timeout=3) is False:
+                if pop_tab.wait.ele_displayed(sign_blank_path, timeout=3):
+                    pop_tab.actions.move_to(sign_blank_path)
+                    pop_tab.ele(sign_blank_path).click()
+                    time.sleep(2)
+
+            if pop_tab.ele(sign_enable_path) is not None:
+                pop_tab.ele(sign_enable_path).click()
 
 
 # =================================================   MQTT   ======================================
