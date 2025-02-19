@@ -129,21 +129,41 @@ def main(client, serverId, appId, decryptKey, user, display):
         logger.info(f"绑定密钥。{private_Key}")
     # 1. 安装
     logger.info("===== 执行安装 =====")
-    # 启动安装命令
+    # 启动外部命令
     process = subprocess.Popen(
-        ["sh", "-c", "curl https://cli.nexus.xyz/ | sh"],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
+        ["/opt/nexus/nexus-manager.sh", "-1"],  # 执行的命令及参数
+        stdin=subprocess.PIPE,  # 使用管道向进程写入输入
+        stdout=subprocess.PIPE,  # 获取标准输出
+        stderr=subprocess.PIPE,  # 获取标准错误输出
+        text=True  # 使用文本模式而非字节模式
     )
 
-    # 实时读取标准输出和标准错误流
-    stdout, stderr = process.communicate(input=b"\nY\nY\n")
+    # 读取输出并检查是否需要输入 Prover ID
+    output, error = process.communicate()
 
-    # 打印实时输出
-    print(stdout.decode())
-    if stderr:
-        print(stderr.decode())
+    # 如果输出中包含提示 Prover ID 的信息，自动输入 Prover ID
+    if "Please enter your Prover ID" in output:
+
+        if private_Key is not None:
+            process.stdin.write(private_Key + "\n")  # 输入指定的 Prover ID
+            logger.info(f"input Prover ID: {private_Key}")
+        else:
+            process.stdin.write("\n")  # 如果 prover_id 为 None，则按下回车
+            logger.info("自动按下回车生成 Prover ID")
+
+        process.stdin.flush()  # 确保输入被写入
+
+    # 获取更新后的输出
+    output, error = process.communicate()
+
+    # 打印命令的输出和错误信息
+    logger.info("Output:", output)
+    if error:
+        logger.info("Error:", error)
+
+    # 等待进程结束并返回状态码
+    return_code = process.returncode
+    logger.info("Return code:", return_code)
 
     # 获取积分
     while True:

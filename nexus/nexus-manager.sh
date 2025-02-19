@@ -279,8 +279,6 @@ while getopts "1-7s:" opt; do
             ;;
         7)
             echo -e "\n${GREEN}感谢使用！${NC}"
-            echo -e "${YELLOW}更多工具请关注 Twitter: ${NC}https://x.com/zerah_eth"
-            echo -e "${YELLOW}SOL 代币回收工具: ${NC}https://solback.app/\n"
             cleanup
             ;;
         *)
