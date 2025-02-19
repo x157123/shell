@@ -266,13 +266,14 @@ if [ $? != 0 ]; then
 fi
 eval set -- "$TEMP"
 
+# 解析命令行参数
 while true; do
     case "$1" in
         -t|--type)
             TYPE=$2
             shift 2
             ;;
-        -p|--key)
+        -k|--key)
             KEY=$2
             shift 2
             ;;
@@ -283,29 +284,30 @@ while true; do
     esac
 done
 
-if [ TYPE == "start" ]; then
+# 根据 TYPE 执行不同操作
+if [ "$TYPE" == "start" ]; then
   setup_directories
   check_dependencies
   download_files
   start_prover
 fi
 
-if [ TYPE == "stop" ]; then
+if [ "$TYPE" == "stop" ]; then
   stop_prover
 fi
 
-if [ TYPE == "status" ]; then
+if [ "$TYPE" == "status" ]; then
   check_status
 fi
 
-if [ TYPE == "id" ]; then
+if [ "$TYPE" == "id" ]; then
   show_prover_id
 fi
 
-if [ TYPE == "set" ]; then
+if [ "$TYPE" == "set" ]; then
   set_prover_id "$KEY"
 fi
 
-if [ TYPE == "update" ]; then
+if [ "$TYPE" == "update" ]; then
   update_nexus
 fi
