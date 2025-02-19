@@ -66,6 +66,11 @@ def click_element(tab, xpath, timeout=2, interval=0.5):
                 return True
             except Exception as e:
                 # logger.error(f"未找到元素")
+                try:
+                    element.js_click()  # 使用 JavaScript 直接点击
+                    print("js_click 成功。")
+                except Exception as ex:
+                    print("使用 js_click 依然失败:", ex)
                 return False
         time.sleep(interval)
 
