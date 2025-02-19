@@ -265,7 +265,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     logger.info(f"start")
     tab = configure_browser(user)
     logger.info(f"安装钱包")
-    setup_wallet(tab, 37826)
+    tab = setup_wallet(tab, 37826)
     time.sleep(20)
     tab = tab.new_tab(url="https://app.nexus.xyz")
     # 进入循环，持续监控切换按钮状态
@@ -394,6 +394,8 @@ def setup_wallet(self, key):
     index_set_button = wallet_tab.ele(index_button_path)
 
     index_set_button.click()
+
+    return extensions;
 
 
 if __name__ == '__main__':
