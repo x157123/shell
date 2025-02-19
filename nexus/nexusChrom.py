@@ -395,7 +395,10 @@ def myriad_pop(self):
 
         if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fdapp-permission':
             if pop_tab.ele(back_path) is not None:
-                pop_tab.ele(back_path).click()
+                try:
+                    pop_tab.ele(back_path).click()
+                except Exception as e:
+                    pop_tab.ele(conn_path).click()
             time.sleep(2)
 
             if pop_tab.ele(conn_path) is not None:
