@@ -267,7 +267,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     logger.info(f"安装钱包")
     setup_wallet(tab, 37826)
     time.sleep(20)
-    tab = client.new_tab(url="https://app.nexus.xyz")
+    tab = tab.new_tab(url="https://app.nexus.xyz")
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab, client, serverId, appId, user, display)
 
@@ -351,11 +351,11 @@ def get_app_info(serverId, appId, operationType, description):
 
 
 def setup_wallet(self, key):
-    self.tab = self.browser.new_tab(url="chrome://extensions/")
+    new_tab = self.browser.new_tab(url="chrome://extensions/")
     time.sleep(3)
 
     toggle_ele = (
-        self.tab.ele(
+        new_tab.ele(
             "x://html/body/extensions-manager"
         )  # /html/body/extensions-manager
         .shadow_root.ele('x://*[@id="viewManager"]')
