@@ -61,6 +61,14 @@ fi
 #sudo DEBIAN_FRONTEND=noninteractive apt update -y && sudo DEBIAN_FRONTEND=noninteractive apt upgrade -y
 #sudo DEBIAN_FRONTEND=noninteractive apt install -y build-essential pkg-config libssl-dev git-all
 
+# 查找运行中的 chrome.py 进程（使用完整命令匹配）
+pids=$(pgrep -f "python3 /opt/chrome.py")
+if [ -n "$pids" ]; then
+    echo "检测到正在运行的实例: $pids，准备终止..."
+    # 注意：kill -9 是强制终止，可根据实际情况换成 kill
+    kill -9 $pids
+fi
+
 sleep 2
 # 关闭浏览器
 pkill chrome
