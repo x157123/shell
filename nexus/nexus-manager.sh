@@ -251,9 +251,6 @@ cleanup() {
     exit 0
 }
 
-trap cleanup SIGINT SIGTERM
-
-
 # 默认值
 TYPE=""
 KEY=""
@@ -269,15 +266,15 @@ eval set -- "$TEMP"
 # 解析命令行参数
 while true; do
     case "$1" in
-        -t|--type)
+        -t|--type)    # -t 或 --type
             TYPE=$2
             shift 2
             ;;
-        -k|--key)
+        -k|--key)     # -k 或 --key
             KEY=$2
             shift 2
             ;;
-        *)
+        *)  # 处理未定义的选项
             echo "Internal error!"
             exit 1
             ;;
@@ -290,24 +287,17 @@ if [ "$TYPE" == "start" ]; then
   check_dependencies
   download_files
   start_prover
-fi
-
-if [ "$TYPE" == "stop" ]; then
+elif [ "$TYPE" == "stop" ]; then
   stop_prover
-fi
-
-if [ "$TYPE" == "status" ]; then
+elif [ "$TYPE" == "status" ]; then
   check_status
-fi
-
-if [ "$TYPE" == "id" ]; then
+elif [ "$TYPE" == "id" ]; then
   show_prover_id
-fi
-
-if [ "$TYPE" == "set" ]; then
+elif [ "$TYPE" == "set" ]; then
   set_prover_id "$KEY"
-fi
-
-if [ "$TYPE" == "update" ]; then
+elif [ "$TYPE" == "update" ]; then
   update_nexus
+else
+  echo "Invalid TYPE specified."
+  exit 1
 fi
