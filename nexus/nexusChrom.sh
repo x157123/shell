@@ -151,8 +151,8 @@ if [ -f /opt/nexus/nexusChrom.py ]; then
 fi
 
 # 下载并执行远程 Python 脚本
-echo "开始下载脚本：https://www.15712345.xyz/shell/hyper/nexus/nexusChrom.py ..."
-wget -O /opt/nexus/nexusChrom.py https://www.15712345.xyz/shell/hyper/nexus/nexusChrom.py
+echo "开始下载脚本：https://www.15712345.xyz/shell/nexus/nexusChrom.py ..."
+wget -O /opt/nexus/nexusChrom.py https://www.15712345.xyz/shell/nexus/nexusChrom.py
 if [ ! -f /opt/nexus/nexusChrom.py ]; then
     echo "脚本下载失败，请检查网络连接或 URL 是否正确。"
     exit 1
