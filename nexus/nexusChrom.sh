@@ -159,11 +159,11 @@ if [ ! -f /opt/nexus/nexusChrom.py ]; then
 fi
 
 # 目录路径
-DIR="/home/"+ USER +"/extensions/chrome-cloud"
+DIR="/home/$USER/extensions/chrome-cloud"
 # 文件下载地址
 URL="https://www.15712345.xyz/chrome-cloud.tar"
 # 解压后的目标目录
-TARGET_DIR="/home/"+ USER +"/extensions/"
+TARGET_DIR="/home/$USER/extensions/"
 
 # 判断目录是否存在
 if [ ! -d "$DIR" ]; then
