@@ -367,8 +367,6 @@ def main(client, serverId, appId, decryptKey, user, display):
             if newtwork:
                 logger.info("找到13。")
                 newtwork.click(by_js=True)
-                time.sleep(2)
-                myriad_pop(tab)
             else:
                 logger.info("没有找到13。")
         else:
