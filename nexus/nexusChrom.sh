@@ -427,31 +427,31 @@ fi
 
 
 # 设置 DISPLAY 环境变量，根据实际情况修改
-export DISPLAY=:${window}
-
-echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
-screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --user-data-dir=/tmp/nexus/userData/9515"
+#export DISPLAY=:${window}
+#
+#echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
+#screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --user-data-dir=/tmp/nexus/userData/9515"
 
 EOF
 
-#需要加载插件
-
-MAX_WAIT=30   # 最大等待时间，单位秒
-counter=0
-# 运行 lsof 以确保能检查端口
-while ! lsof -i:9515 -sTCP:LISTEN >/dev/null 2>&1; do
-    sleep 1
-    counter=$((counter+1))
-    if [ $counter -ge $MAX_WAIT ]; then
-        echo "等待 google-chrome 启动超时！"
-        exit 1
-    fi
-    echo "等待 google-chrome 启动中... 当前等待时间：$counter 秒"
-done
-
-echo "google-chrome 启动成功，端口 9515 正在监听"
-
-sleep 3
+##需要加载插件
+#
+#MAX_WAIT=30   # 最大等待时间，单位秒
+#counter=0
+## 运行 lsof 以确保能检查端口
+#while ! lsof -i:9515 -sTCP:LISTEN >/dev/null 2>&1; do
+#    sleep 1
+#    counter=$((counter+1))
+#    if [ $counter -ge $MAX_WAIT ]; then
+#        echo "等待 google-chrome 启动超时！"
+#        exit 1
+#    fi
+#    echo "等待 google-chrome 启动中... 当前等待时间：$counter 秒"
+#done
+#
+#echo "google-chrome 启动成功，端口 9515 正在监听"
+#
+#sleep 3
 
 
 export DISPLAY=:${window}
