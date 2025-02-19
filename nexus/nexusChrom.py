@@ -312,6 +312,8 @@ def main(client, serverId, appId, decryptKey, user, display):
                         signma_ele.click(by_js=True)
                         time.sleep(2)
                         myriad_pop(tab)
+                        time.sleep(2)
+                        myriad_pop(tab)
                         # 定位到包含 shadow DOM 的元素
                         shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
                         if shadow_host:
@@ -322,6 +324,8 @@ def main(client, serverId, appId, decryptKey, user, display):
                                 if newtwork:
                                     newtwork.click(by_js=True)
                                     time.sleep(5)
+                                    myriad_pop(tab)
+                                    time.sleep(2)
                                     myriad_pop(tab)
                 else:
                     logger.info("没有找到 'Signma' 元素。")
@@ -347,6 +351,8 @@ def main(client, serverId, appId, decryptKey, user, display):
                 time.sleep(2)
                 myriad_pop(tab)
                 time.sleep(2)
+                myriad_pop(tab)
+                time.sleep(3)
             else:
                 logger.info("没有找到1。")
         else:
