@@ -380,9 +380,9 @@ def main(client, serverId, appId, decryptKey, user, display):
 
 
 def myriad_pop(self):
+    time.sleep(5)
     if len(self.browser.get_tabs(title="Signma")) > 0:
         pop_tab = self.browser.get_tab(title="Signma")
-
         back_path = 'x://*[@id="sign-root"]/div/div/section/main/div[1]/section[1]/div/button'
         conn_path = "tag:div@@class=jsx-3858486283 button_content@@text()=连接"
         sign_enable_path = (
