@@ -268,6 +268,30 @@ def main(client, serverId, appId, decryptKey, user, display):
     tab = setup_wallet(tab, 37826)
     time.sleep(20)
     tab = tab.browser.new_tab(url="https://app.nexus.xyz")
+
+    # 点击 "Sign up to earn NEX" 元素
+    signup_ele = tab.ele('//div[text()="Sign up to earn NEX"]')
+    if signup_ele:
+        signup_ele.click()
+        # 根据实际情况调整等待时间，确保页面加载完成
+        time.sleep(2)
+
+        # 点击 "Continue with a wallet" 元素
+        wallet_ele = tab.ele('//p[contains(text(), "Continue with a wallet")]')
+        if wallet_ele:
+            wallet_ele.click()
+            time.sleep(2)
+            # 点击页面中显示 "Signma" 的元素
+            signma_ele = tab.ele('//span[text()="Signma"]')
+            if signma_ele:
+                signma_ele.click()
+            else:
+                print("没有找到 'Signma' 元素。")
+        else:
+            print("没有找到 'Continue with a wallet' 元素。")
+    else:
+        print("没有找到 'Sign up to earn NEX' 元素。")
+
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab, client, serverId, appId, user, display)
 
