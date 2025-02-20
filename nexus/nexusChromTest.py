@@ -1,16 +1,8 @@
 import time
 from DrissionPage._base.chromium import Chromium
 from DrissionPage._configs.chromium_options import ChromiumOptions
-import paho.mqtt.client as mqtt
-import json
-import argparse
 from loguru import logger
-import pyperclip
-import base64
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import unpad
 import random
-import subprocess
 
 
 def configure_browser():
