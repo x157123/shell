@@ -434,11 +434,11 @@ if screen -list | grep -q "\.chrome"; then
 fi
 
 
-# 设置 DISPLAY 环境变量，根据实际情况修改
-#export DISPLAY=:${window}
-#
-#echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
-#screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --user-data-dir=/tmp/nexus/userData/9517 --load-extension=/home/ubuntu/extensions/chrome-cloud"
+ 设置 DISPLAY 环境变量，根据实际情况修改
+export DISPLAY=:${window}
+
+echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
+screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --user-data-dir=/tmp/nexus/userData/9517 --load-extension=/home/${SUDO_USER}/extensions/chrome-cloud"
 
 EOF
 
