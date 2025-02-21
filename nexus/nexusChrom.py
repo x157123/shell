@@ -1,7 +1,6 @@
 import time
 from DrissionPage._base.chromium import Chromium
 from DrissionPage._configs.chromium_options import ChromiumOptions
-from selenium.webdriver.common.keys import Keys
 import paho.mqtt.client as mqtt
 import json
 import argparse
@@ -557,8 +556,7 @@ def setup_wallet(self, key):
         toggle_ele.click()
 
     time.sleep(2)
-    
-    self.driver.switch_to.active_element.send_keys(Keys.ENTER)
+    extensions.send_keys("\uE007")
     time.sleep(2)
     refresh_ele.click()
     time.sleep(2)
