@@ -557,7 +557,8 @@ def setup_wallet(self, key):
 
     logger.error(f"判断是否有弹出框并触发")
     time.sleep(2)
-    extensions.press('Enter')
+    extensions.press('Tab', mode='r')
+    extensions.press('Enter', mode='r')
     logger.error(f"已触发弹出框")
     time.sleep(2)
     refresh_ele.click()
