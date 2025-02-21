@@ -68,6 +68,56 @@ def main():
     else:
         logger.info("未找到包含 'bg-[#ffffff]' 的 div。")
 
+    # 点击 "Sign up to earn NEX" 元素
+    signup_ele = tab.ele('x://div[text()="Sign up to earn NEX"]/ancestor::button')
+    if signup_ele:
+        signup_ele.click(by_js=True)
+        # 根据实际情况调整等待时间，确保页面加载完成
+        time.sleep(2)
+
+        # 定位到包含 shadow DOM 的元素
+        shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+        if shadow_host:
+            # 进入 shadow DOM
+            shadow_root = shadow_host.shadow_root
+            if shadow_root:
+                # 选择钱包
+                continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+                if continue_button:
+                    # 点击目标元素
+                    continue_button.click(by_js=True)
+                    time.sleep(2)
+                    # 点击钱包
+                    signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+                    if signma_ele:
+                        signma_ele.click(by_js=True)
+                        time.sleep(2)
+                        # myriad_pop(tab)
+
+        # 选择网络
+        shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+        if shadow_host:
+            # 进入 shadow DOM
+            shadow_root = shadow_host.shadow_root
+            if shadow_root:
+                # 连接到网络
+                newtwork = shadow_root.ele('x://@button[data-testid="SelectNetworkButton"]')
+                if newtwork:
+                    newtwork.click(by_js=True)
+
+        # 连接网络
+        shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+        if shadow_host:
+            # 进入 shadow DOM
+            logger.info("找到12233。")
+            shadow_root = shadow_host.shadow_root
+            if shadow_root:
+                logger.info("找到123。")
+                newtwork = shadow_root.ele('x://button[.//span[text()="Continue"]]')
+                if newtwork:
+                    logger.info("找到13。")
+                    newtwork.click(by_js=True)
+                    
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab)
 
