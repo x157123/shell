@@ -197,7 +197,7 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
 
 def monitor_switch(tab, client, serverId, appId, user, display, public_key):
     num = random.randint(10, 20)
-    i = 399
+    i = 199
     while True:
         try:
             time.sleep(num)
@@ -214,7 +214,7 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
 
             i += 1
 
-            if i > 400:
+            if i > 100:
                 signup_ele = tab.ele('x://div[text()="Earnings"]')
                 if signup_ele:
 
