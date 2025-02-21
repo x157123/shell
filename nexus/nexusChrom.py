@@ -195,7 +195,7 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
     }
 
 
-def monitor_switch(tab, client, serverId, appId, user, display):
+def monitor_switch(tab, client, serverId, appId, user, display, public_key):
     num = random.randint(10, 20)
     i = 999
     while True:
@@ -214,13 +214,24 @@ def monitor_switch(tab, client, serverId, appId, user, display):
 
             i += 1
 
-            if i > 1000:
+            if i > 400:
                 signup_ele = tab.ele('x://div[text()="Earnings"]')
                 if signup_ele:
-                    client.publish("appInfo",
-                                   json.dumps(get_app_info(serverId, appId, 2, '已连接到主网络')))
+                    number_ele = tab.ele('x://div[contains(., "NEX points")]/preceding-sibling::div[1]')
+                    if number_ele:
+                        points = number_ele.text
+                        logger.info('获取的数字：', points)
+
+                        app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
+                                                         '运行中， 并到采集积分:' + str(points))
+                        client.publish("appInfo", json.dumps(app_info))
+                    else:
+                        logger.info('未获取到积分')
+                        client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '未获取到积分: ')))
+
                     i = 0
-                    logger.info("发送消息给服务器。")
+                    logger.info("刷新页面。")
+                    tab.reload()
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
 
@@ -382,7 +393,7 @@ def main(client, serverId, appId, decryptKey, user, display):
         logger.info("没有找到223。")
 
     # 进入循环，持续监控切换按钮状态
-    monitor_switch(tab, client, serverId, appId, user, display)
+    monitor_switch(tab, client, serverId, appId, user, display, public_key)
 
 
 
@@ -548,7 +559,7 @@ def setup_wallet(self, key):
 
     index_set_button.click()
 
-    return extensions;
+    return extensions
 
 
 if __name__ == '__main__':
