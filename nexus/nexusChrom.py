@@ -214,7 +214,7 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
 
             i += 1
 
-            if i > 40:
+            if i > 4:
                 signup_ele = tab.ele('x://div[text()="Earnings"]')
                 if signup_ele:
                     number_ele = tab.ele('x://div[contains(., "NEX points")]/parent::div/div[1]')
