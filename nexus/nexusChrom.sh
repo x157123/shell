@@ -172,32 +172,34 @@ URL="https://github.com/x157123/ACL4SSR/releases/download/v1.0.0/chrome-cloud.ta
 # 解压后的目标目录
 TARGET_DIR="/home/$USER/extensions/"
 
+#if [ ! -d "$DIR" ]; then
+#  rm -rf "$DIR"
+#fi
+
 # 判断目录是否存在
-if [ -d "$DIR" ]; then
-  rm -rf "$DIR"
-fi
+if [ ! -d "$DIR" ]; then
+  # 目录不存在，创建目录
+  mkdir -p "$DIR"
+  echo "目录 $DIR 已创建。"
 
-# 目录不存在，创建目录
-mkdir -p "$DIR"
-echo "目录 $DIR 已创建。"
+  # 下载文件
+  echo "下载文件..."
+  wget -O /tmp/chrome-cloud.tar "$URL"
 
-# 下载文件
-echo "下载文件..."
-wget -O /tmp/chrome-cloud.tar "$URL"
+  # 解压文件
+  echo "解压文件..."
+  tar -xvf /tmp/chrome-cloud.tar -C "$TARGET_DIR"
 
-# 解压文件
-echo "解压文件..."
-tar -xvf /tmp/chrome-cloud.tar -C "$TARGET_DIR"
+  # 删除下载的 tar 文件
+  rm /tmp/chrome-cloud.tar
 
-# 删除下载的 tar 文件
-rm /tmp/chrome-cloud.tar
-
-# 授权给 ubuntu 用户
-echo "授权目录 $DIR 给 ubuntu 用户..."
-chown -R "$USER":"$USER" "$DIR"
+  # 授权给 ubuntu 用户
+  echo "授权目录 $DIR 给 ubuntu 用户..."
+  chown -R "$USER":"$USER" "$DIR"
 
   echo "授权完成。"
 
+fi
 
 echo "为 /opt/nexus/nexusChrom.py 设置可执行权限..."
 chmod +x /opt/nexus/nexusChrom.py
