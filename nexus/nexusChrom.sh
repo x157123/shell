@@ -260,6 +260,8 @@ else
       expect \
       sudo
 
+sudo apt-get install -y python3-tk python3-dev
+
   ##############################################################################
   # 创建用户
   ##############################################################################
@@ -396,6 +398,7 @@ fi
 # 安装其他插件
 pip3 install psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
 
+pip3 install pyautogui
 # 查找运行中的 nexus/nexusChrom.py 进程（使用完整命令匹配）
 pids=$(pgrep -f "python3 /opt/nexus/nexusChrom.py")
 if [ -n "$pids" ]; then

@@ -11,7 +11,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import random
 import subprocess
-import os
+import pyautogui
 
 
 def configure_browser(user):
@@ -558,7 +558,12 @@ def setup_wallet(self, key):
 
     logger.error(f"判断是否有弹出框并触发")
     time.sleep(2)
-    os.system("xdotool search --onlyvisible --class 'google-chrome' windowactivate --sync key Tab key Return")
+    # 直接把鼠标移动到( x坐标, y坐标 )的位置点击
+    pyautogui.moveTo(600, 600)  # 需要你先手动量好按钮在屏幕上的位置
+    pyautogui.click()
+    pyautogui.press('tab')
+    time.sleep(1)
+    pyautogui.press('enter')
     logger.error(f"已触发弹出框")
     time.sleep(2)
     refresh_ele.click()
