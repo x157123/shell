@@ -231,7 +231,7 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
 
                     i = 0
                     logger.info("刷新页面。")
-                    tab.reload()
+                    tab.refresh()
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
 
