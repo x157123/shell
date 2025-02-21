@@ -223,7 +223,7 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
 
                     if parent_ele:
                         # 从父元素中查找包含数字的子元素
-                        number_ele = parent_ele.ele('xpath:.//div[contains(@class, "text-[40px]")]')
+                        number_ele = parent_ele.ele('xpath:.//div[contains(@class, "text-white")]')
 
                         # 提取数字
                         if number_ele:
