@@ -217,7 +217,7 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
             if i > 4:
                 signup_ele = tab.ele('x://div[text()="Earnings"]')
                 if signup_ele:
-                    number_ele = tab.ele('x://div[contains(., "NEX points")]/parent::div/div[1]')
+                    number_ele = tab.ele('x://div[contains(., "NEX points")]/preceding-sibling::div[1]')
                     if number_ele:
                         points = number_ele.text
                         logger.info('获取的数字：', points)
