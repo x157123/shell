@@ -557,10 +557,7 @@ def setup_wallet(self, key):
 
     logger.error(f"判断是否有弹出框并触发")
     time.sleep(2)
-    extensions.run_js("""
-        var event = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13 });
-        document.body.dispatchEvent(event);
-    """)
+    extensions.alert.accept()
     logger.error(f"已触发弹出框")
     time.sleep(2)
     refresh_ele.click()
