@@ -11,6 +11,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import random
 import subprocess
+import pyautogui
 
 
 def configure_browser(user):
@@ -557,7 +558,7 @@ def setup_wallet(self, key):
 
     logger.error(f"判断是否有弹出框并触发")
     time.sleep(2)
-    extensions.alert.accept()
+    pyautogui.press("enter")
     logger.error(f"已触发弹出框")
     time.sleep(2)
     refresh_ele.click()
