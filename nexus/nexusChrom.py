@@ -217,14 +217,23 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
             if i > 4:
                 signup_ele = tab.ele('x://div[text()="Earnings"]')
                 if signup_ele:
-                    number_ele = tab.ele('x://div[contains(., "NEX points")]/preceding-sibling::div[1]')
-                    if number_ele:
-                        points = number_ele.text
-                        logger.info('获取的数字：', points)
 
-                        app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
-                                                         '运行中， 并到采集积分:' + str(points))
-                        client.publish("appInfo", json.dumps(app_info))
+                    # 定位包含 "NEX points" 的父元素（精确匹配文本内容）
+                    parent_ele = tab.ele('xpath://div[text()[contains(., "NEX points")]]/parent::div')
+
+                    if parent_ele:
+                        # 从父元素中查找包含数字的子元素
+                        number_ele = parent_ele.ele('xpath:.//div[contains(@class, "text-[40px]")]')
+
+                        # 提取数字
+                        if number_ele:
+                            points = number_ele.text
+                            # app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
+                            #                                  '运行中， 并到采集积分:' + str(points))
+                            # client.publish("appInfo", json.dumps(app_info))
+                            logger.info(f"获取到的数字是: {points}")
+                        else:
+                            logger.info("未找到数字元素")
                     else:
                         logger.info('未获取到积分')
                         client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '未获取到积分: ')))
