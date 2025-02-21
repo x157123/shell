@@ -561,7 +561,6 @@ def setup_wallet(self, key):
     # 直接把鼠标移动到( x坐标, y坐标 )的位置点击
     pyautogui.moveTo(600, 600)  # 需要你先手动量好按钮在屏幕上的位置
     pyautogui.click()
-    pyautogui.press('tab')
     time.sleep(1)
     pyautogui.press('enter')
     logger.error(f"已触发弹出框")
