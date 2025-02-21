@@ -60,6 +60,7 @@ if [ -z "$USER" ]; then
   echo "Warning: --user 未指定，将默认以 admin 身份执行相关操作（如需特定用户，请使用 --user）"
 fi
 
+sudo mkdir -p /opt/nexus/
 
 # 如果 /opt/nexus/nexus-manager.sh 存在，则先删除旧文件
 if [ -f /opt/nexus/nexus-manager.sh ]; then
@@ -435,7 +436,7 @@ fi
 export DISPLAY=:${window}
 
 echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
-screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --user-data-dir=/tmp/nexus/userData/9515 --load-extension=/home/admin/extensions/chrome-cloud"
+screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --user-data-dir=/tmp/nexus/userData/9515 --load-extension=/home/${SUDO_USER}/extensions/chrome-cloud"
 
 EOF
 
