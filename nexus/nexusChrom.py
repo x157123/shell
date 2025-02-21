@@ -565,7 +565,8 @@ def setup_wallet(self, key):
     pyautogui.press('enter')
     logger.error(f"已触发弹出框")
     time.sleep(2)
-    refresh_ele.click()
+    if refresh_ele:
+        refresh_ele.click()
     time.sleep(2)
     wallet_tab = extensions.browser.new_tab(
         url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
