@@ -24,7 +24,7 @@ def configure_browser(user):
         "--export-tagged-pdf", "--disable-gpu", "--disable-web-security",
         "--disable-infobars", "--disable-popup-blocking", "--allow-outdated-plugins",
         "--deny-permission-prompts", "--disable-suggestions-ui", "--window-size=1920,1080",
-        "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/9515",
+        "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/9516",
         "--disable-features=ServerSentEvents"
     ]
 
@@ -557,7 +557,7 @@ def setup_wallet(self, key):
 
     refresh_ele.click()
 
-    time.sleep(2)
+    time.sleep(5)
     wallet_tab = extensions.browser.new_tab(
         url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
     )
