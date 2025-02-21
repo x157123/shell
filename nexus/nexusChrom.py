@@ -1,6 +1,7 @@
 import time
 from DrissionPage._base.chromium import Chromium
 from DrissionPage._configs.chromium_options import ChromiumOptions
+from selenium.webdriver.common.keys import Keys
 import paho.mqtt.client as mqtt
 import json
 import argparse
@@ -555,9 +556,13 @@ def setup_wallet(self, key):
     if toggle_ele.attr("aria-pressed") == "false":
         toggle_ele.click()
 
+    time.sleep(2)
+
+    self.send_keys(Keys.ENTER)
+
     refresh_ele.click()
 
-    time.sleep(5)
+    time.sleep(2)
     wallet_tab = extensions.browser.new_tab(
         url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
     )
