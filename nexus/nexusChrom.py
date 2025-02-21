@@ -557,11 +557,9 @@ def setup_wallet(self, key):
         toggle_ele.click()
 
     time.sleep(2)
-    self.send_keys(Keys.ENTER)
+    self.driver.switch_to.active_element.send_keys(Keys.ENTER)
     time.sleep(2)
     refresh_ele.click()
-    time.sleep(2)
-    self.send_keys(Keys.ENTER)
     time.sleep(2)
     wallet_tab = extensions.browser.new_tab(
         url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
