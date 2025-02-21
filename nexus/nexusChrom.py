@@ -228,9 +228,9 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
                         # 提取数字
                         if number_ele:
                             points = number_ele.text
-                            # app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
-                            #                                  '运行中， 并到采集积分:' + str(points))
-                            # client.publish("appInfo", json.dumps(app_info))
+                            app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
+                                                             '运行中， 并到采集积分:' + str(points))
+                            client.publish("appInfo", json.dumps(app_info))
                             logger.info(f"获取到的数字是: {points}")
                         else:
                             logger.info("未找到数字元素")
