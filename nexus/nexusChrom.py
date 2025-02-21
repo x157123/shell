@@ -557,7 +557,8 @@ def setup_wallet(self, key):
 
     logger.error(f"判断是否有弹出框并触发")
     time.sleep(2)
-    page = extensions.page
+    c_tab = extensions.chrome_tab
+    page = c_tab.page
     # 先按下 Tab
     page.keyboard.press('Tab')
     time.sleep(1)
