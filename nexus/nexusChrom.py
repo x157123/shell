@@ -11,7 +11,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import random
 import subprocess
-import pyautogui
+import os
 
 
 def configure_browser(user):
@@ -593,6 +593,12 @@ if __name__ == '__main__':
     parser.add_argument("--user", type=str, help="执行用户", required=True)
     parser.add_argument("--display", type=str, help="执行窗口", required=True)
     args = parser.parse_args()
+
+    # 把解析到的参数写入环境变量 DISPLAY
+    os.environ['DISPLAY'] = args.display
+
+    # 之后就可以安全地 import 需要 Xlib 的库
+    import pyautogui
 
     # MQTT 配置
     BROKER = "150.109.5.143"
