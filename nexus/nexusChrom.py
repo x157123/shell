@@ -198,6 +198,7 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
 def monitor_switch(tab, client, serverId, appId, user, display, public_key):
     num = random.randint(10, 20)
     i = 199
+    k = 0
     while True:
         try:
             time.sleep(num)
@@ -213,6 +214,7 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
                 logger.info("在线。")
 
             i += 1
+            k += 1
 
             if i > 100:
                 signup_ele = tab.ele('x://div[text()="Earnings"]')
@@ -239,8 +241,10 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
                         client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '未获取到积分: ')))
 
                     i = 0
-                    logger.info("刷新页面。")
-                    tab.refresh()
+            if k > 400:
+                logger.info("刷新页面。")
+                tab.refresh()
+                k = 0
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
 
