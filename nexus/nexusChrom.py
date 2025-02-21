@@ -599,7 +599,7 @@ if __name__ == '__main__':
 
     # 之后就可以安全地 import 需要 Xlib 的库
     import pyautogui
-
+    pyautogui.FAILSAFE = False
     # MQTT 配置
     BROKER = "150.109.5.143"
     PORT = 1883
