@@ -217,6 +217,7 @@ pip3 install --upgrade drissionpage
 
 window=1
 
+sudo apt-get install python3-tk python3-dev
 
 if netstat -tulpn | grep -q 'Xtightvnc'; then
 
@@ -259,8 +260,6 @@ else
       xrdp \
       expect \
       sudo
-
-sudo apt-get install -y python3-tk python3-dev
 
   ##############################################################################
   # 创建用户
