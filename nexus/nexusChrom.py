@@ -557,6 +557,7 @@ def setup_wallet(self, key):
         toggle_ele.click()
 
     time.sleep(2)
+    
     self.driver.switch_to.active_element.send_keys(Keys.ENTER)
     time.sleep(2)
     refresh_ele.click()
