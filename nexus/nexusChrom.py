@@ -555,8 +555,10 @@ def setup_wallet(self, key):
     if toggle_ele.attr("aria-pressed") == "false":
         toggle_ele.click()
 
+    logger.error(f"判断是否有弹出框并触发")
     time.sleep(2)
-    extensions.send_keys("\uE007")
+    extensions.keyboard.press("Enter")
+    logger.error(f"已触发弹出框")
     time.sleep(2)
     refresh_ele.click()
     time.sleep(2)
