@@ -11,7 +11,6 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import random
 import subprocess
-import pyautogui
 
 
 def configure_browser(user):
@@ -557,8 +556,11 @@ def setup_wallet(self, key):
         toggle_ele.click()
 
     logger.error(f"判断是否有弹出框并触发")
-    time.sleep(5)
-    pyautogui.press("enter")
+    time.sleep(2)
+    extensions.run_js("""
+        var event = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13 });
+        document.body.dispatchEvent(event);
+    """)
     logger.error(f"已触发弹出框")
     time.sleep(2)
     refresh_ele.click()
