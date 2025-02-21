@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VNC_PORT=25931   # <-- 在此处自定义要使用的 VNC 端口
+VNC_PORT=5923   # <-- 在此处自定义要使用的 VNC 端口
 
 if [ -z "$1" ] || [ -z "$2" ]; then
   echo "用法：$0 <用户名> <新密码>"
@@ -9,7 +9,7 @@ fi
 
 USER="$1"
 PASSWORD="$2"
-VNC_DISPLAY=":1"
+VNC_DISPLAY=":23"
 
 # 必须以 root 执行，才能切换到指定 USER
 if [ "$(whoami)" != "root" ]; then
@@ -96,9 +96,9 @@ echo "=== 安装和配置已完成 ==="
 echo "Server ID: $SERVER_ID"
 echo "App ID: $APP_ID"
 
-if ! pgrep -f "tightvncserver :1" > /dev/null; then
+if ! pgrep -f "tightvncserver :23" > /dev/null; then
     echo "VNC尚未启动，正在启动..."
-    sudo -u "$USER" tightvncserver :1 -rfbport $VNC_PORT -geometry 1280x800 -depth 24 &
+    sudo -u "$USER" tightvncserver :23 -rfbport $VNC_PORT -geometry 1920x1080 -depth 24 &
 else
     echo "VNC已在运行，跳过启动。"
 fi
