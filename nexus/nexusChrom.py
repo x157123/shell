@@ -557,7 +557,7 @@ def setup_wallet(self, key):
         toggle_ele.click()
 
     logger.error(f"判断是否有弹出框并触发")
-    time.sleep(2)
+    time.sleep(5)
     pyautogui.press("enter")
     logger.error(f"已触发弹出框")
     time.sleep(2)
