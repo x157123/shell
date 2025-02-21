@@ -595,7 +595,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # 把解析到的参数写入环境变量 DISPLAY
-    os.environ['DISPLAY'] = args.display
+    os.environ['DISPLAY'] = ":"+args.display
 
     # 之后就可以安全地 import 需要 Xlib 的库
     import pyautogui
