@@ -91,6 +91,7 @@ chmod +x /opt/hyper/hyperCli.py
 
 # 执行远程 Python 脚本
 echo "开始执行 /opt/hyper/hyperCli.py ..."
+export RUST_BACKTRACE=1
 nohup python3 /opt/hyper/hyperCli.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> hyperCli.log 2>&1 &
 
 echo "脚本已在后台执行，日志输出至 hyperCli.log"
