@@ -220,10 +220,8 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
             if i > 100:
                 signup_ele = tab.ele('x://div[text()="Earnings"]')
                 if signup_ele:
-
                     # 定位包含 "NEX points" 的父元素（精确匹配文本内容）
                     parent_ele = tab.ele('xpath://div[text()[contains(., "NEX points")]]/parent::div')
-
                     if parent_ele:
                         # 从父元素中查找包含数字的子元素
                         number_ele = parent_ele.ele('xpath:.//div[contains(@class, "text-white")]')
@@ -240,7 +238,6 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
                     else:
                         logger.info('未获取到积分')
                         client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '未获取到积分: ')))
-
                     i = 0
             if k > 400:
                 logger.info("刷新页面。")
