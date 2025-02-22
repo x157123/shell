@@ -212,12 +212,13 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
                 div_ele.click(by_js=True)
                 logger.info("离线，已执行点击操作。")
             else:
-                logger.info("在线。")
+                logger.info(f"在线。{i}")
 
             i += 1
             k += 1
 
             if i > 100:
+                logger.info("准备获取积分。")
                 signup_ele = tab.ele('x://div[text()="Earnings"]')
                 if signup_ele:
                     # 定位包含 "NEX points" 的父元素（精确匹配文本内容）
