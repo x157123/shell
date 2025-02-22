@@ -395,7 +395,7 @@ else
 fi
 
 # 安装其他插件
-pip3 install psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
+pip3 install psutil paho-mqtt selenium pycryptodome loguru pyperclip
 
 pip3 install pyautogui
 # 查找运行中的 nexus/nexusChrom.py 进程（使用完整命令匹配）
@@ -405,6 +405,31 @@ if [ -n "$pids" ]; then
     # 注意：kill -9 是强制终止，可根据实际情况换成 kill
     kill -9 $pids
 fi
+
+
+# 检查并处理 requests
+if pip3 show requests >/dev/null 2>&1; then
+    echo "检测到已安装requests，先卸载..."
+    pip3 uninstall -y requests
+else
+    echo "未检测到requests，直接安装..."
+fi
+sudo pip3 install --upgrade requests
+
+echo "----------------------------------------"
+
+# 检查并处理 certifi
+if pip3 show certifi >/dev/null 2>&1; then
+    echo "检测到已安装certifi，先卸载..."
+    pip3 uninstall -y certifi
+else
+    echo "未检测到certifi，直接安装..."
+fi
+sudo pip3 install --upgrade certifi
+
+echo "----------------------------------------"
+echo "requests 和 certifi 已确保最新安装完毕！"
+
 
 # 关闭浏览器
 sleep 2
