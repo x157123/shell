@@ -77,51 +77,24 @@ if [ -f /opt/hyper/hyperCli.py ]; then
     rm -f /opt/hyper/hyperCli.py
 fi
 
-DIR="/home/ubuntu/.aios/aios-cli"
-# 判断目录是否存在
-if [ ! -f "$DIR" ]; then
 
-    # 下载并执行远程 Python 脚本
-    echo "开始下载脚本：https://www.15712345.xyz/shell/hyper/chrome.py ..."
-    wget -O /opt/hyper/hyperCli.py https://www.15712345.xyz/shell/hyper/hyperCli.py
-    if [ ! -f /opt/hyper/hyperCli.py ]; then
-        echo "脚本下载失败，请检查网络连接或 URL 是否正确。"
-        exit 1
-    fi
+/root/.aios/aios-cli kill
 
-    echo "为 /opt/hyper/hyperCli.py 设置可执行权限..."
-    chmod +x /opt/hyper/hyperCli.py
-
-
-    # 执行远程 Python 脚本
-    echo "开始执行 /opt/hyper/hyperCli.py ..."
-    nohup python3 /opt/hyper/hyperCli.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> hyperCli.log 2>&1 &
-
-    echo "脚本已在后台执行，日志输出至 hyperCli.log"
-
-else
-
-    if [ -f /root/.aios/aios-cli ]; then
-        /root/.aios/aios-cli kill
-    fi
-
-    # 下载并执行远程 Python 脚本
-    echo "开始下载脚本：https://www.15712345.xyz/shell/hyper/hyperUbuntCli.py ..."
-    wget -O /opt/hyper/hyperCli.py https://www.15712345.xyz/shell/hyper/hyperUbuntCli.py
-    if [ ! -f /opt/hyper/hyperCli.py ]; then
-        echo "脚本下载失败，请检查网络连接或 URL 是否正确。"
-        exit 1
-    fi
-    sudo chown -R ubuntu:ubuntu /opt
-
-    echo "为 /opt/hyper/hyperCli.py 设置可执行权限..."
-    chmod +x /opt/hyper/hyperCli.py
-
-    # 执行远程 Python 脚本
-    echo "开始执行 /opt/hyper/hyperCli.py ..."
-    sudo -u "$USER" -i nohup python3 /opt/hyper/hyperCli.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> hyperCli.log 2>&1 &
-
-    echo "脚本已在后台执行，日志输出至 hyperCli.log"
-
+# 下载并执行远程 Python 脚本
+echo "开始下载脚本：https://www.15712345.xyz/shell/hyper/chrome.py ..."
+wget -O /opt/hyper/hyperCli.py https://www.15712345.xyz/shell/hyper/hyperUbuntCli.py
+if [ ! -f /opt/hyper/hyperCli.py ]; then
+    echo "脚本下载失败，请检查网络连接或 URL 是否正确。"
+    exit 1
 fi
 
+echo "为 /opt/hyper/hyperCli.py 设置可执行权限..."
+chmod +x /opt/hyper/hyperCli.py
+
+sudo chown -R ubuntu:ubuntu /opt
+
+# 执行远程 Python 脚本
+echo "开始执行 /opt/hyper/hyperCli.py ..."
+sudo -u "$USER" -i nohup python3 /opt/hyper/hyperCli.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> hyperCli.log 2>&1 &
+
+echo "脚本已在后台执行，日志输出至 hyperCli.log"
