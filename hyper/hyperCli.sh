@@ -121,7 +121,6 @@ else
     echo "开始执行 /opt/hyper/hyperCli.py ..."
     sudo -u "$USER" -i nohup python3 /opt/hyper/hyperCli.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$USER" --display "$window"> hyperChromeOutput.log 2>&1 &
 
-
     echo "脚本已在后台执行，日志输出至 hyperCli.log"
 
 fi
