@@ -436,11 +436,11 @@ if screen -list | grep -q "\.chrome"; then
 fi
 
 
-# 设置 DISPLAY 环境变量，根据实际情况修改
-#export DISPLAY=:${window}
-#
-#echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
-#screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --user-data-dir=/tmp/nexus/userData/9517 --load-extension=/home/${SUDO_USER}/extensions/chrome-cloud"
+ 设置 DISPLAY 环境变量，根据实际情况修改
+export DISPLAY=:${window}
+
+echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
+screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --user-data-dir=/tmp/nexus/userData/9517 --load-extension=/home/${SUDO_USER}/extensions/chrome-cloud"
 
 EOF
 
@@ -467,8 +467,8 @@ EOF
 export DISPLAY=:${window}
 # 执行远程 Python 脚本
 echo "开始执行 /opt/nexus/nexusChrom.py ..."
-nohup sudo -u "$SUDO_USER" -i nohup python3 /opt/nexus/nexusChrom.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> nexusChromeOutput.log 2>&1 &
-#nohup sudo -u "$SUDO_USER" -i nohup python3 /opt/nexus/nexusChrom.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperChromeOutput.log 2>&1 &
+nohup python3 /opt/nexus/nexusChrom.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> nexusChromeOutput.log 2>&1 &
+#nohup sudo -u "$SUDO_USER" -i nohup python3 /opt/nexus/nexusChrom.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> nexusChromeOutput.log 2>&1 &
 
 
 echo "脚本已在后台执行，日志输出至 chromeOutput.log"
