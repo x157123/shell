@@ -406,30 +406,30 @@ if [ -n "$pids" ]; then
     kill -9 $pids
 fi
 
-
-# 检查并处理 requests
-if pip3 show requests >/dev/null 2>&1; then
-    echo "检测到已安装requests，先卸载..."
-    pip3 uninstall -y requests
-else
-    echo "未检测到requests，直接安装..."
-fi
-sudo pip3 install --upgrade requests
-
-echo "----------------------------------------"
-
-# 检查并处理 certifi
-if pip3 show certifi >/dev/null 2>&1; then
-    echo "检测到已安装certifi，先卸载..."
-    pip3 uninstall -y certifi
-else
-    echo "未检测到certifi，直接安装..."
-fi
-sudo pip3 install --upgrade certifi
-
-echo "----------------------------------------"
-echo "requests 和 certifi 已确保最新安装完毕！"
-
+#
+## 检查并处理 requests
+#if pip3 show requests >/dev/null 2>&1; then
+#    echo "检测到已安装requests，先卸载..."
+#    pip3 uninstall -y requests
+#else
+#    echo "未检测到requests，直接安装..."
+#fi
+#sudo pip3 install --upgrade requests
+#
+#echo "----------------------------------------"
+#
+## 检查并处理 certifi
+#if pip3 show certifi >/dev/null 2>&1; then
+#    echo "检测到已安装certifi，先卸载..."
+#    pip3 uninstall -y certifi
+#else
+#    echo "未检测到certifi，直接安装..."
+#fi
+#sudo pip3 install --upgrade certifi
+#
+#echo "----------------------------------------"
+#echo "requests 和 certifi 已确保最新安装完毕！"
+#
 
 # 关闭浏览器
 sleep 2
