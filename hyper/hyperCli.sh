@@ -117,10 +117,11 @@ else
     echo "为 /opt/hyper/hyperCli.py 设置可执行权限..."
     chmod +x /opt/hyper/hyperCli.py
 
+sudo -u "$USER" -i bash <<EOF
     # 执行远程 Python 脚本
-    echo "开始执行 /opt/hyper/hyperCli.py ..."
-    sudo -u "$USER" -i nohup python3 /opt/hyper/hyperCli.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$USER" --display "$window"> hyperChromeOutput.log 2>&1 &
-
+    echo "开始执行 /opt/hyper/hyperCli.py ...1"
+    nohup python3 /opt/hyper/hyperCli.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$USER" --display "$window"> hyperChromeOutput.log 2>&1 &
+EOF
     echo "脚本已在后台执行，日志输出至 hyperCli.log"
 
 fi
