@@ -557,10 +557,10 @@ def setup_wallet(self, key):
     logger.error(f"判断是否有弹出框并触发")
     time.sleep(2)
     # 直接把鼠标移动到( x坐标, y坐标 )的位置点击
-    # pyautogui.moveTo(600, 600)  # 需要你先手动量好按钮在屏幕上的位置
-    # pyautogui.click()
-    # time.sleep(1)
-    # pyautogui.press('enter')
+    pyautogui.moveTo(600, 600)  # 需要你先手动量好按钮在屏幕上的位置
+    pyautogui.click()
+    time.sleep(1)
+    pyautogui.press('enter')
     logger.error(f"已触发弹出框")
     time.sleep(2)
     if refresh_ele:
@@ -592,12 +592,12 @@ if __name__ == '__main__':
     parser.add_argument("--display", type=str, help="执行窗口", required=True)
     args = parser.parse_args()
 
-    # # 把解析到的参数写入环境变量 DISPLAY
-    # os.environ['DISPLAY'] = ":"+args.display
-    #
-    # # 之后就可以安全地 import 需要 Xlib 的库
-    # import pyautogui
-    # pyautogui.FAILSAFE = False
+    # 把解析到的参数写入环境变量 DISPLAY
+    os.environ['DISPLAY'] = ":"+args.display
+
+    # 之后就可以安全地 import 需要 Xlib 的库
+    import pyautogui
+    pyautogui.FAILSAFE = False
     # MQTT 配置
     BROKER = "150.109.5.143"
     PORT = 1883
