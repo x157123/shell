@@ -269,7 +269,8 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
             if error == 4:
                 tab.refresh()
                 time.sleep(3)
-                logger.info("refresh page:")
+                logger.info("refresh page:")    # 关闭弹窗（如果存在）
+                click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
 
             if error > 5:
                 logger.info("检查过程中出现异常：未连接到主网络")
