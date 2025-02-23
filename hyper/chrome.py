@@ -10,7 +10,7 @@ import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import random
-# import subprocess  # 系统级别剪切板
+import subprocess  # 系统级别剪切板
 
 
 def configure_browser():
@@ -101,21 +101,21 @@ def get_clipboard_text(user_name: str, display: str):
     # First, try to get the clipboard content using pyperclip
     clipboard_text = pyperclip.paste().strip()
     logger.info(f"Clipboard text: {clipboard_text}")
-    # if not clipboard_text:  # 系统级别剪切板 xclip
-    #     logger.info("Clipboard is empty or None. Trying xclip command.")
-    #     # Dynamically build the command with the provided display and user name
-    #     command = f"export DISPLAY=:{display}; sudo -u {user_name} xclip -o"
-    #     try:
-    #         result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
-    #         clipboard_text = result.stdout.strip()
-    #         # logger.info(f"Clipboard text from xclip: {clipboard_text}")
-    #     except subprocess.CalledProcessError as e:
-    #         logger.error(f"Error while getting clipboard content using xclip: {e}")
-    #         clipboard_text = ""  # Set to empty string if there's an error with xclip
-    #
-    # # If we still have no clipboard content, log it
-    # if not clipboard_text:
-    #     logger.warning("Failed to retrieve clipboard content.")
+    if not clipboard_text:  # 系统级别剪切板 xclip
+        logger.info("Clipboard is empty or None. Trying xclip command.")
+        # Dynamically build the command with the provided display and user name
+        command = f"export DISPLAY=:{display}; sudo -u {user_name} xclip -o"
+        try:
+            result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
+            clipboard_text = result.stdout.strip()
+            # logger.info(f"Clipboard text from xclip: {clipboard_text}")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Error while getting clipboard content using xclip: {e}")
+            clipboard_text = ""  # Set to empty string if there's an error with xclip
+
+    # If we still have no clipboard content, log it
+    if not clipboard_text:
+        logger.warning("Failed to retrieve clipboard content.")
 
     return clipboard_text
 
