@@ -114,7 +114,7 @@ sudo apt install net-tools
 # 安装包的下载链接和文件名
 CHROME_DEB="google-chrome-stable_current_amd64.deb"
 CHROME_URL="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-CHROME_BAK_URL="https://www.15712345.xyz/chrome/google-chrome-stable_current_amd64.deb"
+CHROME_BAK_URL="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
 
 # 检查是否已安装 Google Chrome
 if ! dpkg-query -l | grep -q "google-chrome-stable"; then
@@ -124,8 +124,9 @@ if ! dpkg-query -l | grep -q "google-chrome-stable"; then
     if ! curl -sSL "$CHROME_URL" -o "$CHROME_DEB"; then
         echo "Google Chrome 下载失败"
         if ! curl -sSL "$CHROME_BAK_URL" -o "$CHROME_DEB"; then
-          echo "Google Chrome 备用地址 下载失败"
+          echo "Google Chrome 备用地址下载失败"
           exit 1
+        fi
     fi
 
     echo "Google Chrome 下载成功，开始安装..."
