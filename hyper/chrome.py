@@ -263,7 +263,9 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
                         client.publish("appInfo", json.dumps(app_info))
                         logger.info("推送积分")
                         total = 0
-
+                    else:
+                        logger.info("刷新页面。")
+                        tab.refresh()
             if error == 4:
                 tab.refresh()
                 time.sleep(3)
