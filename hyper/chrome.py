@@ -205,7 +205,7 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
 
 
 def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
-    total = 58
+    total = 59
     error = 5
     first = 0
     num = random.randint(60, 80)
@@ -261,6 +261,7 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
                         app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
                                                          '运行中， 并到采集积分:' + str(points))
                         client.publish("appInfo", json.dumps(app_info))
+                        logger.info("推送积分")
                         total = 0
 
             if error == 4:
