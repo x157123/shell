@@ -60,6 +60,7 @@ if [ -z "$USER" ]; then
   echo "Warning: --user 未指定，将默认以 admin 身份执行相关操作（如需特定用户，请使用 --user）"
 fi
 
+sudo apt update
 
 echo "安装剪切板"
 # 尝试安装 xclip
