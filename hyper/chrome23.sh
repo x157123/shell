@@ -62,54 +62,6 @@ fi
 
 sudo apt update
 
-echo "安装剪切板"
-# 尝试安装 xclip
-#sudo apt-get install -y xclip;
-echo "尝试安装 xclip..."
-if sudo apt-get install -y xclip; then
-    echo "xclip 安装成功。"
-else
-    echo "检测到安装异常，开始处理问题..."
-
-    # 更换镜像源为阿里云
-    echo "更换镜像源为阿里云..."
-    sudo tee /etc/apt/sources.list > /dev/null <<EOL
-deb https://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
-
-deb https://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
-
-deb https://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
-
-deb https://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
-EOL
-
-    # 更新软件包列表
-    echo "重新更新软件包列表..."
-    sudo apt-get update
-
-    # 尝试修复损坏的依赖
-    echo "尝试修复损坏的依赖..."
-    sudo apt --fix-broken install -y
-
-    # 再次尝试安装 xclip
-    echo "再次尝试安装 xclip..."
-    if sudo apt-get install -y xclip; then
-        echo "xclip 安装成功。"
-    else
-        echo "仍然存在安装问题，尝试安装缺失的依赖..."
-        # 安装缺失的依赖（根据报错信息添加或修改）
-        sudo apt-get install -y libayatana-appindicator3-1 libwebkit2gtk-4.0-37
-        echo "最后再次尝试安装 xclip..."
-        sudo apt-get install -y xclip
-    fi
-fi
-
-echo "脚本执行完成。"
-
 sudo apt install net-tools
 
 # 安装包的下载链接和文件名
@@ -217,6 +169,7 @@ else
       tightvncserver \
       xrdp \
       expect \
+      xclip \
       sudo
 
   ##############################################################################
