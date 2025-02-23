@@ -210,7 +210,7 @@ else
   # 安装桌面环境、VNC、XRDP等
   ##############################################################################
   echo "Installing xfce4, xfce4-goodies, tightvncserver, xrdp, expect, sudo..."
-  apt-get install -y \
+  sudo apt-get install -y \
       xfce4 \
       xfce4-goodies \
       tightvncserver \
