@@ -60,51 +60,51 @@ if [ -z "$USER" ]; then
   echo "Warning: --user 未指定，将默认以 admin 身份执行相关操作（如需特定用户，请使用 --user）"
 fi
 
-
-echo "安装剪切板"
-# 尝试安装 xclip
-echo "尝试安装 xclip..."
-if sudo apt-get install -y xclip; then
-    echo "xclip 安装成功。"
-else
-    echo "检测到安装异常，开始处理问题..."
-
-    # 更换镜像源为阿里云
-    echo "更换镜像源为阿里云..."
-    sudo tee /etc/apt/sources.list > /dev/null <<EOL
-deb https://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
-
-deb https://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
-
-deb https://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
-
-deb https://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
-EOL
-
-    # 更新软件包列表
-    echo "重新更新软件包列表..."
-    sudo apt-get update
-
-    # 尝试修复损坏的依赖
-    echo "尝试修复损坏的依赖..."
-    sudo apt --fix-broken install -y
-
-    # 再次尝试安装 xclip
-    echo "再次尝试安装 xclip..."
-    if sudo apt-get install -y xclip; then
-        echo "xclip 安装成功。"
-    else
-        echo "仍然存在安装问题，尝试安装缺失的依赖..."
-        # 安装缺失的依赖（根据报错信息添加或修改）
-        sudo apt-get install -y libayatana-appindicator3-1 libwebkit2gtk-4.0-37
-        echo "最后再次尝试安装 xclip..."
-        sudo apt-get install -y xclip
-    fi
-fi
+#
+#echo "安装剪切板"
+## 尝试安装 xclip
+#echo "尝试安装 xclip..."
+#if sudo apt-get install -y xclip; then
+#    echo "xclip 安装成功。"
+#else
+#    echo "检测到安装异常，开始处理问题..."
+#
+#    # 更换镜像源为阿里云
+#    echo "更换镜像源为阿里云..."
+#    sudo tee /etc/apt/sources.list > /dev/null <<EOL
+#deb https://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
+#deb-src https://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
+#
+#deb https://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
+#deb-src https://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
+#
+#deb https://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
+#deb-src https://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
+#
+#deb https://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
+#deb-src https://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
+#EOL
+#
+#    # 更新软件包列表
+#    echo "重新更新软件包列表..."
+#    sudo apt-get update
+#
+#    # 尝试修复损坏的依赖
+#    echo "尝试修复损坏的依赖..."
+#    sudo apt --fix-broken install -y
+#
+#    # 再次尝试安装 xclip
+#    echo "再次尝试安装 xclip..."
+#    if sudo apt-get install -y xclip; then
+#        echo "xclip 安装成功。"
+#    else
+#        echo "仍然存在安装问题，尝试安装缺失的依赖..."
+#        # 安装缺失的依赖（根据报错信息添加或修改）
+#        sudo apt-get install -y libayatana-appindicator3-1 libwebkit2gtk-4.0-37
+#        echo "最后再次尝试安装 xclip..."
+#        sudo apt-get install -y xclip
+#    fi
+#fi
 
 echo "脚本执行完成。"
 
@@ -387,36 +387,36 @@ if screen -list | grep -q "\.chrome"; then
     screen -S chrome -X quit
 fi
 
-# 设置 DISPLAY 环境变量，根据实际情况修改
-export DISPLAY=:${window}
-
-echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
-screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security  --user-data-dir=/tmp/DrissionPage/userData/9515"
+## 设置 DISPLAY 环境变量，根据实际情况修改
+#export DISPLAY=:${window}
+#
+#echo "启动 google-chrome —— 使用远程调试模式监听 9515 端口..."
+#screen -dmS chrome bash -c "export DISPLAY=:${window}; google-chrome --remote-debugging-port=9515 --no-first-run --disable-web-security  --user-data-dir=/tmp/DrissionPage/userData/9515"
 
 EOF
-
-MAX_WAIT=30   # 最大等待时间，单位秒
-counter=0
-# 运行 lsof 以确保能检查端口
-while ! lsof -i:9515 -sTCP:LISTEN >/dev/null 2>&1; do
-    sleep 1
-    counter=$((counter+1))
-    if [ $counter -ge $MAX_WAIT ]; then
-        echo "等待 google-chrome 启动超时！"
-        exit 1
-    fi
-    echo "等待 google-chrome 启动中... 当前等待时间：$counter 秒"
-done
-
-echo "google-chrome 启动成功，端口 9515 正在监听"
-
-sleep 3
+#
+#MAX_WAIT=30   # 最大等待时间，单位秒
+#counter=0
+## 运行 lsof 以确保能检查端口
+#while ! lsof -i:9515 -sTCP:LISTEN >/dev/null 2>&1; do
+#    sleep 1
+#    counter=$((counter+1))
+#    if [ $counter -ge $MAX_WAIT ]; then
+#        echo "等待 google-chrome 启动超时！"
+#        exit 1
+#    fi
+#    echo "等待 google-chrome 启动中... 当前等待时间：$counter 秒"
+#done
+#
+#echo "google-chrome 启动成功，端口 9515 正在监听"
+#
+#sleep 3
 
 
 export DISPLAY=:${window}
 # 执行远程 Python 脚本
 echo "开始执行 /opt/chrome.py ..."
-nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> hyperChromeOutput.log 2>&1 &
+sudo -u "$SUDO_USER" -i nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> hyperChromeOutput.log 2>&1 &
 #nohup sudo -u "$SUDO_USER" -i nohup python3 /opt/chrome.py --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER"> hyperChromeOutput.log 2>&1 &
 
 
