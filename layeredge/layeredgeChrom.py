@@ -267,6 +267,18 @@ def main(client, serverId, appId, decryptKey, user, display, chromePort):
     time.sleep(3)
     tab = tab.browser.new_tab(url="https://dashboard.layeredge.io/")
 
+    connect_wallet = tab.ele('x://button[text()="Connect Wallet"]')
+    if connect_wallet:
+        connect_wallet.click(by_js=True)
+        logger.info("选择钱包。")
+        signma_ele = tab.ele('x://div[text()="Signma"]')
+        if signma_ele:
+            signma_ele.click(by_js=True)
+            logger.info("点击钱包。")
+            time.sleep(2)
+            myriad_pop(tab)
+            time.sleep(2)
+            myriad_pop(tab)
 
 def myriad_pop(self):
     time.sleep(5)
