@@ -225,14 +225,14 @@ setup_vnc() {
         echo "$USER:$PASSWORD" | chpasswd
     }
 
-    # 检查 VNC 是否运行
-    if pgrep -f "tightvncserver :$VNC_DISPLAY" >/dev/null && check_port "$VNC_PORT"; then
+    # 检查 VNC 是否运行（改进匹配模式）
+    if pgrep -f "Xtightvnc :$VNC_DISPLAY" >/dev/null && check_port "$VNC_PORT"; then
         log_info "VNC 显示号 :$VNC_DISPLAY 已运行且端口 $VNC_PORT 在监听，跳过启动"
         window="$VNC_DISPLAY"
     else
         log_info "VNC 未运行或端口 $VNC_PORT 未监听，重新启动..."
         # 清理旧进程
-        pgrep -f "tightvncserver :$VNC_DISPLAY" >/dev/null && {
+        pgrep -f "Xtightvnc :$VNC_DISPLAY" >/dev/null && {
             log_info "终止旧 VNC 进程..."
             tightvncserver -kill :$VNC_DISPLAY 2>/dev/null || true
         }
@@ -252,7 +252,8 @@ chmod +x ~/.vnc/xstartup
 tightvncserver :$VNC_DISPLAY -rfbport $VNC_PORT -geometry 1920x1080 -depth 24
 EOF
         window="$VNC_DISPLAY"
-        # 再次检查端口，确保启动成功
+        # 等待并再次检查端口
+        sleep 2
         check_port "$VNC_PORT" || error_exit "VNC 启动失败，端口 $VNC_PORT 未监听"
         log_info "VNC 已启动于显示号 :$window，端口 $VNC_PORT"
     fi
