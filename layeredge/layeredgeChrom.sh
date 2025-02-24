@@ -12,8 +12,8 @@ readonly DEFAULT_VNC_DISPLAY=23        # 默认显示号
 readonly VNC_BASE_PORT=5900           # VNC 基础端口
 readonly NOVNC_BASE_PORT=26300        # noVNC 基础端口
 readonly CHROME_DEBUG_BASE_PORT=9515  # Chrome 调试基础端口
-readonly APT_PACKAGES=("net-tools" "fontconfig" "fonts-wqy-zenhei" "fonts-wqy-microhei" "lsof")  # 添加 lsof
-readonly PYTHON_PACKAGES=("psutil" "requests" "paho-mqtt" "selenium" "pycryptodome" "loguru" "pyperclip" "drissionpage")
+readonly APT_PACKAGES=("net-tools" "fontconfig" "fonts-wqy-zenhei" "fonts-wqy-microhei" "lsof" "python3-tk" "python3-dev")  # 添加 lsof
+readonly PYTHON_PACKAGES=("psutil" "requests" "paho-mqtt" "selenium" "pycryptodome" "loguru" "pyperclip" "drissionpage" "pyautogui")
 readonly DEPENDENCIES=("curl" "wget" "git" "pip3" "lsof" "expect")  # 依赖命令
 
 # 默认值
