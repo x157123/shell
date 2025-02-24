@@ -21,7 +21,7 @@ USER="${USER:-admin}"
 PASSWORD="${PASSWORD:-default_password}"
 SERVER_ID=""
 APP_ID=""
-DECRYPT_KEY=""
+DECRYPT_KEY="${DECRYPT_KEY:-default_password}"
 VNC_DISPLAY="${VNC_DISPLAY:-$DEFAULT_VNC_DISPLAY}"
 
 # 错误处理函数
