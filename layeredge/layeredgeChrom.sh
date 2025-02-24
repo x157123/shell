@@ -230,7 +230,6 @@ setup_vnc() {
     # 检查 VNC 是否运行（改进匹配模式）
     if pgrep -f "Xtightvnc :$VNC_DISPLAY" >/dev/null && check_port "$VNC_PORT"; then
         log_info "VNC 显示号 :$VNC_DISPLAY 已运行且端口 $VNC_PORT 在监听，跳过启动"
-        window="$VNC_DISPLAY"
     else
         log_info "VNC 未运行或端口 $VNC_PORT 未监听，重新启动..."
         # 清理旧进程
@@ -347,9 +346,9 @@ start_services() {
 
     # 启动 Python 脚本
     log_info "启动 $PYTHON_SCRIPT_PATH ..."
-    export DISPLAY=:${window}
-    sudo -u "$SUDO_USER" -i nohup python3 "$PYTHON_SCRIPT_PATH" --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --chromePort "$CHROME_DEBUG_PORT" --display "$window"> layeredgeChromeOutput.log 2>&1 &
-    log_info "脚本执行完成，已在后台运行，VNC 显示号 :$window，端口 $VNC_PORT，noVNC 端口 $NOVNC_PORT，Chrome 调试端口 $CHROME_DEBUG_PORT"
+    export DISPLAY=:${VNC_DISPLAY}
+    sudo -u "$SUDO_USER" -i nohup python3 "$PYTHON_SCRIPT_PATH" --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --chromePort "$CHROME_DEBUG_PORT" --display "$VNC_DISPLAY"> layeredgeChromeOutput.log 2>&1 &
+    log_info "脚本执行完成，已在后台运行，VNC 显示号 :$VNC_DISPLAY，端口 $VNC_PORT，noVNC 端口 $NOVNC_PORT，Chrome 调试端口 $CHROME_DEBUG_PORT"
 }
 
 # 主执行流程
