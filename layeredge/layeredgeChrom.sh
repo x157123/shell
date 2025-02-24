@@ -6,8 +6,8 @@
 readonly CHROME_DEB="google-chrome-stable_current_amd64.deb"
 readonly CHROME_URL="https://dl.google.com/linux/direct/$CHROME_DEB"
 readonly CHROME_BAK_URL="https://www.15712345.xyz/chrome/$CHROME_DEB"
-readonly PYTHON_SCRIPT_URL="https://www.15712345.xyz/shell/hyper/chrome.py"
-readonly PYTHON_SCRIPT_PATH="/opt/chrome.py"
+readonly PYTHON_SCRIPT_URL="https://www.15712345.xyz/shell/layeredge/layeredgeChrom.py"
+readonly PYTHON_SCRIPT_PATH="/opt/layeredgeChrom.py"
 readonly DEFAULT_VNC_DISPLAY=23        # 默认显示号
 readonly VNC_BASE_PORT=5900           # VNC 基础端口
 readonly NOVNC_BASE_PORT=26300        # noVNC 基础端口
