@@ -322,7 +322,7 @@ start_services() {
     # 启动 Python 脚本
     log_info "启动 $PYTHON_SCRIPT_PATH ..."
     export DISPLAY=:${window}
-    sudo -u "$SUDO_USER" -i nohup python3 "$PYTHON_SCRIPT_PATH" --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> layeredgeChromeOutput.log 2>&1 &
+    sudo -u "$SUDO_USER" -i nohup python3 "$PYTHON_SCRIPT_PATH" --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --chromePort "$CHROME_DEBUG_PORT" --display "$window"> layeredgeChromeOutput.log 2>&1 &
     log_info "脚本执行完成，已在后台运行，VNC 显示号 :$window，端口 $VNC_PORT，noVNC 端口 $NOVNC_PORT，Chrome 调试端口 $CHROME_DEBUG_PORT"
 }
 
