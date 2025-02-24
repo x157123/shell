@@ -297,19 +297,14 @@ start_services() {
 
     SUDO_USER="$USER"
 
-    # 启动 Chrome（取消注释并优化）
-    log_info "启动 Google Chrome 于远程调试端口 $CHROME_DEBUG_PORT..."
-    sudo -u "$SUDO_USER" bash -c "export DISPLAY=:$window; google-chrome --remote-debugging-port=$CHROME_DEBUG_PORT --no-first-run --disable-web-security --user-data-dir=/tmp/DrissionPage/userData/$CHROME_DEBUG_PORT & sleep 2"
+#    # 启动 Chrome（取消注释并优化）
+#    log_info "启动 Google Chrome 于远程调试端口 $CHROME_DEBUG_PORT..."
+#    sudo -u "$SUDO_USER" bash -c "export DISPLAY=:$window; google-chrome --remote-debugging-port=$CHROME_DEBUG_PORT --no-first-run --disable-web-security --user-data-dir=/tmp/DrissionPage/userData/$CHROME_DEBUG_PORT & sleep 2"
 
     # 启动 Python 脚本
     log_info "启动 $PYTHON_SCRIPT_PATH ..."
-    sudo -u "$SUDO_USER" bash -c "export DISPLAY=:$window; nohup python3 \"$PYTHON_SCRIPT_PATH\" \
-        --serverId \"$SERVER_ID\" \
-        --appId \"$APP_ID\" \
-        --decryptKey \"$DECRYPT_KEY\" \
-        --user \"$SUDO_USER\" \
-        --display \"$window\" &>> \"layeredgeChromeOutput_$VNC_DISPLAY.log\" & echo \$! > \"$PYTHON_PID_FILE\""
-
+    export DISPLAY=:${window}
+    sudo -u "$SUDO_USER" -i nohup python3 "$PYTHON_SCRIPT_PATH" --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --display "$window"> layeredgeChromeOutput.log 2>&1 &
     log_info "脚本执行完成，已在后台运行，VNC 显示号 :$window，端口 $VNC_PORT，noVNC 端口 $NOVNC_PORT，Chrome 调试端口 $CHROME_DEBUG_PORT"
 }
 
