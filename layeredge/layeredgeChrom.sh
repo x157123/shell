@@ -178,9 +178,9 @@ EOL
         log_info "xclip 已安装，跳过"
     fi
 
+    export DEBIAN_FRONTEND=noninteractive
     install_apt_packages
 
-    sudo apt-get install python3-tk python3-dev
 }
 
 # 安装 Google Chrome
