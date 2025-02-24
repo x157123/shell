@@ -179,6 +179,8 @@ EOL
     fi
 
     install_apt_packages
+
+    sudo apt-get install python3-tk python3-dev
 }
 
 # 安装 Google Chrome
