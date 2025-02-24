@@ -53,11 +53,15 @@ check_dependencies() {
     done
 }
 
-# 检查端口是否被占用（使用 lsof）
+# 检查端口是否在监听，返回 0 表示已监听，1 表示未监听
 check_port() {
     local port=$1
     if lsof -i:$port -sTCP:LISTEN -t >/dev/null 2>&1; then
-        error_exit "端口 $port 已被占用，请检查或指定其他显示号"
+        log_info "端口 $port 已在监听"
+        return 0
+    else
+        log_info "端口 $port 未监听"
+        return 1
     fi
 }
 
@@ -221,14 +225,19 @@ setup_vnc() {
         echo "$USER:$PASSWORD" | chpasswd
     }
 
-    if pgrep -f "tightvncserver :$VNC_DISPLAY" >/dev/null; then
-        log_info "VNC 显示号 :$VNC_DISPLAY 已运行，跳过启动"
+    # 检查 VNC 是否运行
+    if pgrep -f "tightvncserver :$VNC_DISPLAY" >/dev/null && check_port "$VNC_PORT"; then
+        log_info "VNC 显示号 :$VNC_DISPLAY 已运行且端口 $VNC_PORT 在监听，跳过启动"
         window="$VNC_DISPLAY"
     else
-        check_port "$VNC_PORT"
-        check_port "$NOVNC_PORT"
+        log_info "VNC 未运行或端口 $VNC_PORT 未监听，重新启动..."
+        # 清理旧进程
+        pgrep -f "tightvncserver :$VNC_DISPLAY" >/dev/null && {
+            log_info "终止旧 VNC 进程..."
+            tightvncserver -kill :$VNC_DISPLAY 2>/dev/null || true
+        }
 
-        log_info "启动 VNC 于显示号 :$VNC_DISPLAY，端口 $VNC_PORT..."
+        # 启动 VNC
         sudo -u "$USER" bash <<EOF
 mkdir -p ~/.vnc && chmod 700 ~/.vnc
 expect <<'EXPECT'
@@ -240,10 +249,11 @@ expect eof
 EXPECT
 echo -e '#!/bin/bash\nxrdb \$HOME/.Xresources\nstartxfce4 &' > ~/.vnc/xstartup
 chmod +x ~/.vnc/xstartup
-tightvncserver -kill :$VNC_DISPLAY 2>/dev/null || true
 tightvncserver :$VNC_DISPLAY -rfbport $VNC_PORT -geometry 1920x1080 -depth 24
 EOF
         window="$VNC_DISPLAY"
+        # 再次检查端口，确保启动成功
+        check_port "$VNC_PORT" || error_exit "VNC 启动失败，端口 $VNC_PORT 未监听"
         log_info "VNC 已启动于显示号 :$window，端口 $VNC_PORT"
     fi
 }
@@ -266,16 +276,28 @@ setup_novnc() {
         log_info "安装 noVNC..."
         git clone https://github.com/novnc/noVNC.git || error_exit "noVNC 下载失败"
     fi
+
     NOVNC_PID_FILE="novnc_$VNC_DISPLAY.pid"
-    if [ -f "$NOVNC_PID_FILE" ] && kill -0 "$(cat "$NOVNC_PID_FILE")" 2>/dev/null; then
-        log_info "终止旧 noVNC 进程..."
-        kill "$(cat "$NOVNC_PID_FILE")"
+    # 检查 noVNC 是否运行且端口已监听
+    if [ -f "$NOVNC_PID_FILE" ] && kill -0 "$(cat "$NOVNC_PID_FILE")" 2>/dev/null && check_port "$NOVNC_PORT"; then
+        log_info "noVNC 已运行且端口 $NOVNC_PORT 在监听，跳过启动"
+    else
+        # 清理旧进程
+        if [ -f "$NOVNC_PID_FILE" ]; then
+            log_info "终止旧 noVNC 进程..."
+            kill "$(cat "$NOVNC_PID_FILE")" 2>/dev/null || true
+            rm -f "$NOVNC_PID_FILE"
+        fi
+
+        # 启动 noVNC
+        log_info "启动 noVNC，监听端口 $NOVNC_PORT..."
+        nohup ./noVNC/utils/novnc_proxy \
+            --vnc localhost:$VNC_PORT \
+            --listen "$NOVNC_PORT" &>> "novnc_$VNC_DISPLAY.log" & echo $! > "$NOVNC_PID_FILE"
+        sleep 2  # 等待启动完成
+        check_port "$NOVNC_PORT" || error_exit "noVNC 启动失败，端口 $NOVNC_PORT 未监听"
+        log_info "noVNC 已启动，监听端口 $NOVNC_PORT，日志追加到 novnc_$VNC_DISPLAY.log"
     fi
-    log_info "启动 noVNC，监听端口 $NOVNC_PORT..."
-    nohup ./noVNC/utils/novnc_proxy \
-        --vnc localhost:$VNC_PORT \
-        --listen "$NOVNC_PORT" &>> "novnc_$VNC_DISPLAY.log" & echo $! > "$NOVNC_PID_FILE"
-    log_info "noVNC 已启动，监听端口 $NOVNC_PORT，日志追加到 novnc_$VNC_DISPLAY.log"
 }
 
 # 启动 Chrome 和 Python 脚本
@@ -297,10 +319,6 @@ start_services() {
 
     SUDO_USER="$USER"
 
-#    # 启动 Chrome（取消注释并优化）
-#    log_info "启动 Google Chrome 于远程调试端口 $CHROME_DEBUG_PORT..."
-#    sudo -u "$SUDO_USER" bash -c "export DISPLAY=:$window; google-chrome --remote-debugging-port=$CHROME_DEBUG_PORT --no-first-run --disable-web-security --user-data-dir=/tmp/DrissionPage/userData/$CHROME_DEBUG_PORT & sleep 2"
-
     # 启动 Python 脚本
     log_info "启动 $PYTHON_SCRIPT_PATH ..."
     export DISPLAY=:${window}
@@ -310,7 +328,6 @@ start_services() {
 
 # 主执行流程
 main() {
-    # 检查是否以 root 权限运行
     if [ "$(id -u)" -ne 0 ]; then
         error_exit "此脚本需要 root 权限运行，请使用 sudo 或以 root 用户执行"
     fi
