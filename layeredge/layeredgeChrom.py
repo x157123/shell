@@ -24,7 +24,7 @@ def configure_browser(user, chromePort):
         "--metrics-recording-only", "--password-store=basic", "--use-mock-keychain",
         "--export-tagged-pdf", "--disable-gpu", "--disable-web-security",
         "--disable-infobars", "--disable-popup-blocking", "--allow-outdated-plugins",
-        "--deny-permission-prompts", "--disable-suggestions-ui", "--window-size=1920,1080",
+        "--deny-permission-prompts", "--disable-suggestions-ui", "--window-size=1280,800",
         "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/" + chromePort,
         "--disable-features=ServerSentEvents"
     ]
