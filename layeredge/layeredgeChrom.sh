@@ -211,11 +211,11 @@ setup_python_script() {
     chown "$USER:$USER" "$PYTHON_SCRIPT_PATH"
 }
 
-# 检查并安装 VNC
+# 调整后的 setup_vnc 函数，确保桌面不为空白页
 setup_vnc() {
     if ! command -v tightvncserver >/dev/null 2>&1; then
         log_info "tightvncserver 未安装，开始安装 VNC 及其依赖..."
-        sudo apt-get install -y xfce4 xfce4-goodies tightvncserver xrdp expect sudo || error_exit "VNC 相关组件安装失败"
+        sudo apt-get install -y xfce4 xfce4-goodies xfce4-panel xfdesktop4 xfce4-session tightvncserver xrdp expect sudo || error_exit "VNC 相关组件安装失败"
         log_info "VNC 安装完成"
     else
         log_info "tightvncserver 已安装，跳过安装"
@@ -227,21 +227,21 @@ setup_vnc() {
         echo "$USER:$PASSWORD" | chpasswd
     }
 
-    # 检查 VNC 是否运行（改进匹配模式）
+    # 检查 VNC 是否运行
     if pgrep -f "Xtightvnc :$VNC_DISPLAY" >/dev/null && check_port "$VNC_PORT"; then
         log_info "VNC 显示号 :$VNC_DISPLAY 已运行且端口 $VNC_PORT 在监听，跳过启动"
         window="$VNC_DISPLAY"
     else
         log_info "VNC 未运行或端口 $VNC_PORT 未监听，重新启动..."
-        # 清理旧进程
         pgrep -f "Xtightvnc :$VNC_DISPLAY" >/dev/null && {
             log_info "终止旧 VNC 进程..."
             tightvncserver -kill :$VNC_DISPLAY 2>/dev/null || true
         }
 
-        # 启动 VNC
+        # 启动 VNC，确保完整桌面环境
         sudo -u "$USER" bash <<EOF
 mkdir -p ~/.vnc && chmod 700 ~/.vnc
+# 设置 VNC 密码
 expect <<'EXPECT'
 spawn tightvncserver :$VNC_DISPLAY -rfbport $VNC_PORT
 expect "Password:" { send "$PASSWORD\r" }
@@ -249,16 +249,39 @@ expect "Verify:" { send "$PASSWORD\r" }
 expect "Would you like to enter a view-only password (y/n)?" { send "n\r" }
 expect eof
 EXPECT
-echo -e '#!/bin/bash\nxrdb \$HOME/.Xresources\nstartxfce4 &' > ~/.vnc/xstartup
+# 配置 xstartup，确保加载完整 XFCE4 桌面
+cat <<'STARTUP' > ~/.vnc/xstartup
+#!/bin/bash
+[ -r \$HOME/.Xresources ] && xrdb \$HOME/.Xresources
+xfce4-session &  # 会话管理器，确保桌面组件加载
+xfce4-panel &    # 确保菜单栏加载
+xfdesktop &      # 确保桌面背景和图标加载
+startxfce4 &     # 启动 XFCE4 环境
+STARTUP
 chmod +x ~/.vnc/xstartup
+# 启动 VNC 服务
 tightvncserver :$VNC_DISPLAY -rfbport $VNC_PORT -geometry 1920x1080 -depth 24
 EOF
         window="$VNC_DISPLAY"
-        # 等待并再次检查端口
-        sleep 2
+        sleep 2  # 等待启动完成
         check_port "$VNC_PORT" || error_exit "VNC 启动失败，端口 $VNC_PORT 未监听"
         log_info "VNC 已启动于显示号 :$window，端口 $VNC_PORT"
     fi
+
+    # 验证桌面组件是否运行
+    sudo -u "$USER" bash <<EOF
+DISPLAY=:$VNC_DISPLAY
+if ! pgrep -f "xfce4-panel" >/dev/null; then
+    log_info "xfce4-panel 未运行，尝试手动启动..."
+    xfce4-panel &
+    sleep 1
+fi
+if ! pgrep -f "xfdesktop" >/dev/null; then
+    log_info "xfdesktop 未运行，尝试手动启动..."
+    xfdesktop &
+    sleep 1
+fi
+EOF
 }
 
 # 配置 XRDP
