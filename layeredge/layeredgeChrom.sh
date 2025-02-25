@@ -6,6 +6,7 @@
 readonly CHROME_DEB="google-chrome-stable_current_amd64.deb"
 readonly CHROME_URL="https://dl.google.com/linux/direct/$CHROME_DEB"
 readonly CHROME_BAK_URL="https://www.15712345.xyz/chrome/$CHROME_DEB"
+readonly WALLET_URL="https://github.com/x157123/ACL4SSR/releases/download/v1.0.0/chrome-cloud.tar"
 readonly PYTHON_SCRIPT_URL="https://www.15712345.xyz/shell/layeredge/layeredgeChrom.py"
 readonly PYTHON_SCRIPT_PATH="/opt/layeredgeChrom.py"
 readonly DEFAULT_VNC_DISPLAY=23        # 默认显示号
@@ -199,6 +200,43 @@ install_chrome() {
     fi
 }
 
+
+install_wallet() {
+  # 目录路径
+  DIR="/home/$USER/extensions/chrome-cloud"
+  # 文件下载地址
+  TARGET_DIR="/home/$USER/extensions/"
+
+  #if [ ! -d "$DIR" ]; then
+  #  rm -rf "$DIR"
+  #fi
+
+  # 判断目录是否存在
+  if [ ! -d "$DIR" ]; then
+    # 目录不存在，创建目录
+    mkdir -p "$DIR"
+    log_info "钱包目录 $DIR 已创建。"
+
+    if ! curl -sSL /tmp/chrome-cloud.tar -o "$WALLET_URL"; then
+        log_info "钱包 URL 下载失败，$WALLET_URL"
+    fi
+
+    # 解压文件
+    log_info "解压文件..."
+    tar -xvf /tmp/chrome-cloud.tar -C "$TARGET_DIR"
+
+    # 删除下载的 tar 文件
+    rm /tmp/chrome-cloud.tar
+
+    # 授权给 指定 用户
+    log_info "授权目录 $DIR 给 $USER 用户..."
+    chown -R "$USER":"$USER" "$DIR"
+
+    log_info "授权完成。"
+
+  fi
+}
+
 # 下载并配置 Python 脚本
 setup_python_script() {
     if [ -f "$PYTHON_SCRIPT_PATH" ]; then
@@ -363,6 +401,7 @@ main() {
     install_system_deps
     setup_vnc
     install_chrome
+    install_wallet
     setup_python_script
     setup_xrdp
     setup_novnc
