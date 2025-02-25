@@ -3,21 +3,18 @@
 # 脚本描述: 用于配置和管理 Chrome 浏览器的自动化环境，支持多实例 VNC 配置和动态端口
 
 # 常量定义
-readonly PYTHON_SCRIPT_URL="https://www.15712345.xyz/shell/layeredge/layeredgeChrom.py"   # 执行python
-readonly PYTHON_SCRIPT_PATH="/opt/layeredgeChrom.py"                                      # python目录
-readonly LOG_FILE="layeredgeChromOutput.log"                                              # 日志
+readonly APT_PACKAGES=("net-tools" "fontconfig" "fonts-wqy-zenhei" "fonts-wqy-microhei" "lsof" "python3-tk" "python3-dev")  # 添加 lsof
+readonly PYTHON_PACKAGES=("psutil" "requests" "paho-mqtt" "selenium" "pycryptodome" "loguru" "pyperclip" "drissionpage" "pyautogui")
+readonly DEPENDENCIES=("curl" "wget" "git" "pip3" "lsof" "expect")  # 依赖命令
 readonly CHROME_DEB="google-chrome-stable_current_amd64.deb"
 readonly CHROME_URL="https://dl.google.com/linux/direct/$CHROME_DEB"
 readonly CHROME_BAK_URL="https://www.15712345.xyz/chrome/$CHROME_DEB"
 readonly WALLET_URL="https://github.com/x157123/ACL4SSR/releases/download/v1.0.0/chrome-cloud.tar"
-readonly PYTHON_SCRIPT_DIR=$(dirname "$PYTHON_SCRIPT_PATH")  # 目录
+readonly PYTHON_SCRIPT_DIR="/opt/"  # 目录
 readonly DEFAULT_VNC_DISPLAY=23       # 默认显示号
 readonly VNC_BASE_PORT=5900           # VNC 基础端口
 readonly NOVNC_BASE_PORT=26300        # noVNC 基础端口
 readonly CHROME_DEBUG_BASE_PORT=9515  # Chrome 调试基础端口
-readonly APT_PACKAGES=("net-tools" "fontconfig" "fonts-wqy-zenhei" "fonts-wqy-microhei" "lsof" "python3-tk" "python3-dev")  # 添加 lsof
-readonly PYTHON_PACKAGES=("psutil" "requests" "paho-mqtt" "selenium" "pycryptodome" "loguru" "pyperclip" "drissionpage" "pyautogui")
-readonly DEPENDENCIES=("curl" "wget" "git" "pip3" "lsof" "expect")  # 依赖命令
 
 # 默认值
 USER="${USER:-admin}"
@@ -26,6 +23,8 @@ SERVER_ID=""
 APP_ID=""
 DECRYPT_KEY="${DECRYPT_KEY:-default_password}"
 VNC_DISPLAY="${VNC_DISPLAY:-$DEFAULT_VNC_DISPLAY}"
+FILE_NAME=""
+PYTHON_SCRIPT_URL=""
 
 # 错误处理函数
 error_exit() {
@@ -126,9 +125,8 @@ install_apt_packages() {
 
 # 解析命令行参数
 parse_args() {
-    TEMP=$(getopt -o u:p:k:s:a:d: --long user:,password:,decryptKey:,serverId:,appId:,vncDisplay: -n "$0" -- "$@") || error_exit "选项解析失败"
+    TEMP=$(getopt -o u:p:k:s:a:d:f:py: --long user:,password:,decryptKey:,serverId:,appId:,vncDisplay:,fileName:,pythonUrl: -n "$0" -- "$@") || error_exit "选项解析失败"
     eval set -- "$TEMP"
-
     while true; do
         case "$1" in
             -u|--user) USER="$2"; shift 2 ;;
@@ -137,6 +135,8 @@ parse_args() {
             -s|--serverId) SERVER_ID="$2"; shift 2 ;;
             -a|--appId) APP_ID="$2"; shift 2 ;;
             -d|--vncDisplay) VNC_DISPLAY="$2"; shift 2 ;;
+            -f|--fileName) FILE_NAME="$2"; shift 2 ;;
+            -py|--pythonUrl) PYTHON_SCRIPT_URL="$2"; shift 2 ;;
             --) shift; break ;;
             *) error_exit "内部错误: 未知选项 $1" ;;
         esac
@@ -246,14 +246,14 @@ setup_python_script() {
         mkdir -p "$PYTHON_SCRIPT_DIR" || error_exit "无法创建目录 $PYTHON_SCRIPT_DIR"
         chown "$USER:$USER" "$PYTHON_SCRIPT_DIR"
     fi
-    if [ -f "$PYTHON_SCRIPT_PATH" ]; then
-        log_info "$PYTHON_SCRIPT_PATH 已存在，删除旧文件..."
-        rm -f "$PYTHON_SCRIPT_PATH"
+    if [ -f "$PYTHON_SCRIPT_DIR$FILE_NAME" ]; then
+        log_info "$PYTHON_SCRIPT_DIR$FILE_NAME 已存在，删除旧文件..."
+        rm -f "$PYTHON_SCRIPT_DIR$FILE_NAME"
     fi
     log_info "下载 Python 脚本..."
-    wget -q -O "$PYTHON_SCRIPT_PATH" "$PYTHON_SCRIPT_URL" || error_exit "脚本下载失败"
-    chmod +x "$PYTHON_SCRIPT_PATH"
-    chown "$USER:$USER" "$PYTHON_SCRIPT_PATH"
+    wget -q -O "$PYTHON_SCRIPT_DIR$FILE_NAME" "$PYTHON_SCRIPT_URL" || error_exit "脚本下载失败"
+    chmod +x "$PYTHON_SCRIPT_DIR$FILE_NAME"
+    chown "$USER:$USER" "$PYTHON_SCRIPT_DIR$FILE_NAME"
 }
 
 # 检查并安装 VNC
@@ -390,9 +390,9 @@ start_services() {
     SUDO_USER="$USER"
 
     # 启动 Python 脚本
-    log_info "启动 $PYTHON_SCRIPT_PATH ..."
+    log_info "启动 $PYTHON_SCRIPT_DIR ..."
     export DISPLAY=:${VNC_DISPLAY}
-    sudo -u "$SUDO_USER" -i nohup python3 "$PYTHON_SCRIPT_PATH" --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --chromePort "$CHROME_DEBUG_PORT" --display "$VNC_DISPLAY"> "$LOG_FILE" 2>&1 &
+    sudo -u "$SUDO_USER" -i nohup python3 "$PYTHON_SCRIPT_DIR$FILE_NAME" --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --chromePort "$CHROME_DEBUG_PORT" --display "$VNC_DISPLAY"> "$FILE_NAME"Out.log 2>&1 &
     log_info "脚本执行完成，已在后台运行，VNC 显示号 :$VNC_DISPLAY，端口 $VNC_PORT，noVNC 端口 $NOVNC_PORT，Chrome 调试端口 $CHROME_DEBUG_PORT"
 }
 
