@@ -304,6 +304,7 @@ def main(client, serverId, appId, decryptKey, user, display, chromePort):
             time.sleep(2)
             myriad_pop(tab)
 
+    logger.info("判断是否需要邀请码。")
     invite_input = get_element(tab, 'x://input[@placeholder="Enter your invite code"]', 20)
     if invite_input:
         # 随机选择一个邀请码
@@ -312,13 +313,18 @@ def main(client, serverId, appId, decryptKey, user, display, chromePort):
         continue_button = get_element(tab, 'x://button[@type="submit" and text()="Continue"]', 2)
         if continue_button:
             continue_button.click(by_js=None)
-            myriad_pop(tab)
+    else:
+        logger.info("不需要输入邀请码。")
 
+    logger.info("开启节点。")
     start_node = get_element(tab, 'x://button[text()="Start Node"]', 5)
     if start_node:
         start_node.click(by_js=None)
         myriad_pop(tab)
+    else:
+        logger.info("未找到节点。")
 
+    logger.info("开启获取奖励。")
     claim_reward = get_element(tab, 'x://button[text()="Claim Reward"]', 5)
     if claim_reward:
         claim_reward.click(by_js=None)
@@ -326,7 +332,8 @@ def main(client, serverId, appId, decryptKey, user, display, chromePort):
         if claim_reward_but:
             claim_reward_but.click(by_js=None)
             myriad_pop(tab)
-
+    else:
+        logger.info("未找到获取奖励。")
 
 
 def myriad_pop(self):
