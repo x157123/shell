@@ -470,7 +470,8 @@ def setup_wallet(self, key):
     index_button_path = "tag:button@@id=existingWallet"
     index_set_button = wallet_tab.ele(index_button_path)
 
-    index_set_button.click()
+    if index_set_button:
+        index_set_button.click()
 
     return extensions
 
