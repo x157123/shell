@@ -311,7 +311,7 @@ def main(client, serverId, appId, decryptKey, user, display, chromePort):
         random_code = random.choice(invite_codes)
         invite_input.clear()
         invite_input.send_keys(random_code)
-        continue_button = get_element(tab, 'xpath://button[@type="submit" and text()="Continue"]', 20)
+        continue_button = get_element(tab, 'x://button[@type="submit" and text()="Continue"]', 20)
         if continue_button:
             continue_button.click(by_js=None)
             myriad_pop(tab)
