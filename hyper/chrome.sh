@@ -401,11 +401,13 @@ start_services() {
     fi
 
     # 查找运行中的 老版本 chrome.py 进程
-    pids=$(pgrep -f "python3 /opt/chrome.py")
+    pids=$(pgrep -f "/opt/chrome.py")
     if [ -n "$pids" ]; then
         echo "检测到正在运行的实例: $pids，准备终止..."
-        # 注意：kill -9 是强制终止，可根据实际情况换成 kill
-        kill -9 "$pids"
+        for pid in $pids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
     fi
 
     # 清理特定显示号的 Python 脚本进程
