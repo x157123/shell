@@ -305,13 +305,13 @@ def main(client, serverId, appId, decryptKey, user, display, chromePort):
             myriad_pop(tab)
 
     time.sleep(10)
-    invite_input = tab.ele('x://input[@placeholder="Enter your invite code"]')
+    invite_input = get_element(tab, 'x://input[@placeholder="Enter your invite code"]', 20)
     if invite_input:
         # 随机选择一个邀请码
         random_code = random.choice(invite_codes)
         invite_input.clear()
         invite_input.send_keys(random_code)
-        continue_button = get_element(tab, 'x://button[@type="submit" and text()="Continue"]', 20)
+        continue_button = get_element(tab, 'x://button[@type="submit" and text()="Continue"]', 2)
         if continue_button:
             continue_button.click(by_js=None)
             myriad_pop(tab)
