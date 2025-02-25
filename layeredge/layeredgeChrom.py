@@ -45,7 +45,7 @@ def configure_browser(user, chromePort):
         "--start-maximized",
         "--disable-mobile-emulation",
         "--window-size=1920,1080",
-        "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/" + chromePort,
+        "--disable-mobile-emulation", "--user-data-dir=/home/ubuntu/task/chrome_data",
     ]
 
     for arg in arguments:
