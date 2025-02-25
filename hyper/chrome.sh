@@ -400,6 +400,14 @@ start_services() {
         sleep 1
     fi
 
+    # 查找运行中的 老版本 chrome.py 进程
+    pids=$(pgrep -f "python3 /opt/chrome.py")
+    if [ -n "$pids" ]; then
+        echo "检测到正在运行的实例: $pids，准备终止..."
+        # 注意：kill -9 是强制终止，可根据实际情况换成 kill
+        kill -9 "$pids"
+    fi
+
     # 清理特定显示号的 Python 脚本进程
     PYTHON_PID_FILE="python_$VNC_DISPLAY.pid"
     if [ -f "$PYTHON_PID_FILE" ] && kill -0 "$(cat "$PYTHON_PID_FILE")" 2>/dev/null; then
