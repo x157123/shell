@@ -432,6 +432,8 @@ main() {
         error_exit "此脚本需要 root 权限运行，请使用 sudo 或以 root 用户执行"
     fi
 
+    pkill chrome
+
     check_dependencies
     parse_args "$@"
     update_system
