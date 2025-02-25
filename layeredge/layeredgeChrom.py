@@ -248,16 +248,16 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
 
 def main(client, serverId, appId, decryptKey, user, display, chromePort):
-    # 从文件加载密文
-    encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
-    # 解密并发送解密结果
-    public_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'secretKey')
-
-    if public_key is None:
-        client.publish("appInfo",
-                       json.dumps(get_app_info(serverId, appId, 3, '未绑定账号')))
-        logger.info(f"未读取到账号")
-        return
+    # # 从文件加载密文
+    # encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
+    # # 解密并发送解密结果
+    # public_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'secretKey')
+    #
+    # if public_key is None:
+    #     client.publish("appInfo",
+    #                    json.dumps(get_app_info(serverId, appId, 3, '未绑定账号')))
+    #     logger.info(f"未读取到账号")
+    #     return
 
     # 启动浏览器
     logger.info(f"start")
