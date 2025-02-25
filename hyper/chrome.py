@@ -449,6 +449,7 @@ if __name__ == '__main__':
     parser.add_argument("--decryptKey", type=str, help="解密key", required=True)
     parser.add_argument("--user", type=str, help="执行用户", required=True)
     parser.add_argument("--display", type=str, help="执行窗口", required=True)
+    parser.add_argument("--chromePort", type=str, help="浏览器端口", required=True)
     args = parser.parse_args()
 
     # MQTT 配置
