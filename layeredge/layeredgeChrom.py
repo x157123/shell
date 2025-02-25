@@ -18,7 +18,8 @@ def configure_browser(user, chromePort):
     """配置并启动浏览器"""
     co = (ChromiumOptions().set_local_port(chromePort)
           .set_paths(r"/opt/google/chrome/google-chrome")
-          .add_extension(r"/home/" + user + "/extensions/chrome-cloud"))
+          .add_extension(r"/home/" + user + "/extensions/chrome-cloud")
+          .set_user_data_path(r"/home/ubuntu/task/" + chromePort))
     arguments = [
         "--accept-lang=en-US",
         "--no-first-run",
@@ -45,7 +46,8 @@ def configure_browser(user, chromePort):
         "--start-maximized",
         "--disable-mobile-emulation",
         "--window-size=1920,1080",
-        "--disable-mobile-emulation", "--user-data-dir=/home/ubuntu/task/chrome_data",
+        "--start-maximized",
+        "--disable-mobile-emulation"
     ]
 
     for arg in arguments:
