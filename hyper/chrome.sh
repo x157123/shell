@@ -428,7 +428,7 @@ main() {
     install_system_deps
     setup_vnc
     install_chrome
-    install_edge
+#    install_edge
     install_wallet
     setup_python_script
     setup_xrdp
