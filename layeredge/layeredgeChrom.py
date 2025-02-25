@@ -17,12 +17,12 @@ import os
 def configure_browser(user, chromePort):
     """配置并启动浏览器"""
     co = (ChromiumOptions()
-          .set_local_port(chromePort)
-          .set_paths(r"/opt/google/chrome/google-chrome")
-          .add_extension(r"/home/" + user + "/extensions/chrome-cloud")
-          .set_user_data_path(r"/home/" + user + "/task/" + chromePort)
-          .set_user_agent(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"))
+    .set_local_port(chromePort)
+    .set_paths(r"/opt/google/chrome/google-chrome")
+    .add_extension(r"/home/" + user + "/extensions/chrome-cloud")
+    .set_user_data_path(r"/home/" + user + "/task/" + chromePort)
+    .set_user_agent(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"))
     arguments = [
         # "--accept-lang=en-US",
         # "--no-first-run",
@@ -268,6 +268,7 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
 
+
 def main(client, serverId, appId, decryptKey, user, display, chromePort):
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
@@ -310,10 +311,11 @@ def main(client, serverId, appId, decryptKey, user, display, chromePort):
         random_code = random.choice(invite_codes)
         invite_input.clear()
         invite_input.send_keys(random_code)
-        continue_button = get_element(tab,'xpath://button[@type="submit" and text()="Continue"]', 20)
+        continue_button = get_element(tab, 'xpath://button[@type="submit" and text()="Continue"]', 20)
         if continue_button:
             continue_button.click(by_js=None)
             myriad_pop(tab)
+
 
 def myriad_pop(self):
     time.sleep(5)
@@ -501,10 +503,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # 把解析到的参数写入环境变量 DISPLAY
-    os.environ['DISPLAY'] = ":"+args.display
+    os.environ['DISPLAY'] = ":" + args.display
 
     # 之后就可以安全地 import 需要 Xlib 的库
     import pyautogui
+
     pyautogui.FAILSAFE = False
     # MQTT 配置
     BROKER = "150.109.5.143"
