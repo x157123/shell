@@ -288,9 +288,11 @@ def main(client, serverId, appId, decryptKey, user, display, chromePort):
     time.sleep(3)
     tab = tab.browser.new_tab(url="https://dashboard.layeredge.io/")
 
+    invite_codes = ["EJ3hFD5o", "I0At4VTj", "sYmdJIMQ", "HVvI4Hex"]
+
     connect_wallet = tab.ele('x://button[text()="Connect Wallet"]')
     if connect_wallet:
-        connect_wallet.click(by_js=True)
+        connect_wallet.click(by_js=None)
         logger.info("选择钱包。")
         signma_ele = tab.ele('x://div[text()="Signma"]')
         if signma_ele:
@@ -300,6 +302,17 @@ def main(client, serverId, appId, decryptKey, user, display, chromePort):
             myriad_pop(tab)
             time.sleep(2)
             myriad_pop(tab)
+
+    time.sleep(4)
+    invite_input = tab.ele('x://input[@placeholder="Enter your invite code"]')
+    if invite_input:
+        # 随机选择一个邀请码
+        random_code = random.choice(invite_codes)
+        invite_input.clear()
+        invite_input.send_keys(random_code)
+        continue_button = tab.ele('xpath://button[@type="submit" and text()="Continue"]')
+        if continue_button:
+            continue_button.click(by_js=None)
 
 def myriad_pop(self):
     time.sleep(5)
