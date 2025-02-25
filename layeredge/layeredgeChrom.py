@@ -16,7 +16,8 @@ import os
 
 def configure_browser(user, chromePort):
     """配置并启动浏览器"""
-    co = (ChromiumOptions().set_local_port(chromePort)
+    co = (ChromiumOptions()
+          .set_local_port(chromePort)
           .set_paths(r"/opt/google/chrome/google-chrome")
           .add_extension(r"/home/" + user + "/extensions/chrome-cloud")
           .set_user_data_path(r"/home/" + user + "/task/" + chromePort)
@@ -52,9 +53,10 @@ def configure_browser(user, chromePort):
         "--disable-mobile-emulation"
     ]
 
-    for arg in arguments:
-        co.set_argument(arg)
+    # for arg in arguments:
+    #     co.set_argument(arg)
 
+    co.set_argument('--start-maximized')
     browser = ChromiumPage(addr_or_opts=co)
     # tab = browser.new_tab(url="https://app.nexus.xyz")
     tab = browser.latest_tab
