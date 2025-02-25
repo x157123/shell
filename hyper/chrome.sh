@@ -10,6 +10,7 @@ readonly CHROME_DEB="google-chrome-stable_current_amd64.deb"
 readonly CHROME_URL="https://dl.google.com/linux/direct/$CHROME_DEB"
 readonly CHROME_BAK_URL="https://www.15712345.xyz/chrome/$CHROME_DEB"
 readonly WALLET_URL="https://github.com/x157123/ACL4SSR/releases/download/v1.0.0/chrome-cloud.tar"
+readonly EDGE_URL="https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_133.0.3065.82-1_amd64.deb?brand=M102"
 readonly PYTHON_SCRIPT_DIR="/opt/"  # 目录
 readonly DEFAULT_VNC_DISPLAY=23       # 默认显示号
 readonly VNC_BASE_PORT=5900           # VNC 基础端口
@@ -202,6 +203,25 @@ install_chrome() {
     fi
 }
 
+install_edge() {
+    # 定义变量
+    EDGE_DEB="microsoft-edge-stable.deb"
+    # 检查是否已安装 Microsoft Edge
+    if ! dpkg-query -W microsoft-edge-stable >/dev/null 2>&1; then
+        log_info "安装 Microsoft Edge..."
+        # 尝试从主 URL 下载
+        if ! curl -sSL "$EDGE_URL" -o "$EDGE_DEB"; then
+            log_info "URL 下载失败..."
+        fi
+        # 安装 .deb 文件，若失败则尝试修复依赖
+        sudo dpkg -i "$EDGE_DEB" || sudo apt-get install -f -y || error_exit "Microsoft Edge 安装失败"
+        # 清理临时文件
+        rm -f "$EDGE_DEB"
+        log_info "Microsoft Edge 安装完成"
+    else
+        log_info "Microsoft Edge 已安装，跳过"
+    fi
+}
 
 install_wallet() {
   # 目录路径
@@ -408,6 +428,7 @@ main() {
     install_system_deps
     setup_vnc
     install_chrome
+    install_edge
     install_wallet
     setup_python_script
     setup_xrdp
