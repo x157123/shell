@@ -19,7 +19,7 @@ def configure_browser(user, chromePort):
     co = (ChromiumOptions().set_local_port(chromePort)
           .set_paths(r"/opt/google/chrome/google-chrome")
           .add_extension(r"/home/" + user + "/extensions/chrome-cloud")
-          .set_user_data_path(r"/home/ubuntu/task/" + chromePort)
+          .set_user_data_path(r"/home/" + user + "/task/" + chromePort)
           .set_user_agent(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"))
     arguments = [
