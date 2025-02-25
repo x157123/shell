@@ -20,13 +20,32 @@ def configure_browser(user, chromePort):
           .set_paths(r"/opt/google/chrome/google-chrome")
           .add_extension(r"/home/" + user + "/extensions/chrome-cloud"))
     arguments = [
-        "--accept-lang=en-US", "--no-first-run", "--force-color-profile=srgb",
-        "--metrics-recording-only", "--password-store=basic", "--use-mock-keychain",
-        "--export-tagged-pdf", "--disable-gpu", "--disable-web-security",
-        "--disable-infobars", "--disable-popup-blocking", "--allow-outdated-plugins",
-        "--deny-permission-prompts", "--disable-suggestions-ui", "--window-size=1920,1080",
+        "--accept-lang=en-US",
+        "--no-first-run",
+        "--force-color-profile=srgb",
+        "--disable-extensions-file-access-check",
+        "--metrics-recording-only",
+        "--password-store=basic",
+        "--use-mock-keychain",
+        "--export-tagged-pdf",
+        "--no-default-self.browser-check",
+        "--disable-background-tab-loading",
+        "--enable-features=NetworkService,NetworkServiceInProcess,LoadCryptoTokenExtension,PermuteTLSExtensions",
+        "--disable-gpu",
+        "--disable-web-security",
+        "--disable-features=OverlayScrollbar",
+        "--disable-infobars",
+        "--disable-popup-blocking",
+        "--allow-outdated-plugins",
+        "--always-authorize-plugins",
+        "--disable-features=FlashDeprecationWarning,EnablePasswordsAccountStorage,PrivacySandboxSettings4",
+        "--deny-permission-prompts",
+        "--disable-suggestions-ui",
+        "--hide-crash-restore-bubble",
+        "--start-maximized",
+        "--disable-mobile-emulation",
+        "--window-size=1920,1080",
         "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/" + chromePort,
-        "--disable-features=ServerSentEvents"
     ]
 
     for arg in arguments:
