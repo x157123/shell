@@ -269,37 +269,37 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
 
 def main(client, serverId, appId, decryptKey, user, display, chromePort):
-    # # 从文件加载密文
-    # encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
-    # # 解密并发送解密结果
-    # public_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'secretKey')
-    #
-    # if public_key is None:
-    #     client.publish("appInfo",
-    #                    json.dumps(get_app_info(serverId, appId, 3, '未绑定账号')))
-    #     logger.info(f"未读取到账号")
-    #     return
+    # 从文件加载密文
+    encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
+    # 解密并发送解密结果
+    public_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'secretKey')
+
+    if public_key is None:
+        client.publish("appInfo",
+                       json.dumps(get_app_info(serverId, appId, 3, '未绑定账号')))
+        logger.info(f"未读取到账号")
+        return
 
     # 启动浏览器
     logger.info(f"start")
     tab = configure_browser(user, chromePort)
     logger.info(f"安装钱包")
-    tab = setup_wallet(tab, 76139)
+    tab = setup_wallet(tab, public_key)
     time.sleep(3)
     tab = tab.browser.new_tab(url="https://dashboard.layeredge.io/")
 
-    # connect_wallet = tab.ele('x://button[text()="Connect Wallet"]')
-    # if connect_wallet:
-    #     connect_wallet.click(by_js=True)
-    #     logger.info("选择钱包。")
-    #     signma_ele = tab.ele('x://div[text()="Signma"]')
-    #     if signma_ele:
-    #         signma_ele.click(by_js=None)
-    #         logger.info("点击钱包。")
-    #         time.sleep(2)
-    #         myriad_pop(tab)
-    #         time.sleep(2)
-    #         myriad_pop(tab)
+    connect_wallet = tab.ele('x://button[text()="Connect Wallet"]')
+    if connect_wallet:
+        connect_wallet.click(by_js=True)
+        logger.info("选择钱包。")
+        signma_ele = tab.ele('x://div[text()="Signma"]')
+        if signma_ele:
+            signma_ele.click(by_js=None)
+            logger.info("点击钱包。")
+            time.sleep(2)
+            myriad_pop(tab)
+            time.sleep(2)
+            myriad_pop(tab)
 
 def myriad_pop(self):
     time.sleep(5)
