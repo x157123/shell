@@ -10,6 +10,7 @@ import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import random
+from datetime import datetime, timedelta
 
 
 # =================================================   MQTT   ======================================
@@ -866,7 +867,7 @@ class TaskSet:
         self.__init__(args)
 
     def signma_log(self, message: str, task_name: str, index: str, server_url: str, chain_id="9004"):
-        logger.info("需要刷新页面。",message)
+        logger.info("数据。" + message)
 
     def setup_wallet(self, args):
         result = False
@@ -1095,6 +1096,7 @@ if __name__ == "__main__":
     parser.add_argument("--display", type=str, help="执行窗口", required=True)
     parser.add_argument("--chromePort", type=str, help="浏览器端口", required=True)
     all_args = parser.parse_args()
+    data_map = {}
 
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
@@ -1108,14 +1110,20 @@ if __name__ == "__main__":
     # 解密并发送解密结果
     public_key_tmp = decrypt_aes_ecb(all_args.decryptKey, encrypted_data_base64, 'secretKey')
     for key in public_key_tmp:
+        current_date = datetime.now().strftime('%Y%m%d')  # 当前日期
+        data_key = f"{current_date}_{key}"
+        if data_key in data_map and data_map[data_key] is not None:
+            all_args.count = data_map[data_key]
+        else:
+            all_args.count = 0
         all_args.index = key
         all_args.task = 'test'
         all_args.res_info = ''
-        all_args.count = 0
         print(f"找到的 privateKey: {key}")
         task_set = TaskSet(all_args)
         try:
             task_set.gaianet(all_args)
+            data_map[data_key] = all_args.count
         finally:
             task_set.close_browser()
 
