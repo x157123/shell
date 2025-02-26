@@ -1,27 +1,130 @@
 import os
-import platform
-import uuid
-import time
-import argparse
-import random
-import psutil
 import requests
-from DrissionPage._configs.chromium_options import ChromiumOptions
 from DrissionPage._pages.chromium_page import ChromiumPage
-from loguru import logger
 import time
-from DrissionPage._base.chromium import Chromium
 from DrissionPage._configs.chromium_options import ChromiumOptions
 import paho.mqtt.client as mqtt
 import json
 import argparse
 from loguru import logger
-import pyperclip
 import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import random
-import subprocess  # 系统级别剪切板
+
+
+# =================================================   MQTT   ======================================
+def create_mqtt_client(broker, port, username, password, topic):
+    """
+    创建并配置MQTT客户端，使用 MQTTv5 回调方式
+    protocol=mqtt.MQTTv5 来避免旧版回调弃用警告
+    """
+    client = mqtt.Client(
+        protocol=mqtt.MQTTv5,  # 指定使用 MQTTv5
+        userdata={"topic": topic}  # 传递自定义数据
+    )
+    client.username_pw_set(username, password)
+
+    # 注册回调函数（使用 v5 风格签名）
+    client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
+    client.on_message = on_message
+
+    # 尝试连接到 Broker
+    try:
+        client.connect(broker, port, keepalive=60)
+    except Exception as e:
+        raise ConnectionError(f"Error connecting to broker: {e}")
+
+    return client
+
+
+# ========== MQTT 事件回调函数（MQTTv5） ==========
+def on_connect(client, userdata, flags, reason_code, properties=None):
+    """
+    当客户端与 Broker 建立连接后触发
+    reason_code = 0 表示连接成功，否则为失败码
+    """
+    if reason_code == 0:
+        print("Connected to broker successfully.")
+        # 仅发布消息，去除订阅
+        pass
+    else:
+        print(f"Connection failed with reason code: {reason_code}")
+
+
+def on_disconnect(client, userdata, reason_code, properties=None):
+    """
+    当客户端与 Broker 断开连接后触发
+    可以在此处进行自动重连逻辑
+    """
+    print(f"Disconnected from broker, reason_code: {reason_code}")
+    # 如果 reason_code != 0，则表示非正常断开
+    while True:
+        try:
+            print("Attempting to reconnect...")
+            client.reconnect()
+            print("Reconnected successfully.")
+            break
+        except Exception as e:
+            print(f"Reconnect failed: {e}")
+            time.sleep(5)  # 等待 5 秒后重试
+
+
+def on_message(client, userdata, msg):
+    """
+    当收到订阅主题的新消息时触发
+    v5 中的 on_message 参数与 v3.x 相同： (client, userdata, message)
+    """
+    print(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
+
+
+# =================================================   MQTT   ======================================
+
+
+def read_key_file(file_path):
+    """从文件中读取内容并去除多余空白"""
+    try:
+        with open(file_path, 'r') as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        raise ValueError(f"文件未找到: {file_path}")
+
+def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
+    """
+    解密 AES ECB 模式的 Base64 编码数据，
+    去除 PKCS7 填充后返回所有 accountType 为 "hyper" 的记录中的指定 key 值列表。
+    """
+    try:
+        # Base64 解码
+        encrypted_bytes = base64.b64decode(data_encrypted_base64)
+        # 创建 AES 解密器
+        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
+        # 解密数据
+        decrypted_bytes = cipher.decrypt(encrypted_bytes)
+        # 去除 PKCS7 填充（AES.block_size 默认为 16）
+        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
+        # 将字节转换为字符串
+        decrypted_text = decrypted_bytes.decode('utf-8')
+
+        # logger.info(f"获取数据中的 {key}: {decrypted_text}")
+
+        # 解析 JSON 字符串为 Python 对象（通常为列表）
+        data_list = json.loads(decrypted_text)
+
+        # 创建结果列表，收集所有匹配的 key 值
+        result = []
+        for item in data_list:
+            if item.get('accountType') == 'gaia':
+                value = item.get(key)
+                if value is not None:  # 确保只添加存在的 key 值
+                    result.append(value)
+
+        # 返回结果列表，如果没有匹配项则返回空列表
+        return result
+
+    except Exception as e:
+        raise ValueError(f"解密失败: {e}")
 
 
 class TaskSet:
@@ -32,7 +135,7 @@ class TaskSet:
         self.co.set_paths(r"/opt/google/chrome/google-chrome")
         self.ex_path = r"/home/" + args.user + "/extensions/chrome-cloud"
         self.co.set_user_data_path(
-            os.path.join("/home/" + args.user + "/task/" + args.chromePort + "/", args.key))
+            os.path.join("/home/" + args.user + "/task/" + args.chromePort + "/", args.index))
         self.co.add_extension(self.ex_path)
         self.co.set_argument('--start-maximized')
 
@@ -762,58 +865,7 @@ class TaskSet:
         self.__init__(args)
 
     def signma_log(self, message: str, task_name: str, index: str, server_url: str, chain_id="9004"):
-        url = "{}/service_route?service_name=signma_log&&task={}&&chain_id={}&&index={}&&msg={}"
-        if server_url is None:
-            server_url = "https://signma.bll06.xyz"
-
-        print(url.format(server_url, task_name, chain_id, index, message))
-        response = requests.get(
-            url.format(server_url, task_name, chain_id, index, message), verify=False
-        )
-
-    def read_key_file(self, file_path):
-        """从文件中读取内容并去除多余空白"""
-        try:
-            with open(file_path, 'r') as file:
-                return file.read().strip()
-        except FileNotFoundError:
-            raise ValueError(f"文件未找到: {file_path}")
-
-    def decrypt_aes_ecb(self, secret_key, data_encrypted_base64, key):
-        """
-        解密 AES ECB 模式的 Base64 编码数据，
-        去除 PKCS7 填充后返回所有 accountType 为 "hyper" 的记录中的指定 key 值列表。
-        """
-        try:
-            # Base64 解码
-            encrypted_bytes = base64.b64decode(data_encrypted_base64)
-            # 创建 AES 解密器
-            cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
-            # 解密数据
-            decrypted_bytes = cipher.decrypt(encrypted_bytes)
-            # 去除 PKCS7 填充（AES.block_size 默认为 16）
-            decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
-            # 将字节转换为字符串
-            decrypted_text = decrypted_bytes.decode('utf-8')
-
-            # logger.info(f"获取数据中的 {key}: {decrypted_text}")
-
-            # 解析 JSON 字符串为 Python 对象（通常为列表）
-            data_list = json.loads(decrypted_text)
-
-            # 创建结果列表，收集所有匹配的 key 值
-            result = []
-            for item in data_list:
-                if item.get('accountType') == 'hyper':
-                    value = item.get(key)
-                    if value is not None:  # 确保只添加存在的 key 值
-                        result.append(value)
-
-            # 返回结果列表，如果没有匹配项则返回空列表
-            return result
-
-        except Exception as e:
-            raise ValueError(f"解密失败: {e}")
+        logger.info("需要刷新页面。",message)
 
     def setup_wallet(self, args):
         result = False
@@ -1015,7 +1067,7 @@ class TaskSet:
                 if self.tab.wait.ele_displayed(loc_or_ele='x://button/p[text()="Send"]', timeout=20) is False:
                     if self.tab.wait.ele_displayed(loc_or_ele='x://button/p[text()="Stop"]', timeout=3) is not False:
                         self.tab.ele(locator='x://button/p[text()="Stop"]').click()
-                        # self.signma_log('已对话', all_args.task, all_args.index, "https://signma.bll06.xyz")
+                        self.signma_log('已对话', all_args.task, all_args.index, "https://signma.bll06.xyz")
                 # self.res_info = f'已对话,第{args.count}对话'
             else:
                 self.res_info = '钱包初始化错误'
@@ -1030,74 +1082,6 @@ class TaskSet:
 
             logger.info(f"---------完成情况：序号:{args.index} {self.res_info}-----------------")
 
-
-# =================================================   MQTT   ======================================
-def create_mqtt_client(broker, port, username, password, topic):
-    """
-    创建并配置MQTT客户端，使用 MQTTv5 回调方式
-    protocol=mqtt.MQTTv5 来避免旧版回调弃用警告
-    """
-    client = mqtt.Client(
-        protocol=mqtt.MQTTv5,  # 指定使用 MQTTv5
-        userdata={"topic": topic}  # 传递自定义数据
-    )
-    client.username_pw_set(username, password)
-
-    # 注册回调函数（使用 v5 风格签名）
-    client.on_connect = on_connect
-    client.on_disconnect = on_disconnect
-    client.on_message = on_message
-
-    # 尝试连接到 Broker
-    try:
-        client.connect(broker, port, keepalive=60)
-    except Exception as e:
-        raise ConnectionError(f"Error connecting to broker: {e}")
-
-    return client
-
-
-# ========== MQTT 事件回调函数（MQTTv5） ==========
-def on_connect(client, userdata, flags, reason_code, properties=None):
-    """
-    当客户端与 Broker 建立连接后触发
-    reason_code = 0 表示连接成功，否则为失败码
-    """
-    if reason_code == 0:
-        print("Connected to broker successfully.")
-        # 仅发布消息，去除订阅
-        pass
-    else:
-        print(f"Connection failed with reason code: {reason_code}")
-
-
-def on_disconnect(client, userdata, reason_code, properties=None):
-    """
-    当客户端与 Broker 断开连接后触发
-    可以在此处进行自动重连逻辑
-    """
-    print(f"Disconnected from broker, reason_code: {reason_code}")
-    # 如果 reason_code != 0，则表示非正常断开
-    while True:
-        try:
-            print("Attempting to reconnect...")
-            client.reconnect()
-            print("Reconnected successfully.")
-            break
-        except Exception as e:
-            print(f"Reconnect failed: {e}")
-            time.sleep(5)  # 等待 5 秒后重试
-
-
-def on_message(client, userdata, msg):
-    """
-    当收到订阅主题的新消息时触发
-    v5 中的 on_message 参数与 v3.x 相同： (client, userdata, message)
-    """
-    print(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
-
-
-# =================================================   MQTT   ======================================
 
 
 if __name__ == "__main__":
@@ -1115,12 +1099,15 @@ if __name__ == "__main__":
     client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
     client.loop_start()
 
-    task_set = TaskSet(all_args)
-    try:
-        # 从文件加载密文
-        encrypted_data_base64 = task_set.read_key_file('/opt/data/' + all_args.appId + '_user.json')
-        # 解密并发送解密结果
-        public_key_tmp = task_set.decrypt_aes_ecb(all_args.decryptKey, encrypted_data_base64, 'publicKey')
-        task_set.gaianet(all_args)
-    finally:
-        task_set.close_browser()
+    # 从文件加载密文
+    encrypted_data_base64 = read_key_file('/opt/data/' + all_args.appId + '_user.json')
+    # 解密并发送解密结果
+    public_key_tmp = decrypt_aes_ecb(all_args.decryptKey, encrypted_data_base64, 'publicKey')
+    for key in public_key_tmp:
+        all_args.index = key
+        task_set = TaskSet(all_args)
+        try:
+            print(f"找到的 privateKey: {key}")
+            task_set.gaianet(all_args)
+        finally:
+            task_set.close_browser()
