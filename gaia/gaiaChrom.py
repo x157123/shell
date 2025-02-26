@@ -1116,3 +1116,5 @@ if __name__ == "__main__":
             task_set.gaianet(all_args)
         finally:
             task_set.close_browser()
+
+        time.sleep(10)
