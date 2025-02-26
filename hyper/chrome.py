@@ -264,15 +264,15 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
                         logger.info("推送积分")
                         total = 0
                     else:
-                        logger.info("刷新页面。")
-                        tab.refresh()
+                        logger.info("需要刷新页面。")
+                        # tab.refresh()
             if error == 9:
                 tab.refresh()
                 time.sleep(3)
                 logger.info("refresh page:")    # 关闭弹窗（如果存在）
                 click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
 
-            if error > 10:
+            if error == 10:
                 logger.info("检查过程中出现异常：未连接到主网络")
                 if first > 0:
                     reset_key(tab)
