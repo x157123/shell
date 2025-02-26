@@ -209,10 +209,9 @@ install_chrome_120(){
       log_info "卸载最新版本版本"
       sudo dpkg --remove google-chrome-stable
     fi
-    rm -f "/opt/$CHROME_DEB"
-    wget -q -O "/opt/$CHROME_DEB" "$CHROME_URL_OLD" || error_exit "浏览器下载失败"
-    sudo dpkg -i "/opt/$CHROME_DEB" || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
-    rm -f "/opt/$CHROME_DEB"
+    wget "$CHROME_URL_OLD" || error_exit "浏览器下载失败:$CHROME_URL_OLD"
+    sudo dpkg -i google-chrome-stable_120.0.6099.224-1_amd64.deb || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
+    rm -f google-chrome-stable_120.0.6099.224-1_amd64.deb
     sudo apt-mark hold google-chrome-stable
     log_info "Google Chrome 安装完成"
 }
