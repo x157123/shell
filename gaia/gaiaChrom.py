@@ -1105,9 +1105,10 @@ if __name__ == "__main__":
     public_key_tmp = decrypt_aes_ecb(all_args.decryptKey, encrypted_data_base64, 'publicKey')
     for key in public_key_tmp:
         all_args.index = key
+        all_args.task = 'test'
+        print(f"找到的 privateKey: {key}")
         task_set = TaskSet(all_args)
         try:
-            print(f"找到的 privateKey: {key}")
             task_set.gaianet(all_args)
         finally:
             task_set.close_browser()
