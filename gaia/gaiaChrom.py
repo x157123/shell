@@ -90,6 +90,7 @@ def read_key_file(file_path):
     except FileNotFoundError:
         raise ValueError(f"文件未找到: {file_path}")
 
+
 def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
     """
     解密 AES ECB 模式的 Base64 编码数据，
@@ -1101,6 +1102,9 @@ if __name__ == "__main__":
 
     # 从文件加载密文
     encrypted_data_base64 = read_key_file('/opt/data/' + all_args.appId + '_user.json')
+
+    logger.info("数据", encrypted_data_base64)
+
     # 解密并发送解密结果
     public_key_tmp = decrypt_aes_ecb(all_args.decryptKey, encrypted_data_base64, 'publicKey')
     for key in public_key_tmp:
