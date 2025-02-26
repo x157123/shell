@@ -85,6 +85,7 @@ def on_message(client, userdata, msg):
 def read_key_file(file_path):
     """从文件中读取内容并去除多余空白"""
     try:
+        logger.info(f"读取文件: {file_path}")
         with open(file_path, 'r') as file:
             return file.read().strip()
     except FileNotFoundError:
