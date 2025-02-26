@@ -1,5 +1,4 @@
 import os
-import requests
 from DrissionPage._pages.chromium_page import ChromiumPage
 import time
 from DrissionPage._configs.chromium_options import ChromiumOptions
@@ -82,7 +81,7 @@ def on_message(client, userdata, msg):
 # =================================================   MQTT   ======================================
 
 
-def read_key_file(file_path):
+def read_file(file_path):
     """从文件中读取内容并去除多余空白"""
     try:
         logger.info(f"读取文件: {file_path}")
@@ -1102,12 +1101,12 @@ if __name__ == "__main__":
     client.loop_start()
 
     # 从文件加载密文
-    encrypted_data_base64 = read_key_file('/opt/data/' + all_args.appId + '_user.json')
+    encrypted_data_base64 = read_file('/opt/data/' + all_args.appId + '_user.json')
 
-    logger.info("数据", encrypted_data_base64)
+    logger.info("数据" + encrypted_data_base64)
 
     # 解密并发送解密结果
-    public_key_tmp = decrypt_aes_ecb(all_args.decryptKey, encrypted_data_base64, 'publicKey')
+    public_key_tmp = decrypt_aes_ecb(all_args.decryptKey, encrypted_data_base64, 'secretKey')
     for key in public_key_tmp:
         all_args.index = key
         all_args.task = 'test'
