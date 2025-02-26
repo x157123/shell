@@ -212,7 +212,7 @@ install_chrome_120(){
         log_info "Google Chrome 已安装，跳过"
     fi
     log_info "安装 Google Chrome 120版本..."
-    if ! wget -qO "$CHROME_DEB" "$CHROME_URL_OLD"; then
+    if ! wget -O "$CHROME_DEB" "$CHROME_URL_OLD"; then
         log_info "下载失败..."
     fi
     sudo dpkg -i "$CHROME_DEB" || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
