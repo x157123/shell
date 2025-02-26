@@ -123,7 +123,7 @@ def get_clipboard_text(user_name: str, display: str):
 def get_points(tab):
     # 获取积分：点击按钮后从剪贴板读取
     if click_element(tab, "x://button[.//span[text()='Points']]"):
-        time.sleep(3)  # 确保剪贴板内容更新
+        time.sleep(15)  # 确保剪贴板内容更新
         # 定位到指定的 div 元素并获取其文本内容
         target_div = tab.ele("x://div[text()='Accumlated points']/following-sibling::div")
         # 获取该 div 中的文本
@@ -266,13 +266,13 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
                     else:
                         logger.info("刷新页面。")
                         tab.refresh()
-            if error == 4:
+            if error == 9:
                 tab.refresh()
                 time.sleep(3)
                 logger.info("refresh page:")    # 关闭弹窗（如果存在）
                 click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
 
-            if error > 5:
+            if error > 10:
                 logger.info("检查过程中出现异常：未连接到主网络")
                 if first > 0:
                     reset_key(tab)
