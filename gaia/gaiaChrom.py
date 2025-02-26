@@ -24,8 +24,33 @@ def configure_browser(user, chromePort):
     .set_user_agent(
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"))
     arguments = [
+        # "--accept-lang=en-US",
+        # "--no-first-run",
+        # "--force-color-profile=srgb",
+        # "--disable-extensions-file-access-check",
+        # "--metrics-recording-only",
+        # "--password-store=basic",
+        # "--use-mock-keychain",
+        # "--export-tagged-pdf",
+        # "--no-default-self.browser-check",
+        # "--disable-background-tab-loading",
+        # "--enable-features=NetworkService,NetworkServiceInProcess,LoadCryptoTokenExtension,PermuteTLSExtensions",
+        # "--disable-gpu",
+        # "--disable-web-security",
+        # "--disable-features=OverlayScrollbar",
+        # "--disable-infobars",
+        # "--disable-popup-blocking",
+        # "--allow-outdated-plugins",
+        # "--always-authorize-plugins",
+        # "--disable-features=FlashDeprecationWarning,EnablePasswordsAccountStorage,PrivacySandboxSettings4",
+        # "--deny-permission-prompts",
+        # "--disable-suggestions-ui",
+        # "--hide-crash-restore-bubble",
+        # "--start-maximized",
+        # "--disable-mobile-emulation",
         "--window-size=1920,1080",
         "--start-maximized",
+        # "--disable-mobile-emulation"
     ]
 
     for arg in arguments:
@@ -303,9 +328,7 @@ def main(client, serverId, appId, decryptKey, user, display, chromePort):
     claim_reward = get_element(tab, 'x://button[text()="Claim Reward"]', 5)
     if claim_reward:
         claim_reward.click(by_js=None)
-        claim_reward_but = get_element(tab,
-                                       'x://button[contains(@class, "button_btn_qzGAd") and .//span[text()="Claim Reward"]]',
-                                       5)
+        claim_reward_but = get_element(tab, 'x://button[contains(@class, "button_btn_qzGAd") and .//span[text()="Claim Reward"]]', 5)
         if claim_reward_but:
             claim_reward_but.click(by_js=None)
             myriad_pop(tab)
