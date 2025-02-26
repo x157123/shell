@@ -3,13 +3,15 @@
 # 脚本描述: 用于配置和管理 Chrome 浏览器的自动化环境，支持多实例 VNC 配置和动态端口
 
 # 常量定义
-readonly APT_PACKAGES=("net-tools" "fontconfig" "fonts-wqy-zenhei" "fonts-wqy-microhei" "lsof" "python3-tk" "python3-dev")  # 添加 lsof
+readonly APT_PACKAGES=("net-tools" "fontconfig" "fonts-wqy-zenhei" "fonts-wqy-microhei" "lsof" "python3-tk" "python3-dev" "libu2f-udev")  # 添加 lsof
 readonly PYTHON_PACKAGES=("psutil" "requests" "paho-mqtt" "selenium" "pycryptodome" "loguru" "pyperclip" "drissionpage" "pyautogui")
 readonly DEPENDENCIES=("curl" "wget" "git" "pip3" "lsof" "expect")  # 依赖命令
 readonly CHROME_DEB="google-chrome-stable_current_amd64.deb"
 readonly CHROME_URL="https://dl.google.com/linux/direct/$CHROME_DEB"
 readonly CHROME_BAK_URL="https://www.15712345.xyz/chrome/$CHROME_DEB"
+readonly CHROME_URL_OLD="https://github.com/x157123/ACL4SSR/releases/download/chro/google-chrome-stable_120.0.6099.224-1_amd64.deb"
 readonly WALLET_URL="https://github.com/x157123/ACL4SSR/releases/download/v1.0.0/chrome-cloud.tar"
+readonly EDGE_URL="https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_133.0.3065.82-1_amd64.deb?brand=M102"
 readonly PYTHON_SCRIPT_DIR="/opt/"  # 目录
 readonly DEFAULT_VNC_DISPLAY=23       # 默认显示号
 readonly VNC_BASE_PORT=5900           # VNC 基础端口
@@ -149,7 +151,7 @@ parse_args() {
     # 计算动态端口
     VNC_PORT=$((VNC_BASE_PORT + VNC_DISPLAY))
     NOVNC_PORT=$((NOVNC_BASE_PORT + VNC_DISPLAY))
-    CHROME_DEBUG_PORT=$((CHROME_DEBUG_BASE_PORT + VNC_DISPLAY))
+    CHROME_DEBUG_PORT=$((CHROME_DEBUG_BASE_PORT + 0))
 }
 
 # 更新系统包列表
@@ -202,6 +204,51 @@ install_chrome() {
     fi
 }
 
+install_chrome_120(){
+#    if dpkg-query -W google-chrome-stable >/dev/null 2>&1; then
+#      log_info "卸载最新版本版本"
+#      sudo dpkg --remove google-chrome-stable
+#    fi
+#    if ! curl -sSL "$CHROME_URL_OLD" -o "$CHROME_DEB"; then
+#        log_info "URL 下载失败..."
+#    fi
+#    sudo dpkg -i "$CHROME_DEB" || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
+#    rm -f "$CHROME_DEB"
+#    sudo apt-mark hold google-chrome-stable
+#    log_info "Google Chrome 安装完成"
+    if ! dpkg-query -W google-chrome-stable >/dev/null 2>&1; then
+        log_info "安装 Google Chrome..."
+        if ! curl -sSL "$CHROME_URL_OLD" -o "$CHROME_DEB"; then
+            log_info "URL 下载失败..."
+        fi
+        sudo dpkg -i "$CHROME_DEB" || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
+        rm -f "$CHROME_DEB"
+        sudo apt-mark hold google-chrome-stable
+        log_info "Google Chrome 安装完成"
+    else
+        log_info "Google Chrome 已安装，跳过"
+    fi
+}
+
+install_edge() {
+    # 定义变量
+    EDGE_DEB="microsoft-edge-stable.deb"
+    # 检查是否已安装 Microsoft Edge
+    if ! dpkg-query -W microsoft-edge-stable >/dev/null 2>&1; then
+        log_info "安装 Microsoft Edge..."
+        # 尝试从主 URL 下载
+        if ! curl -sSL "$EDGE_URL" -o "$EDGE_DEB"; then
+            log_info "URL 下载失败..."
+        fi
+        # 安装 .deb 文件，若失败则尝试修复依赖
+        sudo dpkg -i "$EDGE_DEB" || sudo apt-get install -f -y || error_exit "Microsoft Edge 安装失败"
+        # 清理临时文件
+        rm -f "$EDGE_DEB"
+        log_info "Microsoft Edge 安装完成"
+    else
+        log_info "Microsoft Edge 已安装，跳过"
+    fi
+}
 
 install_wallet() {
   # 目录路径
@@ -380,6 +427,26 @@ start_services() {
         sleep 1
     fi
 
+    # 查找运行中的 老版本 chrome.py 进程
+    pids=$(pgrep -f "/opt/chrome.py")
+    if [ -n "$pids" ]; then
+        echo "检测到正在运行的实例: $pids，准备终止..."
+        for pid in $pids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
+    fi
+
+    # 查找运行中的 老版本 chrome.py 进程
+    npids=$(pgrep -f "/opt/nexus/nexusChrom.py")
+    if [ -n "$npids" ]; then
+        echo "检测到正在运行的实例: $npids，准备终止..."
+        for pid in $npids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
+    fi
+
     # 清理特定显示号的 Python 脚本进程
     PYTHON_PID_FILE="python_$VNC_DISPLAY.pid"
     if [ -f "$PYTHON_PID_FILE" ] && kill -0 "$(cat "$PYTHON_PID_FILE")" 2>/dev/null; then
@@ -407,7 +474,9 @@ main() {
     update_system
     install_system_deps
     setup_vnc
-    install_chrome
+#    install_chrome
+    install_chrome_120
+#    install_edge
     install_wallet
     setup_python_script
     setup_xrdp

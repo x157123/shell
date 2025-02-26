@@ -452,15 +452,8 @@ if __name__ == '__main__':
     parser.add_argument("--chromePort", type=str, help="浏览器端口", required=True)
     args = parser.parse_args()
 
-    # MQTT 配置
-    BROKER = "150.109.5.143"
-    PORT = 1883
-    TOPIC = "appInfo"
-    USERNAME = "userName"
-    PASSWORD = "liuleiliulei"
-
     # 创建 MQTT 客户端（使用 MQTTv5）
-    client = create_mqtt_client(BROKER, PORT, USERNAME, PASSWORD, TOPIC)
+    client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
     client.loop_start()
     # 启动网络循环
     main(client, args.serverId, args.appId, args.decryptKey, args.user, args.display)

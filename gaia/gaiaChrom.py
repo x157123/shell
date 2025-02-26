@@ -1,5 +1,16 @@
+import os
+import platform
+import uuid
 import time
+import argparse
+import random
+import psutil
+import requests
+from DrissionPage._configs.chromium_options import ChromiumOptions
 from DrissionPage._pages.chromium_page import ChromiumPage
+from loguru import logger
+import time
+from DrissionPage._base.chromium import Chromium
 from DrissionPage._configs.chromium_options import ChromiumOptions
 import paho.mqtt.client as mqtt
 import json
@@ -10,369 +21,1014 @@ import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import random
-import subprocess
-import os
+import subprocess  # 系统级别剪切板
 
 
-def configure_browser(user, chromePort):
-    """配置并启动浏览器"""
-    co = (ChromiumOptions()
-    .set_local_port(chromePort)
-    .set_paths(r"/opt/google/chrome/google-chrome")
-    .add_extension(r"/home/" + user + "/extensions/chrome-cloud")
-    .set_user_data_path(r"/home/" + user + "/task/" + chromePort)
-    .set_user_agent(
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"))
-    arguments = [
-        # "--accept-lang=en-US",
-        # "--no-first-run",
-        # "--force-color-profile=srgb",
-        # "--disable-extensions-file-access-check",
-        # "--metrics-recording-only",
-        # "--password-store=basic",
-        # "--use-mock-keychain",
-        # "--export-tagged-pdf",
-        # "--no-default-self.browser-check",
-        # "--disable-background-tab-loading",
-        # "--enable-features=NetworkService,NetworkServiceInProcess,LoadCryptoTokenExtension,PermuteTLSExtensions",
-        # "--disable-gpu",
-        # "--disable-web-security",
-        # "--disable-features=OverlayScrollbar",
-        # "--disable-infobars",
-        # "--disable-popup-blocking",
-        # "--allow-outdated-plugins",
-        # "--always-authorize-plugins",
-        # "--disable-features=FlashDeprecationWarning,EnablePasswordsAccountStorage,PrivacySandboxSettings4",
-        # "--deny-permission-prompts",
-        # "--disable-suggestions-ui",
-        # "--hide-crash-restore-bubble",
-        # "--start-maximized",
-        # "--disable-mobile-emulation",
-        "--window-size=1920,1080",
-        "--start-maximized",
-        # "--disable-mobile-emulation"
-    ]
+class TaskSet:
+    def __init__(self, args):
+        global q
+        self.co = ChromiumOptions()
+        self.meta_id = 'dholkoaddiccbagimjcfjaldcacogjgc'
+        self.co.set_paths(r"/opt/google/chrome/google-chrome")
+        self.ex_path = r"/home/" + args.user + "/extensions/chrome-cloud"
+        self.co.set_user_data_path(
+            os.path.join("/home/" + args.user + "/task/" + args.chromePort + "/", args.key))
+        self.co.add_extension(self.ex_path)
+        self.co.set_argument('--start-maximized')
 
-    for arg in arguments:
-        co.set_argument(arg)
+        self.co.set_user_agent(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+        )
 
-    browser = ChromiumPage(addr_or_opts=co)
-    # tab = browser.new_tab(url="https://app.nexus.xyz")
-    tab = browser.latest_tab
-    return tab
+        self.co.set_local_port(args.chromePort)
 
+        self.browser = ChromiumPage(addr_or_opts=self.co)
+        self.tab = self.browser.latest_tab
+        self.browser.set.cookies.clear()
+        self.res_info = None
+        self.dmail_tab = None
+        self.__thank_list = """
+            Thank you.
+            Thanks.
+            Many thanks.
+            Thanks a lot.
+            Thank you very much.
+            I really appreciate it.
+            I appreciate your help.
+            Thanks a million.
+            Thank you so much.
+            I’m grateful for your help.
+            Your help is greatly appreciated.
+            Thanks for your time.
+            I can’t thank you enough.
+            Thank you for your kindness.
+            Thanks for everything.
+            I owe you one.
+            You’re a lifesaver, thank you.
+            Thank you for your understanding.
+            Thanks for having me.
+            Thank you for considering this.
+            """.strip().split('\n')
 
-def click_element(tab, xpath, timeout=2, interval=0.5):
-    """
-    尝试点击页面元素，若元素在超时时间内无法找到或点击失败则返回False。
-    :param tab:        DrissionPage 或 Selenium 中的 tab 对象
-    :param xpath:      要查找的元素的 XPath
-    :param timeout:    最长等待时间（秒）
-    :param interval:   每次重试的间隔时间（秒）
-    :return:           bool
-    """
-    start_time = time.time()
+        self.__story_title = [
+            # Weight Loss (减肥)
+            "What are the most effective exercises for losing belly fat?",
+            "How can I lose weight without dieting?",
+            "What are the best foods for weight loss?",
+            "Can drinking water help with weight loss?",
+            "How long does it take to lose 10 pounds?",
+            "What are the risks of rapid weight loss?",
+            "Is intermittent fasting effective for weight loss?",
+            "Can sleep affect my weight loss progress?",
+            "What are some common weight loss mistakes?",
+            "How does stress impact weight gain?",
 
-    while True:
-        # 如果超时则退出循环
-        if time.time() - start_time > timeout:
-            # logger.info(f"未在 {timeout} 秒内找到元素：{xpath}")
-            return False
-        # 在当前页面查找元素
-        element = tab.ele(xpath)
-        if element:
-            # 找到元素后尝试点击
-            try:
-                element.click()
-                # logger.info(f"成功点击元素：{xpath}")
-                return True
-            except Exception as e:
-                # logger.error(f"未找到元素")
-                return False
-        time.sleep(interval)
+            # Computers (计算机)
+            "What is the difference between RAM and ROM?",
+            "How does a CPU process information?",
+            "What is an operating system?",
+            "How can I improve my computer’s speed?",
+            "What is the role of a motherboard?",
+            "What is cloud computing?",
+            "What is the difference between SSD and HDD?",
+            "How do computer viruses spread?",
+            "What is the purpose of a firewall?",
+            "Why is cybersecurity important?",
 
+            # Artificial Intelligence (人工智能)
+            "What is machine learning?",
+            "How does deep learning differ from machine learning?",
+            "What are neural networks in AI?",
+            "Can AI surpass human intelligence?",
+            "What are the applications of AI in healthcare?",
+            "What are some ethical concerns about AI?",
+            "What is natural language processing?",
+            "How does facial recognition work?",
+            "Can AI write creative content?",
+            "What are the dangers of AI in the wrong hands?",
 
-def get_element(tab, xpath, timeout=2, interval=0.5):
-    """
-    尝试点击页面元素，若元素在超时时间内无法找到或点击失败则返回False。
-    :param tab:        DrissionPage 或 Selenium 中的 tab 对象
-    :param xpath:      要查找的元素的 XPath
-    :param timeout:    最长等待时间（秒）
-    :param interval:   每次重试的间隔时间（秒）
-    :return:           bool
-    """
-    start_time = time.time()
+            # Health (健康)
+            "How can I improve my immune system?",
+            "What are the benefits of regular exercise?",
+            "How does stress affect my health?",
+            "What foods should I avoid for better health?",
+            "How can I maintain a balanced diet?",
+            "What are some ways to reduce high blood pressure?",
+            "How much water should I drink daily?",
+            "What is the best way to handle anxiety?",
+            "Why is mental health just as important as physical health?",
+            "How do vitamins affect our health?",
 
-    while True:
-        # 如果超时则退出循环
-        if time.time() - start_time > timeout:
-            # logger.info(f"未在 {timeout} 秒内找到元素：{xpath}")
-            return None
-        # 在当前页面查找元素
-        element = tab.ele(xpath)
-        if element:
-            # 找到元素后尝试点击
-            try:
-                return element
-            except Exception as e:
-                logger.error(f"点击元素 {xpath} 时发生异常：{e}")
-        time.sleep(interval)
+            # Meditation (冥想)
+            "How do I start a meditation practice?",
+            "What are the benefits of daily meditation?",
+            "How long should I meditate for beginners?",
+            "Can meditation help reduce stress?",
+            "What is mindfulness meditation?",
+            "How does meditation improve sleep?",
+            "Can meditation enhance creativity?",
+            "What is guided meditation?",
+            "How do I maintain focus during meditation?",
+            "What are the different types of meditation?",
 
+            # Home (家居)
+            "What are some budget-friendly home decor ideas?",
+            "How can I make my home more eco-friendly?",
+            "What are the best plants for home interiors?",
+            "How can I organize my living space?",
+            "What are the benefits of smart home technology?",
+            "How do I create a cozy home atmosphere?",
+            "What’s the best way to maintain hardwood floors?",
+            "How can I reduce clutter at home?",
+            "What are some tips for small apartment living?",
+            "How do I decorate a room on a budget?",
 
-def get_clipboard_text(user_name: str, display: str):
-    """从剪贴板获取文本"""
-    time.sleep(3)  # Ensure clipboard content is updated
+            # Beauty (美妆)
+            "What is the best skincare routine for oily skin?",
+            "How can I reduce acne breakouts?",
+            "What makeup products are best for sensitive skin?",
+            "How can I achieve a natural makeup look?",
+            "What are the benefits of using a facial serum?",
+            "How do I prevent makeup from fading throughout the day?",
+            "What are the top anti-aging products?",
+            "How can I protect my skin from sun damage?",
+            "What is the best foundation for dry skin?",
+            "How often should I exfoliate my skin?",
 
-    # First, try to get the clipboard content using pyperclip
-    clipboard_text = pyperclip.paste().strip()
-    logger.info(f"Clipboard text: {clipboard_text}")
-    if not clipboard_text:  # If clipboard is empty or None, fall back to xclip
-        logger.info("Clipboard is empty or None. Trying xclip command.")
-        # Dynamically build the command with the provided display and user name
-        command = f"export DISPLAY=:{display}; sudo -u {user_name} xclip -o"
+            # Phones (手机)
+            "What is the best phone for gaming?",
+            "How do I improve my phone’s battery life?",
+            "What’s the difference between Android and iOS?",
+            "What are some hidden features of smartphones?",
+            "How do I clean my phone’s screen properly?",
+            "How can I make my phone run faster?",
+            "What should I look for in a smartphone camera?",
+            "How can I free up space on my phone?",
+            "Are foldable phones worth the investment?",
+            "What are the latest trends in smartphone technology?",
+
+            # Beer (啤酒)
+            "What are the different types of beer?",
+            "How is craft beer different from regular beer?",
+            "What foods pair best with beer?",
+            "What is the difference between lager and ale?",
+            "How do I properly store beer?",
+            "What are some health benefits of drinking beer?",
+            "How do I pour beer correctly?",
+            "What is the alcohol content of a typical beer?",
+            "How can I make my own beer at home?",
+            "What are the best beers for beginners?",
+
+            # Fashion (着装)
+            "What are the essentials for a minimalist wardrobe?",
+            "How can I style a white shirt in different ways?",
+            "What shoes should I wear for comfort and style?",
+            "How do I pick the right clothes for my body type?",
+            "What are the best accessories to wear for a night out?",
+            "How can I wear a suit without looking too formal?",
+            "What is the best color for a professional wardrobe?",
+            "How do I keep my clothes looking new longer?",
+            "What are the trends in fashion for this season?",
+            "How can I wear a dress for both day and night?",
+
+            # Travel (旅游)
+            "What are the best tips for budget travel?",
+            "How do I plan a solo travel trip?",
+            "What are the must-see destinations in Europe?",
+            "How do I stay healthy while traveling?",
+            "What’s the best way to pack for a week-long trip?",
+            "How can I travel safely in a foreign country?",
+            "What are the best apps for international travel?",
+            "How can I find cheap flights online?",
+            "What are the most popular tourist attractions in Asia?",
+            "What should I know before visiting a new country?",
+
+            # Outdoor & Sports (运动户外)
+            "What are the best outdoor exercises for beginners?",
+            "How do I prepare for a long-distance hike?",
+            "What are the benefits of outdoor running?",
+            "How can I get better at cycling?",
+            "What should I bring on a camping trip?",
+            "What’s the best way to stay active during winter?",
+            "What are some great team sports for beginners?",
+            "How do I protect myself from the sun during outdoor activities?",
+            "What are some safety tips for rock climbing?",
+            "How can I improve my endurance for sports?",
+            "How can I lose weight effectively without a strict diet?",
+            "What are the latest trends in computer science?",
+            "How can artificial intelligence improve healthcare?",
+            "What are the benefits of drinking water for health?",
+            "How does mindfulness meditation help reduce stress?",
+            "What are some easy home decor ideas on a budget?",
+            "What are the must-have skincare products for sensitive skin?",
+            "Which smartphone has the best camera quality?",
+            "What is the best beer for someone new to craft beers?",
+            "How can I choose the right outfit for a business interview?",
+            "What are the top destinations for solo travel?",
+            "What is the best outdoor workout for beginners?",
+            "What are some quick ways to lose belly fat?",
+            "How do you build a career in computer programming?",
+            "What role does AI play in autonomous vehicles?",
+            "What foods should I avoid for better gut health?",
+            "How long should I meditate each day for maximum benefits?",
+            "What are the latest trends in modern interior design?",
+            "How can I get clear skin naturally?",
+            "What are the top features to look for in a smartphone?",
+            "What are the health benefits of drinking craft beer in moderation?",
+            "How can I improve my wardrobe with a small budget?",
+            "What is the best travel destination for adventure seekers?",
+            "What are the benefits of outdoor exercise?",
+            "How can I increase my metabolism to lose weight faster?",
+            "What programming languages should I learn for artificial intelligence?",
+            "How does machine learning impact our daily lives?",
+            "What are the most effective ways to stay hydrated?",
+            "How can I meditate effectively in a busy environment?",
+            "What is the importance of minimalism in home decor?",
+            "How do I find a skincare routine that works for me?",
+            "What smartphone apps help track fitness goals?",
+            "What is the difference between IPA and lager beers?",
+            "How do I dress for different seasons while staying stylish?",
+            "What are the best destinations for a relaxing beach vacation?",
+            "How can I improve my flexibility for outdoor activities?",
+            "What are some quick exercises to burn calories at home?",
+            "What are the latest advancements in artificial intelligence?",
+            "How can I use AI to automate my daily tasks?",
+            "What is the healthiest diet to support weight loss?",
+            "How does mindfulness meditation impact mental clarity?",
+            "What are the best home organization hacks?",
+            "What are the top beauty products for oily skin?",
+            "How do I choose the right smartphone for gaming?",
+            "What are the health benefits of drinking dark beer?",
+            "What is the best way to mix and match outfits?",
+            "What are the top adventure travel destinations for 2025?",
+            "How can I prepare for an outdoor hiking trip?",
+            "What are some effective exercises to lose weight fast?",
+            "How can computer science help solve climate change?",
+            "What are the ethical concerns surrounding artificial intelligence?",
+            "What foods can improve brain health?",
+            "How does breathing meditation reduce anxiety?",
+            "What are some stylish yet functional home decor ideas?",
+            "How can I create a skincare routine that’s easy to follow?",
+            "Which smartphone features are essential for everyday use?",
+            "What are some types of beer to try for beginners?",
+            "How can I create a professional yet fashionable work wardrobe?",
+            "What are the best off-the-beaten-path travel destinations?",
+            "What should I pack for an active outdoor vacation?",
+            "How can I avoid overeating while losing weight?",
+            "What is the best way to learn coding for artificial intelligence?",
+            "What are the key applications of AI in healthcare?",
+            "How do probiotics help with digestive health?",
+            "How long should I meditate each morning?",
+            "What are some budget-friendly home decor tips?",
+            "What is the best skincare routine for acne-prone skin?",
+            "What is the best smartphone for social media?",
+            "What are the best beers to pair with different foods?",
+            "How can I dress to feel confident at any occasion?",
+            "What are the top travel destinations for nature lovers?",
+            "How can I stay motivated to work out outdoors?",
+            "What are the most effective exercises to tone muscles?",
+            "How do AI algorithms help in social media recommendations?",
+            "What are the biggest challenges in artificial intelligence?",
+            "What are the benefits of intermittent fasting for weight loss?",
+            "How can meditation improve focus and concentration?",
+            "How can I refresh my living room with minimal effort?",
+            "What skincare products help with aging skin?",
+            "Which smartphone has the best battery life?",
+            "What are some unique craft beer styles to try?",
+            "How do I create a capsule wardrobe for work?",
+            "What are the top destinations for cultural travel?",
+            "How do I stay safe when hiking alone?",
+            "What are some fun ways to incorporate outdoor workouts?",
+            "What are some low-impact exercises for weight loss?",
+            "How can artificial intelligence be used in education?",
+            "What are some ways to increase my productivity using AI?",
+            "What are the top foods for boosting immunity?",
+            "What are the psychological benefits of regular meditation?",
+            "How can I organize my home for a more productive environment?",
+            "What are the most effective anti-aging skincare ingredients?",
+            "What are the best smartphones for multitasking?",
+            "How can I learn more about the craft beer brewing process?",
+            "What should I wear for a job interview in tech?",
+            "What are the best hiking trails in Europe?",
+            "What are some outdoor activities that burn the most calories?",
+            "How can I lose weight without sacrificing my social life?",
+            "What is the best programming language for AI development?",
+            "How can AI assist in personalized learning?",
+            "What are some high-protein foods for weight loss?",
+            "How can meditation help with managing chronic pain?",
+            "How can I make my bedroom feel more spacious?",
+            "What skincare ingredients should I avoid if I have sensitive skin?",
+            "How can I choose the right smartphone for photography?",
+            "What is the difference between craft beer and mass-produced beer?",
+            "How do I create a wardrobe for every season?",
+            "What are the best hidden gems for travel enthusiasts?",
+            "How can I prepare my body for a long outdoor hike?",
+            "What are the most effective workouts to target fat loss?",
+            "How do AI algorithms predict consumer behavior?",
+            "What are some ethical dilemmas in artificial intelligence?",
+            "How can I build muscle and lose fat at the same time?",
+            "What role does meditation play in reducing emotional reactivity?",
+            "What are some quick home renovation ideas?",
+            "How do different skincare products affect acne?",
+            "What are the best smartphones for video editing?",
+            "What beers are best for pairing with pizza?",
+            "How can I build a versatile wardrobe on a budget?",
+            "What are the best eco-friendly travel destinations?",
+            "How do I stay fit when traveling?",
+            "What are some simple outdoor activities for improving fitness?",
+            "How can I get rid of stubborn belly fat?",
+            "How can I improve my AI skills for a career in tech?",
+            "What are the most popular AI applications in daily life?",
+            "What types of foods are best for maintaining good mental health?",
+            "How does mindfulness meditation help with decision-making?",
+            "How can I improve my home’s energy efficiency?",
+            "What are the best skincare products for dry skin?",
+            "What smartphone features should I prioritize for gaming?",
+            "What are the best types of beer to try at a bar?",
+            "How can I create a minimalist wardrobe?",
+            "What are some good travel destinations for nature photography?",
+            "What are the essential things to pack for an outdoor adventure?",
+            "How do I incorporate outdoor activities into my fitness routine?",
+            "What are the most effective fat-burning exercises at home?",
+            "How can AI be used to improve personalized healthcare?",
+            "What are some of the challenges faced by AI in medicine?",
+            "How do antioxidants help with weight loss?",
+            "How can meditation improve emotional intelligence?",
+            "How can I transform my living space on a budget?",
+            "What are some natural skincare treatments for glowing skin?",
+            "What are the best smartphones for multitasking?",
+            "What is the best craft beer to drink during the summer?",
+            "How can I enhance my wardrobe without spending too much?",
+            "What are the best places to visit for a hiking vacation?",
+            "How do I prepare for a long-distance outdoor run?",
+            "What are some fun outdoor activities for weight loss?",
+            "How do AI chatbots work and how can they be improved?",
+            "What are some challenges that artificial intelligence faces in natural language processing?",
+            "What are some foods that can help reduce inflammation?",
+            "How can I use meditation to improve my sleep quality?",
+            "What are some home decor trends for 2025?",
+            "How do I choose the best skincare routine for my skin type?",
+            "What smartphone has the best user interface?",
+            "What is the best beer for someone who doesn’t like bitter flavors?",
+            "How can I dress for success without breaking the bank?",
+            "What are some of the top cities for digital nomads?",
+            "How can I stay active when traveling for work?",
+            "What are the best outdoor activities for family fitness?",
+            "What are the easiest ways to shed fat without exercise?",
+            "What programming languages are crucial for AI research?",
+            "How does AI impact data privacy?",
+            "What are some foods that help to reduce stress?",
+            "How can meditation improve your overall productivity?",
+            "What are some simple home decor ideas for small spaces?",
+            "What are the top skincare products for brightening your complexion?",
+            "What are the best smartphones for photography in 2025?",
+            "What beers are best paired with cheese?",
+            "How can I create a chic work wardrobe on a budget?",
+            "What are the best travel destinations for winter sports?",
+            "What are the best outdoor activities for mental health?",
+            "How can I improve my cardiovascular health?",
+            "What is the best AI for home automation?",
+            "What are the benefits of using AI in customer service?",
+            "What are some foods that boost metabolism?",
+            "How does meditation help with managing stress at work?",
+            "How can I redecorate my house with minimal cost?",
+            "What are the top skincare ingredients for acne prevention?",
+            "What are the best smartphones for battery longevity?",
+            "What beers are best for beginners?",
+            "How can I curate a stylish wardrobe for work?",
+            "What are some lesser-known travel destinations?",
+            "How can I stay fit during a vacation?",
+            "What are the best outdoor exercises for beginners?",
+            "What are the most effective ways to lose weight quickly?",
+            "How can I reduce belly fat in a month?",
+            "What are the top diet plans for weight loss?",
+            "Is intermittent fasting a good strategy for weight loss?",
+            "How many calories should I consume to lose weight?",
+            "How can I stay motivated during a weight loss journey?",
+            "What are the benefits of drinking water for weight loss?",
+            "Can a vegetarian diet help with weight loss?",
+            "How important is sleep for weight loss?",
+            "How does exercise contribute to weight loss?",
+            "What are the key components of a balanced diet?",
+            "How can I maintain weight loss after reaching my goal?",
+            "What are the most common mistakes people make while losing weight?",
+            "What foods should I avoid to lose weight?",
+            "How can I lose weight without feeling hungry all the time?",
+            "What role does stress play in weight gain?",
+            "Can supplements aid in weight loss?",
+            "How does eating late at night affect weight loss?",
+            "How much cardio is needed to lose weight?",
+            "Can strength training help with weight loss?",
+
+            "What are the best programming languages for beginners?",
+            "What is the difference between Python and Java?",
+            "How can I become a software engineer?",
+            "What are the most in-demand programming languages?",
+            "What is machine learning and how does it work?",
+            "How do algorithms work in computer science?",
+            "What are the best resources for learning coding?",
+            "What is the difference between a compiler and an interpreter?",
+            "How do I build my first website?",
+            "What is the role of a database in computing?",
+            "How does cloud computing work?",
+            "What is the best way to learn data structures and algorithms?",
+            "What are the most common errors in coding?",
+            "How do I debug my code effectively?",
+            "What is object-oriented programming?",
+            "What is the future of computer programming?",
+            "How do I become a full-stack developer?",
+            "What is version control and why is it important?",
+            "How does the internet work?",
+            "What is artificial intelligence?",
+
+            "What is artificial intelligence and how does it function?",
+            "How does machine learning differ from artificial intelligence?",
+            "What are the applications of artificial intelligence in everyday life?",
+            "How can artificial intelligence impact the future of work?",
+            "What are neural networks and how do they work?",
+            "How does AI improve healthcare?",
+            "What are the ethical concerns surrounding artificial intelligence?",
+            "How can AI be used in education?",
+            "What is deep learning and how does it relate to AI?",
+            "What are the risks associated with AI in decision-making?",
+            "How is AI being used in autonomous vehicles?",
+            "What are chatbots and how do they work?",
+            "How does AI impact data security?",
+            "What are the limitations of artificial intelligence?",
+            "How does natural language processing work in AI?",
+            "Can AI ever be truly conscious?",
+            "What are the dangers of AI in military applications?",
+            "How does AI affect the job market?",
+            "What are some examples of AI being used in entertainment?",
+            "What are the most advanced AI technologies available today?",
+
+            "How can I improve my overall health?",
+            "What are the best ways to stay healthy?",
+            "How important is mental health in overall well-being?",
+            "What foods should I include in my diet for better health?",
+            "How can I reduce stress and stay healthy?",
+            "How often should I exercise to stay healthy?",
+            "What is the importance of hydration for health?",
+            "How can I improve my sleep quality for better health?",
+            "What vitamins and minerals are essential for good health?",
+            "How can I boost my immune system naturally?",
+            "What are the benefits of a plant-based diet?",
+            "How do I know if I am healthy or not?",
+            "How does smoking affect my health?",
+            "What are the long-term benefits of exercise for health?",
+            "How can I avoid getting sick during cold and flu season?",
+            "What are some signs of a healthy lifestyle?",
+            "How can I maintain my health as I age?",
+            "How does mental health affect physical health?",
+            "What are the benefits of regular checkups with a doctor?",
+            "How can I lower my cholesterol naturally?",
+
+            "What is meditation and how can it help me?",
+            "How do I start a daily meditation practice?",
+            "What are the benefits of mindfulness meditation?",
+            "How does meditation reduce stress?",
+            "How long should I meditate each day?",
+            "Can meditation improve sleep quality?",
+            "What is the difference between mindfulness and meditation?",
+            "What types of meditation are best for beginners?",
+            "How can meditation improve my focus?",
+            "What is transcendental meditation?",
+            "Can meditation help with anxiety and depression?",
+            "What is guided meditation and how does it work?",
+            "How does deep breathing relate to meditation?",
+            "Can meditation improve my emotional well-being?",
+            "How do I stay focused during meditation?",
+            "What is the role of a mantra in meditation?",
+            "How can I incorporate meditation into my daily routine?",
+            "What is the best time of day to meditate?",
+            "Can meditation help with pain management?",
+            "What are the spiritual benefits of meditation?",
+
+            "What are the latest trends in home decor?",
+            "How can I make my home feel more cozy?",
+            "What are the best tips for organizing your home?",
+            "How do I choose the right furniture for my space?",
+            "What are some small space living tips?",
+            "How can I decorate my home on a budget?",
+            "What are the most popular home design styles?",
+            "How can I make my home more energy-efficient?",
+            "What are the best plants for indoor decor?",
+            "How can I add personality to my home with art?",
+            "How do I create a minimalist home design?",
+            "What colors are trending in home decor this year?",
+            "How can I make my small apartment feel bigger?",
+            "What are some practical tips for home improvement?",
+            "What are the benefits of open shelving in kitchens?",
+            "How do I make my home more sustainable?",
+            "How can I improve my outdoor living space?",
+            "What are the essential items for a functional kitchen?",
+            "What is the best way to organize a home office?",
+            "How can I incorporate smart home technology into my space?",
+
+            "What are the best beauty products for glowing skin?",
+            "How do I create a skincare routine?",
+            "What are the benefits of using natural beauty products?",
+            "How can I get rid of acne scars?",
+            "What is the best way to take care of dry skin?",
+            "How can I make my skin look younger?",
+            "What are the top anti-aging skincare tips?",
+            "How do I choose the right foundation for my skin type?",
+            "What are the best makeup products for a natural look?",
+            "How can I get rid of dark circles under my eyes?",
+            "What are the benefits of using sunscreen daily?",
+            "How do I prevent hair loss?",
+            "What are the best ways to hydrate my skin?",
+            "How can I achieve a flawless makeup look?",
+            "What skincare ingredients should I look for?",
+            "How do I manage oily skin?",
+            "What is the best makeup for sensitive skin?",
+            "What are some DIY beauty treatments for glowing skin?",
+            "How can I enhance my lashes naturally?",
+            "What are the best ways to get rid of blackheads?",
+
+            "What are the latest smartphone features?",
+            "How do I choose the best smartphone for my needs?",
+            "What is the difference between Android and iOS?",
+            "How can I make my phone battery last longer?",
+            "What are the top smartphone apps for productivity?",
+            "How do I transfer data between phones?",
+            "What are the best phones for gaming?",
+            "How do I protect my smartphone from viruses?",
+            "What are the benefits of using a phone case?",
+            "How can I improve the performance of my smartphone?",
+            "What is the best phone for photography?",
+            "How do I manage storage on my phone?",
+            "What are the latest trends in smartphone design?",
+            "How can I save battery on my iPhone?",
+            "What are some must-have accessories for my smartphone?",
+            "How do I enable mobile hotspot on my phone?",
+            "What is 5G and how does it affect smartphones?",
+            "How can I protect my smartphone privacy?",
+            "What are the best apps for editing photos on my phone?",
+            "How do I upgrade my smartphone's software?",
+
+            "What are the different types of beer?",
+            "How is beer made?",
+            "What is the difference between craft beer and mass-produced beer?",
+            "What are the best beers for beginners?",
+            "How do I taste beer like a connoisseur?",
+            "What is the role of hops in beer?",
+            "How do I pair beer with food?",
+            "What is a lager vs an ale?",
+            "What is the alcohol content in beer?",
+            "How is gluten-free beer made?",
+            "What are the health benefits of drinking beer?",
+            "What are the most popular beer brands in the world?",
+            "How should beer be stored?",
+            "What are the different beer styles?",
+            "How do I serve beer properly?",
+            "What is the history of beer?",
+            "What is the process of brewing beer?",
+            "What is a beer tasting event?",
+
+        ]
+        # 主题列表
+        topics = [
+            "weight loss", "computer", "artificial intelligence", "health", "meditation",
+            "home decor", "makeup", "smartphone", "beer", "fashion", "travel", "sports & outdoors"
+        ]
+
+        # 生成500个随机提问
+        questions = []
+        for _ in range(500):
+            topic = random.choice(topics)
+            if topic == "weight loss":
+                q = random.choice([
+                    "How to lose belly fat fast?",
+                    "Best exercises for weight loss?",
+                    "Is keto diet effective?",
+                    "How many calories to lose weight?",
+                    "What foods help burn fat?",
+                    "How to stay motivated to lose weight?",
+                    "Is intermittent fasting safe?",
+                    "Best apps for weight loss?",
+                    "How to avoid weight loss plateaus?",
+                    "Can drinking water help lose weight?"
+                ])
+            elif topic == "computer":
+                q = random.choice([
+                    "How to speed up a slow PC?",
+                    "Best laptops for programming?",
+                    "How to build a gaming PC?",
+                    "What is cloud computing?",
+                    "How to fix a frozen computer?",
+                    "Best antivirus software?",
+                    "How to recover deleted files?",
+                    "What is a GPU used for?",
+                    "How to upgrade RAM?",
+                    "What is the best operating system?"
+                ])
+            elif topic == "artificial intelligence":
+                q = random.choice([
+                    "What is machine learning?",
+                    "How does AI work?",
+                    "Best programming language for AI?",
+                    "What are neural networks?",
+                    "How to start a career in AI?",
+                    "What is deep learning?",
+                    "Can AI replace humans?",
+                    "What is natural language processing?",
+                    "How to train an AI model?",
+                    "What are AI ethics?"
+                ])
+            elif topic == "health":
+                q = random.choice([
+                    "How to boost immunity?",
+                    "What are superfoods?",
+                    "How to lower cholesterol?",
+                    "Best vitamins for energy?",
+                    "How to improve gut health?",
+                    "What causes high blood pressure?",
+                    "How to sleep better?",
+                    "What is a balanced diet?",
+                    "How to reduce stress?",
+                    "What are the signs of diabetes?"
+                ])
+            elif topic == "meditation":
+                q = random.choice([
+                    "How to meditate for beginners?",
+                    "What are the benefits of meditation?",
+                    "Best meditation apps?",
+                    "How to focus during meditation?",
+                    "What is mindfulness?",
+                    "How long should I meditate?",
+                    "Can meditation reduce anxiety?",
+                    "What is guided meditation?",
+                    "How to create a meditation routine?",
+                    "What is transcendental meditation?"
+                ])
+            elif topic == "home decor":
+                q = random.choice([
+                    "How to decorate a small apartment?",
+                    "Best colors for a living room?",
+                    "How to organize a closet?",
+                    "What is minimalist decor?",
+                    "How to choose the right furniture?",
+                    "Best lighting for a bedroom?",
+                    "How to style a bookshelf?",
+                    "What are trending home decor ideas?",
+                    "How to make a room cozy?",
+                    "What is Scandinavian design?"
+                ])
+            elif topic == "makeup":
+                q = random.choice([
+                    "How to apply foundation?",
+                    "Best makeup for oily skin?",
+                    "How to do a smokey eye?",
+                    "What is contouring?",
+                    "How to choose the right lipstick?",
+                    "Best mascara for volume?",
+                    "How to remove makeup easily?",
+                    "What is the no-makeup look?",
+                    "How to make makeup last longer?",
+                    "What are the best makeup brands?"
+                ])
+            elif topic == "smartphone":
+                q = random.choice([
+                    "How to extend battery life?",
+                    "Best smartphones under $500?",
+                    "How to take better photos?",
+                    "What is 5G?",
+                    "How to free up storage space?",
+                    "Best apps for productivity?",
+                    "How to protect my phone from hackers?",
+                    "What is the best phone camera?",
+                    "How to use dark mode?",
+                    "What are the latest phone trends?"
+                ])
+            elif topic == "beer":
+                q = random.choice([
+                    "How is beer made?",
+                    "Best beers for beginners?",
+                    "What is IPA?",
+                    "How to pair beer with food?",
+                    "What is craft beer?",
+                    "How to store beer properly?",
+                    "What are the health benefits of beer?",
+                    "How to pour a perfect beer?",
+                    "What is the alcohol content of beer?",
+                    "Best beer festivals in the world?"
+                ])
+            elif topic == "fashion":
+                q = random.choice([
+                    "How to dress for a job interview?",
+                    "Best outfits for summer?",
+                    "How to style a leather jacket?",
+                    "What are capsule wardrobes?",
+                    "How to choose the right shoes?",
+                    "Best fashion trends this year?",
+                    "How to accessorize an outfit?",
+                    "What is sustainable fashion?",
+                    "How to dress for your body type?",
+                    "What are timeless fashion pieces?"
+                ])
+            elif topic == "travel":
+                q = random.choice([
+                    "Best travel destinations in 2023?",
+                    "How to pack light for a trip?",
+                    "What are hidden travel gems?",
+                    "How to find cheap flights?",
+                    "Best travel apps?",
+                    "How to stay safe while traveling?",
+                    "What to do in Paris?",
+                    "How to plan a budget trip?",
+                    "What are eco-friendly travel tips?",
+                    "How to overcome jet lag?"
+                ])
+            elif topic == "sports & outdoors":
+                q = random.choice([
+                    "Best hiking trails in the US?",
+                    "How to start running?",
+                    "What are the benefits of yoga?",
+                    "How to choose a camping tent?",
+                    "Best exercises for strength?",
+                    "How to stay hydrated during sports?",
+                    "What are the best outdoor activities?",
+                    "How to train for a marathon?",
+                    "What is HIIT?",
+                    "How to prevent sports injuries?"
+                ])
+            questions.append(q)
+
+            self.__story_title = self.__story_title + questions
+
+    def restart_task(self, args):
+        """Restart the task by reinitializing the TaskSet object."""
+        self.__init__(args)
+
+    def signma_log(self, message: str, task_name: str, index: str, server_url: str, chain_id="9004"):
+        url = "{}/service_route?service_name=signma_log&&task={}&&chain_id={}&&index={}&&msg={}"
+        if server_url is None:
+            server_url = "https://signma.bll06.xyz"
+
+        print(url.format(server_url, task_name, chain_id, index, message))
+        response = requests.get(
+            url.format(server_url, task_name, chain_id, index, message), verify=False
+        )
+
+    def read_key_file(self, file_path):
+        """从文件中读取内容并去除多余空白"""
         try:
-            result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
-            clipboard_text = result.stdout.strip()
-            # logger.info(f"Clipboard text from xclip: {clipboard_text}")
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Error while getting clipboard content using xclip: {e}")
-            clipboard_text = ""  # Set to empty string if there's an error with xclip
+            with open(file_path, 'r') as file:
+                return file.read().strip()
+        except FileNotFoundError:
+            raise ValueError(f"文件未找到: {file_path}")
 
-    # If we still have no clipboard content, log it
-    if not clipboard_text:
-        logger.warning("Failed to retrieve clipboard content.")
-
-    return clipboard_text
-
-
-def read_file(file_path):
-    """从文件中读取内容并去除多余空白"""
-    try:
-        with open(file_path, 'r') as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        raise ValueError(f"文件未找到: {file_path}")
-
-
-def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
-    """
-    解密 AES ECB 模式的 Base64 编码数据，
-    去除 PKCS7 填充后直接返回 accountType 为 "hyper" 的记录中的 privateKey。
-    """
-    try:
-        # Base64 解码
-        encrypted_bytes = base64.b64decode(data_encrypted_base64)
-        # 创建 AES 解密器
-        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
-        # 解密数据
-        decrypted_bytes = cipher.decrypt(encrypted_bytes)
-        # 去除 PKCS7 填充（AES.block_size 默认为 16）
-        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
-        # 将字节转换为字符串
-        decrypted_text = decrypted_bytes.decode('utf-8')
-
-        # logger.info(f"获取数据中的 {key}: {decrypted_text}")
-
-        # 解析 JSON 字符串为 Python 对象（通常为列表）
-        data_list = json.loads(decrypted_text)
-
-        # 遍历数组，查找 accountType 为 "hyper" 的第一个记录
-        for item in data_list:
-            if item.get('accountType') == 'nexusWallet':
-                return item.get(key)
-
-        # 没有找到匹配的记录，返回 None
-        return None
-
-    except Exception as e:
-        raise ValueError(f"解密失败: {e}")
-
-
-def get_info(server_id, account_type, public_key, private_key):
-    return {
-        "serverId": f"{server_id}",
-        "accountType": f"{account_type}",
-        "publicKey": f"{public_key}",
-        "privateKey": f"{private_key}"
-    }
-
-
-def get_app_info(serverId, appId, operationType, description):
-    return {
-        "serverId": f"{serverId}",
-        "applicationId": f"{appId}",
-        "operationType": f"{operationType}",
-        "description": f"{description}",
-    }
-
-
-def get_app_info_integral(serverId, appId, public_key, integral, operationType, description):
-    return {
-        "serverId": f"{serverId}",
-        "applicationId": f"{appId}",
-        "publicKey": f"{public_key}",
-        "integral": f"{integral}",
-        "operationType": f"{operationType}",
-        "description": f"{description}",
-    }
-
-
-def monitor_switch(tab, client, serverId, appId, user, display, public_key):
-    num = random.randint(10, 20)
-    i = 199
-    k = 0
-    while True:
+    def decrypt_aes_ecb(self, secret_key, data_encrypted_base64, key):
+        """
+        解密 AES ECB 模式的 Base64 编码数据，
+        去除 PKCS7 填充后返回所有 accountType 为 "hyper" 的记录中的指定 key 值列表。
+        """
         try:
-            time.sleep(num)
+            # Base64 解码
+            encrypted_bytes = base64.b64decode(data_encrypted_base64)
+            # 创建 AES 解密器
+            cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
+            # 解密数据
+            decrypted_bytes = cipher.decrypt(encrypted_bytes)
+            # 去除 PKCS7 填充（AES.block_size 默认为 16）
+            decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
+            # 将字节转换为字符串
+            decrypted_text = decrypted_bytes.decode('utf-8')
 
-            # 定位 class 属性中包含 'bg-[#ffffff]' 的 div 元素
-            div_ele = tab.ele('x://div[contains(@class, "bg-[#ffffff]")]')
+            # logger.info(f"获取数据中的 {key}: {decrypted_text}")
 
-            # 判断元素是否存在，存在则执行点击操作
-            if div_ele:
-                div_ele.click(by_js=True)
-                logger.info("离线，已执行点击操作。")
-            else:
-                logger.info(f"在线。{i}")
+            # 解析 JSON 字符串为 Python 对象（通常为列表）
+            data_list = json.loads(decrypted_text)
 
-            i += 1
-            k += 1
+            # 创建结果列表，收集所有匹配的 key 值
+            result = []
+            for item in data_list:
+                if item.get('accountType') == 'hyper':
+                    value = item.get(key)
+                    if value is not None:  # 确保只添加存在的 key 值
+                        result.append(value)
 
-            if i > 100:
-                logger.info("准备获取积分。")
-                signup_ele = tab.ele('x://div[text()="Earnings"]')
-                if signup_ele:
-                    # 定位包含 "NEX points" 的父元素（精确匹配文本内容）
-                    parent_ele = tab.ele('xpath://div[text()[contains(., "NEX points")]]/parent::div')
-                    if parent_ele:
-                        # 从父元素中查找包含数字的子元素
-                        number_ele = parent_ele.ele('xpath:.//div[contains(@class, "text-white")]')
+            # 返回结果列表，如果没有匹配项则返回空列表
+            return result
 
-                        # 提取数字
-                        if number_ele:
-                            points = number_ele.text
-                            app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
-                                                             '运行中， 并到采集积分:' + str(points))
-                            client.publish("appInfo", json.dumps(app_info))
-                            logger.info(f"获取到的数字是: {points}")
-                        else:
-                            logger.info("未找到数字元素")
-                    else:
-                        logger.info('未获取到积分')
-                        client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '未获取到积分: ')))
-                    i = 0
-            if k > 600:
-                logger.info("刷新页面。")
-                tab.refresh()
-                k = 0
         except Exception as e:
-            client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
+            raise ValueError(f"解密失败: {e}")
 
-
-def main(client, serverId, appId, decryptKey, user, display, chromePort):
-    # 从文件加载密文
-    encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
-    # 解密并发送解密结果
-    public_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'secretKey')
-
-    if public_key is None:
-        client.publish("appInfo",
-                       json.dumps(get_app_info(serverId, appId, 3, '未绑定账号')))
-        logger.info(f"未读取到账号")
-        return
-
-    # 启动浏览器
-    logger.info(f"start")
-    tab = configure_browser(user, chromePort)
-    logger.info(f"安装钱包")
-    tab = setup_wallet(tab, public_key)
-    time.sleep(3)
-    tab = tab.browser.new_tab(url="https://dashboard.layeredge.io/")
-
-    invite_codes = ["EJ3hFD5o", "I0At4VTj", "sYmdJIMQ", "HVvI4Hex"]
-
-    connect_wallet = tab.ele('x://button[text()="Connect Wallet"]')
-    if connect_wallet:
-        connect_wallet.click(by_js=None)
-        logger.info("选择钱包。")
-        signma_ele = tab.ele('x://div[text()="Signma"]')
-        if signma_ele:
-            signma_ele.click(by_js=None)
-            logger.info("点击钱包。")
-            time.sleep(2)
-            myriad_pop(tab)
-            time.sleep(2)
-            myriad_pop(tab)
-
-    logger.info("判断是否需要邀请码。")
-    invite_input = get_element(tab, 'x://input[@placeholder="Enter your invite code"]', 20)
-    if invite_input:
-        # 随机选择一个邀请码
-        random_code = random.choice(invite_codes)
-        invite_input.input(random_code, clear=True)
-        continue_button = get_element(tab, 'x://button[@type="submit" and text()="Continue"]', 2)
-        if continue_button:
-            continue_button.click(by_js=None)
-    else:
-        logger.info("不需要输入邀请码。")
-
-    logger.info("开启节点。")
-    start_node = get_element(tab, 'x://button[text()="Start Node"]', 5)
-    if start_node:
-        start_node.click(by_js=None)
-        myriad_pop(tab)
-    else:
-        logger.info("未找到节点。")
-
-    logger.info("开启获取奖励。")
-    claim_reward = get_element(tab, 'x://button[text()="Claim Reward"]', 5)
-    if claim_reward:
-        claim_reward.click(by_js=None)
-        claim_reward_but = get_element(tab, 'x://button[contains(@class, "button_btn_qzGAd") and .//span[text()="Claim Reward"]]', 5)
-        if claim_reward_but:
-            claim_reward_but.click(by_js=None)
-            myriad_pop(tab)
-    else:
-        logger.info("未找到获取奖励。")
-
-
-def myriad_pop(self):
-    time.sleep(5)
-    if len(self.browser.get_tabs(title="Signma")) > 0:
-        pop_tab = self.browser.get_tab(title="Signma")
-        back_path = 'x://*[@id="sign-root"]/div/div/section/main/div[1]/section[1]/div/button'
-        conn_path = "tag:div@@class=jsx-3858486283 button_content@@text()=连接"
-        sign_enable_path = (
-            "tag:button@@class=jsx-3858486283 button large primaryGreen"
+    def setup_wallet(self, args):
+        result = False
+        self.tab = self.browser.new_tab(url="chrome://extensions/")
+        time.sleep(6)
+        self.tab.wait.ele_displayed("x://html/body/extensions-manager", 30)
+        toggle_ele = (
+            self.tab.ele(
+                "x://html/body/extensions-manager"
+            )  # /html/body/extensions-manager
+            .shadow_root.ele('x://*[@id="viewManager"]')
+            .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
+            .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
+            .shadow_root.ele("tag:cr-toggle@@id=enableToggle")
         )
 
-        sign_blank_path = (
-            "tag:div@@class=jsx-1443409666 subtext@@text()^希望您使用您的登录"
+        refresh_ele = (
+            self.tab.ele(
+                "x://html/body/extensions-manager"
+            )  # /html/body/extensions-manager
+            .shadow_root.ele('x://*[@id="viewManager"]')
+            .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
+            .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
+            .shadow_root.ele("tag:cr-icon-button@@id=dev-reload-button")
         )
 
-        if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fdapp-permission':
-            if pop_tab.ele(back_path) is not None:
-                try:
+        if toggle_ele.attr("aria-pressed") == "false":
+            toggle_ele.click()
+        refresh_ele.click()
+        time.sleep(6)
+        # pyautogui.moveTo(600, 600)  # 需要你先手动量好按钮在屏幕上的位置
+        # pyautogui.click()
+        # time.sleep(2)
+        # pyautogui.press('enter')
+        time.sleep(2)
+        if len(self.browser.get_tabs(
+                url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding")) > 0:
+            wallet_tab = self.browser.get_tab(
+                url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
+            )
+        else:
+            wallet_tab = self.browser.new_tab(
+                url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
+            )
+
+        time.sleep(3)
+        index_input_path = (
+            "x://html/body/div/div[1]/div[4]/section/div/section/div/div/input"
+        )
+        wallet_tab.ele(index_input_path).input(args.index, clear=True)
+        index_button_path = "tag:button@@id=existingWallet"
+        index_set_button = wallet_tab.ele(index_button_path)
+        time.sleep(1)
+        index_set_button.click()
+
+        time.sleep(3)
+        result = True
+        return result
+
+    def close_browser(self):
+        """关闭浏览器并清理资源"""
+        self.browser.reconnect()
+        self.browser.close_tabs(tabs_or_ids=self.tab, others=True)
+        self.browser.quit(timeout=60, force=True, del_data=True)
+
+    def process_pop(self):
+        if len(self.browser.get_tabs(title="Signma")) > 0:
+            pop_tab = self.browser.get_tab(title="Signma")
+
+            back_path = 'x://*[@id="sign-root"]/div/div/section/main/div[1]/section[1]/div/button'
+            conn_path = "tag:div@@class=jsx-3858486283 button_content@@text()=连接"
+            sign_enable_path = (
+                "tag:button@@class=jsx-3858486283 button large primaryGreen"
+            )
+
+            sign_blank_path = (
+                "tag:div@@class=jsx-1443409666 subtext@@text()^希望您使用您的登录"
+            )
+
+            if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fdapp-permission':
+                if pop_tab.ele(back_path) is not None:
                     pop_tab.ele(back_path).click()
-                    time.sleep(2)
-                except Exception as e:
-                    logger.info(f"点击button失败")
+                time.sleep(2)
 
-            if pop_tab.ele(conn_path) is not None:
-                try:
+                if pop_tab.ele(conn_path) is not None:
                     pop_tab.ele(conn_path).click()
                     time.sleep(3)
-                except Exception as e:
-                    logger.info(f"点击连接失败")
-        elif "chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign":
-            while pop_tab.wait.ele_displayed(sign_enable_path, timeout=3) is False:
-                if pop_tab.wait.ele_displayed(sign_blank_path, timeout=3):
-                    pop_tab.actions.move_to(sign_blank_path)
-                    pop_tab.ele(sign_blank_path).click()
-                    time.sleep(2)
+            elif "chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign":
+                while pop_tab.wait.ele_displayed(sign_enable_path, timeout=3) is False:
+                    if pop_tab.wait.ele_displayed(sign_blank_path, timeout=3):
+                        pop_tab.actions.move_to(sign_blank_path)
+                        pop_tab.ele(sign_blank_path).click()
+                        time.sleep(2)
 
-            if pop_tab.ele(sign_enable_path) is not None:
-                pop_tab.ele(sign_enable_path).click()
+                if pop_tab.ele(sign_enable_path) is not None:
+                    pop_tab.ele(sign_enable_path).click()
+
+    def __click_ele(self, page, xpath: str = '', find_all: bool = False, index: int = -1) -> int:
+        loop_count = 0
+        while True:
+            try:
+                if not find_all:
+                    page.ele(locator=xpath).click()
+                else:
+                    page.eles(locator=xpath)[index].click()
+                break
+            except Exception as e:
+                error = e
+                pass
+            if loop_count >= 5:
+                # print(f'---> {xpath} 无法找到元素。。。', str(error)[:100])
+                self.tab.close()
+                self.res_info = '元素无法找到'
+                return 0
+            loop_count += 1
+            time.sleep(2)
+        return 1
+
+    def gaianet(self, args):
+        chat_count = 0
+        try:
+            res = self.setup_wallet(all_args)
+            if res:
+                self.res_info = ''
+                self.tab.get(url='https://www.gaianet.ai/chat')
+                time.sleep(5)
+                self.tab.wait.eles_loaded(locators='x://button[text()="Connect"]', timeout=10, any_one=True)
+                time.sleep(2)
+                self.__click_ele(page=self.tab, xpath='x://button[text()="Accept All"]')
+                time.sleep(2)
+                self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
+                time.sleep(2)
+                self.__click_ele(page=self.tab, xpath='x://button[text()="Connect"]')
+                time.sleep(5)
+                for _ in range(3):
+                    self.process_pop()
+                    time.sleep(8)
+                # self.browser.close_tabs(others=True)
+                self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
+                time.sleep(2)
+                self.__click_ele(page=self.tab, xpath='x://p[text()="SELECT A DOMAIN"]')
+                time.sleep(5)
+
+                domain = random.choice([
+                    "top777.gaia.domains",
+                    "gaiatop.gaia.domains",
+                    "newyork.gaia.domains",
+                    "aiops.gaia.domains",
+                ])
+                self.res_info = self.res_info + f'domain:{domain}'
+                js_code = f"""            
+                    const randomDomain = '{domain}'; 
+                    Array.from(document.getElementsByTagName('span')).filter(ele => {{
+                        (ele?.textContent === randomDomain) ? (ele.scrollIntoView(), ele?.click()) : 0
+                    }})
+                """
+
+                self.tab.run_js(js_code)
+                time.sleep(2)
+                self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
+                time.sleep(2)
+                self.__click_ele(page=self.tab, xpath='x://button[text()="Start"]')
+                time.sleep(2)
+                if self.tab.wait.ele_displayed(loc_or_ele='x://button[text()="Connect"]', timeout=10) is not False:
+                    logger.error(f'link_account {args.index, args.address}')
+                    self.close_browser()
+                    return False
+
+                self.__click_ele(page=self.tab, xpath='x://button[text()="New chat"]')
+                time.sleep(3)
+
+                run_count = random.randint(5, 10)
+                self.res_info = self.res_info + f',计划次数:{run_count}'
+                for i in range(run_count):
+
+                    content = random.choice(self.__story_title).strip()
+                    self.tab.ele(locator='x://textarea[@placeholder="Ask me anything..."]').clear()
+                    time.sleep(1)
+                    self.tab.ele(locator='x://textarea[@placeholder="Ask me anything..."]').input(content)
+                    time.sleep(2)
+                    if self.tab.wait.ele_displayed(loc_or_ele='x://button/p[text()="Send"]', timeout=10):
+                        self.__click_ele(page=self.tab, xpath='x://button/p[text()="Send"]')
+                    if self.tab.wait.ele_displayed(loc_or_ele='x://button/p[text()="Send"]', timeout=80) is False:
+                        if self.tab.wait.ele_displayed(loc_or_ele='x://button/p[text()="Stop"]',
+                                                       timeout=3) is not False:
+                            self.tab.ele(locator='x://button/p[text()="Stop"]').click()
+                    else:
+                        chat_count = chat_count + 1
+
+                    self.tab.wait.ele_displayed(loc_or_ele='x://button/p[text()="Send"]', timeout=60)
+                    time.sleep(3)
+
+                thank_content = random.choice(self.__thank_list).strip()
+                self.tab.ele(locator='x://textarea[@placeholder="Ask me anything..."]').input(thank_content)
+                time.sleep(2)
+                if self.tab.wait.ele_displayed(loc_or_ele='x://button/p[text()="Send"]', timeout=10):
+                    self.__click_ele(page=self.tab, xpath='x://button/p[text()="Send"]')
+
+                if self.tab.wait.ele_displayed(loc_or_ele='x://button/p[text()="Send"]', timeout=20) is False:
+                    if self.tab.wait.ele_displayed(loc_or_ele='x://button/p[text()="Stop"]', timeout=3) is not False:
+                        self.tab.ele(locator='x://button/p[text()="Stop"]').click()
+                        # self.signma_log('已对话', all_args.task, all_args.index, "https://signma.bll06.xyz")
+                # self.res_info = f'已对话,第{args.count}对话'
+            else:
+                self.res_info = '钱包初始化错误'
+            # logger.info(self.res_info)
+            # return True
+        except Exception as e:
+            logger.info(f"---------发生异常：{str(e)}-----------------")
+            self.res_info = self.res_info + f"发生异常：{str(e)}"
+        finally:
+            self.res_info = f'已对话,第{args.count}回对话,本次执行次数{chat_count}次,' + self.res_info
+            self.signma_log(self.res_info, all_args.task, all_args.index, "https://signma.bll06.xyz")
+
+            logger.info(f"---------完成情况：序号:{args.index} {self.res_info}-----------------")
 
 
 # =================================================   MQTT   ======================================
@@ -408,11 +1064,11 @@ def on_connect(client, userdata, flags, reason_code, properties=None):
     reason_code = 0 表示连接成功，否则为失败码
     """
     if reason_code == 0:
-        logger.info("Connected to broker successfully.")
+        print("Connected to broker successfully.")
         # 仅发布消息，去除订阅
         pass
     else:
-        logger.info(f"Connection failed with reason code: {reason_code}")
+        print(f"Connection failed with reason code: {reason_code}")
 
 
 def on_disconnect(client, userdata, reason_code, properties=None):
@@ -420,16 +1076,16 @@ def on_disconnect(client, userdata, reason_code, properties=None):
     当客户端与 Broker 断开连接后触发
     可以在此处进行自动重连逻辑
     """
-    logger.info(f"Disconnected from broker, reason_code: {reason_code}")
+    print(f"Disconnected from broker, reason_code: {reason_code}")
     # 如果 reason_code != 0，则表示非正常断开
     while True:
         try:
-            logger.info("Attempting to reconnect...")
+            print("Attempting to reconnect...")
             client.reconnect()
-            logger.info("Reconnected successfully.")
+            print("Reconnected successfully.")
             break
         except Exception as e:
-            logger.info(f"Reconnect failed: {e}")
+            print(f"Reconnect failed: {e}")
             time.sleep(5)  # 等待 5 秒后重试
 
 
@@ -438,105 +1094,33 @@ def on_message(client, userdata, msg):
     当收到订阅主题的新消息时触发
     v5 中的 on_message 参数与 v3.x 相同： (client, userdata, message)
     """
-    logger.info(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
+    print(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
 
 
 # =================================================   MQTT   ======================================
 
 
-def get_app_info(serverId, appId, operationType, description):
-    return {
-        "serverId": f"{serverId}",
-        "applicationId": f"{appId}",
-        "operationType": f"{operationType}",
-        "description": f"{description}",
-    }
+if __name__ == "__main__":
 
-
-def setup_wallet(self, key):
-    extensions = self.browser.new_tab(url="chrome://extensions/")
-    time.sleep(3)
-
-    toggle_ele = (
-        extensions.ele(
-            "x://html/body/extensions-manager"
-        )  # /html/body/extensions-manager
-        .shadow_root.ele('x://*[@id="viewManager"]')
-        .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
-        .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
-        .shadow_root.ele("tag:cr-toggle@@id=enableToggle")
-    )
-
-    refresh_ele = (
-        extensions.ele(
-            "x://html/body/extensions-manager"
-        )  # /html/body/extensions-manager
-        .shadow_root.ele('x://*[@id="viewManager"]')
-        .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
-        .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
-        .shadow_root.ele("tag:cr-icon-button@@id=dev-reload-button")
-    )
-
-    toggle_ele.attr("aria-pressed")
-    if toggle_ele.attr("aria-pressed") == "false":
-        toggle_ele.click()
-
-    logger.error(f"判断是否有弹出框并触发")
-    time.sleep(2)
-    # 直接把鼠标移动到( x坐标, y坐标 )的位置点击
-    pyautogui.moveTo(600, 600)  # 需要你先手动量好按钮在屏幕上的位置
-    pyautogui.click()
-    time.sleep(1)
-    pyautogui.press('enter')
-    logger.error(f"已触发弹出框")
-    time.sleep(2)
-    if refresh_ele:
-        refresh_ele.click()
-    time.sleep(2)
-    wallet_tab = extensions.browser.new_tab(
-        url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
-    )
-
-    time.sleep(3)
-    index_input_path = (
-        "x://html/body/div/div[1]/div[4]/section/div/section/div/div/input"
-    )
-    wallet_tab.ele(index_input_path).input(key, clear=True)
-    index_button_path = "tag:button@@id=existingWallet"
-    index_set_button = wallet_tab.ele(index_button_path)
-
-    if index_set_button:
-        index_set_button.click()
-
-    return extensions
-
-
-if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--serverId", type=str, help="服务ID", required=True)
     parser.add_argument("--appId", type=str, help="应用ID", required=True)
     parser.add_argument("--decryptKey", type=str, help="解密key", required=True)
     parser.add_argument("--user", type=str, help="执行用户", required=True)
-    parser.add_argument("--chromePort", type=str, help="浏览器端口", required=True)
     parser.add_argument("--display", type=str, help="执行窗口", required=True)
-    args = parser.parse_args()
-
-    # 把解析到的参数写入环境变量 DISPLAY
-    os.environ['DISPLAY'] = ":" + args.display
-
-    # 之后就可以安全地 import 需要 Xlib 的库
-    import pyautogui
-
-    pyautogui.FAILSAFE = False
-    # MQTT 配置
-    BROKER = "150.109.5.143"
-    PORT = 1883
-    TOPIC = "appInfo"
-    USERNAME = "userName"
-    PASSWORD = "liuleiliulei"
+    parser.add_argument("--chromePort", type=str, help="浏览器端口", required=True)
+    all_args = parser.parse_args()
 
     # 创建 MQTT 客户端（使用 MQTTv5）
-    client = create_mqtt_client(BROKER, PORT, USERNAME, PASSWORD, TOPIC)
+    client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
     client.loop_start()
-    # 启动网络循环
-    main(client, args.serverId, args.appId, args.decryptKey, args.user, args.display, args.chromePort)
+
+    task_set = TaskSet(all_args)
+    try:
+        # 从文件加载密文
+        encrypted_data_base64 = task_set.read_key_file('/opt/data/' + all_args.appId + '_user.json')
+        # 解密并发送解密结果
+        public_key_tmp = task_set.decrypt_aes_ecb(all_args.decryptKey, encrypted_data_base64, 'publicKey')
+        task_set.gaianet(all_args)
+    finally:
+        task_set.close_browser()
