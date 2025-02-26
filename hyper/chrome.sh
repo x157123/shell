@@ -210,8 +210,8 @@ install_chrome_120(){
       sudo dpkg --remove google-chrome-stable
     fi
     rm -f "$CHROME_DEB"
-    if ! curl -sSL "$CHROME_DEB" -o "$CHROME_URL_OLD"; then
-        log_info "浏览器 URL 下载失败，$WALLET_URL"
+    if ! curl -sSL "$CHROME_URL_OLD" -o "$CHROME_DEB"; then
+        log_info "浏览器 URL 下载失败，$CHROME_URL_OLD"
     fi
     sudo dpkg -i "$CHROME_DEB" || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
     rm -f "$CHROME_DEB"
