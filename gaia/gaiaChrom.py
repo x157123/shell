@@ -1110,6 +1110,7 @@ if __name__ == "__main__":
     for key in public_key_tmp:
         all_args.index = key
         all_args.task = 'test'
+        all_args.count = 0
         print(f"找到的 privateKey: {key}")
         task_set = TaskSet(all_args)
         try:
