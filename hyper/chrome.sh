@@ -9,7 +9,7 @@ readonly DEPENDENCIES=("curl" "wget" "git" "pip3" "lsof" "expect")  # 依赖命�
 readonly CHROME_DEB="google-chrome-stable_current_amd64.deb"
 readonly CHROME_URL="https://dl.google.com/linux/direct/$CHROME_DEB"
 readonly CHROME_BAK_URL="https://www.15712345.xyz/chrome/$CHROME_DEB"
-readonLy CHROME_URL_OLD="https://github.com/x157123/ACL4SSR/releases/download/chro/google-chrome-stable_120.0.6099.224-1_amd64.deb"
+readonly CHROME_URL_OLD="https://github.com/x157123/ACL4SSR/releases/download/chro/google-chrome-stable_120.0.6099.224-1_amd64.deb"
 readonly WALLET_URL="https://github.com/x157123/ACL4SSR/releases/download/v1.0.0/chrome-cloud.tar"
 readonly EDGE_URL="https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_133.0.3065.82-1_amd64.deb?brand=M102"
 readonly PYTHON_SCRIPT_DIR="/opt/"  # 目录
@@ -209,9 +209,11 @@ install_chrome_120(){
       log_info "卸载最新版本版本"
       sudo dpkg --remove google-chrome-stable
     fi
-    wget "$CHROME_URL_OLD" || error_exit "浏览器下载失败:$CHROME_URL_OLD"
-    sudo dpkg -i google-chrome-stable_120.0.6099.224-1_amd64.deb || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
-    rm -f google-chrome-stable_120.0.6099.224-1_amd64.deb
+    if ! curl -sSL "$CHROME_URL_OLD" -o "$CHROME_DEB"; then
+        log_info "URL 下载失败..."
+    fi
+    sudo dpkg -i "$CHROME_DEB" || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
+    rm -f "$CHROME_DEB"
     sudo apt-mark hold google-chrome-stable
     log_info "Google Chrome 安装完成"
 }
