@@ -205,17 +205,29 @@ install_chrome() {
 }
 
 install_chrome_120(){
-    if dpkg-query -W google-chrome-stable >/dev/null 2>&1; then
-      log_info "卸载最新版本版本"
-      sudo dpkg --remove google-chrome-stable
+#    if dpkg-query -W google-chrome-stable >/dev/null 2>&1; then
+#      log_info "卸载最新版本版本"
+#      sudo dpkg --remove google-chrome-stable
+#    fi
+#    if ! curl -sSL "$CHROME_URL_OLD" -o "$CHROME_DEB"; then
+#        log_info "URL 下载失败..."
+#    fi
+#    sudo dpkg -i "$CHROME_DEB" || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
+#    rm -f "$CHROME_DEB"
+#    sudo apt-mark hold google-chrome-stable
+#    log_info "Google Chrome 安装完成"
+    if ! dpkg-query -W google-chrome-stable >/dev/null 2>&1; then
+        log_info "安装 Google Chrome..."
+        if ! curl -sSL "$CHROME_URL_OLD" -o "$CHROME_DEB"; then
+            log_info "URL 下载失败..."
+        fi
+        sudo dpkg -i "$CHROME_DEB" || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
+        rm -f "$CHROME_DEB"
+        sudo apt-mark hold google-chrome-stable
+        log_info "Google Chrome 安装完成"
+    else
+        log_info "Google Chrome 已安装，跳过"
     fi
-    if ! curl -sSL "$CHROME_URL_OLD" -o "$CHROME_DEB"; then
-        log_info "URL 下载失败..."
-    fi
-    sudo dpkg -i "$CHROME_DEB" || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
-    rm -f "$CHROME_DEB"
-    sudo apt-mark hold google-chrome-stable
-    log_info "Google Chrome 安装完成"
 }
 
 install_edge() {
