@@ -867,18 +867,19 @@ class TaskSet:
         """Restart the task by reinitializing the TaskSet object."""
         self.__init__(args)
 
-    def get_app_info(self, serverId, appId, operationType, description):
+    def get_app_info(self, serverId, appId, operationType, publicKey, description):
         return {
             "serverId": f"{serverId}",
             "applicationId": f"{appId}",
             "operationType": f"{operationType}",
+            "publicKey": f"{publicKey}",
             "description": f"{description}",
         }
 
     def signma_log(self, message: str, task_name: str, index: str, server_url: str, chain_id="9004"):
         logger.info("数据。" + message)
         client.publish("appInfo",
-                       json.dumps(self.get_app_info(self.serverId, self.appId, 3, message)))
+                       json.dumps(self.get_app_info(self.serverId, self.appId, 3, index, message)))
 
     def setup_wallet(self, args):
         result = False
