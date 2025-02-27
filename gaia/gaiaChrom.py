@@ -939,10 +939,16 @@ class TaskSet:
         return result
 
     def close_browser(self):
-        """关闭浏览器并清理资源"""
-        self.browser.reconnect()
-        self.browser.close_tabs(tabs_or_ids=self.tab, others=True)
-        self.browser.quit(timeout=60, force=True, del_data=True)
+        try:
+            self.browser.reconnect()
+            self.browser.close_tabs(tabs_or_ids=self.tab, others=True)
+            self.browser.quit(timeout=60, force=True, del_data=True)
+        except Exception as e:
+            print(f"错误: {e}")
+            try:
+                self.browser.quit(timeout=60, force=True, del_data=True)
+            except Exception as es:
+                print(f"错误2: {es}")
 
     def process_pop(self):
         if len(self.browser.get_tabs(title="Signma")) > 0:
