@@ -1138,6 +1138,8 @@ if __name__ == "__main__":
         try:
             task_set.gaianet(all_args)
             data_map[data_key] = all_args.count
+        except Exception as e:
+            logger.info(f"发生错误: {e}")
         finally:
             task_set.close_browser()
 
