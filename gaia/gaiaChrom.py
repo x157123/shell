@@ -131,6 +131,8 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
 class TaskSet:
     def __init__(self, args):
         global q
+        self.appId = args.appId
+        self.serverId = args.serverId
         self.co = ChromiumOptions()
         self.meta_id = 'dholkoaddiccbagimjcfjaldcacogjgc'
         self.co.set_paths(r"/opt/google/chrome/google-chrome")
@@ -875,8 +877,8 @@ class TaskSet:
 
     def signma_log(self, message: str, task_name: str, index: str, server_url: str, chain_id="9004"):
         logger.info("数据。" + message)
-        self.client.client.publish("appInfo",
-                                   json.dumps(self.get_app_info(self.serverId, self.appId, 3, message)))
+        client.publish("appInfo",
+                       json.dumps(self.get_app_info(self.serverId, self.appId, 3, message)))
 
     def setup_wallet(self, args):
         result = False
@@ -1094,7 +1096,6 @@ class TaskSet:
             logger.info(f"---------完成情况：序号:{args.index} {self.res_info}-----------------")
 
 
-
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="获取应用信息")
@@ -1110,8 +1111,7 @@ if __name__ == "__main__":
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
     client.loop_start()
-    all_args.client = client
-    
+
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + all_args.appId + '_user.json')
 
