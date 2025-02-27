@@ -1117,32 +1117,40 @@ if __name__ == "__main__":
 
     # 解密并发送解密结果
     public_key_tmp = decrypt_aes_ecb(all_args.decryptKey, encrypted_data_base64, 'secretKey')
-    for key in public_key_tmp:
+
+    while True:
         current_date = datetime.now().strftime('%Y%m%d')  # 当前日期
-        data_key = f"{current_date}_{key}"
-        if data_key in data_map and data_map[data_key] is not None:
-            all_args.count = data_map[data_key]
-            if all_args.count > 6:
-                break
+        all_args.day_count = 1
+        if current_date in data_map and data_map[current_date] is not None:
+            all_args.day_count = data_map[current_date]
+
+        if all_args.day_count == 1:
+            for key in public_key_tmp:
+                data_key = f"{current_date}_{key}"
+                if data_key in data_map and data_map[data_key] is not None:
+                    all_args.count = data_map[data_key]
+                    if all_args.count > 6:
+                        break
+                else:
+                    all_args.count = 1
+                    yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
+                    yesterday_data_key = f"{current_date}_{key}"
+                    if yesterday_data_key in data_map:
+                        del data_map[yesterday_data_key]
+                all_args.index = key
+                all_args.task = 'test'
+                all_args.res_info = ''
+                logger.info(f"执行: {key}，次数：{all_args.count}")
+                task_set = TaskSet(all_args)
+                try:
+                    task_set.gaianet(all_args)
+                    data_map[data_key] = all_args.count
+                except Exception as e:
+                    logger.info(f"发生错误: {e}")
+                finally:
+                    task_set.close_browser()
+
+                time.sleep(10)
         else:
-            all_args.count = 1
-            yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
-            yesterday_data_key = f"{current_date}_{key}"
-            if yesterday_data_key in data_map:
-                del data_map[yesterday_data_key]
-        all_args.index = key
-        all_args.task = 'test'
-        all_args.res_info = ''
-        print(f"执行: {key}，次数：{all_args.count}")
-        task_set = TaskSet(all_args)
-        try:
-            task_set.gaianet(all_args)
-            data_map[data_key] = all_args.count
-        except Exception as e:
-            logger.info(f"发生错误: {e}")
-        finally:
-            task_set.close_browser()
-
-        time.sleep(10)
-
-    
+            logger.info(f"执行完毕等待一小时")
+            time.sleep(3600)
