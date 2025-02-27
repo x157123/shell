@@ -1126,10 +1126,10 @@ if __name__ == "__main__":
         while True:
             current_date = datetime.now().strftime('%Y%m%d')  # 当前日期
             all_args.day_count = 1
+            all_args.count = 1
             if current_date in data_map and data_map[current_date] is not None:
                 logger.info("找到现在第几轮")
                 all_args.day_count = data_map[current_date]
-
             if all_args.day_count < 5:
                 num = 0
                 for key in public_key_tmp:
@@ -1139,7 +1139,6 @@ if __name__ == "__main__":
                         if all_args.count > 6:
                             break
                     else:
-                        all_args.count = 1
                         yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
                         yesterday_data_key = f"{current_date}_{key}"
                         if yesterday_data_key in data_map:
