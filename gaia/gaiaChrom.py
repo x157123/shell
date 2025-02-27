@@ -946,10 +946,6 @@ class TaskSet:
             self.browser.quit(timeout=60, force=True, del_data=True)
         except Exception as e:
             print(f"错误: {e}")
-            try:
-                self.browser.quit(timeout=60, force=True, del_data=True)
-            except Exception as es:
-                print(f"错误2: {es}")
 
     def process_pop(self):
         if len(self.browser.get_tabs(title="Signma")) > 0:
@@ -1163,7 +1159,7 @@ if __name__ == "__main__":
                         task_set.close_browser()
                         time.sleep(random.randint(23, 50))
                 logger.info(f"执行完第{all_args.day_count}轮")
-                data_map[current_date] = all_args.day_count - 1
+                data_map[current_date] = all_args.day_count + 1
             else:
                 logger.info(f"执行完毕等待一小时")
                 time.sleep(3600)
