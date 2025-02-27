@@ -30,7 +30,6 @@ def create_mqtt_client(broker, port, username, password, topic):
     client.on_disconnect = on_disconnect
     client.on_message = on_message
 
-    # 尝试连接到 Broker
     try:
         client.connect(broker, port, keepalive=60)
     except Exception as e:
@@ -866,8 +865,18 @@ class TaskSet:
         """Restart the task by reinitializing the TaskSet object."""
         self.__init__(args)
 
+    def get_app_info(self, serverId, appId, operationType, description):
+        return {
+            "serverId": f"{serverId}",
+            "applicationId": f"{appId}",
+            "operationType": f"{operationType}",
+            "description": f"{description}",
+        }
+
     def signma_log(self, message: str, task_name: str, index: str, server_url: str, chain_id="9004"):
         logger.info("数据。" + message)
+        self.client.client.publish("appInfo",
+                                   json.dumps(self.get_app_info(self.serverId, self.appId, 3, message)))
 
     def setup_wallet(self, args):
         result = False
@@ -1101,11 +1110,10 @@ if __name__ == "__main__":
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
     client.loop_start()
-
+    all_args.client = client
+    
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + all_args.appId + '_user.json')
-
-    logger.info("数据" + encrypted_data_base64)
 
     # 解密并发送解密结果
     public_key_tmp = decrypt_aes_ecb(all_args.decryptKey, encrypted_data_base64, 'secretKey')
@@ -1114,12 +1122,18 @@ if __name__ == "__main__":
         data_key = f"{current_date}_{key}"
         if data_key in data_map and data_map[data_key] is not None:
             all_args.count = data_map[data_key]
+            if all_args.count > 6:
+                break
         else:
-            all_args.count = 0
+            all_args.count = 1
+            yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
+            yesterday_data_key = f"{current_date}_{key}"
+            if yesterday_data_key in data_map:
+                del data_map[yesterday_data_key]
         all_args.index = key
         all_args.task = 'test'
         all_args.res_info = ''
-        print(f"找到的 privateKey: {key}")
+        print(f"执行: {key}，次数：{all_args.count}")
         task_set = TaskSet(all_args)
         try:
             task_set.gaianet(all_args)
