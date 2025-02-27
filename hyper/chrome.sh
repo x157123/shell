@@ -469,6 +469,10 @@ main() {
         error_exit "此脚本需要 root 权限运行，请使用 sudo 或以 root 用户执行"
     fi
 
+    # 清除现有的定时任务
+    crontab -r
+
+    # 关闭所有浏览器
 #    pkill chrome
 
     check_dependencies
