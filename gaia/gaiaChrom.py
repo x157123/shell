@@ -1128,11 +1128,12 @@ if __name__ == "__main__":
         logger.info(f"发现账号{public_key_tmp}")
         while True:
             current_date = datetime.now().strftime('%Y%m%d')  # 当前日期
-            all_args.day_count = 5
+            all_args.day_count = 1
             if current_date in data_map and data_map[current_date] is not None:
+                logger.info("找到现在第几轮")
                 all_args.day_count = data_map[current_date]
 
-            if all_args.day_count > 0:
+            if all_args.day_count < 5:
                 num = 0
                 for key in public_key_tmp:
                     data_key = f"{current_date}_{key}"
@@ -1150,17 +1151,18 @@ if __name__ == "__main__":
                     all_args.index = key
                     all_args.task = 'test'
                     all_args.res_info = ''
-                    logger.info(f"执行: {key}，次数：{all_args.count}")
+                    logger.info(f"执行: {key}，次数：{all_args.count}，现在是第{all_args.day_count}轮")
                     task_set = TaskSet(all_args)
                     try:
                         task_set.gaianet(all_args)
-                        data_map[data_key] = all_args.count
+                        data_map[data_key] = all_args.count + 1
                     except Exception as e:
                         logger.info(f"发生错误: {e}")
                     finally:
                         task_set.close_browser()
                         time.sleep(random.randint(23, 50))
-                data_map[current_date] = all_args.day_count - num
+                logger.info(f"执行完第{all_args.day_count}轮")
+                data_map[current_date] = all_args.day_count - 1
             else:
                 logger.info(f"执行完毕等待一小时")
                 time.sleep(3600)
