@@ -1128,8 +1128,8 @@ if __name__ == "__main__":
             all_args.day_count = 1
             all_args.count = 1
             if current_date in data_map and data_map[current_date] is not None:
-                logger.info("找到现在第几轮")
                 all_args.day_count = data_map[current_date]
+                logger.info(f"找到现在第{all_args.day_count}轮")
             if all_args.day_count < 5:
                 num = 0
                 for key in public_key_tmp:
