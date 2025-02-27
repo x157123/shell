@@ -1120,11 +1120,11 @@ if __name__ == "__main__":
 
     while True:
         current_date = datetime.now().strftime('%Y%m%d')  # 当前日期
-        all_args.day_count = 1
+        all_args.day_count = 5
         if current_date in data_map and data_map[current_date] is not None:
             all_args.day_count = data_map[current_date]
 
-        if all_args.day_count == 1:
+        if all_args.day_count > 0:
             for key in public_key_tmp:
                 data_key = f"{current_date}_{key}"
                 if data_key in data_map and data_map[data_key] is not None:
@@ -1150,7 +1150,7 @@ if __name__ == "__main__":
                 finally:
                     task_set.close_browser()
 
-                time.sleep(10)
+                data_map[current_date] = all_args.day_count - 1
         else:
             logger.info(f"执行完毕等待一小时")
             time.sleep(3600)
