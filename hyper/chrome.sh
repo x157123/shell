@@ -438,6 +438,16 @@ start_services() {
     fi
 
     # 查找运行中的 老版本 chrome.py 进程
+    pids=$(pgrep -f "/opt/hyper_chrome")
+    if [ -n "$pids" ]; then
+        echo "检测到正在运行的实例: $pids，准备终止..."
+        for pid in $pids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
+    fi
+
+    # 查找运行中的 老版本 chrome.py 进程
     npids=$(pgrep -f "/opt/nexus/nexusChrom.py")
     if [ -n "$npids" ]; then
         echo "检测到正在运行的实例: $npids，准备终止..."
