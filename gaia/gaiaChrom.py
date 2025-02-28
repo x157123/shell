@@ -1104,6 +1104,15 @@ class TaskSet:
             self.res_info = ''
             self.tab.get(url='https://www.gaianet.ai/reward-summary')
 
+            self.__click_ele(page=self.tab, xpath='x://button[text()="Connect"]')
+            time.sleep(5)
+            for _ in range(3):
+                self.process_pop()
+                time.sleep(8)
+
+            self.tab.refresh()
+            time.sleep(5)
+
             container = self.tab.ele('x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]')
 
             if container:
