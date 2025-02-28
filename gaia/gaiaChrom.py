@@ -1129,9 +1129,9 @@ class TaskSet:
             if container:
                 # 读取 My gaiaPoints (Total) 的值
                 # 使用正确的CSS选择器并检查返回值
-                total_points = self.__getNumber('x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]');
-                user_points = self.__getNumber('xpath://span[text()="User Points"]/following-sibling::span[contains(@class, "typography-heading-8")]')
-                task_points = self.__getNumber('xpath://span[text()="Task Points"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+                total_points = self.__getNumber(self.tab,'x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]');
+                user_points = self.__getNumber(self.tab,'xpath://span[text()="User Points"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+                task_points = self.__getNumber(self.tab,'xpath://span[text()="Task Points"]/following-sibling::span[contains(@class, "typography-heading-8")]')
                 print(f"My gaiaPoints (Total): {total_points}")
                 print(f"User Points: {user_points}")
                 print(f"Task Points: {task_points}")
@@ -1145,9 +1145,9 @@ class TaskSet:
             if container:
                 # 读取 My gaiaPoints (Total) 的值
                 # 使用正确的CSS选择器并检查返回值
-                credits_balance = self.__getNumber('x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]');
-                total_redeemed = self.__getNumber('xpath://span[text()="Total Redeemed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
-                total_consumed = self.__getNumber('xpath://span[text()="Total Consumed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+                credits_balance = self.__getNumber(self.tab,'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]');
+                total_redeemed = self.__getNumber(self.tab,'xpath://span[text()="Total Redeemed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+                total_consumed = self.__getNumber(self.tab,'xpath://span[text()="Total Consumed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
                 print(f"My gaiaPoints (Total): {credits_balance}")
                 print(f"User Points: {total_redeemed}")
                 print(f"Task Points: {total_consumed}")
