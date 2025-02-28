@@ -882,9 +882,8 @@ class TaskSet:
                        json.dumps(self.get_app_info(self.serverId, self.appId, 3, index, message)))
 
     def setup_wallet(self, args):
-        result = False
         self.tab = self.browser.new_tab(url="chrome://extensions/")
-        time.sleep(6)
+        time.sleep(12)
         self.tab.wait.ele_displayed("x://html/body/extensions-manager", 30)
         toggle_ele = (
             self.tab.ele(
@@ -951,7 +950,6 @@ class TaskSet:
         if len(self.browser.get_tabs(title="Signma")) > 0:
             pop_tab = self.browser.get_tab(title="Signma")
 
-            time.sleep(20)
             back_path = 'x://*[@id="sign-root"]/div/div/section/main/div[1]/section[1]/div/button'
             conn_path = "tag:div@@class=jsx-3858486283 button_content@@text()=连接"
             sign_enable_path = (
@@ -961,6 +959,8 @@ class TaskSet:
             sign_blank_path = (
                 "tag:div@@class=jsx-1443409666 subtext@@text()^希望您使用您的登录"
             )
+
+            time.sleep(20)
 
             if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fdapp-permission':
                 if pop_tab.ele(back_path) is not None:
