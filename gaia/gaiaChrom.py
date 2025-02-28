@@ -1000,6 +1000,16 @@ class TaskSet:
             time.sleep(2)
         return 1
 
+    def __getNumber(self, page, xpath):
+        value_elem = page.ele(xpath)
+        if value_elem:
+            value = value_elem.text
+            print(f"User Points 的值: {value}")
+            return value
+        else:
+            print("未找到 User Points 对应的数值")
+            return 0
+
     def gaianet(self, args):
         chat_count = 0
         try:
@@ -1119,25 +1129,13 @@ class TaskSet:
             if container:
                 # 读取 My gaiaPoints (Total) 的值
                 # 使用正确的CSS选择器并检查返回值
-                total_points_elem = self.tab.ele('xpath://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
-                if total_points_elem:  # 检查是否找到元素
-                    total_points = total_points_elem.text
-                else:
-                    total_points = "未找到"
+                total_points = self.__getNumber('x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]');
+                user_points = self.__getNumber('xpath://span[text()="User Points"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+                task_points = self.__getNumber('xpath://span[text()="Task Points"]/following-sibling::span[contains(@class, "typography-heading-8")]')
                 print(f"My gaiaPoints (Total): {total_points}")
+                print(f"User Points: {user_points}")
+                print(f"Task Points: {task_points}")
 
-                # 读取 User Points 和 Task Points
-                point_items = container.select_all('.flex.items-center.justify-between.rounded-[8px]')
-                if point_items:  # 检查是否找到元素列表
-                    for item in point_items:
-                        point_type_elem = item.select('.typography-heading-8.text-fontLight:first')
-                        point_type = point_type_elem.text if point_type_elem else "未知"
-                        if point_type in ["User Points", "Task Points"]:
-                            point_value_elem = item.select('.typography-heading-8.text-fontLight:last')
-                            point_value = point_value_elem.text if point_value_elem else "未找到"
-                            print(f"{point_type}: {point_value}")
-                else:
-                    print("未找到积分项")
             else:
                 print("未找到包含 'My gaiaPoints (Total)' 的容器")
 
@@ -1147,24 +1145,13 @@ class TaskSet:
             if container:
                 # 读取 My gaiaPoints (Total) 的值
                 # 使用正确的CSS选择器并检查返回值
-                total_points_elem = container.select('.typography-heading-4-medium.text-fontLight')
-                if total_points_elem:  # 检查是否找到元素
-                    total_points = total_points_elem.text
-                else:
-                    total_points = "未找到"
-                print(f"My gaiaPoints (Total): {total_points}")
+                credits_balance = self.__getNumber('x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]');
+                total_redeemed = self.__getNumber('xpath://span[text()="Total Redeemed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+                total_consumed = self.__getNumber('xpath://span[text()="Total Consumed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+                print(f"My gaiaPoints (Total): {credits_balance}")
+                print(f"User Points: {total_redeemed}")
+                print(f"Task Points: {total_consumed}")
 
-                # 读取 User Points 和 Task Points
-                point_items = container.select_all('.flex.items-center.justify-between.rounded-[8px]')
-                if point_items:  # 检查是否找到元素列表
-                    for item in point_items:
-                        point_type_elem = item.select('.typography-heading-8.text-fontLight:first')
-                        point_type = point_type_elem.text if point_type_elem else "未知"
-                        point_value_elem = item.select('.typography-heading-8.text-fontLight:last')
-                        point_value = point_value_elem.text if point_value_elem else "未找到"
-                        print(f"{point_type}: {point_value}")
-                else:
-                    print("未找到积分项")
             else:
                 print("未找到包含 'My gaiaPoints (Total)' 的容器")
 
