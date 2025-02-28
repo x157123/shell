@@ -1218,8 +1218,9 @@ if __name__ == "__main__":
                     all_args.task = 'test'
                     all_args.res_info = ''
                     logger.info(f"执行: {key}，次数：{all_args.count}，现在是今日第{all_args.day_count}轮")
-                    task_set = TaskSet(all_args)
+                    global task_set
                     try:
+                        task_set = TaskSet(all_args)
                         task_set.gaianet(all_args)
                         data_map[data_key] = all_args.count + 1
                     except Exception as e:
