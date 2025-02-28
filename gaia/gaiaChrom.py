@@ -1131,8 +1131,8 @@ class TaskSet:
                 # 读取 My gaiaPoints (Total) 的值
                 # 使用正确的CSS选择器并检查返回值
                 total_points = self.__getNumber(self.tab,'x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
-                user_points = self.__getNumber(self.tab,'xpath://span[text()="User Points"]/following-sibling::span[contains(@class, "typography-heading-8")]')
-                task_points = self.__getNumber(self.tab,'xpath://span[text()="Task Points"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+                user_points = self.__getNumber(self.tab,'xpath://span[text()="User Points"]/ancestor::div[contains(@class, "flex")]/span[contains(@class, "typography-heading-8")]')
+                task_points = self.__getNumber(self.tab,'xpath://span[text()="Task Points"]/ancestor::div[contains(@class, "flex")]/span[contains(@class, "typography-heading-8")]')
                 logger.info(f"My gaiaPoints (Total): {total_points}")
                 logger.info(f"User Points: {user_points}")
                 logger.info(f"Task Points: {task_points}")
@@ -1147,8 +1147,8 @@ class TaskSet:
                 # 读取 My gaiaPoints (Total) 的值
                 # 使用正确的CSS选择器并检查返回值
                 credits_balance = self.__getNumber(self.tab,'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
-                total_redeemed = self.__getNumber(self.tab,'xpath://span[text()="Total Redeemed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
-                total_consumed = self.__getNumber(self.tab,'xpath://span[text()="Total Consumed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+                total_redeemed = self.__getNumber(self.tab,'x://span[text()="Total Redeemed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+                total_consumed = self.__getNumber(self.tab,'x://span[text()="Total Consumed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
                 logger.info(f"credits_balance: {credits_balance}")
                 logger.info(f"total_redeemed: {total_redeemed}")
                 logger.info(f"task_points: {total_consumed}")
