@@ -1158,7 +1158,7 @@ class TaskSet:
         return {
             "serverId": f"{all_args.serverId}",
             "applicationId": f"{all_args.appId}",
-            "publicKey": f"{all_args.public_key}",
+            "publicKey": f"{all_args.index}",
             "integral": f"{integral}",
             "integralA": f"{integralA}",
             "integralB": f"{integralB}",
