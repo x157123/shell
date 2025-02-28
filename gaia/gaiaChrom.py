@@ -1119,11 +1119,11 @@ class TaskSet:
             if container:
                 logger.info("找到元素")
                 # 读取 My gaiaPoints (Total) 的值
-                total_points = container.ele('.typography-heading-4-medium:text-fontLight').text
+                total_points = container.select('.typography-heading-4-medium:text-fontLight').text
                 print(f"My gaiaPoints (Total): {total_points}")
 
                 # 读取 User Points 和 Task Points
-                point_items = container.eles('.flex:items-center:justify-between:rounded-[8px]')
+                point_items = container.select_all('.flex:items-center:justify-between:rounded-[8px]')
                 for item in point_items:
                     point_type = item.ele('.typography-heading-8:text-fontLight:first').text
                     # 只处理 User Points 和 Task Points
@@ -1139,11 +1139,11 @@ class TaskSet:
             if container:
                 logger.info("找到元素2")
                 # 读取 My gaiaPoints (Total) 的值
-                total_points = container.ele('.typography-heading-4-medium:text-fontLight').text
+                total_points = container.select('.typography-heading-4-medium:text-fontLight').text
                 print(f"My gaiaPoints (Total): {total_points}")
 
                 # 读取 User Points 和 Task Points
-                point_items = container.eles('.flex:items-center:justify-between:rounded-[8px]')
+                point_items = container.select_all('.flex:items-center:justify-between:rounded-[8px]')
                 for item in point_items:
                     point_type = item.ele('.typography-heading-8:text-fontLight:first').text
                     # 只处理 User Points 和 Task Points
