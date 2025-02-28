@@ -944,7 +944,7 @@ class TaskSet:
             self.browser.close_tabs(tabs_or_ids=self.tab, others=True)
             self.browser.quit(timeout=60, force=True, del_data=True)
         except Exception as e:
-            print(f"错误: {e}")
+            print(f"错误关闭: {e}")
 
     def process_pop(self):
         if len(self.browser.get_tabs(title="Signma")) > 0:
@@ -1116,6 +1116,7 @@ class TaskSet:
             logger.info(f"---------完成情况：序号:{args.index} {self.res_info}-----------------")
 
     def getPoints(self, args):
+        global user_points, total_points, task_points, credits_balance, total_redeemed, total_consumed
         self.res_info = ''
         self.tab.get(url='https://www.gaianet.ai/reward-summary')
 
@@ -1149,6 +1150,24 @@ class TaskSet:
         else:
             logger.info("未找到包含 'My gaiaPoints (Total)' 的容器")
 
+        app_info = self.get_app_info_integral(total_points,user_points,task_points,credits_balance,total_redeemed,total_consumed)
+        client.publish("appInfo", json.dumps(app_info))
+        logger.info(f"推送积分:{app_info}")
+
+    def get_app_info_integral(self, integral, integralA, integralB, integralC, integralD, integralE):
+        return {
+            "serverId": f"{all_args.serverId}",
+            "applicationId": f"{all_args.appId}",
+            "publicKey": f"{all_args.public_key}",
+            "integral": f"{integral}",
+            "integralA": f"{integralA}",
+            "integralB": f"{integralB}",
+            "integralC": f"{integralC}",
+            "integralD": f"{integralD}",
+            "integralE": f"{integralE}",
+            "operationType": "2",
+            "description": f"采集积分：total_points：{integral}，user_points：{integralA}，task_points：{integralB}，credits_balance：{integralC}，total_redeemed：{integralD}，total_consumed：{integralE}",
+        }
 
 if __name__ == "__main__":
 
