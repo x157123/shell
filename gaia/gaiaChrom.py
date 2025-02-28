@@ -1098,6 +1098,48 @@ class TaskSet:
 
             logger.info(f"---------完成情况：序号:{args.index} {self.res_info}-----------------")
 
+    def getPoints(self, args):
+        res = self.setup_wallet(all_args)
+        if res:
+            self.res_info = ''
+            self.tab.get(url='https://www.gaianet.ai/reward-summary')
+
+            container = self.tab.ele('x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]')
+
+            if container:
+                # 读取 My gaiaPoints (Total) 的值
+                total_points = container.ele('.typography-heading-4-medium:text-fontLight').text
+                print(f"My gaiaPoints (Total): {total_points}")
+
+                # 读取 User Points 和 Task Points
+                point_items = container.eles('.flex:items-center:justify-between:rounded-[8px]')
+                for item in point_items:
+                    point_type = item.ele('.typography-heading-8:text-fontLight:first').text
+                    # 只处理 User Points 和 Task Points
+                    if point_type in ["User Points", "Task Points"]:
+                        point_value = item.ele('.typography-heading-8:text-fontLight:last').text
+                        print(f"{point_type}: {point_value}")
+            else:
+                print("未找到包含 'My gaiaPoints (Total)' 的容器")
+
+
+            container = self.tab.ele('x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]')
+
+            if container:
+                # 读取 My gaiaPoints (Total) 的值
+                total_points = container.ele('.typography-heading-4-medium:text-fontLight').text
+                print(f"My gaiaPoints (Total): {total_points}")
+
+                # 读取 User Points 和 Task Points
+                point_items = container.eles('.flex:items-center:justify-between:rounded-[8px]')
+                for item in point_items:
+                    point_type = item.ele('.typography-heading-8:text-fontLight:first').text
+                    # 只处理 User Points 和 Task Points
+                    if point_type in ["User Points", "Task Points"]:
+                        point_value = item.ele('.typography-heading-8:text-fontLight:last').text
+                        print(f"{point_type}: {point_value}")
+            else:
+                print("未找到包含 'My Credits Balance' 的容器")
 
 if __name__ == "__main__":
 
@@ -1147,10 +1189,10 @@ if __name__ == "__main__":
                     all_args.index = key
                     all_args.task = 'test'
                     all_args.res_info = ''
-                    logger.info(f"执行: {key}，次数：{all_args.count}，现在是第{all_args.day_count}轮")
+                    logger.info(f"执行: {key}，次数：{all_args.count}，现在是今日第{all_args.day_count}轮")
                     task_set = TaskSet(all_args)
                     try:
-                        task_set.gaianet(all_args)
+                        task_set.getPoints(all_args)
                         data_map[data_key] = all_args.count + 1
                     except Exception as e:
                         logger.info(f"发生错误: {e}")
