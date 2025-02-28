@@ -1005,7 +1005,9 @@ class TaskSet:
         value_elem = page.ele(xpath)
         if value_elem:
             value = value_elem.text
-            logger.info(f"找到{xpath}: {value}")
+            if value is not None:
+                value = value.replace(",", "")
+            # logger.info(f"找到{xpath}: {value}")
             return value
         else:
             logger.info(f"未找到{xpath}")
@@ -1096,6 +1098,10 @@ class TaskSet:
                         self.tab.ele(locator='x://button/p[text()="Stop"]').click()
                         self.signma_log('已对话', all_args.task, all_args.index, "https://signma.bll06.xyz")
                 # self.res_info = f'已对话,第{args.count}对话'
+
+                # 获取积分
+                self.getPoints(args)
+
             else:
                 self.res_info = '钱包初始化错误'
             # logger.info(self.res_info)
@@ -1110,51 +1116,38 @@ class TaskSet:
             logger.info(f"---------完成情况：序号:{args.index} {self.res_info}-----------------")
 
     def getPoints(self, args):
-        res = self.setup_wallet(all_args)
-        if res:
-            self.res_info = ''
-            self.tab.get(url='https://www.gaianet.ai/reward-summary')
+        self.res_info = ''
+        self.tab.get(url='https://www.gaianet.ai/reward-summary')
 
-            self.__click_ele(page=self.tab, xpath='x://button[text()="Connect"]')
-            time.sleep(5)
-            for _ in range(3):
-                self.process_pop()
-                time.sleep(8)
+        container = self.tab.ele(
+            locator='x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]')
 
-            self.tab.refresh()
-            time.sleep(5)
+        if container:
+            # 读取 My gaiaPoints (Total) 的值
+            # 使用正确的CSS选择器并检查返回值
+            total_points = self.__getNumber(self.tab,'x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
+            user_points = self.__getNumber(self.tab,'xpath://span[text()="User Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-heading-8") and not(text()="User Points")]')
+            task_points = self.__getNumber(self.tab,'xpath://span[text()="Task Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-heading-8") and not(text()="Task Points")]')
+            logger.info(f"My gaiaPoints (Total): {total_points}")
+            logger.info(f"User Points: {user_points}")
+            logger.info(f"Task Points: {task_points}")
+        else:
+            logger.info("未找到包含 'My gaiaPoints (Total)' 的容器")
 
-            container = self.tab.ele(
-                locator='x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]')
+        container = self.tab.ele(
+            locator='x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]')
 
-            if container:
-                # 读取 My gaiaPoints (Total) 的值
-                # 使用正确的CSS选择器并检查返回值
-                total_points = self.__getNumber(self.tab,'x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
-                user_points = self.__getNumber(self.tab,'xpath://span[text()="User Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-heading-8") and not(text()="User Points")]')
-                task_points = self.__getNumber(self.tab,'xpath://span[text()="User Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-heading-8") and not(text()="User Points")]')
-                logger.info(f"My gaiaPoints (Total): {total_points}")
-                logger.info(f"User Points: {user_points}")
-                logger.info(f"Task Points: {task_points}")
-
-            else:
-                logger.info("未找到包含 'My gaiaPoints (Total)' 的容器")
-
-            container = self.tab.ele(
-                locator='x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]')
-
-            if container:
-                # 读取 My gaiaPoints (Total) 的值
-                # 使用正确的CSS选择器并检查返回值
-                credits_balance = self.__getNumber(self.tab,'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
-                total_redeemed = self.__getNumber(self.tab,'x://span[text()="Total Redeemed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
-                total_consumed = self.__getNumber(self.tab,'x://span[text()="Total Consumed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
-                logger.info(f"credits_balance: {credits_balance}")
-                logger.info(f"total_redeemed: {total_redeemed}")
-                logger.info(f"task_points: {total_consumed}")
-
-            else:
-                logger.info("未找到包含 'My gaiaPoints (Total)' 的容器")
+        if container:
+            # 读取 My gaiaPoints (Total) 的值
+            # 使用正确的CSS选择器并检查返回值
+            credits_balance = self.__getNumber(self.tab,'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
+            total_redeemed = self.__getNumber(self.tab,'x://span[text()="Total Redeemed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+            total_consumed = self.__getNumber(self.tab,'x://span[text()="Total Consumed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+            logger.info(f"credits_balance: {credits_balance}")
+            logger.info(f"total_redeemed: {total_redeemed}")
+            logger.info(f"task_points: {total_consumed}")
+        else:
+            logger.info("未找到包含 'My gaiaPoints (Total)' 的容器")
 
 
 if __name__ == "__main__":
@@ -1207,23 +1200,14 @@ if __name__ == "__main__":
                     all_args.res_info = ''
                     logger.info(f"执行: {key}，次数：{all_args.count}，现在是今日第{all_args.day_count}轮")
                     task_set = TaskSet(all_args)
-
-
-
-                    task_set.getPoints(all_args)
-                    data_map[data_key] = all_args.count + 1
-                    task_set.close_browser()
-                    time.sleep(random.randint(23, 50))
-
-
-                    # try:
-                    #     task_set.getPoints(all_args)
-                    #     data_map[data_key] = all_args.count + 1
-                    # except Exception as e:
-                    #     logger.info(f"发生错误: {e}")
-                    # finally:
-                    #     task_set.close_browser()
-                    #     time.sleep(random.randint(23, 50))
+                    try:
+                        task_set.gaianet(all_args)
+                        data_map[data_key] = all_args.count + 1
+                    except Exception as e:
+                        logger.info(f"发生错误: {e}")
+                    finally:
+                        task_set.close_browser()
+                        time.sleep(random.randint(23, 50))
                 logger.info(f"执行完第{all_args.day_count}轮")
                 data_map[current_date] = all_args.day_count + 1
             else:
