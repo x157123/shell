@@ -1119,7 +1119,7 @@ class TaskSet:
             if container:
                 # 读取 My gaiaPoints (Total) 的值
                 # 使用正确的CSS选择器并检查返回值
-                total_points_elem = container.select('.typography-heading-4-medium.text-fontLight')
+                total_points_elem = self.tab.ele('xpath://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
                 if total_points_elem:  # 检查是否找到元素
                     total_points = total_points_elem.text
                 else:
