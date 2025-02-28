@@ -1005,10 +1005,10 @@ class TaskSet:
         value_elem = page.ele(xpath)
         if value_elem:
             value = value_elem.text
-            print(f"User Points 的值: {value}")
+            logger.info(f"找到{xpath}: {value}")
             return value
         else:
-            print("未找到 User Points 对应的数值")
+            logger.info(f"未找到{xpath}")
             return 0
 
     def gaianet(self, args):
@@ -1130,7 +1130,7 @@ class TaskSet:
             if container:
                 # 读取 My gaiaPoints (Total) 的值
                 # 使用正确的CSS选择器并检查返回值
-                total_points = self.__getNumber(self.tab,'x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]');
+                total_points = self.__getNumber(self.tab,'x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
                 user_points = self.__getNumber(self.tab,'xpath://span[text()="User Points"]/following-sibling::span[contains(@class, "typography-heading-8")]')
                 task_points = self.__getNumber(self.tab,'xpath://span[text()="Task Points"]/following-sibling::span[contains(@class, "typography-heading-8")]')
                 print(f"My gaiaPoints (Total): {total_points}")
@@ -1146,7 +1146,7 @@ class TaskSet:
             if container:
                 # 读取 My gaiaPoints (Total) 的值
                 # 使用正确的CSS选择器并检查返回值
-                credits_balance = self.__getNumber(self.tab,'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]');
+                credits_balance = self.__getNumber(self.tab,'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
                 total_redeemed = self.__getNumber(self.tab,'xpath://span[text()="Total Redeemed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
                 total_consumed = self.__getNumber(self.tab,'xpath://span[text()="Total Consumed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
                 print(f"credits_balance: {credits_balance}")
