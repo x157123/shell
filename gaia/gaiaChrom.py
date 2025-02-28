@@ -1125,10 +1125,10 @@ class TaskSet:
                 # 读取 User Points 和 Task Points
                 point_items = container.select_all('.flex:items-center:justify-between:rounded-[8px]')
                 for item in point_items:
-                    point_type = item.ele('.typography-heading-8:text-fontLight:first').text
+                    point_type = item.select('.typography-heading-8:text-fontLight:first').text
                     # 只处理 User Points 和 Task Points
                     if point_type in ["User Points", "Task Points"]:
-                        point_value = item.ele('.typography-heading-8:text-fontLight:last').text
+                        point_value = item.select('.typography-heading-8:text-fontLight:last').text
                         print(f"{point_type}: {point_value}")
             else:
                 print("未找到包含 'My gaiaPoints (Total)' 的容器")
@@ -1145,10 +1145,10 @@ class TaskSet:
                 # 读取 User Points 和 Task Points
                 point_items = container.select_all('.flex:items-center:justify-between:rounded-[8px]')
                 for item in point_items:
-                    point_type = item.ele('.typography-heading-8:text-fontLight:first').text
+                    point_type = item.select('.typography-heading-8:text-fontLight:first').text
                     # 只处理 User Points 和 Task Points
                     if point_type in ["User Points", "Task Points"]:
-                        point_value = item.ele('.typography-heading-8:text-fontLight:last').text
+                        point_value = item.select('.typography-heading-8:text-fontLight:last').text
                         print(f"{point_type}: {point_value}")
             else:
                 print("未找到包含 'My Credits Balance' 的容器")
@@ -1204,14 +1204,23 @@ if __name__ == "__main__":
                     all_args.res_info = ''
                     logger.info(f"执行: {key}，次数：{all_args.count}，现在是今日第{all_args.day_count}轮")
                     task_set = TaskSet(all_args)
-                    try:
-                        task_set.getPoints(all_args)
-                        data_map[data_key] = all_args.count + 1
-                    except Exception as e:
-                        logger.info(f"发生错误: {e}")
-                    finally:
-                        task_set.close_browser()
-                        time.sleep(random.randint(23, 50))
+
+
+
+                    task_set.getPoints(all_args)
+                    data_map[data_key] = all_args.count + 1
+                    task_set.close_browser()
+                    time.sleep(random.randint(23, 50))
+
+
+                    # try:
+                    #     task_set.getPoints(all_args)
+                    #     data_map[data_key] = all_args.count + 1
+                    # except Exception as e:
+                    #     logger.info(f"发生错误: {e}")
+                    # finally:
+                    #     task_set.close_browser()
+                    #     time.sleep(random.randint(23, 50))
                 logger.info(f"执行完第{all_args.day_count}轮")
                 data_map[current_date] = all_args.day_count + 1
             else:
