@@ -1133,12 +1133,12 @@ class TaskSet:
                 total_points = self.__getNumber(self.tab,'x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
                 user_points = self.__getNumber(self.tab,'xpath://span[text()="User Points"]/following-sibling::span[contains(@class, "typography-heading-8")]')
                 task_points = self.__getNumber(self.tab,'xpath://span[text()="Task Points"]/following-sibling::span[contains(@class, "typography-heading-8")]')
-                print(f"My gaiaPoints (Total): {total_points}")
-                print(f"User Points: {user_points}")
-                print(f"Task Points: {task_points}")
+                logger.info(f"My gaiaPoints (Total): {total_points}")
+                logger.info(f"User Points: {user_points}")
+                logger.info(f"Task Points: {task_points}")
 
             else:
-                print("未找到包含 'My gaiaPoints (Total)' 的容器")
+                logger.info("未找到包含 'My gaiaPoints (Total)' 的容器")
 
             container = self.tab.ele(
                 locator='x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]')
@@ -1149,12 +1149,12 @@ class TaskSet:
                 credits_balance = self.__getNumber(self.tab,'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
                 total_redeemed = self.__getNumber(self.tab,'xpath://span[text()="Total Redeemed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
                 total_consumed = self.__getNumber(self.tab,'xpath://span[text()="Total Consumed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
-                print(f"credits_balance: {credits_balance}")
-                print(f"total_redeemed: {total_redeemed}")
-                print(f"task_points: {total_consumed}")
+                logger.info(f"credits_balance: {credits_balance}")
+                logger.info(f"total_redeemed: {total_redeemed}")
+                logger.info(f"task_points: {total_consumed}")
 
             else:
-                print("未找到包含 'My gaiaPoints (Total)' 的容器")
+                logger.info("未找到包含 'My gaiaPoints (Total)' 的容器")
 
 
 if __name__ == "__main__":
