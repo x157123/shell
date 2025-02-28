@@ -1113,9 +1113,11 @@ class TaskSet:
             self.tab.refresh()
             time.sleep(5)
 
-            container = self.tab.ele(locator='x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]')
+            container = self.tab.ele(
+                locator='x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]')
 
             if container:
+                logger.info("找到元素")
                 # 读取 My gaiaPoints (Total) 的值
                 total_points = container.ele('.typography-heading-4-medium:text-fontLight').text
                 print(f"My gaiaPoints (Total): {total_points}")
@@ -1131,10 +1133,11 @@ class TaskSet:
             else:
                 print("未找到包含 'My gaiaPoints (Total)' 的容器")
 
-
-            container = self.tab.ele(locator='x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]')
+            container = self.tab.ele(
+                locator='x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]')
 
             if container:
+                logger.info("找到元素2")
                 # 读取 My gaiaPoints (Total) 的值
                 total_points = container.ele('.typography-heading-4-medium:text-fontLight').text
                 print(f"My gaiaPoints (Total): {total_points}")
@@ -1149,6 +1152,7 @@ class TaskSet:
                         print(f"{point_type}: {point_value}")
             else:
                 print("未找到包含 'My Credits Balance' 的容器")
+
 
 if __name__ == "__main__":
 
