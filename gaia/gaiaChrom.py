@@ -1,4 +1,6 @@
+import subprocess
 import os
+import signal
 from DrissionPage._pages.chromium_page import ChromiumPage
 import time
 from DrissionPage._configs.chromium_options import ChromiumOptions
@@ -944,7 +946,31 @@ class TaskSet:
             self.browser.close_tabs(tabs_or_ids=self.tab, others=True)
             self.browser.quit(timeout=60, force=True, del_data=True)
         except Exception as e:
+            logger.info(f"错误关闭: {e}")
+
+        try:
+            # 获取占用 9518 端口的 PID
+            pids = subprocess.getoutput("lsof -t -i:9518 -sTCP:LISTEN")
+            if pids:
+                pid_list = pids.splitlines()  # 按行分割 PID
+                print(f"找到占用 9518 端口的进程: {pid_list}")
+                for pid_str in pid_list:
+                    try:
+                        pid = int(pid_str.strip())  # 转换为整数并移除多余空格
+                        os.kill(pid, signal.SIGKILL)
+                        logger.info(f"成功终止进程 {pid}")
+                        time.sleep(1)  # 每次杀死后等待 1 秒
+                    except PermissionError:
+                        logger.info(f"无权限终止进程 {pid}，请检查进程所有者和 admin 用户权限")
+                    except ValueError:
+                        logger.info(f"无效 PID: {pid_str}")
+                    except Exception as e:
+                        logger.info(f"发生错误: {e}")
+            else:
+                print("9518 端口未被占用")
+        except Exception as e:
             print(f"错误关闭: {e}")
+
 
     def process_pop(self):
         if len(self.browser.get_tabs(title="Signma")) > 0:
