@@ -951,6 +951,7 @@ class TaskSet:
         if len(self.browser.get_tabs(title="Signma")) > 0:
             pop_tab = self.browser.get_tab(title="Signma")
 
+            time.sleep(20)
             back_path = 'x://*[@id="sign-root"]/div/div/section/main/div[1]/section[1]/div/button'
             conn_path = "tag:div@@class=jsx-3858486283 button_content@@text()=连接"
             sign_enable_path = (
@@ -1148,9 +1149,9 @@ class TaskSet:
                 credits_balance = self.__getNumber(self.tab,'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]');
                 total_redeemed = self.__getNumber(self.tab,'xpath://span[text()="Total Redeemed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
                 total_consumed = self.__getNumber(self.tab,'xpath://span[text()="Total Consumed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
-                print(f"My gaiaPoints (Total): {credits_balance}")
-                print(f"User Points: {total_redeemed}")
-                print(f"Task Points: {total_consumed}")
+                print(f"credits_balance: {credits_balance}")
+                print(f"total_redeemed: {total_redeemed}")
+                print(f"task_points: {total_consumed}")
 
             else:
                 print("未找到包含 'My gaiaPoints (Total)' 的容器")
