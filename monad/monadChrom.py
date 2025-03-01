@@ -203,7 +203,7 @@ class Test(object):
     async def __do_task(self, page, evm_id, evm_address):
         url = 'https://testnet.monad.xyz/?chain=monad-testnet&inputCurrency=native&outputCurrency=DAK'
         page.get(url=url)
-        await asyncio.sleep(5)
+        await asyncio.sleep(25)
         page.wait.ele_displayed(loc_or_ele='x://button[@aria-label="Accept terms and conditions"]', timeout=10)
         await self.__click_ele(page=page, xpath='x://button[@aria-label="Accept terms and conditions"]')
         await asyncio.sleep(2)
