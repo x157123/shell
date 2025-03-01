@@ -215,7 +215,7 @@ class Test(object):
         await self.__click_ele(page=page, xpath='x://button[text()="Continue"]')
         page.run_js('window.scroll(0, 1000)')
         page.ele(locator='x://input[@type="text"]').input(evm_address)
-        await asyncio.sleep(8)
+        await asyncio.sleep(18)
         ele = page.ele(locator='x://div[contains(@class, "wallet-address-container")]/div[last()]/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
         if ele.html.count('<input type="checkbox">'):
             ele.ele('x://label/input').click()
