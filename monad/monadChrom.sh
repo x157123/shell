@@ -486,7 +486,7 @@ main() {
     setup_vnc
 #    install_chrome
     install_chrome_120
-#    install_edge
+    install_edge
     install_wallet
     setup_python_script
     setup_xrdp
