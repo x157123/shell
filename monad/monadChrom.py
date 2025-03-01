@@ -143,11 +143,22 @@ class Test(object):
 
     @staticmethod
     async def __get_page():
-        page = ChromiumPage(
-            addr_or_opts=ChromiumOptions().set_tmp_path(
-                path='/home/ubuntu/task/TempFile').auto_port().headless(on_off=False))
-        page.wait.doc_loaded(timeout=30)
-        page.set.window.max()
+
+        co = (ChromiumOptions()
+            .set_local_port(args.chromePort)
+            .set_paths(r"/opt/google/chrome/google-chrome")
+            .set_user_data_path(r"/home/" + args.user + "/task/" + args.chromePort)
+            .set_user_agent(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"))
+        arguments = [
+            "--window-size=1920,1080",
+            "--start-maximized",
+        ]
+
+        for arg in arguments:
+            co.set_argument(arg)
+
+        page = ChromiumPage(addr_or_opts=co)
         return page
 
     # 点击元素
