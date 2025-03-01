@@ -144,22 +144,11 @@ class Test(object):
 
     @staticmethod
     async def __get_page():
-
-        co = (ChromiumOptions()
-        .set_local_port(args.chromePort)
-        .set_paths(r"/opt/google/chrome/google-chrome")
-        .set_user_data_path(r"/home/" + args.user + "/task/monad/" + args.chromePort + "/" + args.index)
-        .set_user_agent(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"))
-        arguments = [
-            "--window-size=1920,1080",
-            "--start-maximized",
-        ]
-
-        for arg in arguments:
-            co.set_argument(arg)
-
-        page = ChromiumPage(addr_or_opts=co)
+        page = ChromiumPage(
+            addr_or_opts=ChromiumOptions().set_browser_path(path="/usr/bin/microsoft-edge-stable").set_tmp_path(
+                path='/home/ubuntu/task/TempFile').auto_port().headless(on_off=False))
+        page.wait.doc_loaded(timeout=30)
+        page.set.window.max()
         return page
 
     # 点击元素
@@ -313,8 +302,6 @@ if __name__ == "__main__":
                 args.address = public_key_tmp[index]
                 test = Test()
                 asyncio.run(test.run(evm_id=args.index, evm_address=args.address))
-                logger.info(f"执行完毕等待12小时10分")
-                time.sleep(43800)
             except Exception as e:
                 logger.info(f"发生错误,使用kill杀掉浏览器: {e}")
                 try:
@@ -339,5 +326,8 @@ if __name__ == "__main__":
                         logger.info(f"{args.chromePort} 端口未被占用")
                 except Exception as e:
                     print(f"错误关闭: {e}")
+
+            logger.info(f"执行完毕等待12小时10分")
+            time.sleep(43800)
     else:
         logger.info("未绑定需要执行的账号")
