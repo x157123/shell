@@ -145,7 +145,7 @@ class Test(object):
     @staticmethod
     async def __get_page():
         page = ChromiumPage(
-            addr_or_opts=ChromiumOptions().set_browser_path(path="/usr/bin/microsoft-edge-stable").set_tmp_path(
+            addr_or_opts=ChromiumOptions().set_tmp_path(
                 path='/home/ubuntu/task/TempFile').auto_port().headless(on_off=False))
         page.wait.doc_loaded(timeout=30)
         page.set.window.max()
