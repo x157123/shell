@@ -16,6 +16,9 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 
 
+print(time.strftime('%Y-%m-%d %H:%M:%S'))
+start_time = int(time.time() * 1000)
+
 # =================================================   MQTT   ======================================
 def create_mqtt_client(broker, port, username, password, topic):
     """
@@ -84,6 +87,7 @@ def on_message(client, userdata, msg):
 # =================================================   MQTT   ======================================
 
 
+
 def read_file(file_path):
     """从文件中读取内容并去除多余空白"""
     try:
@@ -145,7 +149,7 @@ class Test(object):
     @staticmethod
     async def __get_page():
         page = ChromiumPage(
-            addr_or_opts=ChromiumOptions().set_tmp_path(
+            addr_or_opts=ChromiumOptions().set_browser_path(path=r"/usr/bin/microsoft-edge").set_tmp_path(
                 path='/home/ubuntu/task/TempFile').auto_port().headless(on_off=False))
         page.wait.doc_loaded(timeout=30)
         page.set.window.max()
@@ -204,7 +208,7 @@ class Test(object):
     async def __do_task(self, page, evm_id, evm_address):
         url = 'https://testnet.monad.xyz/?chain=monad-testnet&inputCurrency=native&outputCurrency=DAK'
         page.get(url=url)
-        await asyncio.sleep(25)
+        await asyncio.sleep(5)
         page.wait.ele_displayed(loc_or_ele='x://button[@aria-label="Accept terms and conditions"]', timeout=10)
         await self.__click_ele(page=page, xpath='x://button[@aria-label="Accept terms and conditions"]')
         await asyncio.sleep(2)
@@ -212,9 +216,7 @@ class Test(object):
         page.run_js('window.scroll(0, 1000)')
         page.ele(locator='x://input[@type="text"]').input(evm_address)
         await asyncio.sleep(3)
-        ele = page.ele(
-            locator='x://div[contains(@class, "wallet-address-container")]/div[last()]/div').shadow_root.child().ele(
-            locator='x://body').shadow_root.ele('x:./div/div/div')
+        ele = page.ele(locator='x://div[contains(@class, "wallet-address-container")]/div[last()]/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
         if ele.html.count('<input type="checkbox">'):
             ele.ele('x://label/input').click()
             await asyncio.sleep(3)
@@ -247,7 +249,6 @@ class Test(object):
         await self.__main(evm_id=evm_id, evm_address=evm_address)
         return True
 
-
 def get_app_info_integral(integral):
     return {
         "serverId": f"{args.serverId}",
@@ -269,8 +270,7 @@ def get_app_info():
     }
 
 
-if __name__ == "__main__":
-
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--serverId", type=str, help="服务ID", required=True)
     parser.add_argument("--appId", type=str, help="应用ID", required=True)
@@ -304,29 +304,6 @@ if __name__ == "__main__":
                 asyncio.run(test.run(evm_id=args.index, evm_address=args.address))
             except Exception as e:
                 logger.info(f"发生错误,使用kill杀掉浏览器: {e}")
-                try:
-                    # 获取占用 9518 端口的 PID
-                    pids = subprocess.getoutput("lsof -t -i:" + args.chromePort + " -sTCP:LISTEN")
-                    if pids:
-                        pid_list = pids.splitlines()  # 按行分割 PID
-                        print(f"找到占用 {args.chromePort} 端口的进程: {pid_list}")
-                        for pid_str in pid_list:
-                            try:
-                                pid = int(pid_str.strip())  # 转换为整数并移除多余空格
-                                os.kill(pid, signal.SIGKILL)
-                                logger.info(f"成功终止进程 {pid}")
-                                time.sleep(1)  # 每次杀死后等待 1 秒
-                            except PermissionError:
-                                logger.info(f"无权限终止进程，请检查进程所有者和 admin 用户权限")
-                            except ValueError:
-                                logger.info(f"无效 PID: {pid_str}")
-                            except Exception as e:
-                                logger.info(f"发生错误: {e}")
-                    else:
-                        logger.info(f"{args.chromePort} 端口未被占用")
-                except Exception as e:
-                    print(f"错误关闭: {e}")
-
             logger.info(f"执行完毕等待12小时10分")
             time.sleep(43800)
     else:
