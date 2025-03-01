@@ -282,7 +282,7 @@ if __name__ == "__main__":
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + args.appId + '_user.json')
     # 解密并发送解密结果
-    public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, 'secretKey')
+    public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, 'publicKey')
 
     index = 0
 
