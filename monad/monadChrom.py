@@ -130,6 +130,7 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
     except Exception as e:
         raise ValueError(f"解密失败: {e}")
 
+
 class Test(object):
 
     def __init__(self):
@@ -145,11 +146,11 @@ class Test(object):
     async def __get_page():
 
         co = (ChromiumOptions()
-            .set_local_port(args.chromePort)
-            .set_paths(r"/opt/google/chrome/google-chrome")
-            .set_user_data_path(r"/home/" + args.user + "/task/" + args.chromePort)
-            .set_user_agent(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"))
+        .set_local_port(args.chromePort)
+        .set_paths(r"/opt/google/chrome/google-chrome")
+        .set_user_data_path(r"/home/" + args.user + "/task/monad/" + args.chromePort + "/" + args.index)
+        .set_user_agent(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"))
         arguments = [
             "--window-size=1920,1080",
             "--start-maximized",
@@ -222,7 +223,9 @@ class Test(object):
         page.run_js('window.scroll(0, 1000)')
         page.ele(locator='x://input[@type="text"]').input(evm_address)
         await asyncio.sleep(3)
-        ele = page.ele(locator='x://div[contains(@class, "wallet-address-container")]/div[last()]/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
+        ele = page.ele(
+            locator='x://div[contains(@class, "wallet-address-container")]/div[last()]/div').shadow_root.child().ele(
+            locator='x://body').shadow_root.ele('x:./div/div/div')
         if ele.html.count('<input type="checkbox">'):
             ele.ele('x://label/input').click()
             await asyncio.sleep(3)
@@ -266,6 +269,7 @@ def get_app_info_integral(integral):
         "description": f"领水成功,积分：{integral}",
     }
 
+
 def get_app_info():
     return {
         "serverId": f"{args.serverId}",
@@ -274,6 +278,7 @@ def get_app_info():
         "operationType": "3",
         "description": f"领水失败",
     }
+
 
 if __name__ == "__main__":
 
@@ -314,7 +319,7 @@ if __name__ == "__main__":
                 logger.info(f"发生错误,使用kill杀掉浏览器: {e}")
                 try:
                     # 获取占用 9518 端口的 PID
-                    pids = subprocess.getoutput("lsof -t -i:"+args.chromePort+" -sTCP:LISTEN")
+                    pids = subprocess.getoutput("lsof -t -i:" + args.chromePort + " -sTCP:LISTEN")
                     if pids:
                         pid_list = pids.splitlines()  # 按行分割 PID
                         print(f"找到占用 {args.chromePort} 端口的进程: {pid_list}")
