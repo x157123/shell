@@ -415,14 +415,22 @@ if __name__ == '__main__':
                     num = 1
                     args.index = key
                     logger.info(f"执行: {key}")
-                    try:
-                        test = Test()
-                        args = parser.parse_args()
-                        args.address = "0"
-                        args.passwd = "yhy000@001yhy"
-                        asyncio.run(test.run(evm_id=args.index, evm_address=args.address))
-                    except Exception as e:
-                        logger.info(f"发生错误: {e}")
+
+                    test = Test()
+                    args.address = "0"
+                    args.passwd = "yhy000@001yhy"
+                    logger.info("开始执行")
+                    asyncio.run(test.run(evm_id=args.index, evm_address=args.address))
+
+                    #
+                    # try:
+                    #     test = Test()
+                    #     args.address = "0"
+                    #     args.passwd = "yhy000@001yhy"
+                    #     logger.info("开始执行")
+                    #     asyncio.run(test.run(evm_id=args.index, evm_address=args.address))
+                    # except Exception as e:
+                    #     logger.info(f"发生错误: {e}")
                     time.sleep(random.randint(23, 50))
                 logger.info(f"执行完毕")
                 data_map[current_date] = 2
