@@ -150,9 +150,8 @@ class Test(object):
         page = ChromiumPage(
             addr_or_opts=ChromiumOptions().set_browser_path(path=r"/usr/bin/microsoft-edge")
             .add_extension(r"/home/" + args.user + "/extensions/chrome-cloud")
-            .set_user_data_path(
-                os.path.join("/home/" + args.user + "/task/" + args.chromePort + "/", args.index))
-            .set_local_port(args.chromePort)
+            .set_user_data_path("/home/" + args.user + "/task/" + args.chromePort + "/" + args.index)
+            .auto_port()
             .headless(on_off=False))
         page.wait.doc_loaded(timeout=30)
         page.set.window.max()
@@ -236,8 +235,9 @@ class Test(object):
 
     async def __do_task(self, page, evm_id, evm_address):
         self.browser = page
+        logger.info("开始打开钱包")
         res = self.setup_wallet(args)
-
+        
         # email_url = 'https://mail.dmail.ai/inbox'
         # pond_page = page.new_tab(url=email_url)
         # await self.__click_ele(page=pond_page, xpath='x://div[@data-title="Setting"]')
