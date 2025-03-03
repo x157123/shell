@@ -237,7 +237,7 @@ class Test(object):
         self.browser = page
         logger.info("开始打开钱包")
         res = self.setup_wallet(args)
-        
+
         # email_url = 'https://mail.dmail.ai/inbox'
         # pond_page = page.new_tab(url=email_url)
         # await self.__click_ele(page=pond_page, xpath='x://div[@data-title="Setting"]')
@@ -419,7 +419,7 @@ if __name__ == '__main__':
                         test = Test()
                         args = parser.parse_args()
                         args.address = "0"
-                        args.passwd = data_map[key]
+                        args.passwd = "yhy000@001yhy"
                         asyncio.run(test.run(evm_id=args.index, evm_address=args.address))
                     except Exception as e:
                         logger.info(f"发生错误: {e}")
