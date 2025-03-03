@@ -202,7 +202,7 @@ class Test(object):
         }
         url = 'https://monad-testnet.g.alchemy.com/v2/nR72bxK2nIiUl42EDVpqbNDDTo0yyGDX'
         response = requests.post(url=url, headers=headers, json=json_data)
-        logger.info(response)
+        logger.info(response.json())
         balance = int(response.json()['result'], 16) / (10 ** 18)
         return balance
 
