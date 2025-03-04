@@ -493,6 +493,7 @@ if __name__ == '__main__':
                 num = 0
                 for key in public_key_tmp:
                     num = 1
+                    args.id = key["id"]
                     args.index = key["secretKey"]
                     args.address = key["account"]
                     args.passwd = key["password"]
