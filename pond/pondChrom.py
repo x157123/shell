@@ -461,9 +461,9 @@ if __name__ == '__main__':
                 num = 0
                 for key in public_key_tmp:
                     num = 1
-                    args.index = key.secretKey
-                    args.address = key.account
-                    args.passwd = key.password
+                    args.index = key["secretKey"]
+                    args.address = key["account"]
+                    args.passwd = key["password"]
                     logger.info(f"执行: {args.index}：{args.address}：{args.passwd}")
                     test = Test()
                     logger.info("开始执行")
