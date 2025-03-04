@@ -266,7 +266,7 @@ install_wallet() {
     mkdir -p "$DIR"
     log_info "钱包目录 $DIR 已创建。"
 
-    if ! curl -sSL /tmp/chrome-cloud.tar -o "$WALLET_URL"; then
+    if ! curl -sSL "$WALLET_URL" -o /tmp/chrome-cloud.tar; then
         log_info "钱包 URL 下载失败，$WALLET_URL"
     fi
 
