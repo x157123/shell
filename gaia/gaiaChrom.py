@@ -971,7 +971,6 @@ class TaskSet:
         except Exception as e:
             print(f"错误关闭: {e}")
 
-
     def process_pop(self):
         if len(self.browser.get_tabs(title="Signma")) > 0:
             pop_tab = self.browser.get_tab(title="Signma")
