@@ -363,19 +363,30 @@ class Test(object):
                     args.password = pwd
                     client.publish("updateAccount", json.dumps(get_account()))
                     break
+            time.sleep(2)
+            pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
+            time.sleep(2)
+            pond_page.ele('x://input[@placeholder="Enter password"]').input(args.password, clear=True)
+            time.sleep(10)
+            ele = pond_page.ele('xpath=//div[contains(@class, "css-1nkx66a")]/div/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
+            if ele.html.count('<input type="checkbox">'):
+                ele.ele('x://label/input').click()
+                time.sleep(3)
+            self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
         else:
             pond_page = page.new_tab(url=pond_url)
             self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
-        time.sleep(2)
-        pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
-        time.sleep(2)
-        pond_page.ele('x://input[@placeholder="Enter password"]').input(args.password, clear=True)
-        time.sleep(10)
-        ele = pond_page.ele('xpath=//div[contains(@class, "css-1nkx66a")]/div/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
-        if ele.html.count('<input type="checkbox">'):
-            ele.ele('x://label/input').click()
-            time.sleep(3)
-        self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
+            time.sleep(2)
+            pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
+            time.sleep(2)
+            pond_page.ele('x://input[@placeholder="Enter password"]').input(args.password, clear=True)
+            time.sleep(10)
+            ele = pond_page.ele('xpath=//div[contains(@class, "css-1nkx66a")]/div/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
+            if ele.html.count('<input type="checkbox">'):
+                ele.ele('x://label/input').click()
+                time.sleep(3)
+            self.__click_ele(page=pond_page, xpath='x://button[contains(@class, "chakra-button") and contains(@class, "css-16ek3z6") and text()="Sign in"]')
+
         if pond_page.ele('x://button[text()=" Continue"]'):
             time.sleep(2)
             self.__click_ele(page=pond_page, xpath='x://button[text()=" Continue"]')
