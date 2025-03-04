@@ -281,6 +281,10 @@ class Test(object):
         for _ in range(3):
             self.process_pop()
             time.sleep(8)
+        if email_page.ele('x://a[text()="Next step"]'):
+            self.__click_ele(page=email_page, xpath='x://a[text()="Next step"]')
+            self.__click_ele(page=email_page, xpath='x://a[text()="Next step"]')
+            self.__click_ele(page=email_page, xpath='x://a[text()="Launch"]')
         self.__click_ele(page=email_page, xpath='x://div[@data-title="Setting"]')
         if email_page.ele('x://a[text()="Next"]'):
             self.__click_ele(page=email_page, xpath='x://a[text()="Next"]')
