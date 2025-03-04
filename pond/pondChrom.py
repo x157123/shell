@@ -453,12 +453,12 @@ class Test(object):
 
     def __main(self, evm_id, evm_address) -> bool:
         page = self.__get_page()
-        try:
-            self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address)
-        except Exception as error:
-            logger.error(f'error ==> {error}')
-        finally:
-            page.quit()
+        # try:
+        self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address)
+        # except Exception as error:
+        #     logger.error(f'error ==> {error}')
+        # finally:
+        #     page.quit()
         return True
 
     def run(self, evm_id, evm_address):
