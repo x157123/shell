@@ -225,17 +225,56 @@ class Test(object):
         result = True
         return result
 
+    def process_pop(self):
+        if len(self.browser.get_tabs(title="Signma")) > 0:
+            pop_tab = self.browser.get_tab(title="Signma")
+
+            back_path = 'x://*[@id="sign-root"]/div/div/section/main/div[1]/section[1]/div/button'
+            conn_path = "tag:div@@class=jsx-3858486283 button_content@@text()=连接"
+            sign_enable_path = (
+                "tag:button@@class=jsx-3858486283 button large primaryGreen"
+            )
+
+            sign_blank_path = (
+                "tag:div@@class=jsx-1443409666 subtext@@text()^希望您使用您的登录"
+            )
+
+            time.sleep(20)
+
+            if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fdapp-permission':
+                if pop_tab.ele(back_path) is not None:
+                    pop_tab.ele(back_path).click()
+                time.sleep(2)
+
+                if pop_tab.ele(conn_path) is not None:
+                    pop_tab.ele(conn_path).click()
+                    time.sleep(3)
+            elif "chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign":
+                while pop_tab.wait.ele_displayed(sign_enable_path, timeout=3) is False:
+                    if pop_tab.wait.ele_displayed(sign_blank_path, timeout=3):
+                        pop_tab.actions.move_to(sign_blank_path)
+                        pop_tab.ele(sign_blank_path).click()
+                        time.sleep(2)
+
+                if pop_tab.ele(sign_enable_path) is not None:
+                    pop_tab.ele(sign_enable_path).click()
+
+
     def __do_task(self, page, evm_id, evm_address):
         self.browser = page
         logger.info("开始打开钱包")
         res = self.setup_wallet(args)
-
-        # email_url = 'https://mail.dmail.ai/inbox'
-        # pond_page = page.new_tab(url=email_url)
-        # await self.__click_ele(page=pond_page, xpath='x://div[@data-title="Setting"]')
-        # email_span = pond_page.ele('x://p[contains(., "Default Address: ")]/span')
-        # email = email_span.text
-        # print(email)
+        email_url = 'https://mail.dmail.ai/inbox'
+        pond_page = page.new_tab(url=email_url)
+        time.sleep(5)
+        self.__click_ele(page=pond_page, xpath='x://span[text()="MetaMask"]')
+        for _ in range(3):
+            self.process_pop()
+            time.sleep(8)
+        self.__click_ele(page=pond_page, xpath='x://div[@data-title="Setting"]')
+        email_span = pond_page.ele('x://p[contains(., "Default Address: ")]/span')
+        email = email_span.text
+        print(email)
         #
         # pond_url = 'https://cryptopond.xyz/points?tab=idea'
         # pond_page = page.new_tab(url=pond_url)
