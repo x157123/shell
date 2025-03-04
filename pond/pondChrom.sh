@@ -157,7 +157,7 @@ parse_args() {
 # 更新系统包列表
 update_system() {
     log_info "更新系统软件包列表..."
-    sudo apt update -y || error_exit "软件包列表更新失败"
+    sudo apt update -y
 }
 
 # 安装系统依赖
