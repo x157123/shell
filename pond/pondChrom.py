@@ -516,22 +516,22 @@ if __name__ == '__main__':
                 num = 0
                 for key in public_key_tmp:
                     num = 1
-                    try:
-                        if key["secretKey"] != "81213":
-                            continue
-                        args.id = key["id"]
-                        args.index = key["secretKey"]
-                        args.address = key["account"]
-                        args.password = key["password"]
-                        logger.info(f"执行: {args.index}：{args.address}：{args.password}")
-                        test = Test()
-                        logger.info("开始执行")
-                        test.run(evm_id=args.index, evm_address=args.address)
-                        # 回填账号信息
-                        key["account"] = args.address
-                        key["password"] = args.password
-                    except Exception as e:
-                        logger.info(f"发生错误: {e}")
+                    # try:
+                    if key["secretKey"] != "81213":
+                        continue
+                    args.id = key["id"]
+                    args.index = key["secretKey"]
+                    args.address = key["account"]
+                    args.password = key["password"]
+                    logger.info(f"执行: {args.index}：{args.address}：{args.password}")
+                    test = Test()
+                    logger.info("开始执行")
+                    test.run(evm_id=args.index, evm_address=args.address)
+                    # 回填账号信息
+                    key["account"] = args.address
+                    key["password"] = args.password
+                    # except Exception as e:
+                    #     logger.info(f"发生错误: {e}")
                     time.sleep(random.randint(23, 50))
                 logger.info(f"执行完毕")
                 data_map[current_date] = 2
