@@ -342,7 +342,7 @@ class Test(object):
                 loop_count += 1
                 continue  # 跳到下一次循环
             else:
-                pwd = "yhy023r@23h34^7"
+                pwd = "yhy023r@23h34a7"
                 pond_page.ele('x://input[@placeholder="Enter code"]').input(code, clear=True)
                 time.sleep(2)
                 pond_page.ele('x://input[@placeholder="Enter password"]').input(pwd, clear=True)
