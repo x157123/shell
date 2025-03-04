@@ -342,9 +342,10 @@ class Test(object):
                 loop_count += 1
                 continue  # 跳到下一次循环
             else:
+                pwd = "yhy023r@23h34^7"
                 pond_page.ele('x://input[@placeholder="Enter code"]').input(code, clear=True)
                 time.sleep(2)
-                pond_page.ele('x://input[@placeholder="Enter password"]').input(args.passwd, clear=True)
+                pond_page.ele('x://input[@placeholder="Enter password"]').input(pwd, clear=True)
                 time.sleep(4)
                 if args.passwd == '000000':
                     print("重置密码")
@@ -352,7 +353,7 @@ class Test(object):
                 else:
                     print("提交")
                     self.__click_ele(page=pond_page, xpath='x://button[text()="Join Pond"]')
-
+                args.passwd = pwd
                 client.publish("updateAccount", json.dumps(get_account()))
                 break
 
@@ -499,7 +500,9 @@ if __name__ == '__main__':
                     test = Test()
                     logger.info("开始执行")
                     test.run(evm_id=args.index, evm_address=args.address)
-
+                    # 回填账号信息
+                    key["account"] = args.address
+                    key["password"] = args.passwd
                     #
                     # try:
                     #     test = Test()
