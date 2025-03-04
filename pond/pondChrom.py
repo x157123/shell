@@ -206,22 +206,16 @@ class Test(object):
         # refresh_ele.click()
         time.sleep(6)
         logger.info(f"开始打开设置钱包：{arg.index}")
-        if len(self.browser.get_tabs(
-                url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding")) > 0:
-            wallet_tab = self.browser.get_tab(
-                url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
-            )
-        else:
-            wallet_tab = self.browser.new_tab(
-                url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
-            )
-
+        wallet_tab = self.browser.new_tab(
+            url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
+        )
         time.sleep(3)
         logger.info(f"开始设置钱包：{arg.index}")
         index_input_path = (
             "x://html/body/div/div[1]/div[4]/section/div/section/div/div/input"
         )
         wallet_tab.ele(index_input_path).input(arg.index, clear=True)
+        time.sleep(3)
         index_button_path = "tag:button@@id=existingWallet"
         index_set_button = wallet_tab.ele(index_button_path)
         time.sleep(1)
