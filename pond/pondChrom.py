@@ -225,7 +225,7 @@ class Test(object):
             pop_tab = self.browser.get_tab(title="Signma")
             if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
                 pop_tab.ele(index_input_path).input(arg.index, clear=True)
-                index_set_button = wallet_tab.ele(index_button_path)
+                index_set_button = pop_tab.ele(index_button_path)
                 time.sleep(1)
                 index_set_button.click()
         time.sleep(3)
