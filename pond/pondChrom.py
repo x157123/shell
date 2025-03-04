@@ -178,32 +178,32 @@ class Test(object):
 
     def setup_wallet(self, arg):
         logger.info(f"开始加载钱包：{arg.index}")
-        tab = self.browser.new_tab(url="chrome://extensions/")
-        time.sleep(12)
-        tab.wait.ele_displayed("x://html/body/extensions-manager", 30)
-        toggle_ele = (
-            tab.ele(
-                "x://html/body/extensions-manager"
-            )  # /html/body/extensions-manager
-            .shadow_root.ele('x://*[@id="viewManager"]')
-            .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
-            .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
-            .shadow_root.ele("tag:cr-toggle@@id=enableToggle")
-        )
-
-        refresh_ele = (
-            tab.ele(
-                "x://html/body/extensions-manager"
-            )  # /html/body/extensions-manager
-            .shadow_root.ele('x://*[@id="viewManager"]')
-            .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
-            .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
-            .shadow_root.ele("tag:cr-icon-button@@id=dev-reload-button")
-        )
-
-        if toggle_ele.attr("aria-pressed") == "false":
-            toggle_ele.click()
-        refresh_ele.click()
+        # tab = self.browser.new_tab(url="chrome://extensions/")
+        # time.sleep(12)
+        # tab.wait.ele_displayed("x://html/body/extensions-manager", 30)
+        # toggle_ele = (
+        #     tab.ele(
+        #         "x://html/body/extensions-manager"
+        #     )  # /html/body/extensions-manager
+        #     .shadow_root.ele('x://*[@id="viewManager"]')
+        #     .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
+        #     .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
+        #     .shadow_root.ele("tag:cr-toggle@@id=enableToggle")
+        # )
+        #
+        # refresh_ele = (
+        #     tab.ele(
+        #         "x://html/body/extensions-manager"
+        #     )  # /html/body/extensions-manager
+        #     .shadow_root.ele('x://*[@id="viewManager"]')
+        #     .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
+        #     .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
+        #     .shadow_root.ele("tag:cr-icon-button@@id=dev-reload-button")
+        # )
+        #
+        # if toggle_ele.attr("aria-pressed") == "false":
+        #     toggle_ele.click()
+        # refresh_ele.click()
         time.sleep(6)
         logger.info(f"开始打开设置钱包：{arg.index}")
         if len(self.browser.get_tabs(
