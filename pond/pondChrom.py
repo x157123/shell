@@ -226,7 +226,7 @@ class Test(object):
         return result
 
     def process_pop(self):
-        logger.info("开始处理弹窗:" + len(self.browser.get_tabs(title="Signma")))
+        logger.info("开始处理弹窗:")
         if len(self.browser.get_tabs(title="Signma")) > 0:
             pop_tab = self.browser.get_tab(title="Signma")
             logger.info("开始处理弹窗:" + pop_tab.url)
