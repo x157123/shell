@@ -509,7 +509,7 @@ if __name__ == '__main__':
 
     if len(public_key_tmp) > 0:
         for key in public_key_tmp:
-            logger.info(f"发现账号{key["secretKey"]}")
+            logger.info(f"发现账号{key['secretKey']}")
         while True:
             current_date = datetime.now().strftime('%Y%m%d')  # 当前日期
             args.day_count = 0
