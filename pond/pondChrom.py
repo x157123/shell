@@ -213,8 +213,9 @@ class Test(object):
         index_set_button = wallet_tab.ele(index_button_path)
         time.sleep(1)
         index_set_button.click()
+        time.sleep(10)
         if len(self.browser.get_tabs(title="Signma")) > 0:
-            time.sleep(3)
+            time.sleep(8)
             pop_tab = self.browser.get_tab(title="Signma")
             if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
                 pop_tab.ele(index_input_path).input(arg.index, clear=True)
@@ -282,6 +283,8 @@ class Test(object):
             for _ in range(3):
                 self.process_pop()
                 time.sleep(8)
+
+            time.sleep(5)
             if email_page.ele('x://a[text()="Next step"]'):
                 self.__click_ele(page=email_page, xpath='x://a[text()="Next step"]')
                 self.__click_ele(page=email_page, xpath='x://a[text()="Next step"]')
