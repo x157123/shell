@@ -145,8 +145,7 @@ class Test(object):
         self.__monad_faucet = open(file='./monad_faucet.txt', mode='r+', encoding='utf-8')
         self.__monad_faucet_str = self.__monad_faucet.read()
 
-    @staticmethod
-    async def __get_page():
+    def __get_page(self):
         page = ChromiumPage(
             addr_or_opts=ChromiumOptions().set_browser_path(path=r"/usr/bin/microsoft-edge")
             .add_extension(r"/home/" + args.user + "/extensions/chrome-cloud")
@@ -158,8 +157,7 @@ class Test(object):
         return page
 
     # 点击元素
-    @staticmethod
-    async def __click_ele(page, xpath: str = '', find_all: bool = False, index: int = -1) -> int:
+    def __click_ele(self, page, xpath: str = '', find_all: bool = False, index: int = -1) -> int:
         loop_count = 0
         while True:
             try:
@@ -176,7 +174,7 @@ class Test(object):
                 page.quit()
                 return 0
             loop_count += 1
-            await asyncio.sleep(2)
+            time.sleep(2)
         return 1
 
 
