@@ -430,6 +430,7 @@ if __name__ == '__main__':
                     # except Exception as e:
                     #     logger.info(f"发生错误: {e}")
                     time.sleep(random.randint(23, 50))
+                    break
                 logger.info(f"执行完毕")
                 data_map[current_date] = 2
             else:
