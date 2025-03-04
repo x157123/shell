@@ -508,7 +508,8 @@ if __name__ == '__main__':
     public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, "pond")
 
     if len(public_key_tmp) > 0:
-        logger.info(f"发现账号{public_key_tmp}")
+        for key in public_key_tmp:
+            logger.info(f"发现账号{key["secretKey"]}")
         while True:
             current_date = datetime.now().strftime('%Y%m%d')  # 当前日期
             args.day_count = 0
