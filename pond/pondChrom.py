@@ -290,7 +290,7 @@ class Test(object):
 
         pond_url = 'https://cryptopond.xyz/points?tab=idea'
         pond_page = page.new_tab(url=pond_url)
-        if args.passwd == '000000':
+        if args.password == '000000':
             self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
             self.__click_ele(page=pond_page, xpath='x://p[text()="Forgot?"]')
             time.sleep(10)
@@ -347,20 +347,20 @@ class Test(object):
                 time.sleep(2)
                 pond_page.ele('x://input[@placeholder="Enter password"]').input(pwd, clear=True)
                 time.sleep(4)
-                if args.passwd == '000000':
+                if args.password == '000000':
                     print("重置密码")
                     self.__click_ele(page=pond_page, xpath='x://button[text()="Reset password"]')
                 else:
                     print("提交")
                     self.__click_ele(page=pond_page, xpath='x://button[text()="Join Pond"]')
-                args.passwd = pwd
+                args.password = pwd
                 client.publish("updateAccount", json.dumps(get_account()))
                 break
 
         time.sleep(2)
         pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
         time.sleep(2)
-        pond_page.ele('x://input[@placeholder="Enter password"]').input(args.passwd, clear=True)
+        pond_page.ele('x://input[@placeholder="Enter password"]').input(args.password, clear=True)
         time.sleep(10)
         ele = pond_page.ele('xpath=//div[contains(@class, "css-1nkx66a")]/div/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
         if ele.html.count('<input type="checkbox">'):
@@ -496,19 +496,19 @@ if __name__ == '__main__':
                     args.id = key["id"]
                     args.index = key["secretKey"]
                     args.address = key["account"]
-                    args.passwd = key["password"]
-                    logger.info(f"执行: {args.index}：{args.address}：{args.passwd}")
+                    args.password = key["password"]
+                    logger.info(f"执行: {args.index}：{args.address}：{args.password}")
                     test = Test()
                     logger.info("开始执行")
                     test.run(evm_id=args.index, evm_address=args.address)
                     # 回填账号信息
                     key["account"] = args.address
-                    key["password"] = args.passwd
+                    key["password"] = args.password
                     #
                     # try:
                     #     test = Test()
                     #     args.address = "0"
-                    #     args.passwd = "yhy000@001yhy"
+                    #     args.password = "yhy000@001yhy"
                     #     logger.info("开始执行")
                     #     asyncio.run(test.run(evm_id=args.index, evm_address=args.address))
                     # except Exception as e:
