@@ -266,6 +266,11 @@ class Test(object):
     def __do_task(self, page, evm_id, evm_address):
         self.browser = page
         time.sleep(10)
+        if len(self.browser.get_tabs(title="Signma")) > 0:
+            time.sleep(3)
+            pop_tab = self.browser.get_tab(title="Signma")
+            if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
+                pop_tab.close()
         pond_url = 'https://cryptopond.xyz/points?tab=idea'
         if args.password == "" or args.password is None or args.password == "None" or args.password == "000000" or args.address == "" or args.address is None or args.address == "None":
             logger.info("开始打开钱包")
