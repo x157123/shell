@@ -228,6 +228,7 @@ class Test(object):
                 index_set_button = pop_tab.ele(index_button_path)
                 time.sleep(1)
                 index_set_button.click()
+                pop_tab.close()
         time.sleep(3)
         result = True
         return result
@@ -274,19 +275,21 @@ class Test(object):
         logger.info("开始打开钱包")
         res = self.setup_wallet(args)
         email_url = 'https://mail.dmail.ai/inbox'
-        pond_page = page.new_tab(url=email_url)
+        email_page = page.new_tab(url=email_url)
         time.sleep(5)
-        self.__click_ele(page=pond_page, xpath='x://span[text()="MetaMask"]')
+        self.__click_ele(page=email_page, xpath='x://span[text()="MetaMask"]')
         for _ in range(3):
             self.process_pop()
             time.sleep(8)
-        self.__click_ele(page=pond_page, xpath='x://div[@data-title="Setting"]')
-        if pond_page.ele('x://a[text()="Next"]'):
-            self.__click_ele(page=pond_page, xpath='x://a[text()="Next"]')
-            self.__click_ele(page=pond_page, xpath='x://a[text()="Finish"]')
-        email_span = pond_page.ele('x://p[contains(., "Default Address: ")]/span')
+        self.__click_ele(page=email_page, xpath='x://div[@data-title="Setting"]')
+        if email_page.ele('x://a[text()="Next"]'):
+            self.__click_ele(page=email_page, xpath='x://a[text()="Next"]')
+            self.__click_ele(page=email_page, xpath='x://a[text()="Finish"]')
+        email_span = email_page.ele('x://p[contains(., "Default Address: ")]/span')
         args.address = email_span.text
-        print(args.address)
+
+        # 关闭窗口
+        email_page.close()
 
         pond_url = 'https://cryptopond.xyz/points?tab=idea'
         pond_page = page.new_tab(url=pond_url)
