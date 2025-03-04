@@ -356,7 +356,9 @@ def main(client, serverId, appId, decryptKey, user, display):
                 time.sleep(1)
                 # 确认导入
                 click_element(tab, "x://button[normalize-space()='IMPORT KEY']")
-
+                time.sleep(5)
+                tab.refresh()
+                time.sleep(3)
         # 关闭私钥弹窗（如果存在）
         click_element(tab, 'x://button[.//span[text()="Close"]]', timeout=2)
 
