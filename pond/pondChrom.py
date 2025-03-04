@@ -429,7 +429,7 @@ class Test(object):
             time.sleep(2)
 
         # 获取积分
-        point_span = email_page.ele('x://div[contains(@class, "chakra-text css-c1o5sq")]')
+        point_span = email_page.ele('x://p[contains(@class, "chakra-text css-c1o5sq")]')
         integral = point_span.text
         logger.success(f'获取到积分 ==> {integral}')
         client.publish("appInfo", json.dumps(get_app_info_integral(integral)))
