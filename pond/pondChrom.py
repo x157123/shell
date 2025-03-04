@@ -348,6 +348,8 @@ class Test(object):
                 else:
                     print("提交")
                     self.__click_ele(page=pond_page, xpath='x://button[text()="Join Pond"]')
+
+                client.publish("updateAccount", json.dumps(get_account()))
                 break
 
         time.sleep(2)
@@ -370,7 +372,7 @@ class Test(object):
             time.sleep(2)
 
 
-        # # Common
+        # Common
         self.__click_ele(page=pond_page, xpath='x://p[text()="Common"]')
         go_in = pond_page.ele('x://span[text()="Complete Profile Information"]/ancestor::div[2]/following-sibling::div//button')
         if go_in:
@@ -418,6 +420,14 @@ class Test(object):
             time.sleep(3)
             self.__click_ele(page=pond_page, xpath='x://div[contains(@class, "css-1mfyor6")]')
             time.sleep(3)
+            pond_page.get(url=pond_url)
+            time.sleep(2)
+
+        # 获取积分
+        point_span = email_page.ele('x://div[contains(@class, "chakra-text css-c1o5sq")]')
+        integral = point_span.text
+        logger.success(f'获取到积分 ==> {integral}')
+        client.publish("appInfo", json.dumps(get_app_info_integral(integral)))
 
     def __main(self, evm_id, evm_address) -> bool:
         page = self.__get_page()
@@ -428,6 +438,23 @@ class Test(object):
         self.__main(evm_id=evm_id, evm_address=evm_address)
         return True
 
+def get_app_info_integral(integral):
+    return {
+        "serverId": f"{args.serverId}",
+        "applicationId": f"{args.appId}",
+        "publicKey": f"{args.index}",
+        "integral": f"{integral}",
+        "operationType": "2",
+        "description": f"最新积分：{integral}",
+    }
+
+def get_account():
+    return {
+        "id": f"{args.id}",
+        "account": f"{args.address}",
+        "password": f"{args.password}",
+        "email": f"{args.address}",
+    }
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
@@ -467,8 +494,8 @@ if __name__ == '__main__':
                     logger.info(f"执行: {args.index}：{args.address}：{args.passwd}")
                     test = Test()
                     logger.info("开始执行")
-                    # test.run(evm_id=args.index, evm_address=args.address)
-                    key["account"] = "xxxxxxxx"
+                    test.run(evm_id=args.index, evm_address=args.address)
+
                     #
                     # try:
                     #     test = Test()
@@ -479,15 +506,7 @@ if __name__ == '__main__':
                     # except Exception as e:
                     #     logger.info(f"发生错误: {e}")
                     time.sleep(random.randint(23, 50))
-
-                for key in public_key_tmp:
-                    num = 1
-                    args.index = key["secretKey"]
-                    args.address = key["account"]
-                    args.passwd = key["password"]
-                    logger.info(f"执行: {args.index}：{args.address}：{args.passwd}")
-                    test = Test()
-                    logger.info("开始执行")
+                    break
                 logger.info(f"执行完毕")
                 data_map[current_date] = 2
             else:
