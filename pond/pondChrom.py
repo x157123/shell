@@ -438,8 +438,10 @@ class Test(object):
             time.sleep(3)
             self.__click_ele(page=pond_page, xpath='x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button')
             time.sleep(3)
-            self.__click_ele(page=pond_page, xpath='x://div[contains(@class, "css-1mfyor6")]')
-            time.sleep(3)
+            ance = pond_page.ele('x://div[contains(@class, "css-1mfyor6")]')
+            if ance:
+                self.__click_ele(page=pond_page, xpath='x://div[contains(@class, "css-1mfyor6")]')
+                time.sleep(3)
             pond_page.get(url=pond_url)
             time.sleep(2)
 
