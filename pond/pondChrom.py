@@ -133,7 +133,6 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
         raise ValueError(f"解密失败: {e}")
 
 
-
 class Test(object):
 
     def __init__(self):
@@ -177,7 +176,6 @@ class Test(object):
             time.sleep(2)
         return 1
 
-
     def setup_wallet(self, args):
         tab = self.browser.new_tab(url="chrome://extensions/")
         time.sleep(12)
@@ -217,6 +215,7 @@ class Test(object):
             )
 
         time.sleep(3)
+        logger.info(f"开始设置钱包：{args.index}")
         index_input_path = (
             "x://html/body/div/div[1]/div[4]/section/div/section/div/div/input"
         )
@@ -229,7 +228,6 @@ class Test(object):
         time.sleep(3)
         result = True
         return result
-
 
     async def __do_task(self, page, evm_id, evm_address):
         self.browser = page
@@ -366,7 +364,6 @@ class Test(object):
         #     await self.__click_ele(page=pond_page, xpath='x://div[contains(@class, "css-1mfyor6")]')
         #     time.sleep(3)
 
-
     def __main(self, evm_id, evm_address) -> bool:
         page = self.__get_page()
         self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address)
@@ -375,7 +372,6 @@ class Test(object):
     def run(self, evm_id, evm_address):
         self.__main(evm_id=evm_id, evm_address=evm_address)
         return True
-
 
 
 if __name__ == '__main__':
@@ -392,7 +388,6 @@ if __name__ == '__main__':
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
     client.loop_start()
-
 
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + args.appId + '_user.json')
