@@ -226,9 +226,10 @@ class Test(object):
         return result
 
     def process_pop(self):
+        logger.info("开始处理弹窗:" + len(self.browser.get_tabs(title="Signma")))
         if len(self.browser.get_tabs(title="Signma")) > 0:
             pop_tab = self.browser.get_tab(title="Signma")
-
+            logger.info("开始处理弹窗:" + pop_tab.url)
             back_path = 'x://*[@id="sign-root"]/div/div/section/main/div[1]/section[1]/div/button'
             conn_path = "tag:div@@class=jsx-3858486283 button_content@@text()=连接"
             sign_enable_path = (
@@ -258,7 +259,8 @@ class Test(object):
 
                 if pop_tab.ele(sign_enable_path) is not None:
                     pop_tab.ele(sign_enable_path).click()
-
+        else:
+            logger.info("没有弹窗")
 
     def __do_task(self, page, evm_id, evm_address):
         self.browser = page
