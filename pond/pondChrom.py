@@ -457,6 +457,7 @@ def get_account():
     return {
         "id": f"{args.id}",
         "account": f"{args.address}",
+        "accountType": "pond",
         "password": f"{args.password}",
         "email": f"{args.address}",
     }
