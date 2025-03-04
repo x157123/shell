@@ -181,11 +181,11 @@ class Test(object):
 
 
     def setup_wallet(self, args):
-        self.tab = self.browser.new_tab(url="chrome://extensions/")
+        tab = self.browser.new_tab(url="chrome://extensions/")
         time.sleep(12)
-        self.tab.wait.ele_displayed("x://html/body/extensions-manager", 30)
+        tab.wait.ele_displayed("x://html/body/extensions-manager", 30)
         toggle_ele = (
-            self.tab.ele(
+            tab.ele(
                 "x://html/body/extensions-manager"
             )  # /html/body/extensions-manager
             .shadow_root.ele('x://*[@id="viewManager"]')
@@ -195,7 +195,7 @@ class Test(object):
         )
 
         refresh_ele = (
-            self.tab.ele(
+            tab.ele(
                 "x://html/body/extensions-manager"
             )  # /html/body/extensions-manager
             .shadow_root.ele('x://*[@id="viewManager"]')
@@ -369,13 +369,13 @@ class Test(object):
         #     time.sleep(3)
 
 
-    async def __main(self, evm_id, evm_address) -> bool:
-        page = await self.__get_page()
-        await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address), timeout=60)
+    def __main(self, evm_id, evm_address) -> bool:
+        page = self.__get_page()
+        self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address)
         return True
 
-    async def run(self, evm_id, evm_address):
-        await self.__main(evm_id=evm_id, evm_address=evm_address)
+    def run(self, evm_id, evm_address):
+        self.__main(evm_id=evm_id, evm_address=evm_address)
         return True
 
 
@@ -420,7 +420,7 @@ if __name__ == '__main__':
                     args.address = "0"
                     args.passwd = "yhy000@001yhy"
                     logger.info("开始执行")
-                    asyncio.run(test.run(evm_id=args.index, evm_address=args.address))
+                    test.run(evm_id=args.index, evm_address=args.address)
 
                     #
                     # try:
