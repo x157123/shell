@@ -520,8 +520,6 @@ if __name__ == '__main__':
                 for key in public_key_tmp:
                     num = 1
                     try:
-                        if key["secretKey"] != "81213":
-                            continue
                         args.id = key["id"]
                         args.index = key["secretKey"]
                         args.address = key["account"]
