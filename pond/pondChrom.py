@@ -265,6 +265,8 @@ class Test(object):
 
     def __do_task(self, page, evm_id, evm_address):
         self.browser = page
+        time.sleep(10)
+        pond_url = 'https://cryptopond.xyz/points?tab=idea'
         if args.password == "" or args.password is None or args.password == "None" or args.password == "000000" or args.address == "" or args.address is None or args.address == "None":
             logger.info("开始打开钱包")
             res = self.setup_wallet(args)
@@ -289,7 +291,6 @@ class Test(object):
             # 关闭窗口
             email_page.close()
 
-            pond_url = 'https://cryptopond.xyz/points?tab=idea'
             pond_page = page.new_tab(url=pond_url)
             if args.password == '000000':
                 self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
@@ -358,7 +359,6 @@ class Test(object):
                     client.publish("updateAccount", json.dumps(get_account()))
                     break
         else:
-            pond_url = 'https://cryptopond.xyz/points?tab=idea'
             pond_page = page.new_tab(url=pond_url)
             self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
         time.sleep(2)
