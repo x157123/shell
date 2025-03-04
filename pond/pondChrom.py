@@ -307,7 +307,7 @@ class Test(object):
             self.__click_ele(page=pond_page, xpath='x://button[text()="Sign up"]')
             pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
             asyncio.sleep(5)
-            ele = page.ele(locator='x://div[contains(@class, "wallet-address-container")]/div[last()]/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
+            ele = page.ele(locator='x://div[contains(@class, "css-1nkx66a")]/div]/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
             if ele.html.count('<input type="checkbox">'):
                 ele.ele('x://label/input').click()
                 time.sleep(3)
