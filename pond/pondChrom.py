@@ -265,98 +265,102 @@ class Test(object):
 
     def __do_task(self, page, evm_id, evm_address):
         self.browser = page
-        logger.info("开始打开钱包")
-        res = self.setup_wallet(args)
-        email_url = 'https://mail.dmail.ai/inbox'
-        email_page = page.new_tab(url=email_url)
-        time.sleep(5)
-        self.__click_ele(page=email_page, xpath='x://span[text()="MetaMask"]')
-        for _ in range(3):
-            self.process_pop()
-            time.sleep(8)
-        if email_page.ele('x://a[text()="Next step"]'):
-            self.__click_ele(page=email_page, xpath='x://a[text()="Next step"]')
-            self.__click_ele(page=email_page, xpath='x://a[text()="Next step"]')
-            self.__click_ele(page=email_page, xpath='x://a[text()="Launch"]')
-        self.__click_ele(page=email_page, xpath='x://div[@data-title="Setting"]')
-        if email_page.ele('x://a[text()="Next"]'):
-            self.__click_ele(page=email_page, xpath='x://a[text()="Next"]')
-            self.__click_ele(page=email_page, xpath='x://a[text()="Finish"]')
-        email_span = email_page.ele('x://p[contains(., "Default Address: ")]/span')
-        args.address = email_span.text
+        if args.password == "" or args.password is None or args.password == "None" or args.password == "000000" or args.address == "" or args.address is None or args.address == "None":
+            logger.info("开始打开钱包")
+            res = self.setup_wallet(args)
+            email_url = 'https://mail.dmail.ai/inbox'
+            email_page = page.new_tab(url=email_url)
+            time.sleep(5)
+            self.__click_ele(page=email_page, xpath='x://span[text()="MetaMask"]')
+            for _ in range(3):
+                self.process_pop()
+                time.sleep(8)
+            if email_page.ele('x://a[text()="Next step"]'):
+                self.__click_ele(page=email_page, xpath='x://a[text()="Next step"]')
+                self.__click_ele(page=email_page, xpath='x://a[text()="Next step"]')
+                self.__click_ele(page=email_page, xpath='x://a[text()="Launch"]')
+            self.__click_ele(page=email_page, xpath='x://div[@data-title="Setting"]')
+            if email_page.ele('x://a[text()="Next"]'):
+                self.__click_ele(page=email_page, xpath='x://a[text()="Next"]')
+                self.__click_ele(page=email_page, xpath='x://a[text()="Finish"]')
+            email_span = email_page.ele('x://p[contains(., "Default Address: ")]/span')
+            args.address = email_span.text
 
-        # 关闭窗口
-        email_page.close()
+            # 关闭窗口
+            email_page.close()
 
-        pond_url = 'https://cryptopond.xyz/points?tab=idea'
-        pond_page = page.new_tab(url=pond_url)
-        if args.password == '000000':
-            self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
-            self.__click_ele(page=pond_page, xpath='x://p[text()="Forgot?"]')
-            time.sleep(10)
-            ele = pond_page.ele('xpath=//div[contains(@class, "css-1nkx66a")]/div/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
-            if ele.html.count('<input type="checkbox">'):
-                ele.ele('x://label/input').click()
-                time.sleep(3)
-            pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
-            self.__click_ele(page=pond_page, xpath='x://button[text()="Send email"]')
-        else:
-            self.__click_ele(page=pond_page, xpath='x://button[text()="Sign up"]')
-            pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
-            time.sleep(10)
-            ele = pond_page.ele('xpath=//div[contains(@class, "css-1nkx66a")]/div/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
-            if ele.html.count('<input type="checkbox">'):
-                ele.ele('x://label/input').click()
-                time.sleep(3)
-            self.__click_ele(page=pond_page, xpath='x://span[contains(@class, "chakra-checkbox__control")]')
-            self.__click_ele(page=pond_page, xpath='x://button[text()="Sign up"]')
-
-        code = None
-        loop_count = 0
-        while True:
-            email_page = page.new_tab(url='https://mail.dmail.ai/inbox')
-            try:
-                time.sleep(5)
-                self.__click_ele(page=email_page, xpath='x://span[text()="Starred"]')
-                time.sleep(3)
-                self.__click_ele(page=email_page, xpath='x://span[text()="Inbox"]')
-                time.sleep(3)
-                self.__click_ele(page=email_page, xpath='x://div[contains(@class, "icon-refresh")]')
-                time.sleep(3)
-                self.__click_ele(page=email_page, xpath='x://div[contains(@class,"sc-eDPEul")]//ul/li[1]')
-                time.sleep(3)
-                # 读取验证码
-                ele = email_page.ele(locator='x://p[contains(text(),"Your verification code is: ")]')
-                code = ele.text.split(':')[-1].strip()
-                print(code)
-            except Exception as e:
-                logger.error(f'error ==> {e}')
-            finally:
-                email_page.close()
-                time.sleep(3)
-
-            if loop_count >= 5:
-                page.close()
-                return
-            if code is None:
-                loop_count += 1
-                continue  # 跳到下一次循环
+            pond_url = 'https://cryptopond.xyz/points?tab=idea'
+            pond_page = page.new_tab(url=pond_url)
+            if args.password == '000000':
+                self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
+                self.__click_ele(page=pond_page, xpath='x://p[text()="Forgot?"]')
+                time.sleep(10)
+                ele = pond_page.ele('xpath=//div[contains(@class, "css-1nkx66a")]/div/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
+                if ele.html.count('<input type="checkbox">'):
+                    ele.ele('x://label/input').click()
+                    time.sleep(3)
+                pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
+                self.__click_ele(page=pond_page, xpath='x://button[text()="Send email"]')
             else:
-                pwd = "yhy023r@23h34a7"
-                pond_page.ele('x://input[@placeholder="Enter code"]').input(code, clear=True)
-                time.sleep(2)
-                pond_page.ele('x://input[@placeholder="Enter password"]').input(pwd, clear=True)
-                time.sleep(4)
-                if args.password == '000000':
-                    print("重置密码")
-                    self.__click_ele(page=pond_page, xpath='x://button[text()="Reset password"]')
-                else:
-                    print("提交")
-                    self.__click_ele(page=pond_page, xpath='x://button[text()="Join Pond"]')
-                args.password = pwd
-                client.publish("updateAccount", json.dumps(get_account()))
-                break
+                self.__click_ele(page=pond_page, xpath='x://button[text()="Sign up"]')
+                pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
+                time.sleep(10)
+                ele = pond_page.ele('xpath=//div[contains(@class, "css-1nkx66a")]/div/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
+                if ele.html.count('<input type="checkbox">'):
+                    ele.ele('x://label/input').click()
+                    time.sleep(3)
+                self.__click_ele(page=pond_page, xpath='x://span[contains(@class, "chakra-checkbox__control")]')
+                self.__click_ele(page=pond_page, xpath='x://button[text()="Sign up"]')
 
+            code = None
+            loop_count = 0
+            while True:
+                email_page = page.new_tab(url='https://mail.dmail.ai/inbox')
+                try:
+                    time.sleep(5)
+                    self.__click_ele(page=email_page, xpath='x://span[text()="Starred"]')
+                    time.sleep(3)
+                    self.__click_ele(page=email_page, xpath='x://span[text()="Inbox"]')
+                    time.sleep(3)
+                    self.__click_ele(page=email_page, xpath='x://div[contains(@class, "icon-refresh")]')
+                    time.sleep(3)
+                    self.__click_ele(page=email_page, xpath='x://div[contains(@class,"sc-eDPEul")]//ul/li[1]')
+                    time.sleep(3)
+                    # 读取验证码
+                    ele = email_page.ele(locator='x://p[contains(text(),"Your verification code is: ")]')
+                    code = ele.text.split(':')[-1].strip()
+                    print(code)
+                except Exception as e:
+                    logger.error(f'error ==> {e}')
+                finally:
+                    email_page.close()
+                    time.sleep(3)
+
+                if loop_count >= 5:
+                    page.close()
+                    return
+                if code is None:
+                    loop_count += 1
+                    continue  # 跳到下一次循环
+                else:
+                    pwd = "yhy023r@23h34a7"
+                    pond_page.ele('x://input[@placeholder="Enter code"]').input(code, clear=True)
+                    time.sleep(2)
+                    pond_page.ele('x://input[@placeholder="Enter password"]').input(pwd, clear=True)
+                    time.sleep(4)
+                    if args.password == '000000':
+                        print("重置密码")
+                        self.__click_ele(page=pond_page, xpath='x://button[text()="Reset password"]')
+                    else:
+                        print("提交")
+                        self.__click_ele(page=pond_page, xpath='x://button[text()="Join Pond"]')
+                    args.password = pwd
+                    client.publish("updateAccount", json.dumps(get_account()))
+                    break
+        else:
+            pond_url = 'https://cryptopond.xyz/points?tab=idea'
+            pond_page = page.new_tab(url=pond_url)
+            self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
         time.sleep(2)
         pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
         time.sleep(2)
@@ -429,7 +433,7 @@ class Test(object):
             time.sleep(2)
 
         # 获取积分
-        point_span = email_page.ele('x://p[contains(@class, "chakra-text") and contains(@class, "css-c1o5sq")]')
+        point_span = pond_page.ele('x://p[contains(@class, "chakra-text") and contains(@class, "css-c1o5sq")]')
         integral = point_span.text
         logger.success(f'获取到积分 ==> {integral}')
         client.publish("appInfo", json.dumps(get_app_info_integral(integral)))
