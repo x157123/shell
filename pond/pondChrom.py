@@ -451,7 +451,12 @@ class Test(object):
 
     def __main(self, evm_id, evm_address) -> bool:
         page = self.__get_page()
-        self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address)
+        try:
+            self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address)
+        except Exception as error:
+            logger.error(f'error ==> {error}')
+        finally:
+            page.quit()
         return True
 
     def run(self, evm_id, evm_address):
@@ -524,7 +529,6 @@ if __name__ == '__main__':
                     except Exception as e:
                         logger.info(f"发生错误: {e}")
                     time.sleep(random.randint(23, 50))
-                    break
                 logger.info(f"执行完毕")
                 data_map[current_date] = 2
             else:
