@@ -95,10 +95,10 @@ def read_file(file_path):
         raise ValueError(f"文件未找到: {file_path}")
 
 
-def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
+def decrypt_aes_ecb(secret_key, data_encrypted_base64, accountType):
     """
     解密 AES ECB 模式的 Base64 编码数据，
-    去除 PKCS7 填充后返回所有 accountType 为 "hyper" 的记录中的指定 key 值列表。
+    去除 PKCS7 填充后返回所有 accountType 为 "hyper" 的记录。
     """
     try:
         # Base64 解码
@@ -112,25 +112,18 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
         # 将字节转换为字符串
         decrypted_text = decrypted_bytes.decode('utf-8')
 
-        # logger.info(f"获取数据中的 {key}: {decrypted_text}")
-
         # 解析 JSON 字符串为 Python 对象（通常为列表）
         data_list = json.loads(decrypted_text)
 
-        # 创建结果列表，收集所有匹配的 key 值
-        result = []
-        for item in data_list:
-            if item.get('accountType') == 'pond':
-                value = item.get(key)
-                if value is not None:  # 确保只添加存在的 key 值
-                    result.append(value)
-                    data_map[key] = item.get('password')
+        # 创建结果列表，收集所有 accountType 为 "hyper" 的记录
+        result = [item for item in data_list if item.get('accountType') == accountType]
 
         # 返回结果列表，如果没有匹配项则返回空列表
         return result
-
     except Exception as e:
-        raise ValueError(f"解密失败: {e}")
+        # 记录错误日志
+        logger.error(f"解密失败: {e}")
+        return []
 
 
 class Test(object):
@@ -361,7 +354,11 @@ class Test(object):
         pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
         time.sleep(2)
         pond_page.ele('x://input[@placeholder="Enter password"]').input(args.passwd, clear=True)
-        time.sleep(2)
+        time.sleep(10)
+        ele = pond_page.ele('xpath=//div[contains(@class, "css-1nkx66a")]/div/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
+        if ele.html.count('<input type="checkbox">'):
+            ele.ele('x://label/input').click()
+            time.sleep(3)
         self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
         if pond_page.ele('x://button[text()=" Continue"]'):
             time.sleep(2)
@@ -450,7 +447,7 @@ if __name__ == '__main__':
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + args.appId + '_user.json')
     # 解密并发送解密结果
-    public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, 'secretKey')
+    public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, "pond")
 
     if len(public_key_tmp) > 0:
         logger.info(f"发现账号{public_key_tmp}")
@@ -464,14 +461,13 @@ if __name__ == '__main__':
                 num = 0
                 for key in public_key_tmp:
                     num = 1
-                    args.index = key
-                    logger.info(f"执行: {key}")
-
+                    args.index = key.secretKey
+                    args.address = key.account
+                    args.passwd = key.password
+                    logger.info(f"执行: {args.index}：{args.address}：{args.passwd}")
                     test = Test()
-                    args.address = "0"
-                    args.passwd = "yhy000@001yhy"
                     logger.info("开始执行")
-                    test.run(evm_id=args.index, evm_address=args.address)
+                    # test.run(evm_id=args.index, evm_address=args.address)
 
                     #
                     # try:
