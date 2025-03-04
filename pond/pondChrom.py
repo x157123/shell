@@ -176,8 +176,8 @@ class Test(object):
             time.sleep(2)
         return 1
 
-    def setup_wallet(self, args):
-        logger.info(f"开始加载钱包：{args.index}")
+    def setup_wallet(self, arg):
+        logger.info(f"开始加载钱包：{arg.index}")
         tab = self.browser.new_tab(url="chrome://extensions/")
         time.sleep(12)
         tab.wait.ele_displayed("x://html/body/extensions-manager", 30)
@@ -205,7 +205,7 @@ class Test(object):
             toggle_ele.click()
         refresh_ele.click()
         time.sleep(6)
-        logger.info(f"开始打开设置钱包：{args.index}")
+        logger.info(f"开始打开设置钱包：{arg.index}")
         if len(self.browser.get_tabs(
                 url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding")) > 0:
             wallet_tab = self.browser.get_tab(
@@ -217,11 +217,11 @@ class Test(object):
             )
 
         time.sleep(3)
-        logger.info(f"开始设置钱包：{args.index}")
+        logger.info(f"开始设置钱包：{arg.index}")
         index_input_path = (
             "x://html/body/div/div[1]/div[4]/section/div/section/div/div/input"
         )
-        wallet_tab.ele(index_input_path).input(args.index, clear=True)
+        wallet_tab.ele(index_input_path).input(arg.index, clear=True)
         index_button_path = "tag:button@@id=existingWallet"
         index_set_button = wallet_tab.ele(index_button_path)
         time.sleep(1)
