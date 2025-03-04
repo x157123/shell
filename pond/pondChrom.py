@@ -240,9 +240,10 @@ class Test(object):
                 "tag:div@@class=jsx-1443409666 subtext@@text()^希望您使用您的登录"
             )
 
-            time.sleep(20)
+            time.sleep(10)
 
-            if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fdapp-permission':
+            if (pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fdapp-permission'
+                    or pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding'):
                 if pop_tab.ele(back_path) is not None:
                     pop_tab.ele(back_path).click()
                 time.sleep(2)
