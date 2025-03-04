@@ -509,26 +509,20 @@ if __name__ == '__main__':
                 num = 0
                 for key in public_key_tmp:
                     num = 1
-                    args.id = key["id"]
-                    args.index = key["secretKey"]
-                    args.address = key["account"]
-                    args.password = key["password"]
-                    logger.info(f"执行: {args.index}：{args.address}：{args.password}")
-                    test = Test()
-                    logger.info("开始执行")
-                    test.run(evm_id=args.index, evm_address=args.address)
-                    # 回填账号信息
-                    key["account"] = args.address
-                    key["password"] = args.password
-                    #
-                    # try:
-                    #     test = Test()
-                    #     args.address = "0"
-                    #     args.password = "yhy000@001yhy"
-                    #     logger.info("开始执行")
-                    #     asyncio.run(test.run(evm_id=args.index, evm_address=args.address))
-                    # except Exception as e:
-                    #     logger.info(f"发生错误: {e}")
+                    try:
+                        args.id = key["id"]
+                        args.index = key["secretKey"]
+                        args.address = key["account"]
+                        args.password = key["password"]
+                        logger.info(f"执行: {args.index}：{args.address}：{args.password}")
+                        test = Test()
+                        logger.info("开始执行")
+                        test.run(evm_id=args.index, evm_address=args.address)
+                        # 回填账号信息
+                        key["account"] = args.address
+                        key["password"] = args.password
+                    except Exception as e:
+                        logger.info(f"发生错误: {e}")
                     time.sleep(random.randint(23, 50))
                     break
                 logger.info(f"执行完毕")
