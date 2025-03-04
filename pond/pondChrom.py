@@ -231,7 +231,7 @@ class Test(object):
         result = True
         return result
 
-    async def __do_task(self, page, evm_id, evm_address):
+    def __do_task(self, page, evm_id, evm_address):
         self.browser = page
         logger.info("开始打开钱包")
         res = self.setup_wallet(args)
