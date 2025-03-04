@@ -468,7 +468,7 @@ if __name__ == '__main__':
                     test = Test()
                     logger.info("开始执行")
                     # test.run(evm_id=args.index, evm_address=args.address)
-
+                    key["account"] = "xxxxxxxx"
                     #
                     # try:
                     #     test = Test()
@@ -479,7 +479,15 @@ if __name__ == '__main__':
                     # except Exception as e:
                     #     logger.info(f"发生错误: {e}")
                     time.sleep(random.randint(23, 50))
-                    break
+
+                for key in public_key_tmp:
+                    num = 1
+                    args.index = key["secretKey"]
+                    args.address = key["account"]
+                    args.passwd = key["password"]
+                    logger.info(f"执行: {args.index}：{args.address}：{args.passwd}")
+                    test = Test()
+                    logger.info("开始执行")
                 logger.info(f"执行完毕")
                 data_map[current_date] = 2
             else:
