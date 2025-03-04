@@ -220,7 +220,14 @@ class Test(object):
         index_set_button = wallet_tab.ele(index_button_path)
         time.sleep(1)
         index_set_button.click()
-
+        if len(self.browser.get_tabs(title="Signma")) > 0:
+            time.sleep(3)
+            pop_tab = self.browser.get_tab(title="Signma")
+            if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
+                pop_tab.ele(index_input_path).input(arg.index, clear=True)
+                index_set_button = wallet_tab.ele(index_button_path)
+                time.sleep(1)
+                index_set_button.click()
         time.sleep(3)
         result = True
         return result
@@ -242,8 +249,7 @@ class Test(object):
 
             time.sleep(10)
 
-            if (pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fdapp-permission'
-                    or pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding'):
+            if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fdapp-permission':
                 if pop_tab.ele(back_path) is not None:
                     pop_tab.ele(back_path).click()
                 time.sleep(2)
