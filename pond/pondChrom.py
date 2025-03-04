@@ -274,132 +274,135 @@ class Test(object):
             self.process_pop()
             time.sleep(8)
         self.__click_ele(page=pond_page, xpath='x://div[@data-title="Setting"]')
+        if pond_page.ele('x://a[text()="Next"]'):
+            self.__click_ele(page=pond_page, xpath='x://a[text()="Next"]')
+            self.__click_ele(page=pond_page, xpath='x://a[text()="Finish"]')
         email_span = pond_page.ele('x://p[contains(., "Default Address: ")]/span')
-        email = email_span.text
-        print(email)
-        #
-        # pond_url = 'https://cryptopond.xyz/points?tab=idea'
-        # pond_page = page.new_tab(url=pond_url)
-        # if args.passwd == '000000':
-        #     await self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
-        #     await self.__click_ele(page=pond_page, xpath='x://p[text()="Forgot?"]')
-        #     await asyncio.sleep(5)
-        #     pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
-        #     await self.__click_ele(page=pond_page, xpath='x://button[text()="Send email"]')
-        # else:
-        #     await self.__click_ele(page=pond_page, xpath='x://button[text()="Sign up"]')
-        #     pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
-        #     await asyncio.sleep(5)
-        #     await self.__click_ele(page=pond_page, xpath='x://span[contains(@class, "chakra-checkbox__control")]')
-        #     await self.__click_ele(page=pond_page, xpath='x://button[text()="Sign up"]')
-        #
-        # code = None
-        # loop_count = 0
-        # while True:
-        #     email_page = page.new_tab(url='https://mail.dmail.ai/inbox')
-        #     try:
-        #         time.sleep(5)
-        #         await self.__click_ele(page=email_page, xpath='x://span[text()="Starred"]')
-        #         time.sleep(3)
-        #         await self.__click_ele(page=email_page, xpath='x://span[text()="Inbox"]')
-        #         time.sleep(3)
-        #         await self.__click_ele(page=email_page, xpath='x://div[contains(@class, "icon-refresh")]')
-        #         time.sleep(3)
-        #         await self.__click_ele(page=email_page, xpath='x://div[contains(@class,"sc-eDPEul")]//ul/li[1]')
-        #         time.sleep(3)
-        #         # 读取验证码
-        #         ele = email_page.ele(locator='x://p[contains(text(),"Your verification code is: ")]')
-        #         code = ele.text.split(':')[-1].strip()
-        #         print(code)
-        #     except Exception as e:
-        #         logger.error(f'error ==> {e}')
-        #     finally:
-        #         email_page.close()
-        #         time.sleep(3)
-        #
-        #     if loop_count >= 5:
-        #         page.close()
-        #         return
-        #     if code is None:
-        #         loop_count += 1
-        #         continue  # 跳到下一次循环
-        #     else:
-        #         pond_page.ele('x://input[@placeholder="Enter code"]').input(code, clear=True)
-        #         time.sleep(2)
-        #         pond_page.ele('x://input[@placeholder="Enter password"]').input("xujiaxujia123", clear=True)
-        #         time.sleep(4)
-        #         if args.passwd == '000000':
-        #             print("重置密码")
-        #             await self.__click_ele(page=pond_page, xpath='x://button[text()="Reset password"]')
-        #         else:
-        #             print("提交")
-        #             await self.__click_ele(page=pond_page, xpath='x://button[text()="Join Pond"]')
-        #         break
-        #
-        # time.sleep(2)
-        # pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
-        # time.sleep(2)
-        # pond_page.ele('x://input[@placeholder="Enter password"]').input("xujiaxujia123", clear=True)
-        # time.sleep(2)
-        # await self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
-        # if pond_page.ele('x://button[text()=" Continue"]'):
-        #     time.sleep(2)
-        #     await self.__click_ele(page=pond_page, xpath='x://button[text()=" Continue"]')
-        #     time.sleep(2)
-        #     await self.__click_ele(page=pond_page, xpath='x://button[text()=" Continue"]')
-        #     time.sleep(2)
-        #     await self.__click_ele(page=pond_page, xpath='x://button[text()="Got It"]')
-        #     time.sleep(2)
-        #
-        #
-        # # # Common
-        # await self.__click_ele(page=pond_page, xpath='x://p[text()="Common"]')
-        # go_in = pond_page.ele('x://span[text()="Complete Profile Information"]/ancestor::div[2]/following-sibling::div//button')
-        # if go_in:
-        #     time.sleep(2)
-        #     await self.__click_ele(page=pond_page, xpath='x://span[text()="Complete Profile Information"]/ancestor::div[2]/following-sibling::div//button')
-        #     time.sleep(2)
-        #     await self.__click_ele(page=pond_page, xpath='x://button[text()="Save"]')
-        #     time.sleep(2)
-        #     pond_page.get(url=pond_url)
-        #     time.sleep(2)
-        #
-        #
-        # # idea Propose an Idea
-        # await self.__click_ele(page=pond_page, xpath='x://p[text()="Idea"]')
-        # go_in = pond_page.ele('x://span[text()="Propose an Idea"]/ancestor::div[2]/following-sibling::div//button')
-        # if go_in:
-        #     await self.__click_ele(page=pond_page, xpath='x://span[text()="Propose an Idea"]/ancestor::div[2]/following-sibling::div//button')
-        #     pond_page.ele('x://input[@placeholder="Enter the title of your model idea"]').input("SmartFormAI: AI-Powered Intelligent Form Autofill and Data Extraction", clear=True)
-        #     pond_page.ele('x://textarea[@placeholder="Enter a brief summary of your model idea"]').input("SmartFormAI is an AI model designed to automate form-filling processes and extract structured data from various document types. Leveraging natural language processing (NLP) and computer vision, this model can understand and interpret input fields, extract relevant user information, and accurately populate forms across web and desktop applications. The model is particularly useful for automating repetitive form submissions, enhancing data entry efficiency, and integrating with enterprise-level workflows.", clear=True)
-        #     await self.__click_ele(page=pond_page, xpath='x://div[@class="ProseMirror bn-editor bn-default-styles"]')
-        #     pond_page.actions.type("SmartFormAI is an AI model that combines OCR (Optical Character Recognition), NLP, and deep learning-based entity recognition to automatically fill out forms and extract structured information. The model follows these key steps:")
-        #     pond_page.actions.type("Document and Form Detection:")
-        #     pond_page.actions.type("Uses computer vision to identify form structures in images, PDFs, or digital forms.")
-        #     pond_page.actions.type("Recognizes input fields, labels, and section titles using OCR and layout analysis.")
-        #     pond_page.actions.type("Data Extraction and Interpretation:")
-        #     pond_page.actions.type("Analyzes provided text (e.g., user profile, ID cards, invoices) to extract relevant details.")
-        #     pond_page.actions.type("Uses NLP-based Named Entity Recognition (NER) to classify fields (e.g., name, address, email, etc.).")
-        #     pond_page.actions.type("Intelligent Form-Filling:")
-        #     pond_page.actions.type("Maps extracted data to corresponding fields using contextual understanding.")
-        #     pond_page.actions.type("Auto-fills fields dynamically, ensuring accuracy and format compliance.")
-        #     pond_page.actions.type("Supports learning from user interactions to improve accuracy over time.")
-        #     pond_page.actions.type("Integration & Automation:")
-        #     time.sleep(2)
-        #     await self.__click_ele(page=pond_page, xpath='x://button[text()="Save"]')
-        #     time.sleep(2)
-        #     pond_page.get(url=pond_url)
-        #     time.sleep(2)
-        #
-        # # idea Propose an Idea
-        # await self.__click_ele(page=pond_page, xpath='x://p[text()="Idea"]')
-        # go_in = pond_page.ele('x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button')
-        # if go_in:
-        #     time.sleep(3)
-        #     await self.__click_ele(page=pond_page, xpath='x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button')
-        #     time.sleep(3)
-        #     await self.__click_ele(page=pond_page, xpath='x://div[contains(@class, "css-1mfyor6")]')
-        #     time.sleep(3)
+        args.address = email_span.text
+        print(args.address)
+
+        pond_url = 'https://cryptopond.xyz/points?tab=idea'
+        pond_page = page.new_tab(url=pond_url)
+        if args.passwd == '000000':
+            self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
+            self.__click_ele(page=pond_page, xpath='x://p[text()="Forgot?"]')
+            asyncio.sleep(5)
+            pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
+            self.__click_ele(page=pond_page, xpath='x://button[text()="Send email"]')
+        else:
+            self.__click_ele(page=pond_page, xpath='x://button[text()="Sign up"]')
+            pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
+            asyncio.sleep(5)
+            self.__click_ele(page=pond_page, xpath='x://span[contains(@class, "chakra-checkbox__control")]')
+            self.__click_ele(page=pond_page, xpath='x://button[text()="Sign up"]')
+
+        code = None
+        loop_count = 0
+        while True:
+            email_page = page.new_tab(url='https://mail.dmail.ai/inbox')
+            try:
+                time.sleep(5)
+                self.__click_ele(page=email_page, xpath='x://span[text()="Starred"]')
+                time.sleep(3)
+                self.__click_ele(page=email_page, xpath='x://span[text()="Inbox"]')
+                time.sleep(3)
+                self.__click_ele(page=email_page, xpath='x://div[contains(@class, "icon-refresh")]')
+                time.sleep(3)
+                self.__click_ele(page=email_page, xpath='x://div[contains(@class,"sc-eDPEul")]//ul/li[1]')
+                time.sleep(3)
+                # 读取验证码
+                ele = email_page.ele(locator='x://p[contains(text(),"Your verification code is: ")]')
+                code = ele.text.split(':')[-1].strip()
+                print(code)
+            except Exception as e:
+                logger.error(f'error ==> {e}')
+            finally:
+                email_page.close()
+                time.sleep(3)
+
+            if loop_count >= 5:
+                page.close()
+                return
+            if code is None:
+                loop_count += 1
+                continue  # 跳到下一次循环
+            else:
+                pond_page.ele('x://input[@placeholder="Enter code"]').input(code, clear=True)
+                time.sleep(2)
+                pond_page.ele('x://input[@placeholder="Enter password"]').input(args.passwd, clear=True)
+                time.sleep(4)
+                if args.passwd == '000000':
+                    print("重置密码")
+                    self.__click_ele(page=pond_page, xpath='x://button[text()="Reset password"]')
+                else:
+                    print("提交")
+                    self.__click_ele(page=pond_page, xpath='x://button[text()="Join Pond"]')
+                break
+
+        time.sleep(2)
+        pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
+        time.sleep(2)
+        pond_page.ele('x://input[@placeholder="Enter password"]').input(args.passwd, clear=True)
+        time.sleep(2)
+        self.__click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
+        if pond_page.ele('x://button[text()=" Continue"]'):
+            time.sleep(2)
+            self.__click_ele(page=pond_page, xpath='x://button[text()=" Continue"]')
+            time.sleep(2)
+            self.__click_ele(page=pond_page, xpath='x://button[text()=" Continue"]')
+            time.sleep(2)
+            self.__click_ele(page=pond_page, xpath='x://button[text()="Got It"]')
+            time.sleep(2)
+
+
+        # # Common
+        self.__click_ele(page=pond_page, xpath='x://p[text()="Common"]')
+        go_in = pond_page.ele('x://span[text()="Complete Profile Information"]/ancestor::div[2]/following-sibling::div//button')
+        if go_in:
+            time.sleep(2)
+            self.__click_ele(page=pond_page, xpath='x://span[text()="Complete Profile Information"]/ancestor::div[2]/following-sibling::div//button')
+            time.sleep(2)
+            self.__click_ele(page=pond_page, xpath='x://button[text()="Save"]')
+            time.sleep(2)
+            pond_page.get(url=pond_url)
+            time.sleep(2)
+
+
+        # idea Propose an Idea
+        self.__click_ele(page=pond_page, xpath='x://p[text()="Idea"]')
+        go_in = pond_page.ele('x://span[text()="Propose an Idea"]/ancestor::div[2]/following-sibling::div//button')
+        if go_in:
+            self.__click_ele(page=pond_page, xpath='x://span[text()="Propose an Idea"]/ancestor::div[2]/following-sibling::div//button')
+            pond_page.ele('x://input[@placeholder="Enter the title of your model idea"]').input("SmartFormAI: AI-Powered Intelligent Form Autofill and Data Extraction", clear=True)
+            pond_page.ele('x://textarea[@placeholder="Enter a brief summary of your model idea"]').input("SmartFormAI is an AI model designed to automate form-filling processes and extract structured data from various document types. Leveraging natural language processing (NLP) and computer vision, this model can understand and interpret input fields, extract relevant user information, and accurately populate forms across web and desktop applications. The model is particularly useful for automating repetitive form submissions, enhancing data entry efficiency, and integrating with enterprise-level workflows.", clear=True)
+            self.__click_ele(page=pond_page, xpath='x://div[@class="ProseMirror bn-editor bn-default-styles"]')
+            pond_page.actions.type("SmartFormAI is an AI model that combines OCR (Optical Character Recognition), NLP, and deep learning-based entity recognition to automatically fill out forms and extract structured information. The model follows these key steps:")
+            pond_page.actions.type("Document and Form Detection:")
+            pond_page.actions.type("Uses computer vision to identify form structures in images, PDFs, or digital forms.")
+            pond_page.actions.type("Recognizes input fields, labels, and section titles using OCR and layout analysis.")
+            pond_page.actions.type("Data Extraction and Interpretation:")
+            pond_page.actions.type("Analyzes provided text (e.g., user profile, ID cards, invoices) to extract relevant details.")
+            pond_page.actions.type("Uses NLP-based Named Entity Recognition (NER) to classify fields (e.g., name, address, email, etc.).")
+            pond_page.actions.type("Intelligent Form-Filling:")
+            pond_page.actions.type("Maps extracted data to corresponding fields using contextual understanding.")
+            pond_page.actions.type("Auto-fills fields dynamically, ensuring accuracy and format compliance.")
+            pond_page.actions.type("Supports learning from user interactions to improve accuracy over time.")
+            pond_page.actions.type("Integration & Automation:")
+            time.sleep(2)
+            self.__click_ele(page=pond_page, xpath='x://button[text()="Save"]')
+            time.sleep(2)
+            pond_page.get(url=pond_url)
+            time.sleep(2)
+
+        # idea Propose an Idea
+        self.__click_ele(page=pond_page, xpath='x://p[text()="Idea"]')
+        go_in = pond_page.ele('x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button')
+        if go_in:
+            time.sleep(3)
+            self.__click_ele(page=pond_page, xpath='x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button')
+            time.sleep(3)
+            self.__click_ele(page=pond_page, xpath='x://div[contains(@class, "css-1mfyor6")]')
+            time.sleep(3)
 
     def __main(self, evm_id, evm_address) -> bool:
         page = self.__get_page()
