@@ -190,8 +190,9 @@ def main(client, serverId, appId, decryptKey, user, display):
     if private_match:
         private_key = private_match.group(1)
 
-    with open("/root/.config/hyperspace/key.pem", "rb") as file:
+    with open("/root/.config/hyperspace/key.pem", "r", encoding="utf-8") as file:
         key_content = file.read()
+
     logger.info(f"Public Key: {public_key}")
     logger.info(f"Private Key: {private_key}")
     logger.info(f"key_content: {key_content}")
