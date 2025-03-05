@@ -161,8 +161,10 @@ def main(client, serverId, appId, decryptKey, user, display):
     pem = decrypt_aes_ecb(decryptKey, encrypted_data_base64, "remarks")
     publicKey = decrypt_aes_ecb(decryptKey, encrypted_data_base64, "privateKey")
 
-    logger.info("publicKey" + pem)
-    logger.info("publicKey" + publicKey)
+    if pem is not None:
+        logger.info("publicKey" + pem)
+    if publicKey is not None:
+        logger.info("publicKey" + publicKey)
     # if private_key is not None:
     #     file_path = "/path/to/your/file.txt"
     #     with open(file_path, "w", encoding="utf-8") as file:
