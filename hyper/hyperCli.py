@@ -159,12 +159,13 @@ def main(client, serverId, appId, decryptKey, user, display):
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
     # 解密并发送解密结果
     pem = decrypt_aes_ecb(decryptKey, encrypted_data_base64, "remarks")
-    publicKey = decrypt_aes_ecb(decryptKey, encrypted_data_base64, "privateKey")
+    publicKey = decrypt_aes_ecb(decryptKey, encrypted_data_base64, "publicKey")
 
-    if pem is not None:
-        logger.info("publicKey" + pem)
-    if publicKey is not None:
-        logger.info("publicKey" + publicKey)
+    # if pem is not None:
+    #     logger.info("publicKey" + pem)
+    # if publicKey is not None:
+    #     logger.info("publicKey" + publicKey)
+
     # if private_key is not None:
     #     file_path = "/path/to/your/file.txt"
     #     with open(file_path, "w", encoding="utf-8") as file:
@@ -197,7 +198,8 @@ def main(client, serverId, appId, decryptKey, user, display):
     logger.info(f"Private Key: {private_key}")
     logger.info(f"key_content: {key_content}")
     logger.info("whoami 命令执行完毕。")
-    client.publish("hyperCli", json.dumps(get_info(serverId, "hyperCli", public_key, private_key, key_content)))
+    if publicKey is None and public_key != publicKey:
+        client.publish("hyperCli", json.dumps(get_info(serverId, "hyperCli", public_key, private_key, key_content)))
 
     # 7. 执行 hive select-tier 5 命令
     logger.info("执行 hive select-tier 5 命令...")
