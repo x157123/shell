@@ -492,6 +492,9 @@ main() {
         error_exit "此脚本需要 root 权限运行，请使用 sudo 或以 root 用户执行"
     fi
 
+    # 关闭浏览器
+    pkill -9 msedge
+
     parse_args "$@"
     update_system
     install_system_deps
