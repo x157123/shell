@@ -1054,6 +1054,8 @@ class TaskSet:
                 time.sleep(2)
                 self.__click_ele(page=self.tab, xpath='x://button[text()="Connect"]')
                 time.sleep(5)
+                self.__click_ele(page=self.tab, xpath='x://div[text()="Signma"]')
+                time.sleep(5)
                 for _ in range(3):
                     self.process_pop()
                     time.sleep(8)
