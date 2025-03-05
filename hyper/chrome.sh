@@ -157,6 +157,8 @@ parse_args() {
 # 更新系统包列表
 update_system() {
     log_info "更新系统软件包列表..."
+    # 屏蔽掉google浏览器
+    sudo mv /etc/apt/sources.list.d/google-chrome.list /etc/apt/sources.list.d/google-chrome.list.bak
     sudo apt update -y || error_exit "软件包列表更新失败"
 }
 
