@@ -309,6 +309,7 @@ class Test(object):
                     ele.ele('x://label/input').click()
                     time.sleep(3)
                 pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
+                time.sleep(3)
                 self.__click_ele(page=pond_page, xpath='x://button[text()="Send email"]')
             else:
                 self.__click_ele(page=pond_page, xpath='x://button[text()="Sign up"]')
@@ -319,6 +320,7 @@ class Test(object):
                     ele.ele('x://label/input').click()
                     time.sleep(3)
                 self.__click_ele(page=pond_page, xpath='x://span[contains(@class, "chakra-checkbox__control")]')
+                time.sleep(3)
                 self.__click_ele(page=pond_page, xpath='x://button[text()="Sign up"]')
 
             code = None

