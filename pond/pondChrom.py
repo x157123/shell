@@ -328,7 +328,7 @@ class Test(object):
             while True:
                 email_page = page.new_tab(url='https://mail.dmail.ai/inbox')
                 try:
-                    time.sleep(5)
+                    time.sleep(15)
                     self.__click_ele(page=email_page, xpath='x://span[text()="Starred"]')
                     time.sleep(3)
                     self.__click_ele(page=email_page, xpath='x://span[text()="Inbox"]')
@@ -340,13 +340,15 @@ class Test(object):
                     # 读取验证码
                     ele = email_page.ele(locator='x://p[contains(text(),"Your verification code is: ")]')
                     code = ele.text.split(':')[-1].strip()
+                    if code is not None:
+                        self.__click_ele(page=email_page, xpath='x://div[@data-title="trash"]')
+                        time.sleep(3)
                     print(code)
                 except Exception as e:
                     logger.error(f'error ==> {e}')
                 finally:
                     email_page.close()
                     time.sleep(3)
-
                 if loop_count >= 5:
                     page.close()
                     return
@@ -354,6 +356,7 @@ class Test(object):
                     loop_count += 1
                     continue  # 跳到下一次循环
                 else:
+
                     pwd = "yhy023r@23h34a7"
                     pond_page.ele('x://input[@placeholder="Enter code"]').input(code, clear=True)
                     time.sleep(2)
