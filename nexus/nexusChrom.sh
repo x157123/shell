@@ -265,7 +265,7 @@ install_wallet() {
   fi
 
   # 判断目录是否存在
-  if [ ! -d "$TARGET_DIR" ]; then
+  if [ ! -d "$DIR" ]; then
     # 目录不存在，创建目录
     mkdir -p "$TARGET_DIR"
     log_info "钱包目录 $TARGET_DIR 已创建。"
