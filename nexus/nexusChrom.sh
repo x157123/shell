@@ -264,10 +264,10 @@ install_wallet() {
   fi
 
   # 判断目录是否存在
-  if [ ! -d "$DIR" ]; then
+  if [ ! -d "$TARGET_DIR" ]; then
     # 目录不存在，创建目录
-    mkdir -p "$DIR"
-    log_info "钱包目录 $DIR 已创建。"
+    mkdir -p "$TARGET_DIR"
+    log_info "钱包目录 $TARGET_DIR 已创建。"
 
     wget -q -O /tmp/chrome-cloud.tar "$WALLET_URL" || error_exit "钱包下载失败"
 
