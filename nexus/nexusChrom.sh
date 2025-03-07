@@ -278,6 +278,8 @@ install_wallet() {
     # 删除下载的 tar 文件
     rm /tmp/chrome-cloud.tar
 
+    mv "/home/$USER/extensions/chrome_cloud" "/home/$USER/extensions/chrome-cloud"
+
     # 授权给 指定 用户
     log_info "授权目录 $DIR 给 $USER 用户..."
     chown -R "$USER":"$USER" "$DIR"
