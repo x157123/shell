@@ -292,6 +292,21 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 启动浏览器
     logger.info(f"start")
     tab = configure_browser(user)
+
+    time.sleep(2)
+    if len(tab.get_tabs(title="Signma")) > 0:
+        time.sleep(3)
+        pop_tab = tab.browser.get_tab(title="Signma")
+        if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
+            pop_tab.close()
+
+    time.sleep(2)
+    if len(tab.browser.get_tabs(title="Signma")) > 0:
+        time.sleep(3)
+        pop_tab = tab.browser.get_tab(title="Extensions")
+        if pop_tab.url == 'chrome://extensions':
+            pop_tab.close()
+
     logger.info(f"安装钱包:{obj['secretKey']}")
     tab = setup_wallet(tab, obj['secretKey'])
     time.sleep(3)
