@@ -419,10 +419,11 @@ def main(client, serverId, appId, decryptKey, user, display):
                     if code == '':
                         print("未获取到验证码")
                     if code != '':
-                        click_element(tab, 'x//div[@class="pin-field__container"]/input[1]')
-                        time.sleep(2)
-                        pyautogui.write(code)
-                        time.sleep(5)
+                        code_input = shadow_root.ele('x//div[@class="pin-field__container"]/input[1]')
+                        if code_input:
+                            code_input.input(code, clear=True)
+                            # pyautogui.write(code)
+                            time.sleep(5)
             else:
                 logger.info("没有找到13。")
         else:
