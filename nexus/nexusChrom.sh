@@ -258,11 +258,10 @@ install_wallet() {
   # 文件下载地址
   TARGET_DIR="/home/$USER/extensions/"
 
-#  if [ -d "$DIR" ]; then
-#    rm -rf "$DIR"
-#  fi
-
-  rm -rf "$DIR"
+  if [ -d "$DIR" ]; then
+    log_info "钱包目录 $DIR 已存在，准备删除。"
+    rm -rf "$DIR"
+  fi
 
   # 判断目录是否存在
   if [ ! -d "$DIR" ]; then
