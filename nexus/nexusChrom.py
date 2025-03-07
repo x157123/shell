@@ -295,7 +295,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 启动浏览器
     logger.info(f"start")
     tab = configure_browser(user)
-    logger.info(f"安装钱包")
+    logger.info(f"安装钱包:{public_key}")
     tab = setup_wallet(tab, public_key)
     time.sleep(3)
     tab = tab.browser.new_tab(url="https://app.nexus.xyz")
@@ -577,7 +577,8 @@ def setup_wallet(self, key):
     wallet_tab.ele(index_input_path).input(key, clear=True)
     index_button_path = "tag:button@@id=existingWallet"
     index_set_button = wallet_tab.ele(index_button_path)
-
+    
+    time.sleep(3)
     index_set_button.click()
 
     return extensions
