@@ -292,8 +292,8 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 启动浏览器
     logger.info(f"start")
     tab = configure_browser(user)
-    logger.info(f"安装钱包:{obj["secretKey"]}")
-    tab = setup_wallet(tab, obj["secretKey"])
+    logger.info(f"安装钱包:{obj['secretKey']}")
+    tab = setup_wallet(tab, obj['secretKey'])
     time.sleep(3)
     tab = tab.browser.new_tab(url="https://app.nexus.xyz")
 
