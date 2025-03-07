@@ -12,7 +12,7 @@ from Crypto.Util.Padding import unpad
 import random
 import subprocess
 import os
-
+import pyautogui
 
 def configure_browser(user):
     """配置并启动浏览器"""
@@ -133,10 +133,10 @@ def read_file(file_path):
         raise ValueError(f"文件未找到: {file_path}")
 
 
-def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
+def decrypt_aes_ecb(secret_key, data_encrypted_base64, accountType):
     """
     解密 AES ECB 模式的 Base64 编码数据，
-    去除 PKCS7 填充后直接返回 accountType 为 "hyper" 的记录中的 privateKey。
+    去除 PKCS7 填充后返回所有 accountType 为 "hyper" 的记录。
     """
     try:
         # Base64 解码
@@ -150,21 +150,18 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, key):
         # 将字节转换为字符串
         decrypted_text = decrypted_bytes.decode('utf-8')
 
-        # logger.info(f"获取数据中的 {key}: {decrypted_text}")
-
         # 解析 JSON 字符串为 Python 对象（通常为列表）
         data_list = json.loads(decrypted_text)
 
-        # 遍历数组，查找 accountType 为 "hyper" 的第一个记录
-        for item in data_list:
-            if item.get('accountType') == 'nexusWallet':
-                return item.get(key)
+        # 使用 next() 获取第一个匹配项
+        first_match = next((item for item in data_list if item.get('accountType') == accountType), None)
 
-        # 没有找到匹配的记录，返回 None
-        return None
-
+        # 返回第一个匹配的结果，如果没有则返回 None
+        return first_match
     except Exception as e:
-        raise ValueError(f"解密失败: {e}")
+        # 记录错误日志
+        logger.error(f"解密失败: {e}")
+        return None
 
 
 def get_info(server_id, account_type, public_key, private_key):
@@ -284,9 +281,9 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
     # 解密并发送解密结果
-    public_key = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'secretKey')
+    obj = decrypt_aes_ecb(decryptKey, encrypted_data_base64, "nexusWallet")
 
-    if public_key is None:
+    if obj is None:
         client.publish("appInfo",
                        json.dumps(get_app_info(serverId, appId, 3, '未绑定账号')))
         logger.info(f"未读取到账号")
@@ -295,8 +292,8 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 启动浏览器
     logger.info(f"start")
     tab = configure_browser(user)
-    logger.info(f"安装钱包:{public_key}")
-    tab = setup_wallet(tab, public_key)
+    logger.info(f"安装钱包:{obj["secretKey"]}")
+    tab = setup_wallet(tab, obj["secretKey"])
     time.sleep(3)
     tab = tab.browser.new_tab(url="https://app.nexus.xyz")
 
@@ -393,10 +390,22 @@ def main(client, serverId, appId, decryptKey, user, display):
         shadow_root = shadow_host.shadow_root
         if shadow_root:
             logger.info("找到123。")
-            newtwork = shadow_root.ele('x://button[.//span[text()="Continue"]]')
-            if newtwork:
-                logger.info("找到13。")
-                newtwork.click(by_js=True)
+            email = shadow_root.ele('x://div[@id="email"]')
+            if email:
+                logger.info(f'发现邮箱，输入邮箱地址：{obj["email"]}')
+                email.input(obj["email"], clear=True)
+                time.sleep(2)
+                newtwork = shadow_root.ele('x://button[.//span[text()="Continue"]]')
+                if newtwork:
+                    logger.info("连接。")
+                    newtwork.click(by_js=True)
+                    # 获取邮箱验证码
+                    code = get_email_code(tab)
+                    if code == '':
+                        print("未获取到验证码")
+                    if code != '':
+                        pyautogui.write(code)
+                        time.sleep(5)
             else:
                 logger.info("没有找到13。")
         else:
@@ -407,6 +416,49 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab, client, serverId, appId, user, display, public_key)
 
+
+def get_email_code(tab):
+    email_url = 'https://mail.dmail.ai/inbox'
+    email_page = tab.new_tab(url=email_url)
+    time.sleep(10)
+    if email_page.ele('x://span[text()="MetaMask"]'):
+        click_element(email_page, xpath='x://span[text()="MetaMask"]')
+        for _ in range(3):
+            myriad_pop(tab)
+            time.sleep(8)
+    code = ''
+    loop_count = 0
+    while True:
+        try:
+            time.sleep(15)
+            click_element(email_page, xpath='x://span[text()="Starred"]')
+            time.sleep(3)
+            click_element(email_page, xpath='x://span[text()="Inbox"]')
+            time.sleep(3)
+            click_element(email_page, xpath='x://div[contains(@class, "icon-refresh")]')
+            time.sleep(3)
+            click_element(email_page, xpath='x://div[contains(@class,"sc-eDPEul")]//ul/li[1]')
+            time.sleep(3)
+            # 读取验证码
+            ele = email_page.ele(locator='x://p[@class="main__code"]/span')
+            if ele:
+                code = ele.text
+                logger.info(f"读取到验证码:{code}")
+            if code is not None:
+                click_element(email_page, xpath='x://div[@data-title="trash"]')
+                time.sleep(3)
+            print(code)
+        except Exception as e:
+            logger.error(f'error ==> {e}')
+        if loop_count >= 5:
+            return
+        if code is None:
+            loop_count += 1
+            continue  # 跳到下一次循环
+    email_page.close()
+    return code
+
+    
 
 
 def myriad_pop(self):
@@ -577,7 +629,7 @@ def setup_wallet(self, key):
     wallet_tab.ele(index_input_path).input(key, clear=True)
     index_button_path = "tag:button@@id=existingWallet"
     index_set_button = wallet_tab.ele(index_button_path)
-    
+
     time.sleep(3)
     index_set_button.click()
 
