@@ -216,7 +216,7 @@ def monitor_switch(tab, client, serverId, appId, user, display, public_key):
 
             if i > 100:
                 logger.info("准备获取积分。")
-                signup_ele = tab.ele('x://div[text()="Earnings"]')
+                signup_ele = tab.ele('x://div[text()="Points"]')
                 if signup_ele:
                     # 定位包含 "NEX points" 的父元素（精确匹配文本内容）
                     parent_ele = tab.ele('xpath://div[text()[contains(., "NEX points")]]/parent::div')
