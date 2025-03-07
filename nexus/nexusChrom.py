@@ -381,7 +381,7 @@ def main(client, serverId, appId, decryptKey, user, display):
         logger.info("没有找到22。")
 
     time.sleep(3)
-    logger.info("再次查看是否需要联网。")
+    logger.info("再次查看是否需要关联邮箱。")
     # 定位到包含 shadow DOM 的元素
     shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
     if shadow_host:
@@ -390,7 +390,7 @@ def main(client, serverId, appId, decryptKey, user, display):
         shadow_root = shadow_host.shadow_root
         if shadow_root:
             logger.info("找到123。")
-            email = shadow_root.ele('x://div[@id="email"]')
+            email = shadow_root.ele('x://input[@id="email"]')
             if email:
                 logger.info(f'发现邮箱，输入邮箱地址：{obj["email"]}')
                 email.input(obj["email"], clear=True)
@@ -414,7 +414,7 @@ def main(client, serverId, appId, decryptKey, user, display):
         logger.info("没有找到223。")
 
     # 进入循环，持续监控切换按钮状态
-    monitor_switch(tab, client, serverId, appId, user, display, public_key)
+    monitor_switch(tab, client, serverId, appId, user, display, obj["email"])
 
 
 def get_email_code(tab):
