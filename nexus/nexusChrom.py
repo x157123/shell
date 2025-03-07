@@ -294,7 +294,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     tab = configure_browser(user)
 
     time.sleep(2)
-    if len(tab.get_tabs(title="Signma")) > 0:
+    if len(tab.browser.get_tabs(title="Signma")) > 0:
         time.sleep(3)
         pop_tab = tab.browser.get_tab(title="Signma")
         if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
