@@ -16,7 +16,7 @@ import os
 
 def configure_browser(user):
     """配置并启动浏览器"""
-    co = (ChromiumOptions().set_local_port(9515)
+    co = (ChromiumOptions().set_local_port(args.chromePort)
           .set_paths(r"/opt/google/chrome/google-chrome")
           .add_extension(r"/home/" + user + "/extensions/chrome-cloud"))
     arguments = [
@@ -589,6 +589,7 @@ if __name__ == '__main__':
     parser.add_argument("--appId", type=str, help="应用ID", required=True)
     parser.add_argument("--decryptKey", type=str, help="解密key", required=True)
     parser.add_argument("--user", type=str, help="执行用户", required=True)
+    parser.add_argument("--chromePort", type=str, help="执行浏览器端口", required=True)
     parser.add_argument("--display", type=str, help="执行窗口", required=True)
     args = parser.parse_args()
 
