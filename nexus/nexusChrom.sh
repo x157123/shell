@@ -269,9 +269,7 @@ install_wallet() {
     mkdir -p "$DIR"
     log_info "钱包目录 $DIR 已创建。"
 
-    if ! curl -sSL "$WALLET_URL" -o /tmp/chrome-cloud.tar; then
-        log_info "钱包 URL 下载失败，$WALLET_URL"
-    fi
+    wget -q -O /tmp/chrome-cloud.tar "$WALLET_URL" || error_exit "钱包下载失败"
 
     # 解压文件
     log_info "解压文件..."
