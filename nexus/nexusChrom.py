@@ -22,7 +22,7 @@ def configure_browser(user):
     arguments = [
         "--accept-lang=en-US", "--no-first-run", "--force-color-profile=srgb",
         "--metrics-recording-only", "--password-store=basic", "--use-mock-keychain",
-        "--export-tagged-pdf", "--disable-gpu", "--disable-web-security",
+        "--export-tagged-pdf", "--disable-gpu",
         "--disable-infobars", "--disable-popup-blocking", "--allow-outdated-plugins",
         "--deny-permission-prompts", "--disable-suggestions-ui", "--window-size=1920,1080",
         "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/9515",
@@ -414,16 +414,19 @@ def main(client, serverId, appId, decryptKey, user, display):
                 if newtwork:
                     logger.info("连接。")
                     newtwork.click(by_js=True)
+                    time.sleep(2)
                     # 获取邮箱验证码
                     code = get_email_code(tab)
                     if code == '':
                         print("未获取到验证码")
                     if code != '':
-                        code_input = shadow_root.ele('x//div[@class="pin-field__container"]/input[1]')
-                        if code_input:
-                            code_input.input(code, clear=True)
-                            # pyautogui.write(code)
-                            time.sleep(5)
+                        for index, digit in enumerate(code):
+                            input_box = shadow_root.ele(f'//input[@data-testid="{index}"]')  # 选择对应输入框
+                            if input_box:
+                                logger.info(f'开始输入验证码{digit}')
+                                input_box.click()  # 点击输入框
+                                input_box.input(digit)  # 输入单个数字
+                                time.sleep(0.2)  # 可选：稍微延迟，防止输入过快
             else:
                 logger.info("没有找到13。")
         else:

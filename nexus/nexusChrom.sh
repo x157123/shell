@@ -10,7 +10,7 @@ readonly CHROME_DEB="google-chrome-stable_current_amd64.deb"
 readonly CHROME_URL="https://dl.google.com/linux/direct/$CHROME_DEB"
 readonly CHROME_BAK_URL="https://www.15712345.xyz/chrome/$CHROME_DEB"
 readonly CHROME_URL_OLD="https://github.com/x157123/ACL4SSR/releases/download/chro/google-chrome-stable_120.0.6099.224-1_amd64.deb"
-readonly WALLET_URL="https://github.com/x157123/ACL4SSR/releases/download/v1.0.1/chrome-cloud.tar"
+readonly WALLET_URL="https://github.com/x157123/ACL4SSR/releases/download/v1.0.2/chrome_cloud.1.0.2.tar"
 readonly EDGE_URL="https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_133.0.3065.82-1_amd64.deb?brand=M102"
 readonly PYTHON_SCRIPT_DIR="/opt/"  # 目录
 readonly DEFAULT_VNC_DISPLAY=23       # 默认显示号
