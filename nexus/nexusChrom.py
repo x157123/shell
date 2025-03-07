@@ -529,42 +529,42 @@ def get_app_info(serverId, appId, operationType, description):
 def setup_wallet(self, key):
     extensions = self.browser.new_tab(url="chrome://extensions/")
     time.sleep(3)
-
-    toggle_ele = (
-        extensions.ele(
-            "x://html/body/extensions-manager"
-        )  # /html/body/extensions-manager
-        .shadow_root.ele('x://*[@id="viewManager"]')
-        .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
-        .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
-        .shadow_root.ele("tag:cr-toggle@@id=enableToggle")
-    )
-
-    refresh_ele = (
-        extensions.ele(
-            "x://html/body/extensions-manager"
-        )  # /html/body/extensions-manager
-        .shadow_root.ele('x://*[@id="viewManager"]')
-        .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
-        .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
-        .shadow_root.ele("tag:cr-icon-button@@id=dev-reload-button")
-    )
-
-    toggle_ele.attr("aria-pressed")
-    if toggle_ele.attr("aria-pressed") == "false":
-        toggle_ele.click()
-
-    logger.error(f"判断是否有弹出框并触发")
-    time.sleep(2)
-    # 直接把鼠标移动到( x坐标, y坐标 )的位置点击
-    pyautogui.moveTo(600, 600)  # 需要你先手动量好按钮在屏幕上的位置
-    pyautogui.click()
-    time.sleep(1)
-    pyautogui.press('enter')
-    logger.error(f"已触发弹出框")
-    time.sleep(2)
-    if refresh_ele:
-        refresh_ele.click()
+    #
+    # toggle_ele = (
+    #     extensions.ele(
+    #         "x://html/body/extensions-manager"
+    #     )  # /html/body/extensions-manager
+    #     .shadow_root.ele('x://*[@id="viewManager"]')
+    #     .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
+    #     .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
+    #     .shadow_root.ele("tag:cr-toggle@@id=enableToggle")
+    # )
+    #
+    # refresh_ele = (
+    #     extensions.ele(
+    #         "x://html/body/extensions-manager"
+    #     )  # /html/body/extensions-manager
+    #     .shadow_root.ele('x://*[@id="viewManager"]')
+    #     .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
+    #     .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
+    #     .shadow_root.ele("tag:cr-icon-button@@id=dev-reload-button")
+    # )
+    #
+    # toggle_ele.attr("aria-pressed")
+    # if toggle_ele.attr("aria-pressed") == "false":
+    #     toggle_ele.click()
+    #
+    # logger.error(f"判断是否有弹出框并触发")
+    # time.sleep(2)
+    # # 直接把鼠标移动到( x坐标, y坐标 )的位置点击
+    # pyautogui.moveTo(600, 600)  # 需要你先手动量好按钮在屏幕上的位置
+    # pyautogui.click()
+    # time.sleep(1)
+    # pyautogui.press('enter')
+    # logger.error(f"已触发弹出框")
+    # time.sleep(2)
+    # if refresh_ele:
+    #     refresh_ele.click()
     time.sleep(2)
     wallet_tab = extensions.browser.new_tab(
         url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
@@ -599,15 +599,11 @@ if __name__ == '__main__':
     # 之后就可以安全地 import 需要 Xlib 的库
     import pyautogui
     pyautogui.FAILSAFE = False
-    # MQTT 配置
-    BROKER = "150.109.5.143"
-    PORT = 1883
-    TOPIC = "appInfo"
-    USERNAME = "userName"
-    PASSWORD = "liuleiliulei"
 
+    # MQTT 配置
     # 创建 MQTT 客户端（使用 MQTTv5）
-    client = create_mqtt_client(BROKER, PORT, USERNAME, PASSWORD, TOPIC)
+    client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
     client.loop_start()
+
     # 启动网络循环
     main(client, args.serverId, args.appId, args.decryptKey, args.user, args.display)
