@@ -293,7 +293,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     logger.info(f"start")
     tab = configure_browser(user)
 
-    time.sleep(2)
+    time.sleep(10)
     if len(tab.browser.get_tabs(title="Signma")) > 0:
         time.sleep(3)
         pop_tab = tab.browser.get_tab(title="Signma")
@@ -419,6 +419,8 @@ def main(client, serverId, appId, decryptKey, user, display):
                     if code == '':
                         print("未获取到验证码")
                     if code != '':
+                        click_element(tab, 'x//div[@class="pin-field__container"]/input[1]')
+                        time.sleep(2)
                         pyautogui.write(code)
                         time.sleep(5)
             else:
