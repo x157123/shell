@@ -470,6 +470,8 @@ def get_email_code(tab):
         if code is None:
             loop_count += 1
             continue  # 跳到下一次循环
+        else:
+            break
     email_page.close()
     return code
 
