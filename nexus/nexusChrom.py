@@ -434,7 +434,7 @@ def main(client, serverId, appId, decryptKey, user, display):
 
 def get_email_code(tab):
     email_url = 'https://mail.dmail.ai/inbox'
-    email_page = tab.new_tab(url=email_url)
+    email_page = tab.browser.new_tab(url=email_url)
     time.sleep(10)
     if email_page.ele('x://span[text()="MetaMask"]'):
         click_element(email_page, xpath='x://span[text()="MetaMask"]')
