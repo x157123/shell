@@ -110,7 +110,7 @@ class Test(object):
                 page.ele(locator='x://input[@placeholder="Enter your wallet address"]').input(key["publicKey"], clear=True)
                 time.sleep(3)
                 await self.__click_ele(page=page, xpath='x://p[text()="Linea"]')
-                time.sleep(5)
+                time.sleep(10)
                 claim = page.ele('x://button[text()="Claim "]')
                 if claim:
                     await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
