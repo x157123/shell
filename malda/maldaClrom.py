@@ -93,17 +93,23 @@ class Test(object):
         return 1
 
     async def __do_task(self, page):
+        time.sleep(10)
+        if len(page.get_tabs(title="Signma")) > 0:
+            time.sleep(3)
+            pop_tab = page.get_tab(title="Signma")
+            if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
+                pop_tab.close()
         url = 'https://testnet.malda.xyz/faucet/'
         page.get(url=url)
         num = 1
         for key in public_key_tmp:
             logger.info(f"执行第{len(public_key_tmp)}/{num}个账号: {key['secretKey']}：{key['publicKey']}")
             try:
-                await asyncio.sleep(5)
+                time.sleep(5)
                 page.ele(locator='x://input[@placeholder="Enter your wallet address"]').input(key["publicKey"])
-                await asyncio.sleep(3)
+                time.sleep(3)
                 await self.__click_ele(page=page, xpath='x://p[text()="Linea"]')
-                await asyncio.sleep(3)
+                time.sleep(3)
                 await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
                 logger.info(f"点击第一个按钮")
                 time.sleep(15)
