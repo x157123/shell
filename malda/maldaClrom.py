@@ -62,8 +62,9 @@ class Test(object):
     @staticmethod
     async def __get_page():
         page = ChromiumPage(addr_or_opts=ChromiumOptions()
-                            .set_tmp_path(path='/home/ubuntu/task/TempFile')
-                            .auto_port()
+                            .set_local_port(args.chromePort)
+                            .set_paths(r"/opt/google/chrome/google-chrome")
+                            .add_extension(r"/home/" + args.user + "/extensions/chrome-cloud")
                             .headless(on_off=False))
         page.wait.doc_loaded(timeout=30)
         page.set.window.max()
@@ -96,29 +97,36 @@ class Test(object):
         page.get(url=url)
         num = 1
         for key in public_key_tmp:
-            logger.info(f"执行第{num}个账号: {key['secretKey']}：{key['publicKey']}")
-            page.ele(locator='x://input[@placeholder="Enter your wallet address"]').input(key["publicKey"])
-            await asyncio.sleep(3)
-            await self.__click_ele(page=page, xpath='x://p[text()="Linea"]')
-            await asyncio.sleep(3)
-            await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
-            await asyncio.sleep(15)
-            await self.__click_ele(page=page, xpath='x://p[text()="Ethereum"]')
-            await asyncio.sleep(3)
-            await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
-            await asyncio.sleep(150)
-            await self.__click_ele(page=page, xpath='x://p[text()="Optimism"]')
-            await asyncio.sleep(3)
-            await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
-            await asyncio.sleep(30)
-            num += 1
-
+            logger.info(f"执行第{len(public_key_tmp)}/{num}个账号: {key['secretKey']}：{key['publicKey']}")
+            try:
+                page.ele(locator='x://input[@placeholder="Enter your wallet address"]').input(key["publicKey"])
+                await asyncio.sleep(3)
+                await self.__click_ele(page=page, xpath='x://p[text()="Linea"]')
+                await asyncio.sleep(3)
+                await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
+                logger.info(f"点击第一个按钮")
+                await asyncio.sleep(15)
+                await self.__click_ele(page=page, xpath='x://p[text()="Ethereum"]')
+                await asyncio.sleep(3)
+                await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
+                logger.info(f"点击第二个按钮")
+                await asyncio.sleep(150)
+                await self.__click_ele(page=page, xpath='x://p[text()="Optimism"]')
+                await asyncio.sleep(3)
+                await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
+                logger.info(f"点击第三个按钮")
+                await asyncio.sleep(30)
+                num += 1
+            except Exception as e:
+                logger.error(e)
     async def __main(self) -> bool:
         page = await self.__get_page()
         try:
             await asyncio.wait_for(fut=self.__do_task(page=page), timeout=60)
         except Exception as error:
             logger.error(f'error ==> {error}')
+        finally:
+            page.quit()
         return True
 
     async def run(self):

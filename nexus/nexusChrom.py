@@ -16,9 +16,11 @@ import pyautogui
 
 def configure_browser(user):
     """配置并启动浏览器"""
-    co = (ChromiumOptions().set_local_port(args.chromePort)
+    co = (ChromiumOptions()
+          .set_local_port(args.chromePort)
           .set_paths(r"/opt/google/chrome/google-chrome")
-          .add_extension(r"/home/" + user + "/extensions/chrome-cloud"))
+          .add_extension(r"/home/" + user + "/extensions/chrome-cloud")
+          )
     arguments = [
         "--accept-lang=en-US", "--no-first-run", "--force-color-profile=srgb",
         "--metrics-recording-only", "--password-store=basic", "--use-mock-keychain",
