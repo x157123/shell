@@ -108,7 +108,7 @@ class Test(object):
                 logger.info(f"点击第一个按钮")
                 await asyncio.sleep(15)
                 await self.__click_ele(page=page, xpath='x://p[text()="Ethereum"]')
-                await asyncio.sleep(3)
+                await asyncio.sleep(10)
                 await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
                 logger.info(f"点击第二个按钮")
                 await asyncio.sleep(150)
