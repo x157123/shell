@@ -277,6 +277,11 @@ class Test(object):
         return True
 
     async def __do_task(self, page, evm_id, evm_address):
+        base_balance = self.__get_base_balance(evm_address=evm_address)
+        logger.info(f'钱包信息：{evm_id} {evm_address} {base_balance}')
+        if 0.00009 < base_balance:
+            logger.success('钱包金额充足，跳过当前账号')
+            return True
         await self.__click_ele(page=page, xpath='x://button[@aria-label="Multi wallet dropdown"]', find_all=True,
                                index=-1)
         await self.__click_ele(page=page, xpath='x://div[text()="Paste wallet address"]')
@@ -325,11 +330,6 @@ class Test(object):
         return False
 
     async def __main(self, evm_id, evm_id2, evm_address) -> bool:
-        base_balance = self.__get_base_balance(evm_address=evm_address)
-        logger.info(f'钱包信息：{evm_id} {evm_address} {base_balance}')
-        if 0.00009 < base_balance:
-            logger.success('钱包金额充足，跳过当前账号')
-            return True
         page = await self.__get_page()
         try:
             await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=evm_id2), timeout=60)
