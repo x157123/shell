@@ -368,6 +368,6 @@ if __name__ == '__main__':
 
     args.evm_id = '88645'
     args.evm_address = '0x9D621e237BD6342CeD54F20E0c31FdAdD268b2F8'
-    args.evm_id2 = '88101'
+    args.evm_id2 = '88104'
     test = Test()
     asyncio.run(test.run(evm_id=args.evm_id, evm_address=args.evm_address, evm_id2=args.evm_id2))
