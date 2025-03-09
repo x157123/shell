@@ -313,7 +313,7 @@ class Test(object):
         for _ in range(30):
             base_balance = self.__get_base_balance(evm_address=evm_address)
             if 0.00009 < base_balance:
-                data += f' {base_balance}'
+                data += f'钱包金额： {base_balance}'
                 logger.success(data)
                 break
             await asyncio.sleep(5)
