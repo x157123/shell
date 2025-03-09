@@ -105,6 +105,7 @@ class Test(object):
         for key in public_key_tmp:
             logger.info(f"执行第{len(public_key_tmp)}/{num}个账号: {key['secretKey']}：{key['publicKey']}")
             try:
+                page.refresh()
                 time.sleep(5)
                 page.ele(locator='x://input[@placeholder="Enter your wallet address"]').input(key["publicKey"], clear=True)
                 time.sleep(3)
