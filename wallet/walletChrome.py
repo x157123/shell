@@ -159,7 +159,7 @@ class Test(object):
             tab.ele(locator='x://input').input(f'{int(evm_id)}')
         except:
             return False
-
+        await asyncio.sleep(2)
         # 点击登录钱包
         await self.__click_ele(page=tab, xpath='x://*[@id="existingWallet"]')
         await asyncio.sleep(3)
