@@ -106,7 +106,7 @@ class Test(object):
             logger.info(f"执行第{len(public_key_tmp)}/{num}个账号: {key['secretKey']}：{key['publicKey']}")
             try:
                 time.sleep(5)
-                page.ele(locator='x://input[@placeholder="Enter your wallet address"]').input(key["publicKey"])
+                page.ele(locator='x://input[@placeholder="Enter your wallet address"]').input(key["publicKey"], clear=True)
                 time.sleep(3)
                 await self.__click_ele(page=page, xpath='x://p[text()="Linea"]')
                 time.sleep(3)
