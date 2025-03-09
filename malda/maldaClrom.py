@@ -158,5 +158,8 @@ if __name__ == '__main__':
                 test = Test()
                 asyncio.run(test.run())
                 data_map[current_date] = 2
+            else:
+                logger.info(f"执行完毕等待一小时")
+                time.sleep(3600)
     else:
         logger.info("未绑定需要执行的账号")
