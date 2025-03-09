@@ -93,7 +93,7 @@ class Test(object):
         return 1
 
     async def __do_task(self, page):
-        time.sleep(10)
+        time.sleep(15)
         if len(page.get_tabs(title="Signma")) > 0:
             time.sleep(3)
             pop_tab = page.get_tab(title="Signma")
