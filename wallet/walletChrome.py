@@ -241,7 +241,7 @@ class Test(object):
         }
         number = obj[coin_name]
         url = f'https://chainlist.org/?search={number}&testnets=false'
-        page.get(url=url)
+        page.new_tab(url=url)
         await asyncio.sleep(2)
         page.wait.ele_displayed(loc_or_ele='x://button[text()="Connect Wallet"]', timeout=10)
         await self.__click_ele(page=page,
