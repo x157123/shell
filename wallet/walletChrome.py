@@ -151,34 +151,24 @@ class Test(object):
 
     # task 01 登陆钱包
     async def __login_wallet(self, page, evm_id):
-        logger.info(f"开始加载钱包：{evm_id}")
-        time.sleep(6)
-        logger.info(f"开始打开设置钱包：{evm_id}")
-        wallet_tab = page.browser.new_tab(
-            url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
-        )
-        time.sleep(3)
-        logger.info(f"开始设置钱包：{evm_id}")
-        index_input_path = (
-            "x://html/body/div/div[1]/div[4]/section/div/section/div/div/input"
-        )
-        wallet_tab.ele(index_input_path).input(evm_id, clear=True)
-        time.sleep(3)
-        index_button_path = "tag:button@@id=existingWallet"
-        index_set_button = wallet_tab.ele(index_button_path)
-        time.sleep(1)
-        index_set_button.click()
-        time.sleep(10)
-        if len(page.browser.get_tabs(title="Signma")) > 0:
-            time.sleep(8)
-            pop_tab = page.browser.get_tab(title="Signma")
-            if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
-                pop_tab.ele(index_input_path).input(evm_id, clear=True)
-                index_set_button = pop_tab.ele(index_button_path)
-                time.sleep(1)
-                index_set_button.click()
-                pop_tab.close()
-        time.sleep(3)
+        tab = page.get_tab(url='chrome-extension://')
+        await asyncio.sleep(2)
+        url = tab.url
+        try:
+            # 输入钱包编号
+            tab.ele(locator='x://input').input(f'{int(evm_id)}')
+        except:
+            return False
+
+        # 点击登录钱包
+        await self.__click_ele(page=tab, xpath='x://*[@id="existingWallet"]')
+        await asyncio.sleep(3)
+        # tab = page.get_tab(url='https://ntp.msn.com/edge/ntp')
+        page.get(url.replace('tab.html#/onboarding', 'popup.html'))
+        await asyncio.sleep(5)
+        if page.ele('x://button[@data-testid="toggle"]').attr('aria-checked') == 'false':
+            await self.__click_ele(page=page, xpath='x://button[@data-testid="toggle"]')
+            await asyncio.sleep(2)
         return evm_id
 
     # 处理弹窗
@@ -326,11 +316,13 @@ class Test(object):
             if 0.00009 < base_balance:
                 data += f'钱包金额： {base_balance}'
                 logger.success(data)
-                break
+                return True
+            else:
+                logger.success("金额充值未成功")
             await asyncio.sleep(5)
         else:
             logger.error(data)
-        return data
+        return False
 
     async def __main(self, evm_id, evm_id2, evm_address) -> bool:
         base_balance = self.__get_base_balance(evm_address=evm_address)
@@ -346,7 +338,9 @@ class Test(object):
             if not flag:
                 logger.error(f'link account fail {evm_id} {evm_address}')
                 return False
-            await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address), timeout=200)
+            bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address), timeout=200)
+            if bool is False:
+                logger.error(f'充值失败 ==> {evm_id} {evm_address}')
         except Exception as error:
             logger.error(f'error ==> {error}')
             ...
