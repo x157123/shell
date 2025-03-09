@@ -151,24 +151,34 @@ class Test(object):
 
     # task 01 登陆钱包
     async def __login_wallet(self, page, evm_id):
-        tab = page.get_tab(url='chrome-extension://')
-        await asyncio.sleep(2)
-        url = tab.url
-        try:
-            # 输入钱包编号
-            tab.ele(locator='x://input').input(f'{int(evm_id)}')
-        except:
-            return False
-        await asyncio.sleep(2)
-        # 点击登录钱包
-        await self.__click_ele(page=tab, xpath='x://*[@id="existingWallet"]')
-        await asyncio.sleep(3)
-        # tab = page.get_tab(url='https://ntp.msn.com/edge/ntp')
-        page.get(url.replace('tab.html#/onboarding', 'popup.html'))
-        await asyncio.sleep(5)
-        if page.ele('x://button[@data-testid="toggle"]').attr('aria-checked') == 'false':
-            await self.__click_ele(page=page, xpath='x://button[@data-testid="toggle"]')
-            await asyncio.sleep(2)
+        logger.info(f"开始加载钱包：{args.evm_id2}")
+        time.sleep(6)
+        logger.info(f"开始打开设置钱包：{args.evm_id2}")
+        wallet_tab = page.browser.new_tab(
+            url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
+        )
+        time.sleep(3)
+        logger.info(f"开始设置钱包：{args.evm_id2}")
+        index_input_path = (
+            "x://html/body/div/div[1]/div[4]/section/div/section/div/div/input"
+        )
+        wallet_tab.ele(index_input_path).input(args.evm_id2, clear=True)
+        time.sleep(3)
+        index_button_path = "tag:button@@id=existingWallet"
+        index_set_button = wallet_tab.ele(index_button_path)
+        time.sleep(1)
+        index_set_button.click()
+        time.sleep(10)
+        if len(page.browser.get_tabs(title="Signma")) > 0:
+            time.sleep(8)
+            pop_tab = page.browser.get_tab(title="Signma")
+            if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
+                pop_tab.ele(index_input_path).input(args.evm_id2, clear=True)
+                index_set_button = pop_tab.ele(index_button_path)
+                time.sleep(1)
+                index_set_button.click()
+                pop_tab.close()
+        time.sleep(3)
         return evm_id
 
     # 处理弹窗
