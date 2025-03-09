@@ -521,16 +521,17 @@ if __name__ == '__main__':
             if current_date in data_map and data_map[current_date] is not None:
                 args.day_count = data_map[current_date]
                 logger.info(f"已标记被执行")
-            if args.day_count <= 1:
-                num = 0
+
+            now = datetime.now()
+            # 早上四点后才执行
+            if now.hour >= 4 and args.day_count <= 1:
                 for key in public_key_tmp:
-                    num = 1
                     try:
                         args.id = key["id"]
                         args.index = key["secretKey"]
                         args.address = key["account"]
                         args.password = key["password"]
-                        logger.info(f"执行: {args.index}：{args.address}：{args.password}")
+                        logger.info(f"执行: {args.index}：{args.address}")
                         test = Test()
                         logger.info("开始执行")
                         test.run(evm_id=args.index, evm_address=args.address)
@@ -541,7 +542,7 @@ if __name__ == '__main__':
                         logger.info(f"发生错误: {e}")
                     time.sleep(random.randint(23, 50))
                 logger.info(f"执行完毕")
-                data_map[current_date] = 2
+                data_map[current_date] = args.day_count + 1
             else:
                 logger.info(f"执行完毕等待一小时")
                 time.sleep(3600)
