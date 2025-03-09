@@ -241,7 +241,7 @@ class Test(object):
         }
         number = obj[coin_name]
         url = f'https://chainlist.org/?search={number}&testnets=false'
-        page.new_tab(url=url)
+        page.get(url=url)
         await asyncio.sleep(2)
         page.wait.ele_displayed(loc_or_ele='x://button[text()="Connect Wallet"]', timeout=10)
         await self.__click_ele(page=page,
@@ -253,7 +253,8 @@ class Test(object):
                                xpath=f'x://td[contains(text(), "{number} ")]/../../../following-sibling::button[1]')
         await asyncio.sleep(2)
         await self.__deal_window(page=page)
-        page.close_tabs(others=True)
+        if page.tabs_count >= 2:
+            await self.__deal_window(page=page)
         return True
 
     async def __link_account(self, page):
