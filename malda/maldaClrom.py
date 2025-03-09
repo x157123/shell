@@ -117,9 +117,10 @@ class Test(object):
                 await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
                 logger.info(f"点击第三个按钮")
                 await asyncio.sleep(30)
-                num += 1
             except Exception as e:
                 logger.error(e)
+            finally:
+                num += 1
     async def __main(self) -> bool:
         page = await self.__get_page()
         try:
