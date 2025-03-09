@@ -336,7 +336,7 @@ class Test(object):
         base_balance = self.__get_base_balance(evm_address=evm_address)
         logger.info(f'钱包信息：{evm_id} {evm_address} {base_balance}')
         if 0.00009 < base_balance:
-            logger.success('跳过当前账号')
+            logger.success('钱包金额充足，跳过当前账号')
             return True
         page = await self.__get_page()
         try:
