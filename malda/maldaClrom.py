@@ -110,21 +110,27 @@ class Test(object):
                 time.sleep(3)
                 await self.__click_ele(page=page, xpath='x://p[text()="Linea"]')
                 time.sleep(3)
-                await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
-                logger.info(f"点击第一个按钮")
-                time.sleep(15)
-                await self.__click_ele(page=page, xpath='x://p[text()="Ethereum"]')
-                time.sleep(10)
-                await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
-                logger.info(f"点击第二个按钮")
-                time.sleep(150)
-                await self.__click_ele(page=page, xpath='x://p[text()="Optimism"]')
-                time.sleep(3)
-                await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
-                logger.info(f"点击第三个按钮")
-                time.sleep(30)
-            except Exception as e:
-                logger.error(e)
+                claim = page.ele('x://button[text()="Claim "]')
+                if claim:
+                    await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
+                    logger.info(f"点击第一个按钮")
+                    time.sleep(15)
+                    await self.__click_ele(page=page, xpath='x://p[text()="Ethereum"]')
+                    time.sleep(10)
+                    claim = page.ele('x://button[text()="Claim "]')
+                    if claim:
+                        await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
+                        logger.info(f"点击第二个按钮")
+                        time.sleep(150)
+                        await self.__click_ele(page=page, xpath='x://p[text()="Optimism"]')
+                        time.sleep(3)
+                        claim = page.ele('x://button[text()="Claim "]')
+                        if claim:
+                            await self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
+                            logger.info(f"点击第三个按钮")
+                            time.sleep(30)
+            except Exception as error:
+                logger.error(f'error ==> {error}')
             finally:
                 num += 1
     async def __main(self) -> bool:
