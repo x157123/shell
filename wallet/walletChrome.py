@@ -151,7 +151,7 @@ class Test(object):
 
     # task 01 登陆钱包
     async def __login_wallet(self, page, evm_id):
-        tab = page.browser.new_tab(url='chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding')
+        tab = page.get_tab(url='chrome-extension://')
         await asyncio.sleep(2)
         url = tab.url
         try:
