@@ -99,6 +99,7 @@ class Test(object):
         for key in public_key_tmp:
             logger.info(f"执行第{len(public_key_tmp)}/{num}个账号: {key['secretKey']}：{key['publicKey']}")
             try:
+                await asyncio.sleep(5)
                 page.ele(locator='x://input[@placeholder="Enter your wallet address"]').input(key["publicKey"])
                 await asyncio.sleep(3)
                 await self.__click_ele(page=page, xpath='x://p[text()="Linea"]')
