@@ -151,18 +151,18 @@ class Test(object):
 
     # task 01 登陆钱包
     async def __login_wallet(self, page, evm_id):
-        logger.info(f"开始加载钱包：{args.evm_id2}")
+        logger.info(f"开始加载钱包：{evm_id}")
         time.sleep(6)
-        logger.info(f"开始打开设置钱包：{args.evm_id2}")
+        logger.info(f"开始打开设置钱包：{evm_id}")
         wallet_tab = page.browser.new_tab(
             url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
         )
         time.sleep(3)
-        logger.info(f"开始设置钱包：{args.evm_id2}")
+        logger.info(f"开始设置钱包：{evm_id}")
         index_input_path = (
             "x://html/body/div/div[1]/div[4]/section/div/section/div/div/input"
         )
-        wallet_tab.ele(index_input_path).input(args.evm_id2, clear=True)
+        wallet_tab.ele(index_input_path).input(evm_id, clear=True)
         time.sleep(3)
         index_button_path = "tag:button@@id=existingWallet"
         index_set_button = wallet_tab.ele(index_button_path)
@@ -173,7 +173,7 @@ class Test(object):
             time.sleep(8)
             pop_tab = page.browser.get_tab(title="Signma")
             if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
-                pop_tab.ele(index_input_path).input(args.evm_id2, clear=True)
+                pop_tab.ele(index_input_path).input(evm_id, clear=True)
                 index_set_button = pop_tab.ele(index_button_path)
                 time.sleep(1)
                 index_set_button.click()
