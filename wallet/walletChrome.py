@@ -5,6 +5,9 @@ import asyncio
 import requests
 import argparse
 from loguru import logger
+import base64
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
 import paho.mqtt.client as mqtt
 import json
 from DrissionPage import ChromiumPage, ChromiumOptions
@@ -76,6 +79,47 @@ def on_message(client, userdata, msg):
 
 
 # =================================================   MQTT   ======================================
+
+
+def read_file(file_path):
+    """从文件中读取内容并去除多余空白"""
+    try:
+        # logger.info(f"读取文件: {file_path}")
+        with open(file_path, 'r') as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        raise ValueError(f"文件未找到: {file_path}")
+
+
+def decrypt_aes_ecb(secret_key, data_encrypted_base64, accountType):
+    """
+    解密 AES ECB 模式的 Base64 编码数据，
+    去除 PKCS7 填充后返回所有 accountType 为 "hyper" 的记录。
+    """
+    try:
+        # Base64 解码
+        encrypted_bytes = base64.b64decode(data_encrypted_base64)
+        # 创建 AES 解密器
+        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
+        # 解密数据
+        decrypted_bytes = cipher.decrypt(encrypted_bytes)
+        # 去除 PKCS7 填充（AES.block_size 默认为 16）
+        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
+        # 将字节转换为字符串
+        decrypted_text = decrypted_bytes.decode('utf-8')
+
+        # 解析 JSON 字符串为 Python 对象（通常为列表）
+        data_list = json.loads(decrypted_text)
+
+        # 创建结果列表，收集所有 accountType 为 "hyper" 的记录
+        result = [item for item in data_list if item.get('accountType') == accountType]
+
+        # 返回结果列表，如果没有匹配项则返回空列表
+        return result
+    except Exception as e:
+        # 记录错误日志
+        logger.error(f"解密失败: {e}")
+        return []
 
 
 class Test(object):
@@ -282,76 +326,71 @@ class Test(object):
         if 0.00009 < base_balance:
             logger.success('钱包金额充足，跳过当前账号')
             return True
-        await self.__click_ele(page=page, xpath='x://button[@aria-label="Multi wallet dropdown"]', find_all=True,
-                               index=-1)
-        await self.__click_ele(page=page, xpath='x://div[text()="Paste wallet address"]')
-        page.ele(locator='x://input[@placeholder="Address or ENS"]').input(evm_address)
-        await self.__click_ele(page=page, xpath='x://button[text()="Save"]')
-        await asyncio.sleep(2)
-        amount = "{:.6f}".format(random.uniform(0.000094, 0.000235))  # 0.2$ - 0.5$
-        page.wait.ele_displayed(loc_or_ele='x://input[@inputmode="decimal"]', timeout=10)
-        page.ele(locator='x://input[@inputmode="decimal"]').input(amount)
-        await asyncio.sleep(5)
-        send_amount = page.ele(
-            locator='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
-            index=1, timeout=5).text.strip().replace('$', '')
-        receive_amount = page.ele(
-            locator='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
-            index=2, timeout=5).text.strip().replace('$', '')
-        gas_fee = round(float(send_amount) - float(receive_amount), 3)
-        if float(gas_fee) > 0.05:
-            logger.error(f'{gas_fee} gas too high {evm_id} {evm_address}')
-            return False
-        data = f'{evm_id} {evm_address} {amount} {gas_fee}'
-        page.wait.ele_displayed(loc_or_ele='x://button[text()="Review" or text()="Swap" or text()="Send"]', timeout=5)
-        await self.__click_ele(page=page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]')
-        await asyncio.sleep(5)
-        if page.tabs_count < 2:
-            logger.error(f'transaction reject {evm_id} {evm_address}')
-            return False
-        for _ in range(10):
-            if page.tabs_count < 2:
-                break
-            await self.__deal_window(page=page)
-        else:
-            return False
-        await asyncio.sleep(10)
-        for _ in range(30):
-            base_balance = self.__get_base_balance(evm_address=evm_address)
-            if 0.00009 < base_balance:
-                data += f'钱包金额： {base_balance}'
-                logger.success(data)
-                return True
-            else:
-                logger.success("金额充值未成功")
-            await asyncio.sleep(5)
-        else:
-            logger.error(data)
-        return False
+        return True
+        # await self.__click_ele(page=page, xpath='x://button[@aria-label="Multi wallet dropdown"]', find_all=True,
+        #                        index=-1)
+        # await self.__click_ele(page=page, xpath='x://div[text()="Paste wallet address"]')
+        # page.ele(locator='x://input[@placeholder="Address or ENS"]').input(evm_address)
+        # await self.__click_ele(page=page, xpath='x://button[text()="Save"]')
+        # await asyncio.sleep(2)
+        # amount = "{:.6f}".format(random.uniform(0.000094, 0.000235))  # 0.2$ - 0.5$
+        # page.wait.ele_displayed(loc_or_ele='x://input[@inputmode="decimal"]', timeout=10)
+        # page.ele(locator='x://input[@inputmode="decimal"]').input(amount)
+        # await asyncio.sleep(5)
+        # send_amount = page.ele(
+        #     locator='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
+        #     index=1, timeout=5).text.strip().replace('$', '')
+        # receive_amount = page.ele(
+        #     locator='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
+        #     index=2, timeout=5).text.strip().replace('$', '')
+        # gas_fee = round(float(send_amount) - float(receive_amount), 3)
+        # if float(gas_fee) > 0.05:
+        #     logger.error(f'{gas_fee} gas too high {evm_id} {evm_address}')
+        #     return False
+        # data = f'{evm_id} {evm_address} {amount} {gas_fee}'
+        # page.wait.ele_displayed(loc_or_ele='x://button[text()="Review" or text()="Swap" or text()="Send"]', timeout=5)
+        # await self.__click_ele(page=page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]')
+        # await asyncio.sleep(5)
+        # if page.tabs_count < 2:
+        #     logger.error(f'transaction reject {evm_id} {evm_address}')
+        #     return False
+        # for _ in range(10):
+        #     if page.tabs_count < 2:
+        #         break
+        #     await self.__deal_window(page=page)
+        # else:
+        #     return False
+        # await asyncio.sleep(10)
+        # for _ in range(30):
+        #     base_balance = self.__get_base_balance(evm_address=evm_address)
+        #     if 0.00009 < base_balance:
+        #         data += f'钱包金额： {base_balance}'
+        #         logger.success(data)
+        #         return True
+        #     else:
+        #         logger.success("金额充值未成功")
+        #     await asyncio.sleep(5)
+        # else:
+        #     logger.error(data)
+        # return False
 
-    async def __main(self, evm_id, evm_id2, evm_id3, evm_address) -> bool:
+    async def __main(self, address, wallet) -> bool:
         page = await self.__get_page()
         try:
             logger.info("登录钱包")
-            await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=evm_id2), timeout=60)
+            await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=wallet), timeout=60)
             logger.info("开始添加网络")
             await asyncio.wait_for(fut=self.__add_net_work(page=page, coin_name='base'), timeout=60)
-            logger.info("开始充值")
+            logger.info("连接钱包")
             flag = await asyncio.wait_for(fut=self.__link_account(page=page), timeout=60)
             if not flag:
-                logger.error(f'link account fail {evm_id} {evm_address}')
+                logger.error(f'连接钱包错误 ==> {flag}')
                 return False
-            bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address), timeout=200)
-            if bool is False:
-                logger.error(f'充值失败:切换钱包{evm_id3}再次尝试 ==> {evm_id} {evm_address}')
-                logger.info("登录钱包2")
-                await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=evm_id3), timeout=60)
-                logger.info("开始添加网络2")
-                await asyncio.wait_for(fut=self.__add_net_work(page=page, coin_name='base'), timeout=60)
-                logger.info("开始充值2")
-                bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address), timeout=200)
+            logger.info("开始充值")
+            for key in address:
+                bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=key["secretKey"], evm_address=key["publicKey"]), timeout=200)
                 if bool is False:
-                    logger.error(f'再次充值失败:停止充值 ==> {evm_id} {evm_address}')
+                    logger.error(f'充值失败:停止充值 ==> {key["secretKey"]} {key["publicKey"]}')
                     return False
         except Exception as error:
             logger.error(f'error ==> {error}')
@@ -360,8 +399,8 @@ class Test(object):
             page.quit()
         return True
 
-    async def run(self, evm_id, evm_address, evm_id2, evm_id3):
-        await self.__main(evm_id=evm_id, evm_address=evm_address, evm_id2=evm_id2, evm_id3=evm_id3)
+    async def run(self, address, wallet):
+        await self.__main(address=address, wallet=wallet)
         return True
 
 if __name__ == '__main__':
@@ -376,10 +415,13 @@ if __name__ == '__main__':
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
     client.loop_start()
-
-    args.evm_id = '84026'
-    args.evm_address = '0x534db773734762863aFd4EE875D4C15C85692305'
-    args.evm_id2 = '88101'
-    args.evm_id3 = '88102'
-    test = Test()
-    asyncio.run(test.run(evm_id=args.evm_id, evm_address=args.evm_address, evm_id2=args.evm_id2, evm_id3=args.evm_id3))
+    # 从文件加载密文
+    encrypted_data_base64 = read_file('/opt/data/' + args.appId + '_user.json')
+    # 解密并发送解密结果
+    public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, "wallet")
+    if len(public_key_tmp) > 0:
+        args.evm_id = '84026'
+        args.evm_address = '0x534db773734762863aFd4EE875D4C15C85692305'
+        args.evm_id2 = '88016'
+        test = Test()
+        asyncio.run(test.run(address=public_key_tmp, wallet=args.evm_id2))
