@@ -162,7 +162,7 @@ class Test(object):
         page = ChromiumPage(
             addr_or_opts=ChromiumOptions()
             .set_browser_path(path="/opt/google/chrome/google-chrome")
-            .set_tmp_path(path="/home/" + args.user + "/task/" + args.chromePort + "/" + args.evm_id)
+            .set_tmp_path(path="/home/" + args.user + "/task/" + args.chromePort + "/" + args.wallet)
             .set_local_port(args.chromePort)
             .add_extension(path="/home/" + args.user + "/extensions/chrome-cloud")
             .headless(on_off=False))
