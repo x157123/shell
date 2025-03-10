@@ -364,7 +364,7 @@ class Test(object):
                 logger.success(data)
                 return True
             else:
-                logger.success("f金额充值未成功{base_balance}")
+                logger.success("金额充值未成功{base_balance}")
             await asyncio.sleep(5)
         else:
             logger.error(data)
