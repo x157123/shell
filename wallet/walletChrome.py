@@ -217,7 +217,7 @@ class Test(object):
         time.sleep(1)
         index_set_button.click()
         time.sleep(10)
-        if len(page.get_tabs(title="Signma")) > 0:
+        if len(page.get_tabs(title="Signma")) > 0 and page.tabs_count >= 2:
             time.sleep(8)
             pop_tab = page.get_tab(title="Signma")
             if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
@@ -436,8 +436,11 @@ class Test(object):
                     page.quit()
                     logger.error("异常: %s", error)
                     page = await self.__get_page()
-                    logger.info("登录钱包")
-                    await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=wallet), timeout=60)
+                    try:
+                        logger.info("登录钱包")
+                        await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=wallet), timeout=60)
+                    except Exception as error:
+                        logger.info('登录钱包错误')
                     logger.info("连接钱包")
                     flag = await asyncio.wait_for(fut=self.__link_account(page=page), timeout=60)
                     if not flag:
