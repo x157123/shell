@@ -392,6 +392,8 @@ class Test(object):
                 if bool is False:
                     logger.error(f'充值失败:停止充值 ==> {key["secretKey"]} {key["publicKey"]}')
                     return False
+                logger.info("刷新页面继续充值")
+                page.refresh()
         except Exception as error:
             logger.error(f'error ==> {error}')
             ...
@@ -420,8 +422,6 @@ if __name__ == '__main__':
     # 解密并发送解密结果
     public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, "wallet")
     if len(public_key_tmp) > 0:
-        args.evm_id = '84026'
-        args.evm_address = '0x534db773734762863aFd4EE875D4C15C85692305'
-        args.evm_id2 = '88016'
+        args.wallet = '88016'
         test = Test()
-        asyncio.run(test.run(address=public_key_tmp, wallet=args.evm_id2))
+        asyncio.run(test.run(address=public_key_tmp, wallet=args.wallet))
