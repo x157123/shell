@@ -141,6 +141,13 @@ class Test(object):
             'sec-fetch-site': 'cross-site',
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
         }
+        if not os.path.isfile('./gaia_relay_swap.txt'):
+            with open(file='./gaia_relay_swap.txt', mode='a+', encoding='utf-8') as file:
+                file.close()
+            time.sleep(0.1)
+            del file
+        self.__swap_log = open(file='./gaia_relay_swap.txt', mode='r+', encoding='utf-8')
+        self.__swap_log_str = self.__swap_log.read()
 
     def __get_base_balance(self, evm_address):
         json_data = {
@@ -362,6 +369,8 @@ class Test(object):
             base_balance = self.__get_base_balance(evm_address=evm_address)
             if 0.00009 < base_balance:
                 data += f'钱包金额： {base_balance}'
+                self.__swap_log.write(evm_address + '\r')
+                self.__swap_log.flush()
                 logger.success(data)
                 return True
             else:
@@ -389,8 +398,13 @@ class Test(object):
                 base_balance = self.__get_base_balance(evm_address=key["publicKey"])
                 logger.info(f'{num}/{len(address)}钱包信息：{key["secretKey"]} {key["publicKey"]} {base_balance}')
                 num += 1
+                if key["publicKey"] in self.__swap_log_str:
+                    logger.success(f'已经跑过了 ==> {key["secretKey"]}')
+                    continue
                 if 0.00009 < base_balance:
                     logger.success('钱包金额充足，跳过当前账号')
+                    self.__swap_log.write(key["publicKey"] + '\r')
+                    self.__swap_log.flush()
                     time.sleep(1)
                     continue
                 try:
