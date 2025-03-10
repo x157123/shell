@@ -332,8 +332,11 @@ class Test(object):
     async def __main(self, evm_id, evm_id2, evm_id3, evm_address) -> bool:
         page = await self.__get_page()
         try:
+            logger.info("登录钱包")
             await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=evm_id2), timeout=60)
+            logger.info("开始添加网络")
             await asyncio.wait_for(fut=self.__add_net_work(page=page, coin_name='base'), timeout=60)
+            logger.info("开始充值")
             flag = await asyncio.wait_for(fut=self.__link_account(page=page), timeout=60)
             if not flag:
                 logger.error(f'link account fail {evm_id} {evm_address}')
@@ -341,8 +344,11 @@ class Test(object):
             bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address), timeout=200)
             if bool is False:
                 logger.error(f'充值失败:切换钱包{evm_id3}再次尝试 ==> {evm_id} {evm_address}')
+                logger.info("登录钱包2")
                 await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=evm_id3), timeout=60)
+                logger.info("开始添加网络2")
                 await asyncio.wait_for(fut=self.__add_net_work(page=page, coin_name='base'), timeout=60)
+                logger.info("开始充值2")
                 bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address), timeout=200)
                 if bool is False:
                     logger.error(f'再次充值失败:停止充值 ==> {evm_id} {evm_address}')
