@@ -311,7 +311,7 @@ class Test(object):
 
     async def __link_account(self, page):
         url = 'https://relay.link/bridge/base?fromChainId=8453&fromCurrency=0x0000000000000000000000000000000000000000&toCurrency=0x0000000000000000000000000000000000000000'
-        page = page.new_tab(url=url)
+        page.get(url=url)
         time.sleep(10)
         claim = page.ele('x://button/div/div[text()="Select wallet"]')
         if claim:
@@ -330,10 +330,10 @@ class Test(object):
         return True
 
     async def __do_task(self, page, evm_id, evm_address):
-        logger.info('设置钱包')
+        logger.info('查找钱包地址')
         await self.__click_ele(page=page, xpath='x://button[@aria-label="Multi wallet dropdown"]', find_all=True,
                                index=-1)
-        logger.info('设置钱包')
+        logger.info('设置钱包地址')
         await self.__click_ele(page=page, xpath='x://div[text()="Paste wallet address"]')
         page.ele(locator='x://input[@placeholder="Address or ENS"]').input(evm_address)
         await self.__click_ele(page=page, xpath='x://button[text()="Save"]')
