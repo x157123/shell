@@ -344,30 +344,30 @@ class Test(object):
             return False
         data = f'{evm_id} {evm_address} {amount} {gas_fee}'
         logger.error(data)
-        # page.wait.ele_displayed(loc_or_ele='x://button[text()="Review" or text()="Swap" or text()="Send"]', timeout=5)
-        # await self.__click_ele(page=page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]')
-        # await asyncio.sleep(5)
-        # if page.tabs_count < 2:
-        #     logger.error(f'transaction reject {evm_id} {evm_address}')
-        #     return False
-        # for _ in range(10):
-        #     if page.tabs_count < 2:
-        #         break
-        #     await self.__deal_window(page=page)
-        # else:
-        #     return False
-        # await asyncio.sleep(10)
-        # for _ in range(30):
-        #     base_balance = self.__get_base_balance(evm_address=evm_address)
-        #     if 0.00009 < base_balance:
-        #         data += f'钱包金额： {base_balance}'
-        #         logger.success(data)
-        #         return True
-        #     else:
-        #         logger.success("金额充值未成功")
-        #     await asyncio.sleep(5)
-        # else:
-        #     logger.error(data)
+        page.wait.ele_displayed(loc_or_ele='x://button[text()="Review" or text()="Swap" or text()="Send"]', timeout=5)
+        await self.__click_ele(page=page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]')
+        await asyncio.sleep(5)
+        if page.tabs_count < 2:
+            logger.error(f'transaction reject {evm_id} {evm_address}')
+            return False
+        for _ in range(10):
+            if page.tabs_count < 2:
+                break
+            await self.__deal_window(page=page)
+        else:
+            return False
+        await asyncio.sleep(10)
+        for _ in range(30):
+            base_balance = self.__get_base_balance(evm_address=evm_address)
+            if 0.00009 < base_balance:
+                data += f'钱包金额： {base_balance}'
+                logger.success(data)
+                return True
+            else:
+                logger.success("金额充值未成功")
+            await asyncio.sleep(5)
+        else:
+            logger.error(data)
         return False
 
     async def __main(self, address, wallet) -> bool:
@@ -387,9 +387,10 @@ class Test(object):
             for key in address:
                 base_balance = self.__get_base_balance(evm_address=key["publicKey"])
                 logger.info(f'{num}/{len(address)}钱包信息：{key["secretKey"]} {key["publicKey"]} {base_balance}')
-                num +=1
+                num += 1
                 if 0.00009 < base_balance:
                     logger.success('钱包金额充足，跳过当前账号')
+                    time.sleep(1)
                     continue
                 bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=key["secretKey"], evm_address=key["publicKey"]), timeout=200)
                 if bool is False:
