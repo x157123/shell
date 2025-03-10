@@ -371,8 +371,8 @@ if __name__ == '__main__':
     client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
     client.loop_start()
 
-    args.evm_id = '88645'
-    args.evm_address = '0x9D621e237BD6342CeD54F20E0c31FdAdD268b2F8'
+    args.evm_id = '76138'
+    args.evm_address = '0x1d56ee8fe1910FCa00D7d952095E76CA77a9254a'
     args.evm_id2 = '88101'
     args.evm_id3 = '88102'
     test = Test()
