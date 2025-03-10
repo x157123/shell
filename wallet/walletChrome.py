@@ -304,21 +304,22 @@ class Test(object):
     async def __link_account(self, page):
         url = 'https://relay.link/bridge/base?fromChainId=8453&fromCurrency=0x0000000000000000000000000000000000000000&toCurrency=0x0000000000000000000000000000000000000000'
         page.get(url=url)
-        await asyncio.sleep(3)
-        page.wait.eles_loaded(locators='x://button/div/div[text()="Select wallet"]', timeout=10, any_one=True)
-        await self.__click_ele(page=page, xpath='x://button/div/div[text()="Select wallet"]')
-        await asyncio.sleep(3)
-        page.ele(locator='x://div[@data-testid="dynamic-modal-shadow"]').shadow_root.ele(
-            'x://button/div/span[text()="Signma"]').click()
-        await asyncio.sleep(5)
-        for _ in range(10):
-            if page.tabs_count < 2:
-                break
-            await self.__deal_window(page=page)
-        else:
-            return False
-        await asyncio.sleep(3)
-        return True
+        time.sleep(10)
+        claim = page.ele('x://button/div/div[text()="Select wallet"]')
+        if claim:
+            await self.__click_ele(page=page, xpath='x://button/div/div[text()="Select wallet"]')
+            await asyncio.sleep(3)
+            page.ele(locator='x://div[@data-testid="dynamic-modal-shadow"]').shadow_root.ele(
+                'x://button/div/span[text()="Signma"]').click()
+            await asyncio.sleep(5)
+            for _ in range(10):
+                if page.tabs_count < 2:
+                    break
+                await self.__deal_window(page=page)
+            else:
+                return False
+            await asyncio.sleep(3)
+            return True
 
     async def __do_task(self, page, evm_id, evm_address):
         base_balance = self.__get_base_balance(evm_address=evm_address)
