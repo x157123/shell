@@ -117,6 +117,77 @@ def write_to_file(file_path, content):
 
 
 def main(client, serverId, appId, decryptKey, user, display):
+    public_key = start(client, serverId, appId, decryptKey, user, display)
+    # 获取积分
+    while True:
+        try:
+            logger.info("\n===== 积分查询输出 =====")
+            login_output = run_command_blocking("/root/.aios/aios-cli hive points")
+            points = None
+            public_match = re.search(r"Points:\s*(\S+)", login_output)
+            if public_match:
+                points = public_match.group(1)
+
+            if not points or points == "None":
+                logger.info("获取积分失败,重新启动。")
+                restart()
+            else:
+                logger.info(f"points: {points}")
+                app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
+                                                 '运行中， 并到采集积分:' + str(points))
+                client.publish("appInfo", json.dumps(app_info))
+                logger.info("获取积分完成。")
+                time.sleep(3600)
+        except Exception as e:
+            client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
+
+
+def restart():
+    logger.info("===== 检测是否已启动 =====")
+    status_output = run_command_blocking("/root/.aios/aios-cli status")
+    if "Daemon running on" in status_output:
+        logger.info("杀掉程序。")
+        run_command_blocking("/root/.aios/aios-cli kill")
+        time.sleep(10)  # 等待 10 秒
+    logger.info("检查结束！")
+
+    # 2. 启动后端服务（后台运行，不阻塞）
+    subprocess.Popen("/root/.aios/aios-cli start", shell=True)
+    logger.info("后端命令已启动。")
+    time.sleep(5)  # 等待后端服务启动
+
+    # 3. 下载大模型，等待输出中出现 "Download complete"
+    logger.info("开始下载大模型...")
+    run_command_and_print(
+        "/root/.aios/aios-cli models add hf:bartowski/Llama-3.2-1B-Instruct-GGUF:Llama-3.2-1B-Instruct-Q8_0.gguf", wait_for="Download complete"
+    )
+    logger.info("下载完成！")
+
+    # 4. 执行 infer 命令 测试模型
+    logger.info("执行 infer 命令 测试模型...")
+    run_command_and_print(
+        "/root/.aios/aios-cli infer --model hf:bartowski/Llama-3.2-1B-Instruct-GGUF:Llama-3.2-1B-Instruct-Q8_0.gguf --prompt 'What is 1+1 equal to?'"
+    )
+    logger.info("推理命令执行完毕。")
+
+    # 5. 执行 hive login 命令
+    # Hive 登录，提取 Public 和 Private Key
+    logger.info("开始 Hive 登录...")
+    run_command_and_print("/root/.aios/aios-cli hive login", wait_for="Authenticated successfully!")
+
+
+    # 7. 执行 hive select-tier 5 命令
+    logger.info("执行 hive select-tier 5 命令...")
+    run_command_blocking("/root/.aios/aios-cli hive select-tier 5")
+    logger.info("select-tier 命令执行完毕。")
+
+    # 8. 执行 hive connect 命令
+    logger.info("执行 hive connect 命令...")
+    run_command_blocking("/root/.aios/aios-cli hive connect")
+    logger.info("connect 命令执行完毕。")
+
+
+def start(client, serverId, appId, decryptKey, user, display):
     # 1. 安装
     logger.info("===== 执行安装 =====")
     install_output = run_command_blocking("curl https://download.hyper.space/api/install | bash")
@@ -147,8 +218,8 @@ def main(client, serverId, appId, decryptKey, user, display):
     )
     logger.info("下载完成！")
 
-    # 4. 执行 infer 命令
-    logger.info("执行 infer 命令...")
+    # 4. 执行 infer 命令 测试模型
+    logger.info("执行 infer 命令 测试模型...")
     run_command_and_print(
         "/root/.aios/aios-cli infer --model hf:bartowski/Llama-3.2-1B-Instruct-GGUF:Llama-3.2-1B-Instruct-Q8_0.gguf --prompt 'What is 1+1 equal to?'"
     )
@@ -179,7 +250,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     #     logger.info("已配置了key...")
     # else:
 
-    # 执行 hive whoami 命令
+    # 6. 获取key执行 hive whoami 命令
     logger.info("执行 hive whoami 命令...")
     login_output = run_command_blocking("/root/.aios/aios-cli hive whoami")
     public_key = None
@@ -210,24 +281,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     logger.info("执行 hive connect 命令...")
     run_command_blocking("/root/.aios/aios-cli hive connect")
     logger.info("connect 命令执行完毕。")
-
-    # 获取积分
-    while True:
-        try:
-            logger.info("\n===== 积分查询输出 =====")
-            login_output = run_command_blocking("/root/.aios/aios-cli hive points")
-            points = None
-            public_match = re.search(r"Points:\s*(\S+)", login_output)
-            if public_match:
-                points = public_match.group(1)
-            logger.info(f"points: {points}")
-            app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
-                                             '运行中， 并到采集积分:' + str(points))
-            client.publish("appInfo", json.dumps(app_info))
-            logger.info("获取积分完成。")
-            time.sleep(3600)
-        except Exception as e:
-            client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
+    return public_key
 
 def get_info(server_id, account_type, public_key, private_key, key_content):
     return {
