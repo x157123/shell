@@ -385,25 +385,20 @@ class Test(object):
             logger.info("开始充值")
             num = 1;
             for key in address:
-                try:
-                    base_balance = self.__get_base_balance(evm_address=key["publicKey"])
-                    logger.info(f'{num}/{len(address)}钱包信息：{key["secretKey"]} {key["publicKey"]} {base_balance}')
-                    num += 1
-                    if 0.00009 < base_balance:
-                        logger.success('钱包金额充足，跳过当前账号')
-                        time.sleep(1)
-                        continue
-                    bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=key["secretKey"], evm_address=key["publicKey"]), timeout=200)
-                    if bool is False:
-                        logger.error(f'充值失败 ==> {key["secretKey"]} {key["publicKey"]}')
-                    time.sleep(2)
-                    url = 'https://relay.link/bridge/base?fromChainId=8453&fromCurrency=0x0000000000000000000000000000000000000000&toCurrency=0x0000000000000000000000000000000000000000'
-                    page.get(url=url)
-                    time.sleep(10)
-                except Exception as error:
-                    logger.error(f'错误 ==> {error}')
-                finally:
-                    page.quit()
+                base_balance = self.__get_base_balance(evm_address=key["publicKey"])
+                logger.info(f'{num}/{len(address)}钱包信息：{key["secretKey"]} {key["publicKey"]} {base_balance}')
+                num += 1
+                if 0.00009 < base_balance:
+                    logger.success('钱包金额充足，跳过当前账号')
+                    time.sleep(1)
+                    continue
+                bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=key["secretKey"], evm_address=key["publicKey"]), timeout=200)
+                if bool is False:
+                    logger.error(f'充值失败 ==> {key["secretKey"]} {key["publicKey"]}')
+                time.sleep(2)
+                url = 'https://relay.link/bridge/base?fromChainId=8453&fromCurrency=0x0000000000000000000000000000000000000000&toCurrency=0x0000000000000000000000000000000000000000'
+                page.get(url=url)
+                time.sleep(10)
         except Exception as error:
             logger.error(f'error ==> {error}')
         finally:
