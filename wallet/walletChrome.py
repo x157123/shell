@@ -382,9 +382,11 @@ class Test(object):
                 logger.error(f'连接钱包错误 ==> {flag}')
                 return False
             logger.info("开始充值")
+            num = 1;
             for key in address:
                 base_balance = self.__get_base_balance(evm_address=key["publicKey"])
-                logger.info(f'钱包信息：{key["secretKey"]} {key["publicKey"]} {base_balance}')
+                logger.info(f'{num}/{len(address)}钱包信息：{key["secretKey"]} {key["publicKey"]} {base_balance}')
+                num +=1
                 if 0.00009 < base_balance:
                     logger.success('钱包金额充足，跳过当前账号')
                     continue
