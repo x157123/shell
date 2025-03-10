@@ -304,7 +304,7 @@ class Test(object):
 
     async def __link_account(self, page):
         url = 'https://relay.link/bridge/base?fromChainId=8453&fromCurrency=0x0000000000000000000000000000000000000000&toCurrency=0x0000000000000000000000000000000000000000'
-        page.get(url=url)
+        page.new_tab(url=url)
         time.sleep(10)
         claim = page.ele('x://button/div/div[text()="Select wallet"]')
         if claim:
