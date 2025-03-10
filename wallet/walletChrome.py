@@ -381,20 +381,18 @@ class Test(object):
             await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=wallet), timeout=60)
             logger.info("开始添加网络")
             await asyncio.wait_for(fut=self.__add_net_work(page=page, coin_name='base'), timeout=60)
-            logger.info("连接钱包")
-            flag = await asyncio.wait_for(fut=self.__link_account(page=page), timeout=60)
-            if not flag:
-                logger.error(f'连接钱包错误 ==> {flag}')
-                return False
             logger.info("开始充值")
             for key in address:
+                logger.info("连接钱包")
+                flag = await asyncio.wait_for(fut=self.__link_account(page=page), timeout=60)
+                if not flag:
+                    logger.error(f'连接钱包错误 ==> {flag}')
+                    return False
                 bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=key["secretKey"], evm_address=key["publicKey"]), timeout=200)
                 if bool is False:
                     logger.error(f'充值失败:停止充值 ==> {key["secretKey"]} {key["publicKey"]}')
                     return False
-                logger.info("刷新页面继续充值")
-                page.refresh()
-                time.sleep(2)
+                time.sleep(10)
         except Exception as error:
             logger.error(f'error ==> {error}')
             ...
