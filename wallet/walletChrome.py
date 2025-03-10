@@ -319,7 +319,7 @@ class Test(object):
             else:
                 return False
             await asyncio.sleep(3)
-            return True
+        return True
 
     async def __do_task(self, page, evm_id, evm_address):
         base_balance = self.__get_base_balance(evm_address=evm_address)
@@ -377,30 +377,30 @@ class Test(object):
 
     async def __main(self, address, wallet) -> bool:
         page = await self.__get_page()
-        # try:
-        logger.info("登录钱包")
-        await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=wallet), timeout=60)
-        logger.info("开始添加网络")
-        await asyncio.wait_for(fut=self.__add_net_work(page=page, coin_name='base'), timeout=60)
-        logger.info("连接钱包")
-        flag = await asyncio.wait_for(fut=self.__link_account(page=page), timeout=60)
-        if not flag:
-            logger.error(f'连接钱包错误 ==> {flag}')
-            return False
-        logger.info("开始充值")
-        for key in address:
-            bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=key["secretKey"], evm_address=key["publicKey"]), timeout=200)
-            if bool is False:
-                logger.error(f'充值失败:停止充值 ==> {key["secretKey"]} {key["publicKey"]}')
+        try:
+            logger.info("登录钱包")
+            await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=wallet), timeout=60)
+            logger.info("开始添加网络")
+            await asyncio.wait_for(fut=self.__add_net_work(page=page, coin_name='base'), timeout=60)
+            logger.info("连接钱包")
+            flag = await asyncio.wait_for(fut=self.__link_account(page=page), timeout=60)
+            if not flag:
+                logger.error(f'连接钱包错误 ==> {flag}')
                 return False
-            time.sleep(2)
-            url = 'https://relay.link/bridge/base?fromChainId=8453&fromCurrency=0x0000000000000000000000000000000000000000&toCurrency=0x0000000000000000000000000000000000000000'
-            page.get(url=url)
-            time.sleep(10)
-        # except Exception as error:
-        #     logger.error(f'error ==> {error}')
-        # finally:
-        #     page.quit()
+            logger.info("开始充值")
+            for key in address:
+                bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=key["secretKey"], evm_address=key["publicKey"]), timeout=200)
+                if bool is False:
+                    logger.error(f'充值失败:停止充值 ==> {key["secretKey"]} {key["publicKey"]}')
+                    return False
+                time.sleep(2)
+                url = 'https://relay.link/bridge/base?fromChainId=8453&fromCurrency=0x0000000000000000000000000000000000000000&toCurrency=0x0000000000000000000000000000000000000000'
+                page.get(url=url)
+                time.sleep(10)
+        except Exception as error:
+            logger.error(f'error ==> {error}')
+        finally:
+            page.quit()
         return True
 
     async def run(self, address, wallet):
