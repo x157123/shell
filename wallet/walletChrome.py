@@ -375,13 +375,15 @@ class Test(object):
         for _ in range(30):
             base_balance = self.__get_base_balance(evm_address=evm_address)
             if 0.00009 < base_balance:
-                send_amount = page.ele(locator='x://button[text()="Review" or text()="Swap" or text()="Send"]')
-                if send_amount:
-                    await self.__click_ele(page=page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]')
-                    for _ in range(10):
-                        if page.tabs_count < 2:
-                            break
-                        await self.__deal_window(page=page)
+                tit = page.ele(locator='x://div[text()="Transaction Details"]')
+                if tit is None:
+                    send_amount = page.ele(locator='x://button[text()="Review" or text()="Swap" or text()="Send"]')
+                    if send_amount:
+                        await self.__click_ele(page=page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]')
+                        for _ in range(10):
+                            if page.tabs_count < 2:
+                                break
+                            await self.__deal_window(page=page)
                 data += f'钱包金额： {base_balance}'
                 self.__swap_log.write(evm_address + '\r')
                 self.__swap_log.flush()
