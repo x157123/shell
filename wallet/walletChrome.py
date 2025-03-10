@@ -322,58 +322,52 @@ class Test(object):
         return True
 
     async def __do_task(self, page, evm_id, evm_address):
-        base_balance = self.__get_base_balance(evm_address=evm_address)
-        logger.info(f'钱包信息：{evm_id} {evm_address} {base_balance}')
-        if 0.00009 < base_balance:
-            logger.success('钱包金额充足，跳过当前账号')
-            return True
-        return True
-        # await self.__click_ele(page=page, xpath='x://button[@aria-label="Multi wallet dropdown"]', find_all=True,
-        #                        index=-1)
-        # await self.__click_ele(page=page, xpath='x://div[text()="Paste wallet address"]')
-        # page.ele(locator='x://input[@placeholder="Address or ENS"]').input(evm_address)
-        # await self.__click_ele(page=page, xpath='x://button[text()="Save"]')
-        # await asyncio.sleep(2)
-        # amount = "{:.6f}".format(random.uniform(0.000094, 0.000235))  # 0.2$ - 0.5$
-        # page.wait.ele_displayed(loc_or_ele='x://input[@inputmode="decimal"]', timeout=10)
-        # page.ele(locator='x://input[@inputmode="decimal"]').input(amount)
-        # await asyncio.sleep(5)
-        # send_amount = page.ele(
-        #     locator='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
-        #     index=1, timeout=5).text.strip().replace('$', '')
-        # receive_amount = page.ele(
-        #     locator='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
-        #     index=2, timeout=5).text.strip().replace('$', '')
-        # gas_fee = round(float(send_amount) - float(receive_amount), 3)
-        # if float(gas_fee) > 0.05:
-        #     logger.error(f'{gas_fee} gas too high {evm_id} {evm_address}')
-        #     return False
-        # data = f'{evm_id} {evm_address} {amount} {gas_fee}'
-        # page.wait.ele_displayed(loc_or_ele='x://button[text()="Review" or text()="Swap" or text()="Send"]', timeout=5)
-        # await self.__click_ele(page=page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]')
-        # await asyncio.sleep(5)
-        # if page.tabs_count < 2:
-        #     logger.error(f'transaction reject {evm_id} {evm_address}')
-        #     return False
-        # for _ in range(10):
-        #     if page.tabs_count < 2:
-        #         break
-        #     await self.__deal_window(page=page)
-        # else:
-        #     return False
-        # await asyncio.sleep(10)
-        # for _ in range(30):
-        #     base_balance = self.__get_base_balance(evm_address=evm_address)
-        #     if 0.00009 < base_balance:
-        #         data += f'钱包金额： {base_balance}'
-        #         logger.success(data)
-        #         return True
-        #     else:
-        #         logger.success("金额充值未成功")
-        #     await asyncio.sleep(5)
-        # else:
-        #     logger.error(data)
-        # return False
+        await self.__click_ele(page=page, xpath='x://button[@aria-label="Multi wallet dropdown"]', find_all=True,
+                               index=-1)
+        await self.__click_ele(page=page, xpath='x://div[text()="Paste wallet address"]')
+        page.ele(locator='x://input[@placeholder="Address or ENS"]').input(evm_address)
+        await self.__click_ele(page=page, xpath='x://button[text()="Save"]')
+        await asyncio.sleep(2)
+        amount = "{:.6f}".format(random.uniform(0.000094, 0.000235))  # 0.2$ - 0.5$
+        page.wait.ele_displayed(loc_or_ele='x://input[@inputmode="decimal"]', timeout=10)
+        page.ele(locator='x://input[@inputmode="decimal"]').input(amount)
+        await asyncio.sleep(5)
+        send_amount = page.ele(
+            locator='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
+            index=1, timeout=5).text.strip().replace('$', '')
+        receive_amount = page.ele(
+            locator='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
+            index=2, timeout=5).text.strip().replace('$', '')
+        gas_fee = round(float(send_amount) - float(receive_amount), 3)
+        if float(gas_fee) > 0.05:
+            logger.error(f'{gas_fee} gas too high {evm_id} {evm_address}')
+            return False
+        data = f'{evm_id} {evm_address} {amount} {gas_fee}'
+        page.wait.ele_displayed(loc_or_ele='x://button[text()="Review" or text()="Swap" or text()="Send"]', timeout=5)
+        await self.__click_ele(page=page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]')
+        await asyncio.sleep(5)
+        if page.tabs_count < 2:
+            logger.error(f'transaction reject {evm_id} {evm_address}')
+            return False
+        for _ in range(10):
+            if page.tabs_count < 2:
+                break
+            await self.__deal_window(page=page)
+        else:
+            return False
+        await asyncio.sleep(10)
+        for _ in range(30):
+            base_balance = self.__get_base_balance(evm_address=evm_address)
+            if 0.00009 < base_balance:
+                data += f'钱包金额： {base_balance}'
+                logger.success(data)
+                return True
+            else:
+                logger.success("金额充值未成功")
+            await asyncio.sleep(5)
+        else:
+            logger.error(data)
+        return False
 
     async def __main(self, address, wallet) -> bool:
         page = await self.__get_page()
@@ -389,6 +383,11 @@ class Test(object):
                 return False
             logger.info("开始充值")
             for key in address:
+                base_balance = self.__get_base_balance(evm_address=key["publicKey"])
+                logger.info(f'钱包信息：{key["secretKey"]} {key["publicKey"]} {base_balance}')
+                if 0.00009 < base_balance:
+                    logger.success('钱包金额充足，跳过当前账号')
+                    continue
                 bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=key["secretKey"], evm_address=key["publicKey"]), timeout=200)
                 if bool is False:
                     logger.error(f'充值失败:停止充值 ==> {key["secretKey"]} {key["publicKey"]}')
