@@ -394,6 +394,7 @@ class Test(object):
                     return False
                 logger.info("刷新页面继续充值")
                 page.refresh()
+                time.sleep(2)
         except Exception as error:
             logger.error(f'error ==> {error}')
             ...
