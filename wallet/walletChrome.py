@@ -384,7 +384,7 @@ class Test(object):
                 logger.error(f'连接钱包错误 ==> {flag}')
                 return False
             logger.info("开始充值")
-            num = 1;
+            num = 1
             for key in address:
                 base_balance = self.__get_base_balance(evm_address=key["publicKey"])
                 logger.info(f'{num}/{len(address)}钱包信息：{key["secretKey"]} {key["publicKey"]} {base_balance}')
@@ -404,7 +404,15 @@ class Test(object):
                     time.sleep(10)
                 except Exception as error:
                     logger.error("异常: %s", error)
-                    logger.error("Traceback:\n%s", traceback.format_exc())
+                    page = await self.__get_page()
+                    logger.info("登录钱包")
+                    await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=wallet), timeout=60)
+                    logger.info("连接钱包")
+                    flag = await asyncio.wait_for(fut=self.__link_account(page=page), timeout=60)
+                    if not flag:
+                        logger.error(f'连接钱包错误 ==> {flag}')
+                        return False
+
         except Exception as error:
             logger.error(f'error ==> {error}')
         finally:
