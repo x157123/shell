@@ -445,6 +445,7 @@ class Test(object):
                     flag = await asyncio.wait_for(fut=self.__link_account(page=page), timeout=60)
                     if not flag:
                         logger.error(f'连接钱包错误 ==> {flag}')
+                        page.quit()
                         return False
                     logger.info("开始充值")
 
@@ -477,4 +478,8 @@ if __name__ == '__main__':
     if len(public_key_tmp) > 0:
         args.wallet = '88106'
         test = Test()
-        asyncio.run(test.run(address=public_key_tmp, wallet=args.wallet))
+        while True:
+            try:
+                asyncio.run(test.run(address=public_key_tmp, wallet=args.wallet))
+            except Exception as error:
+                logger.error(f'error ==> {error}')
