@@ -475,6 +475,6 @@ if __name__ == '__main__':
     # 解密并发送解密结果
     public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, "wallet104")
     if len(public_key_tmp) > 0:
-        args.wallet = '88104'
+        args.wallet = '88107'
         test = Test()
         asyncio.run(test.run(address=public_key_tmp, wallet=args.wallet))
