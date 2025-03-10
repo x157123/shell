@@ -403,8 +403,12 @@ class Test(object):
                     page.get(url=url)
                     time.sleep(10)
                 except Exception as error:
+                    page.quit()
                     logger.error("异常: %s", error)
                     page = await self.__get_page()
+                    time.sleep(2)
+                    page.get("chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding")
+                    time.sleep(2)
                     logger.info("登录钱包")
                     await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=wallet), timeout=60)
                     logger.info("连接钱包")
