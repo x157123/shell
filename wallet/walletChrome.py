@@ -409,9 +409,15 @@ class Test(object):
                     time.sleep(2)
                     page.get("chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding")
                     time.sleep(2)
-                    logger.info("登录钱包")
+                    logger.info("登录钱包1")
                     await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=wallet), timeout=60)
-                    logger.info("连接钱包")
+                    time.sleep(10)
+                    if len(page.get_tabs(title="Signma")) > 0:
+                        time.sleep(3)
+                        pop_tab = page.get_tab(title="Signma")
+                        if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
+                            pop_tab.close()
+                    logger.info("连接钱包1")
                     flag = await asyncio.wait_for(fut=self.__link_account(page=page), timeout=60)
                     if not flag:
                         logger.error(f'连接钱包错误 ==> {flag}')
