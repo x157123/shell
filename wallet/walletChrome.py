@@ -329,7 +329,7 @@ class Test(object):
             logger.error(data)
         return False
 
-    async def __main(self, evm_id, evm_id2, evm_address) -> bool:
+    async def __main(self, evm_id, evm_id2, evm_id3, evm_address) -> bool:
         page = await self.__get_page()
         try:
             await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=evm_id2), timeout=60)
@@ -340,7 +340,13 @@ class Test(object):
                 return False
             bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address), timeout=200)
             if bool is False:
-                logger.error(f'充值失败 ==> {evm_id} {evm_address}')
+                logger.error(f'充值失败:切换钱包{evm_id3}再次尝试 ==> {evm_id} {evm_address}')
+                await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=evm_id3), timeout=60)
+                await asyncio.wait_for(fut=self.__add_net_work(page=page, coin_name='base'), timeout=60)
+                bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, evm_address=evm_address), timeout=200)
+                if bool is False:
+                    logger.error(f'再次充值失败:停止充值 ==> {evm_id} {evm_address}')
+                    return False
         except Exception as error:
             logger.error(f'error ==> {error}')
             ...
@@ -348,10 +354,9 @@ class Test(object):
             page.quit()
         return True
 
-    async def run(self, evm_id, evm_address, evm_id2):
-        await self.__main(evm_id=evm_id, evm_address=evm_address, evm_id2=evm_id2)
+    async def run(self, evm_id, evm_address, evm_id2, evm_id3):
+        await self.__main(evm_id=evm_id, evm_address=evm_address, evm_id2=evm_id2, evm_id3=evm_id3)
         return True
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
@@ -368,6 +373,7 @@ if __name__ == '__main__':
 
     args.evm_id = '88645'
     args.evm_address = '0x9D621e237BD6342CeD54F20E0c31FdAdD268b2F8'
-    args.evm_id2 = '88104'
+    args.evm_id2 = '88101'
+    args.evm_id3 = '88102'
     test = Test()
-    asyncio.run(test.run(evm_id=args.evm_id, evm_address=args.evm_address, evm_id2=args.evm_id2))
+    asyncio.run(test.run(evm_id=args.evm_id, evm_address=args.evm_address, evm_id2=args.evm_id2, evm_id3=args.evm_id3))
