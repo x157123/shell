@@ -10,6 +10,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import paho.mqtt.client as mqtt
 import json
+import traceback
 from DrissionPage import ChromiumPage, ChromiumOptions
 
 
@@ -392,13 +393,18 @@ class Test(object):
                     logger.success('钱包金额充足，跳过当前账号')
                     time.sleep(1)
                     continue
-                bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=key["secretKey"], evm_address=key["publicKey"]), timeout=200)
-                if bool is False:
-                    logger.error(f'充值失败 ==> {key["secretKey"]} {key["publicKey"]}')
-                time.sleep(2)
-                url = 'https://relay.link/bridge/base?fromChainId=8453&fromCurrency=0x0000000000000000000000000000000000000000&toCurrency=0x0000000000000000000000000000000000000000'
-                page.get(url=url)
-                time.sleep(10)
+                try:
+                    bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=key["secretKey"], evm_address=key["publicKey"]), timeout=200)
+                    if bool is False:
+                        logger.error(f'充值失败 ==> {key["secretKey"]} {key["publicKey"]}')
+                    time.sleep(2)
+                    logger.info("重新打开页面")
+                    url = 'https://relay.link/bridge/base?fromChainId=8453&fromCurrency=0x0000000000000000000000000000000000000000&toCurrency=0x0000000000000000000000000000000000000000'
+                    page.get(url=url)
+                    time.sleep(10)
+                except Exception as error:
+                    logger.error("异常: %s", error)
+                    logger.error("Traceback:\n%s", traceback.format_exc())
         except Exception as error:
             logger.error(f'error ==> {error}')
         finally:
