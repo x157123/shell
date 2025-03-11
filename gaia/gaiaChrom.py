@@ -1062,10 +1062,13 @@ class TaskSet:
                     self.__click_ele(page=self.tab, xpath='x://button[text()="Connect"]', err=False)
                     logger.info('进入页面，开始访问3')
                     time.sleep(2)
-                    self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
-                    time.sleep(2)
-                    logger.info('进入页面，开始访问5')
-                    self.__click_ele(page=self.tab, xpath='x://div[text()="Signma"]', err=False)
+                    accept = self.tab.ele('x://button[text()="Accept"]')
+                    if accept:
+                        self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
+                    signma = self.tab.ele('x://div[text()="Signma"]')
+                    if signma:
+                        logger.info('进入页面，开始访问5')
+                        self.__click_ele(page=self.tab, xpath='x://div[text()="Signma"]', err=False)
                     logger.info('进入页面，开始访问4')
                     time.sleep(5)
                     for _ in range(3):
@@ -1077,7 +1080,9 @@ class TaskSet:
                 if accept:
                     self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
                     logger.info('进入页面，开始访问5')
-                    self.__click_ele(page=self.tab, xpath='x://button[text()="SIGN"]', err=False)
+                    sign = self.tab.ele('x://button[text()="SIGN"]')
+                    if sign:
+                        self.__click_ele(page=self.tab, xpath='x://button[text()="SIGN"]', err=False)
                     logger.info('进入页面，开始访问6')
                     for _ in range(3):
                         self.process_pop()
