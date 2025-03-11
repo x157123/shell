@@ -1049,7 +1049,7 @@ class TaskSet:
                 logger.info('进入页面，开始访问')
                 self.__click_ele(page=self.tab, xpath='x://button[text()="Accept All"]')
                 time.sleep(2)
-                self.tab.wait.eles_loaded(locators='x://button[text()="Connect"]', timeout=10, any_one=True)
+                self.__click_ele(page=self.tab, xpath='x://button[text()="Connect"]')
                 time.sleep(5)
                 self.__click_ele(page=self.tab, xpath='x://div[text()="Signma"]')
                 time.sleep(5)
