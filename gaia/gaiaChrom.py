@@ -1061,7 +1061,10 @@ class TaskSet:
                 if connect:
                     self.__click_ele(page=self.tab, xpath='x://button[text()="Connect"]', err=False)
                     logger.info('进入页面，开始访问3')
-                    time.sleep(5)
+                    time.sleep(2)
+                    self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
+                    time.sleep(2)
+                    logger.info('进入页面，开始访问5')
                     self.__click_ele(page=self.tab, xpath='x://div[text()="Signma"]', err=False)
                     logger.info('进入页面，开始访问4')
                     time.sleep(5)
