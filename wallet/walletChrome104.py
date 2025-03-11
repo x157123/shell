@@ -429,6 +429,7 @@ class Test(object):
                 try:
                     bool = await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=key["secretKey"], evm_address=key["publicKey"]), timeout=200)
                     if bool is False:
+                        args.count = 0
                         logger.error(f'充值失败 ==> {key["secretKey"]} {key["publicKey"]}')
                     time.sleep(2)
                     logger.info("重新打开页面")
@@ -436,6 +437,7 @@ class Test(object):
                     page.get(url=url)
                     time.sleep(10)
                 except Exception as error:
+                    args.count = 0
                     page.quit()
                     logger.error("异常: %s", error)
                     page = await self.__get_page()
@@ -453,6 +455,7 @@ class Test(object):
                     logger.info("开始充值")
 
         except Exception as error:
+            args.count = 0
             logger.error(f'error ==> {error}')
         finally:
             page.quit()
@@ -481,8 +484,13 @@ if __name__ == '__main__':
     if len(public_key_tmp) > 0:
         args.wallet = '88107'
         while True:
+            args.count = 0
             try:
                 test = Test()
                 asyncio.run(test.run(address=public_key_tmp, wallet=args.wallet))
             except Exception as error:
                 logger.error(f'error ==> {error}')
+            finally:
+                if len(public_key_tmp) <= args.count:
+                    logger.error('退出循环')
+                    break
