@@ -1055,8 +1055,7 @@ class TaskSet:
                     time.sleep(8)
                 # self.browser.close_tabs(others=True)
                 self.__click_ele(page=self.tab, xpath='x://button[text()="SIGN"]')
-                time.sleep(2)
-                return
+                time.sleep(200)
                 self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
                 time.sleep(2)
                 self.__click_ele(page=self.tab, xpath='x://p[text()="SELECT A DOMAIN"]')
