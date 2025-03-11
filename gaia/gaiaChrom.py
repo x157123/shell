@@ -995,7 +995,13 @@ class TaskSet:
                 if pop_tab.ele(conn_path) is not None:
                     pop_tab.ele(conn_path).click()
                     time.sleep(3)
-            elif "chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign":
+            elif pop_tab.url == "chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign":
+                if pop_tab.ele(back_path) is not None:
+                    pop_tab.ele(back_path).click()
+                if pop_tab.ele('x://button[@id="sign"]') is not None:
+                    pop_tab.ele('x://button[@id="sign"]').click()
+                    time.sleep(2)
+            else:
                 while pop_tab.wait.ele_displayed(sign_enable_path, timeout=3) is False:
                     if pop_tab.wait.ele_displayed(sign_blank_path, timeout=3):
                         pop_tab.actions.move_to(sign_blank_path)
