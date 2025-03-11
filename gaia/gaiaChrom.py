@@ -985,7 +985,7 @@ class TaskSet:
                 "tag:div@@class=jsx-1443409666 subtext@@text()^希望您使用您的登录"
             )
 
-            time.sleep(20)
+            time.sleep(10)
 
             if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fdapp-permission':
                 if pop_tab.ele(back_path) is not None:
@@ -995,12 +995,6 @@ class TaskSet:
                 if pop_tab.ele(conn_path) is not None:
                     pop_tab.ele(conn_path).click()
                     time.sleep(3)
-            elif pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign':
-                if pop_tab.ele(back_path) is not None:
-                    pop_tab.ele(back_path).click()
-                if pop_tab.ele('x://button[@id="sign"]') is not None:
-                    pop_tab.ele('x://button[@id="sign"]').click()
-                    time.sleep(2)
             elif "chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign":
                 while pop_tab.wait.ele_displayed(sign_enable_path, timeout=3) is False:
                     if pop_tab.wait.ele_displayed(sign_blank_path, timeout=3):
@@ -1057,23 +1051,28 @@ class TaskSet:
                 self.__click_ele(page=self.tab, xpath='x://button[text()="Accept All"]', err=False)
                 logger.info('进入页面，开始访问2')
                 time.sleep(2)
-                self.__click_ele(page=self.tab, xpath='x://button[text()="Connect"]', err=False)
-                logger.info('进入页面，开始访问3')
-                time.sleep(5)
-                self.__click_ele(page=self.tab, xpath='x://div[text()="Signma"]', err=False)
-                logger.info('进入页面，开始访问4')
-                time.sleep(5)
-                for _ in range(3):
-                    self.process_pop()
-                    time.sleep(8)
+                connect = self.tab.ele('x://button[text()="Connect"]')
+                if connect:
+                    self.__click_ele(page=self.tab, xpath='x://button[text()="Connect"]', err=False)
+                    logger.info('进入页面，开始访问3')
+                    time.sleep(5)
+                    self.__click_ele(page=self.tab, xpath='x://div[text()="Signma"]', err=False)
+                    logger.info('进入页面，开始访问4')
+                    time.sleep(5)
+                    for _ in range(3):
+                        self.process_pop()
+                        time.sleep(8)
                 # self.browser.close_tabs(others=True)
-                self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
-                logger.info('进入页面，开始访问5')
-                self.__click_ele(page=self.tab, xpath='x://button[text()="SIGN"]', err=False)
-                logger.info('进入页面，开始访问6')
-                for _ in range(3):
-                    self.process_pop()
-                    time.sleep(8)
+
+                accept = self.tab.ele('x://button[text()="Accept"]')
+                if accept:
+                    self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
+                    logger.info('进入页面，开始访问5')
+                    self.__click_ele(page=self.tab, xpath='x://button[text()="SIGN"]', err=False)
+                    logger.info('进入页面，开始访问6')
+                    for _ in range(3):
+                        self.process_pop()
+                        time.sleep(8)
                 time.sleep(2)
                 self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
                 time.sleep(2)
