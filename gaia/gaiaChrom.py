@@ -995,6 +995,12 @@ class TaskSet:
                 if pop_tab.ele(conn_path) is not None:
                     pop_tab.ele(conn_path).click()
                     time.sleep(3)
+            elif pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign':
+                if pop_tab.ele('x://*[@id="close"]') is not None:
+                    pop_tab.ele('x://*[@id="close"]').click()
+                    time.sleep(1)
+                    pop_tab.ele('x://button[@id="sign"]').click()
+                    time.sleep(2)
             elif "chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign":
                 while pop_tab.wait.ele_displayed(sign_enable_path, timeout=3) is False:
                     if pop_tab.wait.ele_displayed(sign_blank_path, timeout=3):
@@ -1005,7 +1011,7 @@ class TaskSet:
                 if pop_tab.ele(sign_enable_path) is not None:
                     pop_tab.ele(sign_enable_path).click()
 
-    def __click_ele(self, page, xpath: str = '', find_all: bool = False, index: int = -1) -> int:
+    def __click_ele(self, page, xpath: str = '', err: bool = True, find_all: bool = False, index: int = -1) -> int:
         loop_count = 0
         while True:
             try:
@@ -1019,7 +1025,8 @@ class TaskSet:
                 pass
             if loop_count >= 5:
                 # print(f'---> {xpath} 无法找到元素。。。', str(error)[:100])
-                self.tab.close()
+                if err:
+                    self.tab.close()
                 self.res_info = '元素无法找到'
                 return 0
             loop_count += 1
@@ -1057,7 +1064,11 @@ class TaskSet:
                     self.process_pop()
                     time.sleep(8)
                 # self.browser.close_tabs(others=True)
-                self.__click_ele(page=self.tab, xpath='x://button[text()="SIGN"]')
+                self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
+                self.__click_ele(page=self.tab, xpath='x://button[text()="SIGN"]', err=False)
+                for _ in range(3):
+                    self.process_pop()
+                    time.sleep(8)
                 time.sleep(200)
                 self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
                 time.sleep(2)
