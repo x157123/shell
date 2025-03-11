@@ -987,6 +987,8 @@ class TaskSet:
 
             time.sleep(10)
 
+            logger.info("弹出框:"+pop_tab.url)
+
             if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fdapp-permission':
                 if pop_tab.ele(back_path) is not None:
                     pop_tab.ele(back_path).click()
