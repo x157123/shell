@@ -996,9 +996,9 @@ class TaskSet:
                     pop_tab.ele(conn_path).click()
                     time.sleep(3)
             elif pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign':
-                if pop_tab.ele('x://*[@id="close"]') is not None:
-                    pop_tab.ele('x://*[@id="close"]').click()
-                    time.sleep(1)
+                if pop_tab.ele(back_path) is not None:
+                    pop_tab.ele(back_path).click()
+                if pop_tab.ele('x://button[@id="sign"]') is not None:
                     pop_tab.ele('x://button[@id="sign"]').click()
                     time.sleep(2)
             elif "chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html?page=%2Fpersonal-sign":
@@ -1053,23 +1053,28 @@ class TaskSet:
                 self.res_info = ''
                 self.tab.get(url='https://www.gaianet.ai/chat')
                 time.sleep(5)
-                logger.info('进入页面，开始访问')
+                logger.info('进入页面，开始访问1')
                 self.__click_ele(page=self.tab, xpath='x://button[text()="Accept All"]', err=False)
+                logger.info('进入页面，开始访问2')
                 time.sleep(2)
                 self.__click_ele(page=self.tab, xpath='x://button[text()="Connect"]', err=False)
+                logger.info('进入页面，开始访问3')
                 time.sleep(5)
                 self.__click_ele(page=self.tab, xpath='x://div[text()="Signma"]', err=False)
+                logger.info('进入页面，开始访问4')
                 time.sleep(5)
                 for _ in range(3):
                     self.process_pop()
                     time.sleep(8)
                 # self.browser.close_tabs(others=True)
                 self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
+                logger.info('进入页面，开始访问5')
                 self.__click_ele(page=self.tab, xpath='x://button[text()="SIGN"]', err=False)
+                logger.info('进入页面，开始访问6')
                 for _ in range(3):
                     self.process_pop()
                     time.sleep(8)
-                time.sleep(200)
+                time.sleep(2)
                 self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
                 time.sleep(2)
                 self.__click_ele(page=self.tab, xpath='x://p[text()="SELECT A DOMAIN"]')
