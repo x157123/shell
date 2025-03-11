@@ -408,6 +408,12 @@ class Test(object):
             logger.info("开始充值")
             num = 1
             for key in address:
+                if len(page.get_tabs(title="Signma")) > 0 and page.tabs_count >= 2:
+                    logger.info("发现错误窗口，关闭")
+                    time.sleep(8)
+                    pop_tab = page.get_tab(title="Signma")
+                    if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
+                        pop_tab.close()
                 base_balance = self.__get_base_balance(evm_address=key["publicKey"])
                 logger.info(f'{num}/{len(address)}钱包信息：{key["secretKey"]} {key["publicKey"]} {base_balance}')
                 num += 1
@@ -474,9 +480,9 @@ if __name__ == '__main__':
     public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, "wallet104")
     if len(public_key_tmp) > 0:
         args.wallet = '88107'
-        test = Test()
         while True:
             try:
+                test = Test()
                 asyncio.run(test.run(address=public_key_tmp, wallet=args.wallet))
             except Exception as error:
                 logger.error(f'error ==> {error}')
