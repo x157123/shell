@@ -375,22 +375,21 @@ class Test(object):
         for _ in range(30):
             base_balance = self.__get_base_balance(evm_address=evm_address)
             if 0.00009 < base_balance:
-                tit = page.ele(locator='x://div[text()="Transaction Details"]')
-                if tit is None:
-                    send_amount = page.ele(locator='x://button[text()="Review" or text()="Swap" or text()="Send"]')
-                    if send_amount:
-                        await self.__click_ele(page=page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]')
-                        for _ in range(10):
-                            if page.tabs_count < 2:
-                                break
-                            await self.__deal_window(page=page)
                 data += f'钱包金额： {base_balance}'
                 self.__swap_log.write(evm_address + '\r')
                 self.__swap_log.flush()
                 logger.success(data)
                 return True
             else:
-                logger.success(f"金额充值未成功{base_balance}")
+                tit = page.ele(locator='x://div[text()="Transaction Details"]')
+                if tit is None:
+                    logger.success(f"已弹出充值窗口，{base_balance}")
+                    error_data = page.ele(locator='x://div[text()="Order has not been filled"]')
+                    if error_data:
+                        logger.success(f"交易提示失败，{base_balance}")
+                        return False
+                else:
+                    logger.success(f"金额充值未成功{base_balance}")
             await asyncio.sleep(5)
         else:
             logger.error(data)
