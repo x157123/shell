@@ -335,10 +335,8 @@ class Test(object):
         return True
 
     async def __do_task(self, page, evm_id, evm_address):
-        logger.info('查找钱包地址')
         await self.__click_ele(page=page, xpath='x://button[@aria-label="Multi wallet dropdown"]', find_all=True,
                                index=-1)
-        logger.info('设置钱包地址')
         await self.__click_ele(page=page, xpath='x://div[text()="Paste wallet address"]')
         page.ele(locator='x://input[@placeholder="Address or ENS"]').input(evm_address)
         await self.__click_ele(page=page, xpath='x://button[text()="Save"]')
