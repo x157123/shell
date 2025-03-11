@@ -373,11 +373,6 @@ class Test(object):
         for _ in range(30):
             base_balance = self.__get_base_balance(evm_address=evm_address)
             if 0.00009 < base_balance:
-                tit = page.ele(locator='x://div[text()="Transaction Details"]')
-                if tit:
-                    error_data = page.ele(locator='x://div[text()="Order has not been filled"]')
-                    if error_data:
-                        return False
                 data += f'钱包金额： {base_balance}'
                 self.__swap_log.write(evm_address + '\r')
                 self.__swap_log.flush()
@@ -385,7 +380,7 @@ class Test(object):
                 return True
             else:
                 tit = page.ele(locator='x://div[text()="Transaction Details"]')
-                if tit is None:
+                if tit:
                     logger.success(f"已弹出充值窗口，{base_balance}")
                     error_data = page.ele(locator='x://div[text()="Order has not been filled"]')
                     if error_data:

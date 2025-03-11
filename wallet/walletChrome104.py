@@ -380,7 +380,7 @@ class Test(object):
                 return True
             else:
                 tit = page.ele(locator='x://div[text()="Transaction Details"]')
-                if tit is None:
+                if tit:
                     logger.success(f"已弹出充值窗口，{base_balance}")
                     error_data = page.ele(locator='x://div[text()="Order has not been filled"]')
                     if error_data:
