@@ -1089,10 +1089,10 @@ class TaskSet:
                 time.sleep(5)
 
                 domain = random.choice([
-                    "top777.gaia.domains",
-                    "gaiatop.gaia.domains",
-                    "newyork.gaia.domains",
-                    "aiops.gaia.domains",
+                    "llama.gaia.domains",
+                    "vortex.gaia.domains",
+                    "hyper.gaia.domains",
+                    "we-are-gaia.gaia.domains",
                 ])
                 self.res_info = self.res_info + f'domain:{domain}'
                 js_code = f"""            
