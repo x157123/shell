@@ -1155,15 +1155,9 @@ class TaskSet:
                 logger.info('设置钱包网络')
                 self.__add_net_work(page=self.tab, coin_name='base')
 
-                # 兑换积分
-                logger.info('兑换积分')
-                self.redeem_points(args)
-
-                time.sleep(100)
-
                 self.res_info = ''
                 self.tab.get(url='https://www.gaianet.ai/chat')
-                logger.info('进入页面，开始访问1')
+                logger.info('进入页面，开始访问')
                 time.sleep(5)
 
                 accept_all = self.tab.ele('x://button[text()="Accept All"]')
@@ -1205,6 +1199,15 @@ class TaskSet:
                 self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
                 time.sleep(2)
                 self.__click_ele(page=self.tab, xpath='x://p[text()="SELECT A DOMAIN"]')
+                time.sleep(5)
+
+                # 兑换积分
+                logger.info('兑换积分')
+                self.redeem_points(args)
+
+                # 对话
+                self.tab.get(url='https://www.gaianet.ai/chat')
+                logger.info('进入页面，开始访问')
                 time.sleep(5)
 
                 domain = random.choice([
@@ -1291,53 +1294,7 @@ class TaskSet:
     def redeem_points(self, args):
         self.tab.get(url='https://www.gaianet.ai/reward-summary')
         time.sleep(5)
-
-        accept = self.tab.ele('x://button[text()="Accept"]')
-        if accept:
-            logger.info("点击accept按钮")
-            self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
-            # 签名
-            self.__deal_window(page=self.tab)
-            # 刷新页面
-            self.tab.refresh()
-            time.sleep(5)
-
-        accept_all = self.tab.ele('x://button[text()="Accept All"]')
-        if accept_all:
-            self.__click_ele(page=self.tab, xpath='x://button[text()="Accept All"]', err=False)
-        connect = self.tab.ele('x://button[text()="Connect"]')
-        if connect:
-            self.__click_ele(page=self.tab, xpath='x://button[text()="Connect"]', err=False)
-            logger.info('进入页面，开始访问3')
-            time.sleep(2)
-            accept = self.tab.ele('x://button[text()="Accept"]')
-            if accept:
-                self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
-                # 签名
-                self.__deal_window(page=self.tab)
-            signma = self.tab.ele('x://div[text()="Signma"]')
-            if signma:
-                logger.info('进入页面，开始访问5')
-                self.__click_ele(page=self.tab, xpath='x://div[text()="Signma"]', err=False)
-            logger.info('进入页面，开始访问4')
-            time.sleep(5)
-            for _ in range(2):
-                # self.process_pop()
-                self.__deal_window(page=self.tab)
-                time.sleep(8)
-            logger.info("钱包签名完成")
-            accept = self.tab.ele('x://button[text()="Accept"]')
-            if accept:
-                logger.info("点击accept按钮")
-                self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
-                # 签名
-                self.__deal_window(page=self.tab)
-
-            logger.info("准备刷新页面")
-            time.sleep(2)
-
         logger.info('准备点击兑换')
-        time.sleep(5)
         redeem = self.tab.ele('x://button[text()="Redeem"]')
         if redeem:
             redeem_now = self.tab.ele('x://button[text()="Redeem Now"]')
