@@ -427,6 +427,7 @@ start_services() {
         sleep 1
     fi
 
+
     # 查找运行中的 去除python进程
     pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
     if [ -n "$pids" ]; then
@@ -445,6 +446,24 @@ start_services() {
             kill -9 "$pid"
             echo "已终止 PID: $pid"
         done
+    fi
+
+    # 查找运行中的 老版本 chrome.py 进程
+    npids=$(pgrep -f "/opt/monad_chrom")
+    if [ -n "$npids" ]; then
+        echo "检测到正在运行的实例: $npids，准备终止..."
+        for pid in $npids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
+    fi
+
+    # 检查并清理特定 monad Chrome 调试端口
+    PIDS=$(lsof -t -i:5945 -sTCP:LISTEN)
+    if [ -n "$PIDS" ]; then
+        log_info "5945 端口已被占用，终止占用该端口的进程：$PIDS"
+        kill -9 "$PIDS"
+        sleep 1
     fi
 
     # 查找运行中的 老版本 chrome.py 进程
