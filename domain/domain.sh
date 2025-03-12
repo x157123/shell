@@ -50,6 +50,21 @@ parse_args() {
     CHROME_DEBUG_PORT=$((CHROME_DEBUG_BASE_PORT + 0))
 }
 
+# 下载并配置 Python 脚本
+setup_python_script() {
+    if [ ! -d "$PYTHON_SCRIPT_DIR" ]; then
+        log_info "目录 $PYTHON_SCRIPT_DIR 不存在，正在创建..."
+        mkdir -p "$PYTHON_SCRIPT_DIR" || error_exit "无法创建目录 $PYTHON_SCRIPT_DIR"
+        chown "$USER:$USER" "$PYTHON_SCRIPT_DIR"
+    fi
+    if [ -f "$PYTHON_SCRIPT_DIR$FILE_NAME" ]; then
+        log_info "$PYTHON_SCRIPT_DIR$FILE_NAME 已存在，删除旧文件..."
+        rm -f "$PYTHON_SCRIPT_DIR$FILE_NAME"
+    fi
+    log_info "下载 Python 脚本..."
+    wget -q -O "$PYTHON_SCRIPT_DIR$FILE_NAME" "$PYTHON_SCRIPT_URL" || error_exit "脚本下载失败"
+    chmod +x "$PYTHON_SCRIPT_DIR$FILE_NAME"
+}
 
 # 启动 Chrome 和 Python 脚本
 start_services() {
@@ -66,6 +81,7 @@ main() {
     fi
 
     parse_args "$@"
+    setup_python_script
     start_services
 }
 
