@@ -883,6 +883,91 @@ class TaskSet:
         client.publish("appInfo",
                        json.dumps(self.get_app_info(self.serverId, self.appId, 3, index, message)))
 
+    # 添加网络
+    def __add_net_work(self, page, coin_name='base'):
+        obj = {
+            'arb': 42161,
+            'base': 8453,
+            'opt': 10,
+        }
+        number = obj[coin_name]
+        url = f'https://chainlist.org/?search={number}&testnets=false'
+        page.get(url=url)
+        time.sleep(2)
+        page.wait.ele_displayed(loc_or_ele='x://button[text()="Connect Wallet"]', timeout=10)
+        self.__click_ele(page=page, xpath=f'x://td[contains(text(), "{number} ")]/../../../following-sibling::button[1]')
+        time.sleep(3)
+        self.__deal_window(page=page)
+        time.sleep(2)
+        self.__click_ele(page=page,
+                               xpath=f'x://td[contains(text(), "{number} ")]/../../../following-sibling::button[1]')
+        time.sleep(2)
+        self.__deal_window(page=page)
+        if page.tabs_count >= 2:
+            self.__deal_window(page=page)
+        return True
+
+    # 处理弹窗
+    def __deal_window(self, page):
+        # 如果窗口大于2才进行操作
+        if page.tabs_count >= 2:
+            time.sleep(3)
+            tab = page.get_tab()
+            if '/popup.html?page=%2Fdapp-permission' in tab.url:
+                if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                    self.__click_ele(page=tab, xpath='x://*[@id="close"]')
+                    time.sleep(1)
+                self.__click_ele(page=tab, xpath='x://button[@id="grantPermission"]')
+                time.sleep(2)
+
+            elif '/notification.html#connect' in tab.url:
+                self.__click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]')
+                self.__click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]')
+                time.sleep(2)
+
+            elif '/notification.html#confirmation' in tab.url:
+                self.__click_ele(page=tab, xpath='x://*[@data-testid="confirmation-submit-button"]')
+                time.sleep(2)
+                self.__click_ele(page=tab, xpath='x://*[@data-testid="confirmation-submit-button"]')
+                time.sleep(2)
+
+            elif '/notification.html#confirm-transaction' in tab.url:
+                self.__click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]')
+                time.sleep(2)
+
+            elif '/popup.html?page=%2Fsign-transaction' in tab.url:
+                if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                    self.__click_ele(page=tab, xpath='x://*[@id="close"]')
+                    time.sleep(1)
+                self.__click_ele(page=tab, xpath='x://button[@id="sign"]')
+                time.sleep(2)
+
+            elif '/popup.html?page=%2Fsign-data' in tab.url:
+                if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                    self.__click_ele(page=tab, xpath='x://*[@id="close"]')
+                    time.sleep(1)
+                self.__click_ele(page=tab, xpath='x://button[@id="sign"]')
+                time.sleep(2)
+
+            elif 'popup.html?page=%2Fpersonal-sign' in tab.url:
+                if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                    self.__click_ele(page=tab, xpath='x://*[@id="close"]')
+                    time.sleep(1)
+                self.__click_ele(page=tab, xpath='x://button[@id="sign"]')
+                time.sleep(2)
+
+            elif ('&tab=%2Fadd-evm-chain' in tab.url) or ('/popup.html?requestId=' in tab.url):
+                if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                    self.__click_ele(page=tab, xpath='x://*[@id="close"]')
+                    time.sleep(1)
+                self.__click_ele(page=tab, xpath='x://button[@id="addNewChain"]')
+                time.sleep(2)
+
+            elif ('popout.html?windowId=backpack' in tab.url):
+                self.__click_ele(page=tab, xpath='x://div/span[text()="确认"]')
+                time.sleep(2)
+        return True
+    
     def setup_wallet(self, args):
         self.tab = self.browser.new_tab(url="chrome://extensions/")
         time.sleep(12)
@@ -1048,13 +1133,28 @@ class TaskSet:
     def gaianet(self, args):
         chat_count = 0
         try:
+            # 设置钱包
+            logger.info('设置钱包')
             res = self.setup_wallet(all_args)
             if res:
+                # 设置钱包网络
+                logger.info('设置钱包网络')
+                self.__add_net_work(page=self.tab, coin_name='base')
+
+                # 兑换积分
+                logger.info('兑换积分')
+                self.redeem_points(args)
+
+                time.sleep(100)
+
                 self.res_info = ''
                 self.tab.get(url='https://www.gaianet.ai/chat')
                 logger.info('进入页面，开始访问1')
                 time.sleep(5)
-                self.__click_ele(page=self.tab, xpath='x://button[text()="Accept All"]', err=False)
+
+                accept_all = self.tab.ele('x://button[text()="Accept All"]')
+                if accept_all:
+                    self.__click_ele(page=self.tab, xpath='x://button[text()="Accept All"]', err=False)
                 logger.info('进入页面，开始访问2')
                 time.sleep(2)
                 connect = self.tab.ele('x://button[text()="Connect"]')
@@ -1109,10 +1209,14 @@ class TaskSet:
 
                 self.tab.run_js(js_code)
                 time.sleep(2)
-                self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
+                chat = self.tab.ele('x://button[text()="Chat"]')
+                if chat:
+                    self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
                 time.sleep(2)
-                self.__click_ele(page=self.tab, xpath='x://button[text()="Start"]')
-                time.sleep(2)
+                start = self.tab.ele('x://button[text()="Start"]')
+                if start:
+                    self.__click_ele(page=self.tab, xpath='x://button[text()="Start"]')
+                    time.sleep(2)
                 if self.tab.wait.ele_displayed(loc_or_ele='x://button[text()="Connect"]', timeout=10) is not False:
                     logger.error(f'link_account {args.index, args.address}')
                     self.close_browser()
@@ -1170,6 +1274,36 @@ class TaskSet:
 
             logger.info(f"---------完成情况：序号:{args.index} {self.res_info}-----------------")
 
+    def redeem_points(self, args):
+        self.tab.get(url='https://www.gaianet.ai/reward-summary')
+        points = self.__getNumber(self.tab, 'xpath://span[text()="Current Redeemable Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-header-8") and not(text()="Current Redeemable Points")]')
+        if points > 0:
+            redeem = self.tab.ele('x://button[text()="Redeem"]')
+            if redeem:
+                redeem_now = self.tab.ele('x://button[text()="Redeem Now"]')
+                if redeem_now:
+                    self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem Now"]')
+                    time.sleep(10)
+                    loop_count = 0
+                    while True:
+                        try:
+                            credits_balance = self.__getNumber(self.tab, 'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
+                            if credits_balance <= 0:
+                                refresh = self.tab.ele('x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//svg[contains(@class, "cursor-pointer")]')
+                                if refresh:
+                                    self.__click_ele(page=self.tab, xpath='x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//svg[contains(@class, "cursor-pointer")]')
+                            else:
+                                return
+                        except Exception as e:
+                            error = e
+                            pass
+                        if loop_count >= 5:
+                            return
+                        loop_count += 1
+                        time.sleep(2)
+
+
+
     def getPoints(self, args):
         global user_points, total_points, task_points, credits_balance, total_redeemed, total_consumed
         self.res_info = ''
@@ -1181,9 +1315,9 @@ class TaskSet:
         if container:
             # 读取 My gaiaPoints (Total) 的值
             # 使用正确的CSS选择器并检查返回值
-            total_points = self.__getNumber(self.tab,'x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
-            user_points = self.__getNumber(self.tab,'xpath://span[text()="User Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-heading-8") and not(text()="User Points")]')
-            task_points = self.__getNumber(self.tab,'xpath://span[text()="Task Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-heading-8") and not(text()="Task Points")]')
+            total_points = self.__getNumber(self.tab, 'x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
+            user_points = self.__getNumber(self.tab, 'xpath://span[text()="User Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-heading-8") and not(text()="User Points")]')
+            task_points = self.__getNumber(self.tab, 'xpath://span[text()="Task Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-heading-8") and not(text()="Task Points")]')
             logger.info(f"My gaiaPoints (Total): {total_points}")
             logger.info(f"User Points: {user_points}")
             logger.info(f"Task Points: {task_points}")
@@ -1196,9 +1330,9 @@ class TaskSet:
         if container:
             # 读取 My gaiaPoints (Total) 的值
             # 使用正确的CSS选择器并检查返回值
-            credits_balance = self.__getNumber(self.tab,'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
-            total_redeemed = self.__getNumber(self.tab,'x://span[text()="Total Redeemed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
-            total_consumed = self.__getNumber(self.tab,'x://span[text()="Total Consumed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+            credits_balance = self.__getNumber(self.tab, 'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
+            total_redeemed = self.__getNumber(self.tab, 'x://span[text()="Total Redeemed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+            total_consumed = self.__getNumber(self.tab, 'x://span[text()="Total Consumed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
             logger.info(f"credits_balance: {credits_balance}")
             logger.info(f"total_redeemed: {total_redeemed}")
             logger.info(f"task_points: {total_consumed}")
@@ -1276,6 +1410,7 @@ if __name__ == "__main__":
                     global task_set
                     try:
                         task_set = TaskSet(all_args)
+                        all_args.index = 88762
                         task_set.gaianet(all_args)
                         data_map[data_key] = all_args.count + 1
                     except Exception as e:
