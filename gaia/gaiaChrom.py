@@ -1306,6 +1306,7 @@ class TaskSet:
         if redeem:
             self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem"]')
             redeem_now = self.tab.ele('x://button[text()="Redeem Now"]')
+            time.sleep(5)
             if redeem_now:
                 self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem Now"]')
                 time.sleep(10)
