@@ -1204,7 +1204,9 @@ class TaskSet:
                 self.tab.get(url='https://www.gaianet.ai/chat')
                 logger.info('进入页面，开始访问')
                 time.sleep(5)
-
+                accept_all = self.tab.ele('x://button[text()="Accept All"]')
+                if accept_all:
+                    self.__click_ele(page=self.tab, xpath='x://button[text()="Accept All"]', err=False)
                 time.sleep(2)
                 self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
                 time.sleep(2)
