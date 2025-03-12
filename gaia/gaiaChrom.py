@@ -910,16 +910,16 @@ class TaskSet:
         logger.info('点击6')
         self.__deal_window(page=page)
         logger.info('点击7')
-        if page.tabs_count >= 2:
+        if self.browser.tabs_count >= 2:
             self.__deal_window(page=page)
         return True
 
     # 处理弹窗
     def __deal_window(self, page):
         # 如果窗口大于2才进行操作
-        if page.tabs_count >= 2:
+        if self.browser.tabs_count >= 2:
             time.sleep(3)
-            tab = page.get_tab()
+            tab = self.browser.get_tab()
             if '/popup.html?page=%2Fdapp-permission' in tab.url:
                 if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
                     self.__click_ele(page=tab, xpath='x://*[@id="close"]')
