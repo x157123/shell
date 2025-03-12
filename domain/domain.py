@@ -4,7 +4,7 @@ import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import json
-
+import subprocess
 
 
 
@@ -61,7 +61,19 @@ def main(appId, decryptKey):
     # 解密并发送解密结果
     domain = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'remarks')
     if domain is not None:
-       logger.info(domain)
+        logger.info(domain)
+        # 1) 执行 bash <(wget -qO- -o- https://git.io/v2ray.sh)
+        #   由于用到了 <(...) 进程替换，我们需要指定 shell='True' 并指定 executable='/bin/bash'
+        subprocess.run("bash <(wget -qO- -o- https://git.io/v2ray.sh)", shell=True, executable='/bin/bash')
+
+        # 2) v2ray del
+        subprocess.run("v2ray del", shell=True)
+
+        # 3) v2ray add ws \"{dns}\" 8d653735-cd42-4e35-b5e7-9d3724009ef0
+        subprocess.run(f'v2ray add ws {domain} 8d653735-cd42-4e35-b5e7-9d3724009ef0', shell=True)
+
+        # 4) v2ray change ws port 22291
+        subprocess.run("v2ray change ws port 22291", shell=True)
 
 
 if __name__ == '__main__':
