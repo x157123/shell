@@ -1441,7 +1441,7 @@ if __name__ == "__main__":
                     global task_set
                     try:
                         task_set = TaskSet(all_args)
-                        all_args.index = 88762
+                        all_args.index = 88765
                         task_set.gaianet(all_args)
                         data_map[data_key] = all_args.count + 1
                     except Exception as e:
