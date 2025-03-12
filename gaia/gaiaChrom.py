@@ -1297,11 +1297,7 @@ class TaskSet:
     def redeem_points(self, args):
         self.tab.get(url='https://www.gaianet.ai/reward-summary')
         time.sleep(5)
-        logger.info('准备点击兑换')
-        redeem = self.tab.ele('x://button[text()="Redeem"]')
-        if redeem is None:
-            self.tab.get(url='https://www.gaianet.ai/reward-summary')
-            time.sleep(5)
+        logger.info('兑换积分')
         redeem = self.tab.ele('x://button[text()="Redeem"]')
         if redeem:
             self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem"]')
@@ -1335,7 +1331,7 @@ class TaskSet:
                         time.sleep(2)
         else:
             logger.info('没找到页面')
-
+        time.sleep(100)
 
     def getPoints(self, args):
         global user_points, total_points, task_points, credits_balance, total_redeemed, total_consumed
