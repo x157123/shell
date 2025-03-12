@@ -306,7 +306,7 @@ def start(client, serverId, appId, decryptKey, user, display):
 
     logger.info(f"Public Key: {public_key}")
     logger.info(f"Private Key: {private_key}")
-    logger.info(f"key_content: {key_content}")
+    # logger.info(f"key_content: {key_content}")
     logger.info("whoami 命令执行完毕。")
     # if publicKey is None and public_key != publicKey:
     client.publish("hyperCli", json.dumps(get_info(serverId, "hyperCli", public_key, private_key, key_content)))
