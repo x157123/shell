@@ -1299,6 +1299,10 @@ class TaskSet:
         time.sleep(5)
         logger.info('准备点击兑换')
         redeem = self.tab.ele('x://button[text()="Redeem"]')
+        if redeem is None:
+            self.tab.get(url='https://www.gaianet.ai/reward-summary')
+            time.sleep(5)
+        redeem = self.tab.ele('x://button[text()="Redeem"]')
         if redeem:
             self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem"]')
             redeem_now = self.tab.ele('x://button[text()="Redeem Now"]')
