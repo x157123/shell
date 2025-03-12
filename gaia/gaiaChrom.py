@@ -1194,7 +1194,7 @@ class TaskSet:
                         self.__click_ele(page=self.tab, xpath='x://button[text()="SIGN"]', err=False)
                     logger.info('进入页面，开始访问6')
                     for _ in range(3):
-                        self.process_pop()
+                        self.__deal_window(page=self.tab)
                         time.sleep(8)
                 time.sleep(2)
                 self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
