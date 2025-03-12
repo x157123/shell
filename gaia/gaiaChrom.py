@@ -946,10 +946,13 @@ class TaskSet:
                 time.sleep(2)
 
             elif '/popup.html?page=%2Fsign-transaction' in tab.url:
+                logger.info('我要被点击了')
                 if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
                     self.__click_ele(page=tab, xpath='x://*[@id="close"]')
                     time.sleep(1)
+                logger.info('准备点击')
                 self.__click_ele(page=tab, xpath='x://button[@id="sign"]')
+                logger.info('点击结束')
                 time.sleep(2)
 
             elif '/popup.html?page=%2Fsign-data' in tab.url:
