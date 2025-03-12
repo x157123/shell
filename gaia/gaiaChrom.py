@@ -1336,9 +1336,8 @@ class TaskSet:
             logger.info("准备刷新页面")
             time.sleep(2)
 
-
-        time.sleep(2)
         logger.info('准备点击兑换')
+        time.sleep(5)
         redeem = self.tab.ele('x://button[text()="Redeem"]')
         if redeem:
             redeem_now = self.tab.ele('x://button[text()="Redeem Now"]')
