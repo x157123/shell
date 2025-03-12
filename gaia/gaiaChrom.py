@@ -1305,7 +1305,7 @@ class TaskSet:
                 self.__click_ele(page=self.tab, xpath='x://div[text()="Signma"]', err=False)
             logger.info('进入页面，开始访问4')
             time.sleep(5)
-            for _ in range(3):
+            for _ in range(2):
                 # self.process_pop()
                 self.__deal_window(page=self.tab)
                 time.sleep(8)
