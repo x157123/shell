@@ -977,7 +977,8 @@ class TaskSet:
                 time.sleep(2)
 
             elif '&page=%2Fadd-evm-chain' in tab.url:
-                self.__click_ele(page=tab, xpath='x://button/div[text()="关闭"]')
+                logger.info('我要被点击了')
+                self.__click_ele(page=tab, xpath='x://button[@type="submit"]')
 
             elif 'popout.html?windowId=backpack' in tab.url:
                 self.__click_ele(page=tab, xpath='x://div/span[text()="确认"]')
@@ -1310,6 +1311,8 @@ class TaskSet:
             for _ in range(3):
                 self.process_pop()
                 time.sleep(8)
+            self.tab.refresh()
+            time.sleep(5)
 
         redeem = self.tab.ele('x://button[text()="Redeem"]')
         if redeem:
