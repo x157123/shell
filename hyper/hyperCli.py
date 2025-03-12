@@ -197,12 +197,12 @@ def restart():
     )
     logger.info("下载完成！")
 
-    # 4. 执行 infer 命令 测试模型
-    logger.info("执行 infer 命令 测试模型...")
-    run_command_and_print(
-        "/root/.aios/aios-cli infer --model hf:bartowski/Llama-3.2-1B-Instruct-GGUF:Llama-3.2-1B-Instruct-Q8_0.gguf --prompt 'What is 1+1 equal to?'"
-    )
-    logger.info("推理命令执行完毕。")
+    # # 4. 执行 infer 命令 测试模型
+    # logger.info("执行 infer 命令 测试模型...")
+    # run_command_and_print(
+    #     "/root/.aios/aios-cli infer --model hf:bartowski/Llama-3.2-1B-Instruct-GGUF:Llama-3.2-1B-Instruct-Q8_0.gguf --prompt 'What is 1+1 equal to?'"
+    # )
+    # logger.info("推理命令执行完毕。")
 
     # 5. 执行 hive login 命令
     # Hive 登录，提取 Public 和 Private Key
