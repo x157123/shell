@@ -1298,6 +1298,9 @@ class TaskSet:
             self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
             # 签名
             self.__deal_window(page=self.tab)
+            # 刷新页面
+            self.tab.refresh()
+            time.sleep(5)
 
         accept_all = self.tab.ele('x://button[text()="Accept All"]')
         if accept_all:
@@ -1313,6 +1316,9 @@ class TaskSet:
                 self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
                 # 签名
                 self.__deal_window(page=self.tab)
+                # 刷新页面
+                self.tab.refresh()
+                time.sleep(5)
             signma = self.tab.ele('x://div[text()="Signma"]')
             if signma:
                 logger.info('进入页面，开始访问5')
@@ -1333,6 +1339,7 @@ class TaskSet:
 
             logger.info("准备刷新页面")
             time.sleep(2)
+
             self.tab.refresh()
             time.sleep(5)
 
