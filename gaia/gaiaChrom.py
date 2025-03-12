@@ -1290,6 +1290,15 @@ class TaskSet:
 
     def redeem_points(self, args):
         self.tab.get(url='https://www.gaianet.ai/reward-summary')
+        time.sleep(5)
+        accept_all = self.tab.ele('x://button[text()="Accept All"]')
+        if accept_all:
+            self.__click_ele(page=self.tab, xpath='x://button[text()="Accept All"]', err=False)
+
+        accept = self.tab.ele('x://button[text()="Accept"]')
+        if accept:
+            logger.info("点击accept按钮")
+            self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
 
         connect = self.tab.ele('x://button[text()="Connect"]')
         if connect:
