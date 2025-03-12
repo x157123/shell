@@ -135,6 +135,8 @@ def main(client, serverId, appId, decryptKey, user, display):
                 # 查找是否网络连接失败 Sending reconnect signal
                 if check_reconnect_signal(last_lines, 'Sending reconnect signal'):
                     restart()
+                else:
+                    logger.info("已连接网络。")
 
             if not points or points == "None":
                 logger.info("获取积分失败,重新启动。")
