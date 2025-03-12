@@ -118,6 +118,8 @@ def write_to_file(file_path, content):
 
 def main(client, serverId, appId, decryptKey, user, display):
     public_key = start(client, serverId, appId, decryptKey, user, display)
+    # 等待20S
+    time.sleep(20)
     # 获取积分
     while True:
         try:
