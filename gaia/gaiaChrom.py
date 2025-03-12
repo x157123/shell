@@ -1309,10 +1309,13 @@ class TaskSet:
                 # self.process_pop()
                 self.__deal_window(page=self.tab)
                 time.sleep(8)
-
+            logger.info("钱包签名完成")
             accept = self.tab.ele('x://button[text()="Accept"]')
             if accept:
+                logger.info("点击accept按钮")
                 self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
+
+            logger.info("准备刷新页面")
             time.sleep(2)
             self.tab.refresh()
             time.sleep(5)
