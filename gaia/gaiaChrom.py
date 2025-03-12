@@ -1305,7 +1305,6 @@ class TaskSet:
         accept_all = self.tab.ele('x://button[text()="Accept All"]')
         if accept_all:
             self.__click_ele(page=self.tab, xpath='x://button[text()="Accept All"]', err=False)
-
         connect = self.tab.ele('x://button[text()="Connect"]')
         if connect:
             self.__click_ele(page=self.tab, xpath='x://button[text()="Connect"]', err=False)
@@ -1343,6 +1342,8 @@ class TaskSet:
             self.tab.refresh()
             time.sleep(5)
 
+        time.sleep(2)
+        logger.info('准备点击按钮')
         redeem = self.tab.ele('x://button[text()="Redeem"]')
         if redeem:
             redeem_now = self.tab.ele('x://button[text()="Redeem Now"]')
