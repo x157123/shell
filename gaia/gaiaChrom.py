@@ -1305,28 +1305,34 @@ class TaskSet:
         redeem = self.tab.ele('x://button[text()="Redeem"]')
         if redeem:
             self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem"]')
-            redeem_now = self.tab.ele('x://button[text()="Redeem Now"]')
-            time.sleep(5)
-            if redeem_now:
-                self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem Now"]')
-                time.sleep(10)
-                loop_count = 0
-                while True:
-                    try:
-                        credits_balance = self.__getNumber(self.tab, 'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
-                        if credits_balance <= 0:
-                            refresh = self.tab.ele('x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//svg[contains(@class, "cursor-pointer")]')
-                            if refresh:
-                                self.__click_ele(page=self.tab, xpath='x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//svg[contains(@class, "cursor-pointer")]')
-                        else:
+
+            redeemable_points = self.__getNumber(self.tab, 'xpath://span[text()="Current Redeemable Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-header-8") and not(text()="Current Redeemable Points")]')
+
+            if redeemable_points is not None and redeemable_points > 0:
+                logger.info('有对话得积分')
+                redeem_now = self.tab.ele('x://button[text()="Redeem Now"]')
+                time.sleep(5)
+                if redeem_now:
+                    self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem Now"]')
+                    time.sleep(10)
+                    loop_count = 0
+                    while True:
+                        logger.info(f'等待对话成功：{loop_count}')
+                        try:
+                            credits_balance = self.__getNumber(self.tab, 'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
+                            if credits_balance <= 0:
+                                refresh = self.tab.ele('x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//svg[contains(@class, "cursor-pointer")]')
+                                if refresh:
+                                    self.__click_ele(page=self.tab, xpath='x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//svg[contains(@class, "cursor-pointer")]')
+                            else:
+                                return
+                        except Exception as e:
+                            error = e
+                            pass
+                        if loop_count >= 5:
                             return
-                    except Exception as e:
-                        error = e
-                        pass
-                    if loop_count >= 5:
-                        return
-                    loop_count += 1
-                    time.sleep(2)
+                        loop_count += 1
+                        time.sleep(2)
         else:
             logger.info('没找到页面')
 
