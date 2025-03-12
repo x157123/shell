@@ -924,7 +924,7 @@ class TaskSet:
         # 如果窗口大于2才进行操作
         if self.browser.tabs_count >= 2:
             time.sleep(3)
-            tab = self.browser.get_tab()
+            tab = self.browser.get_tab(title="Signma")
             logger.info(tab.url)
             if '/popup.html?page=%2Fdapp-permission' in tab.url:
                 if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
@@ -1292,31 +1292,48 @@ class TaskSet:
 
     def redeem_points(self, args):
         self.tab.get(url='https://www.gaianet.ai/reward-summary')
-        points = self.__getNumber(self.tab, 'xpath://span[text()="Current Redeemable Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-header-8") and not(text()="Current Redeemable Points")]')
-        if points > 0:
-            redeem = self.tab.ele('x://button[text()="Redeem"]')
-            if redeem:
-                redeem_now = self.tab.ele('x://button[text()="Redeem Now"]')
-                if redeem_now:
-                    self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem Now"]')
-                    time.sleep(10)
-                    loop_count = 0
-                    while True:
-                        try:
-                            credits_balance = self.__getNumber(self.tab, 'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
-                            if credits_balance <= 0:
-                                refresh = self.tab.ele('x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//svg[contains(@class, "cursor-pointer")]')
-                                if refresh:
-                                    self.__click_ele(page=self.tab, xpath='x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//svg[contains(@class, "cursor-pointer")]')
-                            else:
-                                return
-                        except Exception as e:
-                            error = e
-                            pass
-                        if loop_count >= 5:
+
+        connect = self.tab.ele('x://button[text()="Connect"]')
+        if connect:
+            self.__click_ele(page=self.tab, xpath='x://button[text()="Connect"]', err=False)
+            logger.info('进入页面，开始访问3')
+            time.sleep(2)
+            accept = self.tab.ele('x://button[text()="Accept"]')
+            if accept:
+                self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
+            signma = self.tab.ele('x://div[text()="Signma"]')
+            if signma:
+                logger.info('进入页面，开始访问5')
+                self.__click_ele(page=self.tab, xpath='x://div[text()="Signma"]', err=False)
+            logger.info('进入页面，开始访问4')
+            time.sleep(5)
+            for _ in range(3):
+                self.process_pop()
+                time.sleep(8)
+
+        redeem = self.tab.ele('x://button[text()="Redeem"]')
+        if redeem:
+            redeem_now = self.tab.ele('x://button[text()="Redeem Now"]')
+            if redeem_now:
+                self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem Now"]')
+                time.sleep(10)
+                loop_count = 0
+                while True:
+                    try:
+                        credits_balance = self.__getNumber(self.tab, 'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
+                        if credits_balance <= 0:
+                            refresh = self.tab.ele('x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//svg[contains(@class, "cursor-pointer")]')
+                            if refresh:
+                                self.__click_ele(page=self.tab, xpath='x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//svg[contains(@class, "cursor-pointer")]')
+                        else:
                             return
-                        loop_count += 1
-                        time.sleep(2)
+                    except Exception as e:
+                        error = e
+                        pass
+                    if loop_count >= 5:
+                        return
+                    loop_count += 1
+                    time.sleep(2)
 
 
 
