@@ -1336,7 +1336,6 @@ class TaskSet:
                         time.sleep(2)
         else:
             logger.info('没找到页面')
-        time.sleep(100)
 
     def getPoints(self, args):
         global user_points, total_points, task_points, credits_balance, total_redeemed, total_consumed
@@ -1444,7 +1443,7 @@ if __name__ == "__main__":
                     global task_set
                     try:
                         task_set = TaskSet(all_args)
-                        all_args.index = 88766
+                        all_args.index = 88776
                         task_set.gaianet(all_args)
                         data_map[data_key] = all_args.count + 1
                     except Exception as e:
