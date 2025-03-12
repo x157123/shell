@@ -911,6 +911,11 @@ class TaskSet:
         self.__deal_window(page=page)
         logger.info('点击7')
         if self.browser.tabs_count >= 2:
+            logger.info('点击8')
+            self.__deal_window(page=page)
+        time.sleep(3)
+        if self.browser.tabs_count >= 2:
+            logger.info('点击9')
             self.__deal_window(page=page)
         return True
 
@@ -970,7 +975,10 @@ class TaskSet:
                 self.__click_ele(page=tab, xpath='x://button[@id="addNewChain"]')
                 time.sleep(2)
 
-            elif ('popout.html?windowId=backpack' in tab.url):
+            elif '&page=%2Fadd-evm-chain' in tab.url:
+                self.__click_ele(page=tab, xpath='x://button/div[text()="关闭"]')
+
+            elif 'popout.html?windowId=backpack' in tab.url:
                 self.__click_ele(page=tab, xpath='x://div/span[text()="确认"]')
                 time.sleep(2)
         return True
