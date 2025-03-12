@@ -1298,6 +1298,7 @@ class TaskSet:
         logger.info('准备点击兑换')
         redeem = self.tab.ele('x://button[text()="Redeem"]')
         if redeem:
+            self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem"]')
             redeem_now = self.tab.ele('x://button[text()="Redeem Now"]')
             if redeem_now:
                 self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem Now"]')
