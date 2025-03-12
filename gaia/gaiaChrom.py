@@ -924,7 +924,7 @@ class TaskSet:
         # 如果窗口大于2才进行操作
         if self.browser.tabs_count >= 2:
             time.sleep(3)
-            tab = self.browser.get_tab(title="Signma")
+            tab = self.browser.get_tab()
             logger.info(tab.url)
             if '/popup.html?page=%2Fdapp-permission' in tab.url:
                 if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
