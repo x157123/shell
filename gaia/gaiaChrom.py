@@ -1301,7 +1301,7 @@ class TaskSet:
         redeem = self.tab.ele('x://button[text()="Redeem"]')
         if redeem:
             self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem"]')
-
+            time.sleep(5)
             redeemable_points = self.__getNumber(self.tab, 'xpath://span[text()="Current Redeemable Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-header-8") and not(text()="Current Redeemable Points")]')
             logger.info(f"可兑换积分：{redeemable_points}")
             if redeemable_points is not None and int(redeemable_points) > 0:
@@ -1310,7 +1310,9 @@ class TaskSet:
                 time.sleep(5)
                 if redeem_now:
                     self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem Now"]')
-                    time.sleep(10)
+                    time.sleep(2)
+                    self.__deal_window(page=self.tab)
+                    time.sleep(5)
                     loop_count = 0
                     while True:
                         logger.info(f'等待对话成功：{loop_count}')
