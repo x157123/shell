@@ -1196,12 +1196,6 @@ class TaskSet:
                     for _ in range(3):
                         self.__deal_window(page=self.tab)
                         time.sleep(8)
-                time.sleep(2)
-                self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
-                time.sleep(2)
-                self.__click_ele(page=self.tab, xpath='x://p[text()="SELECT A DOMAIN"]')
-                time.sleep(5)
-
                 # 兑换积分
                 logger.info('兑换积分')
                 self.redeem_points(args)
@@ -1209,6 +1203,12 @@ class TaskSet:
                 # 对话
                 self.tab.get(url='https://www.gaianet.ai/chat')
                 logger.info('进入页面，开始访问')
+                time.sleep(5)
+
+                time.sleep(2)
+                self.__click_ele(page=self.tab, xpath='x://a/span[text()="Chat"]')
+                time.sleep(2)
+                self.__click_ele(page=self.tab, xpath='x://p[text()="SELECT A DOMAIN"]')
                 time.sleep(5)
 
                 domain = random.choice([
