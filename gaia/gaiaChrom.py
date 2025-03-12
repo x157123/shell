@@ -914,9 +914,6 @@ class TaskSet:
             logger.info('点击8')
             self.__deal_window(page=page)
         time.sleep(3)
-        if self.browser.tabs_count >= 2:
-            logger.info('点击9')
-            self.__deal_window(page=page)
         return True
 
     # 处理弹窗
