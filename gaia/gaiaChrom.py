@@ -1180,7 +1180,8 @@ class TaskSet:
                     logger.info('进入页面，开始访问4')
                     time.sleep(5)
                     for _ in range(3):
-                        self.process_pop()
+                        # self.process_pop()
+                        self.__deal_window(page=self.tab)
                         time.sleep(8)
                 # self.browser.close_tabs(others=True)
 
