@@ -894,15 +894,22 @@ class TaskSet:
         url = f'https://chainlist.org/?search={number}&testnets=false'
         page.get(url=url)
         time.sleep(2)
+        logger.info('点击1')
         page.wait.ele_displayed(loc_or_ele='x://button[text()="Connect Wallet"]', timeout=10)
+        logger.info('点击2')
         self.__click_ele(page=page, xpath=f'x://td[contains(text(), "{number} ")]/../../../following-sibling::button[1]')
+        logger.info('点击3')
         time.sleep(3)
+        logger.info('点击4')
         self.__deal_window(page=page)
         time.sleep(2)
+        logger.info('点击5')
         self.__click_ele(page=page,
                                xpath=f'x://td[contains(text(), "{number} ")]/../../../following-sibling::button[1]')
         time.sleep(2)
+        logger.info('点击6')
         self.__deal_window(page=page)
+        logger.info('点击7')
         if page.tabs_count >= 2:
             self.__deal_window(page=page)
         return True
