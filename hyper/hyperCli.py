@@ -120,19 +120,13 @@ def main(client, serverId, appId, decryptKey, user, display):
     public_key = start(client, serverId, appId, decryptKey, user, display)
     # 等待20S
     time.sleep(20)
+    num = 10
     # 获取积分
     while True:
         try:
-            logger.info("\n===== 积分查询输出 =====")
-            login_output = run_command_blocking("/root/.aios/aios-cli hive points")
-            points = None
-            public_match = re.search(r"Points:\s*(\S+)", login_output)
-            if public_match:
-                points = public_match.group(1)
-
+            num += 1
             # 读取最后 3 行
             last_lines = read_last_n_lines('/root/hyperCliOutput.log', 3)
-
             if last_lines:
                 # 查找是否网络连接失败 Sending reconnect signal
                 if check_reconnect_signal(last_lines, 'Sending reconnect signal'):
@@ -140,16 +134,25 @@ def main(client, serverId, appId, decryptKey, user, display):
                 else:
                     logger.info("已连接网络。")
 
-            if not points or points == "None":
-                logger.info("获取积分失败,重新启动。")
-                restart()
-            else:
-                logger.info(f"points: {points}")
-                app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
-                                                 '运行中， 并到采集积分:' + str(points))
-                client.publish("appInfo", json.dumps(app_info))
-                logger.info("获取积分完成。")
-                time.sleep(3600)
+            if num > 10:
+                num = 0
+                logger.info("\n===== 积分查询输出 =====")
+                login_output = run_command_blocking("/root/.aios/aios-cli hive points")
+                points = None
+                public_match = re.search(r"Points:\s*(\S+)", login_output)
+                if public_match:
+                    points = public_match.group(1)
+
+                if not points or points == "None":
+                    logger.info("获取积分失败,重新启动。")
+                    restart()
+                else:
+                    logger.info(f"points: {points}")
+                    app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
+                                                     '运行中， 并到采集积分:' + str(points))
+                    client.publish("appInfo", json.dumps(app_info))
+                    logger.info("获取积分完成。")
+            time.sleep(360)
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
 
