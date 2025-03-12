@@ -1319,7 +1319,8 @@ class TaskSet:
                         return
                     loop_count += 1
                     time.sleep(2)
-
+        else:
+            logger.info('没找到页面')
 
 
     def getPoints(self, args):
