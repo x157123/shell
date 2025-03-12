@@ -128,6 +128,14 @@ def main(client, serverId, appId, decryptKey, user, display):
             if public_match:
                 points = public_match.group(1)
 
+            # 读取最后 3 行
+            last_lines = read_last_n_lines('/root/hyperCliOutput.log', 3)
+
+            if last_lines:
+                # 查找是否网络连接失败 Sending reconnect signal
+                if check_reconnect_signal(last_lines, 'Sending reconnect signal'):
+                    restart()
+
             if not points or points == "None":
                 logger.info("获取积分失败,重新启动。")
                 restart()
@@ -140,6 +148,30 @@ def main(client, serverId, appId, decryptKey, user, display):
                 time.sleep(3600)
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, '检查过程中出现异常: ' + str(e))))
+
+
+def read_last_n_lines(file_path, n):
+    """读取文件最后 n 行"""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            # 使用 collections.deque 高效读取最后 n 行
+            from collections import deque
+            lines = deque(file, maxlen=n)
+            return list(lines)
+    except FileNotFoundError:
+        print(f"错误：文件 {file_path} 未找到。")
+        return []
+    except Exception as e:
+        print(f"读取文件时发生错误：{e}")
+        return []
+
+
+def check_reconnect_signal(lines, target_string):
+    """检查指定字符串是否在行列表中"""
+    for line in lines:
+        if target_string in line:
+            return True
+    return False
 
 
 def restart():
@@ -218,12 +250,12 @@ def start(client, serverId, appId, decryptKey, user, display):
     )
     logger.info("下载完成！")
 
-    # 4. 执行 infer 命令 测试模型
-    logger.info("执行 infer 命令 测试模型...")
-    run_command_and_print(
-        "/root/.aios/aios-cli infer --model hf:bartowski/Llama-3.2-1B-Instruct-GGUF:Llama-3.2-1B-Instruct-Q8_0.gguf --prompt 'What is 1+1 equal to?'"
-    )
-    logger.info("推理命令执行完毕。")
+    # # 4. 执行 infer 命令 测试模型
+    # logger.info("执行 infer 命令 测试模型...")
+    # run_command_and_print(
+    #     "/root/.aios/aios-cli infer --model hf:bartowski/Llama-3.2-1B-Instruct-GGUF:Llama-3.2-1B-Instruct-Q8_0.gguf --prompt 'What is 1+1 equal to?'"
+    # )
+    # logger.info("推理命令执行完毕。")
 
     # 5. 关联密钥
     # 从文件加载密文
