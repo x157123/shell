@@ -925,6 +925,7 @@ class TaskSet:
         if self.browser.tabs_count >= 2:
             time.sleep(3)
             tab = self.browser.get_tab()
+            logger.info(tab)
             if '/popup.html?page=%2Fdapp-permission' in tab.url:
                 if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
                     self.__click_ele(page=tab, xpath='x://*[@id="close"]')
