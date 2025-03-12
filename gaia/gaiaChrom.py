@@ -1309,6 +1309,11 @@ class TaskSet:
                 # self.process_pop()
                 self.__deal_window(page=self.tab)
                 time.sleep(8)
+
+            accept = self.tab.ele('x://button[text()="Accept"]')
+            if accept:
+                self.__click_ele(page=self.tab, xpath='x://button[text()="Accept"]', err=False)
+            time.sleep(2)
             self.tab.refresh()
             time.sleep(5)
 
