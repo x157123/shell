@@ -1313,7 +1313,7 @@ class TaskSet:
                 time.sleep(5)
                 if redeem_now:
                     self.__click_ele(page=self.tab, xpath='x://button[text()="Redeem Now"]')
-                    time.sleep(2)
+                    time.sleep(8)
                     self.__deal_window(page=self.tab)
                     time.sleep(5)
                     loop_count = 0
