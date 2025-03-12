@@ -1308,7 +1308,7 @@ class TaskSet:
 
             redeemable_points = self.__getNumber(self.tab, 'xpath://span[text()="Current Redeemable Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-header-8") and not(text()="Current Redeemable Points")]')
 
-            if redeemable_points is not None and redeemable_points > 0:
+            if redeemable_points is not None and int(redeemable_points) > 0:
                 logger.info('有对话得积分')
                 redeem_now = self.tab.ele('x://button[text()="Redeem Now"]')
                 time.sleep(5)
@@ -1320,7 +1320,7 @@ class TaskSet:
                         logger.info(f'等待对话成功：{loop_count}')
                         try:
                             credits_balance = self.__getNumber(self.tab, 'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
-                            if credits_balance <= 0:
+                            if int(credits_balance) <= 0:
                                 refresh = self.tab.ele('x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//svg[contains(@class, "cursor-pointer")]')
                                 if refresh:
                                     self.__click_ele(page=self.tab, xpath='x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//svg[contains(@class, "cursor-pointer")]')
