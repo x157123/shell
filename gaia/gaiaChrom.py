@@ -969,16 +969,16 @@ class TaskSet:
                 self.__click_ele(page=tab, xpath='x://button[@id="sign"]')
                 time.sleep(2)
 
+            elif '/popup.html?requestId=0&page=%2Fadd-evm-chain' in tab.url:
+                logger.info('我要被点击了')
+                self.__click_ele(page=tab, xpath='x://button[@type="submit"]')
+
             elif ('&tab=%2Fadd-evm-chain' in tab.url) or ('/popup.html?requestId=' in tab.url):
                 if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
                     self.__click_ele(page=tab, xpath='x://*[@id="close"]')
                     time.sleep(1)
                 self.__click_ele(page=tab, xpath='x://button[@id="addNewChain"]')
                 time.sleep(2)
-
-            elif '&page=%2Fadd-evm-chain' in tab.url:
-                logger.info('我要被点击了')
-                self.__click_ele(page=tab, xpath='x://button[@type="submit"]')
 
             elif 'popout.html?windowId=backpack' in tab.url:
                 self.__click_ele(page=tab, xpath='x://div/span[text()="确认"]')
