@@ -150,9 +150,12 @@ def main(client, serverId, appId, decryptKey, user, display):
 
                 if not points or points == "None":
                     logger.info("获取积分失败,重新启动。")
-                    restart()
-                    num = 7
+                    count += 1
+                    if count > 3:
+                        restart()
+                        num = 7
                 else:
+                    count = 0
                     logger.info(f"points: {points}")
                     app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
                                                      '运行中， 并到采集积分:' + str(points))
