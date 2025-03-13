@@ -223,9 +223,9 @@ class Test(object):
             logger.info('设置钱包')
             self.setup_wallet(page, args)
 
-            # 设置钱包网络
-            logger.info('设置钱包网络')
-            self.__add_net_work(page=page, coin_name='base')
+            # # 设置钱包网络
+            # logger.info('设置钱包网络')
+            # self.__add_net_work(page=page, coin_name='base')
 
             url = 'https://testnet.malda.xyz/faucet/'
             page.get(url=url)
