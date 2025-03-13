@@ -39,6 +39,8 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, accountType):
         # 解析 JSON 字符串为 Python 对象（通常为列表）
         data_list = json.loads(decrypted_text)
 
+        logger.info(data_list)
+
         # 创建结果列表，收集所有 accountType 为 "hyper" 的记录
         result = [item for item in data_list if item.get('accountType') == accountType]
 
