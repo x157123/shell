@@ -260,7 +260,7 @@ class Test(object):
                 time.sleep(8)
                 for _ in range(3):
                     self.__deal_window(page=page)
-                    time.sleep(3)
+                    time.sleep(8)
 
             time.sleep(50)
             # self.__click_ele(page=page, xpath='x://p[text()="Optimism"]')
