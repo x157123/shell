@@ -313,7 +313,7 @@ if __name__ == '__main__':
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + args.appId + '_user.json')
     # 解密并发送解密结果
-    public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, "pond")
+    public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, "malda")
 
     if len(public_key_tmp) > 0:
         for key in public_key_tmp:
@@ -326,14 +326,15 @@ if __name__ == '__main__':
                 logger.info(f"已标记被执行")
             # 早上6点后才执行
             now = datetime.now()
-            if now.hour >= 7 and args.day_count <= 1:
+            if now.hour >= 1 and args.day_count <= 1:
                 num = 1 
                 test = Test()
                 for key in public_key_tmp:
-                    logger.info(f"执行第{len(public_key_tmp)}/{num}个账号: {key['secretKey']}：{key['publicKey']}")
+                    logger.info(f"执行第{len(public_key_tmp)}/{num}个账号: {key['secretKey']}")
                     args.index = key['secretKey']
                     test.run(args)
                     data_map[current_date] = 2
+                    num += 1
             else:
                 logger.info(f"执行完毕等待一小时")
                 time.sleep(3600)
