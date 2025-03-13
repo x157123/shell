@@ -255,7 +255,8 @@ class Test(object):
             if claim:
                 time.sleep(2)
                 self.__click_ele(page=page, xpath='x://button[text()="Claim "]')
-                for _ in range(2):
+                time.sleep(8)
+                for _ in range(3):
                     self.__deal_window(page=page)
                     time.sleep(3)
             
