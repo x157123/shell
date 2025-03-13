@@ -92,7 +92,7 @@ class Test(object):
     def setup_wallet(self, page, args):
         time.sleep(12)
         logger.info(f"开始打开设置钱包：{args.index}")
-        wallet_tab = self.browser.new_tab(
+        wallet_tab = page.new_tab(
             url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
         )
         time.sleep(3)
