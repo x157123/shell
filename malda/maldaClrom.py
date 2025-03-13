@@ -253,11 +253,11 @@ class Test(object):
             time.sleep(15)
             # 设置钱包
             logger.info('设置钱包')
-            self.setup_wallet(page, args)
+            await self.setup_wallet(page, args)
 
             # 设置钱包网络
             logger.info('设置钱包网络')
-            self.__add_net_work(page=page, coin_name='base')
+            await self.__add_net_work(page=page, coin_name='base')
 
             url = 'https://testnet.malda.xyz/faucet/'
             page.get(url=url)
