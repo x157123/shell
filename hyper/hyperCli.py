@@ -130,6 +130,7 @@ def main(client, serverId, appId, decryptKey, user, display):
             if last_lines:
                 # 查找是否网络连接失败 Sending reconnect signal
                 if check_reconnect_signal(last_lines, 'Sending reconnect signal'):
+                    logger.info("未连接网络。重新连接")
                     restart()
                 else:
                     logger.info("已连接网络。")
