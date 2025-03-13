@@ -57,12 +57,19 @@ class Test(object):
 
     @staticmethod
     def __get_page():
-        page = ChromiumPage(addr_or_opts=ChromiumOptions()
-                            .set_local_port(args.chromePort)
-                            .set_paths(r"/opt/google/chrome/google-chrome")
-                            .add_extension(r"/home/" + args.user + "/extensions/chrome-cloud")
-                            .set_user_data_path("/home/" + args.user + "/task/malda/" + args.index)
-                            .headless(on_off=False))
+        # page = ChromiumPage(addr_or_opts=ChromiumOptions()
+        #                     .set_local_port(args.chromePort)
+        #                     .set_paths(r"/opt/google/chrome/google-chrome")
+        #                     .add_extension(r"/home/" + args.user + "/extensions/chrome-cloud")
+        #                     .set_user_data_path("/home/" + args.user + "/task/chrome/" + args.index)
+        #                     .headless(on_off=False))
+
+        page = ChromiumPage(
+            addr_or_opts=ChromiumOptions().set_browser_path(path=r"/usr/bin/microsoft-edge")
+            .add_extension(r"/home/" + args.user + "/extensions/chrome-cloud")
+            .set_user_data_path("/home/" + args.user + "/task/edge/" + args.index)
+            .auto_port()
+            .headless(on_off=False))
         page.wait.doc_loaded(timeout=30)
         page.set.window.max()
         return page
