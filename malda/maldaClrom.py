@@ -151,75 +151,6 @@ class Test(object):
         result = True
         return result
 
-    # 处理弹窗
-    def __deal_window(self, page):
-        # 如果窗口大于2才进行操作
-        if page.tabs_count >= 2:
-            time.sleep(3)
-            tab = page.get_tab()
-            logger.info(tab.url)
-            if '/popup.html?page=%2Fdapp-permission' in tab.url:
-                if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
-                    self.__click_ele(page=tab, xpath='x://*[@id="close"]')
-                    time.sleep(1)
-                self.__click_ele(page=tab, xpath='x://button[@id="grantPermission"]')
-                time.sleep(2)
-
-            elif '/notification.html#connect' in tab.url:
-                self.__click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]')
-                self.__click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]')
-                time.sleep(2)
-
-            elif '/notification.html#confirmation' in tab.url:
-                self.__click_ele(page=tab, xpath='x://*[@data-testid="confirmation-submit-button"]')
-                time.sleep(2)
-                self.__click_ele(page=tab, xpath='x://*[@data-testid="confirmation-submit-button"]')
-                time.sleep(2)
-
-            elif '/notification.html#confirm-transaction' in tab.url:
-                self.__click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]')
-                time.sleep(2)
-
-            elif '/popup.html?page=%2Fsign-transaction' in tab.url:
-                logger.info('我要被点击了')
-                if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
-                    self.__click_ele(page=tab, xpath='x://*[@id="close"]')
-                    time.sleep(1)
-                logger.info('准备点击')
-                self.__click_ele(page=tab, xpath='x://button[@id="sign"]')
-                logger.info('点击结束')
-                time.sleep(2)
-
-            elif '/popup.html?page=%2Fsign-data' in tab.url:
-                if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
-                    self.__click_ele(page=tab, xpath='x://*[@id="close"]')
-                    time.sleep(1)
-                self.__click_ele(page=tab, xpath='x://button[@id="sign"]')
-                time.sleep(2)
-
-            elif 'popup.html?page=%2Fpersonal-sign' in tab.url:
-                if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
-                    self.__click_ele(page=tab, xpath='x://*[@id="close"]')
-                    time.sleep(1)
-                self.__click_ele(page=tab, xpath='x://button[@id="sign"]')
-                time.sleep(2)
-
-            elif '/popup.html?requestId=0&page=%2Fadd-evm-chain' in tab.url:
-                logger.info('我要被点击了')
-                self.__click_ele(page=tab, xpath='x://button[@type="submit"]')
-
-            elif ('&tab=%2Fadd-evm-chain' in tab.url) or ('/popup.html?requestId=' in tab.url):
-                if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
-                    self.__click_ele(page=tab, xpath='x://*[@id="close"]')
-                    time.sleep(1)
-                self.__click_ele(page=tab, xpath='x://button[@id="addNewChain"]')
-                time.sleep(2)
-
-            elif 'popout.html?windowId=backpack' in tab.url:
-                self.__click_ele(page=tab, xpath='x://div/span[text()="确认"]')
-                time.sleep(2)
-        return True
-
 
     # 添加网络
     async def __add_net_work(self, page, coin_name='base'):
@@ -309,6 +240,77 @@ class Test(object):
     async def run(self, args):
         await self.__main(args)
         return True
+
+
+# 处理弹窗
+def __deal_window(self, page):
+    # 如果窗口大于2才进行操作
+    if page.tabs_count >= 2:
+        time.sleep(3)
+        tab = page.get_tab()
+        logger.info(tab.url)
+        if '/popup.html?page=%2Fdapp-permission' in tab.url:
+            if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                self.__click_ele(page=tab, xpath='x://*[@id="close"]')
+                time.sleep(1)
+            self.__click_ele(page=tab, xpath='x://button[@id="grantPermission"]')
+            time.sleep(2)
+
+        elif '/notification.html#connect' in tab.url:
+            self.__click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]')
+            self.__click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]')
+            time.sleep(2)
+
+        elif '/notification.html#confirmation' in tab.url:
+            self.__click_ele(page=tab, xpath='x://*[@data-testid="confirmation-submit-button"]')
+            time.sleep(2)
+            self.__click_ele(page=tab, xpath='x://*[@data-testid="confirmation-submit-button"]')
+            time.sleep(2)
+
+        elif '/notification.html#confirm-transaction' in tab.url:
+            self.__click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]')
+            time.sleep(2)
+
+        elif '/popup.html?page=%2Fsign-transaction' in tab.url:
+            logger.info('我要被点击了')
+            if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                self.__click_ele(page=tab, xpath='x://*[@id="close"]')
+                time.sleep(1)
+            logger.info('准备点击')
+            self.__click_ele(page=tab, xpath='x://button[@id="sign"]')
+            logger.info('点击结束')
+            time.sleep(2)
+
+        elif '/popup.html?page=%2Fsign-data' in tab.url:
+            if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                self.__click_ele(page=tab, xpath='x://*[@id="close"]')
+                time.sleep(1)
+            self.__click_ele(page=tab, xpath='x://button[@id="sign"]')
+            time.sleep(2)
+
+        elif 'popup.html?page=%2Fpersonal-sign' in tab.url:
+            if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                self.__click_ele(page=tab, xpath='x://*[@id="close"]')
+                time.sleep(1)
+            self.__click_ele(page=tab, xpath='x://button[@id="sign"]')
+            time.sleep(2)
+
+        elif '/popup.html?requestId=0&page=%2Fadd-evm-chain' in tab.url:
+            logger.info('我要被点击了')
+            self.__click_ele(page=tab, xpath='x://button[@type="submit"]')
+
+        elif ('&tab=%2Fadd-evm-chain' in tab.url) or ('/popup.html?requestId=' in tab.url):
+            if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                self.__click_ele(page=tab, xpath='x://*[@id="close"]')
+                time.sleep(1)
+            self.__click_ele(page=tab, xpath='x://button[@id="addNewChain"]')
+            time.sleep(2)
+
+        elif 'popout.html?windowId=backpack' in tab.url:
+            self.__click_ele(page=tab, xpath='x://div/span[text()="确认"]')
+            time.sleep(2)
+    return True
+
 
 
 if __name__ == '__main__':
