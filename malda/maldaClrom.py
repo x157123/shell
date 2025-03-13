@@ -236,6 +236,7 @@ class Test(object):
             # 连接钱包
             signma = page.ele('x://span[text()="Signma"]/ancestor::button[1]')
             if signma:
+                self.__click_ele(page=page, xpath='x://span[text()="Signma"]/ancestor::button[1]')
                 self.__deal_window(page=page)
 
 
