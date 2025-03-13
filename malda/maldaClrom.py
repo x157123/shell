@@ -150,13 +150,12 @@ class Test(object):
                 time.sleep(2)
 
             elif '/popup.html?page=%2Fsign-transaction' in tab.url:
-                logger.info('我要被点击了')
                 if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
                     self.__click_ele(page=tab, xpath='x://*[@id="close"]')
                     time.sleep(1)
-                logger.info('准备点击')
+                logger.info('准备点击1')
                 self.__click_ele(page=tab, xpath='x://button[@id="sign"]')
-                logger.info('点击结束')
+                logger.info('点击结束1')
                 time.sleep(2)
 
             elif '/popup.html?page=%2Fsign-data' in tab.url:
@@ -174,7 +173,6 @@ class Test(object):
                 time.sleep(2)
 
             elif '/popup.html?requestId=0&page=%2Fadd-evm-chain' in tab.url:
-                logger.info('我要被点击了')
                 self.__click_ele(page=tab, xpath='x://button[@type="submit"]')
 
             elif ('&tab=%2Fadd-evm-chain' in tab.url) or ('/popup.html?requestId=' in tab.url):
