@@ -237,8 +237,10 @@ class Test(object):
             signma = page.ele('x://span[text()="Signma"]/ancestor::button[1]')
             if signma:
                 self.__click_ele(page=page, xpath='x://span[text()="Signma"]/ancestor::button[1]')
-                self.__deal_window(page=page)
-
+                time.sleep(3)
+                for _ in range(2):
+                    self.__deal_window(page=page)
+                    time.sleep(3)
 
             time.sleep(2000)
             # self.__click_ele(page=page, xpath='x://p[text()="Optimism"]')
