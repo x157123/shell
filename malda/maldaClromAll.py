@@ -7,6 +7,77 @@ from Crypto.Util.Padding import unpad
 from loguru import logger
 from DrissionPage import ChromiumPage, ChromiumOptions
 from datetime import datetime
+import paho.mqtt.client as mqtt
+
+
+
+# =================================================   MQTT   ======================================
+def create_mqtt_client(broker, port, username, password, topic):
+    """
+    创建并配置MQTT客户端，使用 MQTTv5 回调方式
+    protocol=mqtt.MQTTv5 来避免旧版回调弃用警告
+    """
+    client = mqtt.Client(
+        protocol=mqtt.MQTTv5,  # 指定使用 MQTTv5
+        userdata={"topic": topic}  # 传递自定义数据
+    )
+    client.username_pw_set(username, password)
+
+    # 注册回调函数（使用 v5 风格签名）
+    client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
+    client.on_message = on_message
+
+    try:
+        client.connect(broker, port, keepalive=60)
+    except Exception as e:
+        raise ConnectionError(f"Error connecting to broker: {e}")
+
+    return client
+
+
+# ========== MQTT 事件回调函数（MQTTv5） ==========
+def on_connect(client, userdata, flags, reason_code, properties=None):
+    """
+    当客户端与 Broker 建立连接后触发
+    reason_code = 0 表示连接成功，否则为失败码
+    """
+    if reason_code == 0:
+        print("Connected to broker successfully.")
+        # 仅发布消息，去除订阅
+        pass
+    else:
+        print(f"Connection failed with reason code: {reason_code}")
+
+
+def on_disconnect(client, userdata, reason_code, properties=None):
+    """
+    当客户端与 Broker 断开连接后触发
+    可以在此处进行自动重连逻辑
+    """
+    print(f"Disconnected from broker, reason_code: {reason_code}")
+    # 如果 reason_code != 0，则表示非正常断开
+    while True:
+        try:
+            print("Attempting to reconnect...")
+            client.reconnect()
+            print("Reconnected successfully.")
+            break
+        except Exception as e:
+            print(f"Reconnect failed: {e}")
+            time.sleep(5)  # 等待 5 秒后重试
+
+
+def on_message(client, userdata, msg):
+    """
+    当收到订阅主题的新消息时触发
+    v5 中的 on_message 参数与 v3.x 相同： (client, userdata, message)
+    """
+    print(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
+
+
+# =================================================   MQTT   ======================================
+
 
 
 def read_file(file_path):
@@ -263,6 +334,10 @@ class Test(object):
                     time.sleep(8)
 
             time.sleep(50)
+
+            app_info = self.get_app_info_integral(1,2,3,4,5,6)
+            client.publish("appInfo", json.dumps(app_info))
+            logger.info(f"推送积分:{app_info}")
             # self.__click_ele(page=page, xpath='x://p[text()="Optimism"]')
             # time.sleep(10)
             # claim = page.ele('x://button[text()="Claim "]')
@@ -301,6 +376,21 @@ class Test(object):
         self.__main(args)
         return True
 
+    def get_app_info_integral(self, integral, integralA, integralB, integralC, integralD, integralE):
+        return {
+            "serverId": f"{args.serverId}",
+            "applicationId": f"{args.appId}",
+            "publicKey": f"{args.index}",
+            "integral": f"{integral}",
+            "integralA": f"{integralA}",
+            "integralB": f"{integralB}",
+            "integralC": f"{integralC}",
+            "integralD": f"{integralD}",
+            "integralE": f"{integralE}",
+            "operationType": "2",
+            "description": f"采集积分：total_points：{integral}，user_points：{integralA}，task_points：{integralB}，credits_balance：{integralC}，total_redeemed：{integralD}，total_consumed：{integralE}",
+        }
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
@@ -312,6 +402,10 @@ if __name__ == '__main__':
     parser.add_argument("--chromePort", type=str, help="浏览器端口", required=True)
     args = parser.parse_args()
     data_map = {}
+
+    # 创建 MQTT 客户端（使用 MQTTv5）
+    client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
+    client.loop_start()
 
     # 从文件加载密文
     encrypted_data_base64 = read_file('/opt/data/' + args.appId + '_user.json')
