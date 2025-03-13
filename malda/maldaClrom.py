@@ -203,6 +203,7 @@ class Test(object):
         page.get(url=url)
         time.sleep(2)
         page.wait.ele_displayed(loc_or_ele='x://button[text()="Connect Wallet"]', timeout=10)
+
         self.__click_ele(page=page, xpath=f'x://td[contains(text(), "{number} ")]/../../../following-sibling::button[1]')
         time.sleep(3)
         self.__deal_window(page=page)
@@ -223,9 +224,9 @@ class Test(object):
             logger.info('设置钱包')
             self.setup_wallet(page, args)
 
-            # # 设置钱包网络
-            # logger.info('设置钱包网络')
-            # self.__add_net_work(page=page, coin_name='base')
+            # 设置钱包网络
+            logger.info('设置钱包网络')
+            self.__add_net_work(page=page, coin_name='op')
 
             url = 'https://testnet.malda.xyz/faucet/'
             page.get(url=url)
@@ -241,7 +242,8 @@ class Test(object):
                 for _ in range(2):
                     self.__deal_window(page=page)
                     time.sleep(3)
-            self.__click_ele(page=page, xpath='x://p[text()="Optimism"]')
+
+            self.__click_ele(page=page, xpath='x://p[text()="Ethereum"]')
             time.sleep(10)
             claim = page.ele('x://button[text()="Claim "]')
             if claim:
@@ -251,7 +253,7 @@ class Test(object):
                     self.__deal_window(page=page)
                     time.sleep(3)
             
-            time.sleep(2000)
+            time.sleep(20000)
             # self.__click_ele(page=page, xpath='x://p[text()="Optimism"]')
             # time.sleep(10)
             # claim = page.ele('x://button[text()="Claim "]')
