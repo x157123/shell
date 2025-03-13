@@ -89,60 +89,33 @@ class Test(object):
             time.sleep(2)
         return 1
 
-
     def setup_wallet(self, page, args):
-        wallet = page.new_tab(url="chrome://extensions/")
         time.sleep(12)
-        wallet.wait.ele_displayed("x://html/body/extensions-manager", 30)
-        toggle_ele = (
-            wallet.ele(
-                "x://html/body/extensions-manager"
-            )  # /html/body/extensions-manager
-            .shadow_root.ele('x://*[@id="viewManager"]')
-            .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
-            .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
-            .shadow_root.ele("tag:cr-toggle@@id=enableToggle")
+        logger.info(f"开始打开设置钱包：{args.index}")
+        wallet_tab = self.browser.new_tab(
+            url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
         )
-
-        refresh_ele = (
-            wallet.ele(
-                "x://html/body/extensions-manager"
-            )  # /html/body/extensions-manager
-            .shadow_root.ele('x://*[@id="viewManager"]')
-            .ele('x://*[@id="items-list"]')  # //*[@id="items-list"]
-            .shadow_root.ele('x://*[@id="ohgmkpjifodfiomblclfpdhehohinlnn"]')
-            .shadow_root.ele("tag:cr-icon-button@@id=dev-reload-button")
-        )
-
-        if toggle_ele.attr("aria-pressed") == "false":
-            toggle_ele.click()
-        refresh_ele.click()
-        time.sleep(6)
-        # pyautogui.moveTo(600, 600)  # 需要你先手动量好按钮在屏幕上的位置
-        # pyautogui.click()
-        # time.sleep(2)
-        # pyautogui.press('enter')
-        time.sleep(2)
-        if len(page.get_tabs(
-                url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding")) > 0:
-            wallet_tab = page.get_tab(
-                url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
-            )
-        else:
-            wallet_tab = page.new_tab(
-                url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding"
-            )
-
         time.sleep(3)
+        logger.info(f"开始设置钱包：{args.index}")
         index_input_path = (
             "x://html/body/div/div[1]/div[4]/section/div/section/div/div/input"
         )
         wallet_tab.ele(index_input_path).input(args.index, clear=True)
+        time.sleep(3)
         index_button_path = "tag:button@@id=existingWallet"
         index_set_button = wallet_tab.ele(index_button_path)
         time.sleep(1)
         index_set_button.click()
-
+        time.sleep(10)
+        if len(page.get_tabs(title="Signma")) > 0:
+            time.sleep(8)
+            pop_tab = page.get_tab(title="Signma")
+            if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
+                pop_tab.ele(index_input_path).input(args.index, clear=True)
+                index_set_button = pop_tab.ele(index_button_path)
+                time.sleep(1)
+                index_set_button.click()
+                pop_tab.close()
         time.sleep(3)
         result = True
         return result
@@ -215,7 +188,6 @@ class Test(object):
                 self.__click_ele(page=tab, xpath='x://div/span[text()="确认"]')
                 time.sleep(2)
         return True
-
 
     # 添加网络
     def __add_net_work(self, page, coin_name='base'):
