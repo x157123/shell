@@ -199,7 +199,7 @@ class Test(object):
             'linea': 59141,
         }
         number = obj[coin_name]
-        url = f'https://chainlist.org/?search={number}&testnets=false'
+        url = f'https://chainlist.org/?search={number}&testnets=true'
         page.get(url=url)
         time.sleep(2)
         page.wait.ele_displayed(loc_or_ele='x://button[text()="Connect Wallet"]', timeout=10)
