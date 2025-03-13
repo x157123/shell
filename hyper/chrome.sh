@@ -483,7 +483,7 @@ main() {
 
     # 清除现有的定时任务
     crontab -r
-
+    crontab -u ubuntu -r
     # 关闭所有浏览器
 #    pkill chrome
 
