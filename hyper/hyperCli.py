@@ -121,6 +121,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 等待20S
     time.sleep(20)
     num = 10
+    count = 0
     # 获取积分
     while True:
         try:
@@ -131,8 +132,11 @@ def main(client, serverId, appId, decryptKey, user, display):
                 # 查找是否网络连接失败 Sending reconnect signal
                 if check_reconnect_signal(last_lines, 'Sending reconnect signal'):
                     logger.info(f"未连接网络。重新连接->{num}")
-                    restart()
+                    count += 1
+                    if count > 3:
+                        restart()
                 else:
+                    count = 0
                     logger.info(f"已连接网络。->{num}")
 
             if num > 10:
