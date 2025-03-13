@@ -326,7 +326,7 @@ if __name__ == '__main__':
                 logger.info(f"已标记被执行")
             # 早上6点后才执行
             now = datetime.now()
-            if now.hour >= 1 and args.day_count <= 1:
+            if now.hour >= 2 and args.day_count <= 1:
                 num = 1 
                 test = Test()
                 for key in public_key_tmp:
