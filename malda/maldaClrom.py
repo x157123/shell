@@ -262,7 +262,7 @@ class Test(object):
                     self.__deal_window(page=page)
                     time.sleep(8)
 
-            time.sleep(50)
+            time.sleep(500)
             # self.__click_ele(page=page, xpath='x://p[text()="Optimism"]')
             # time.sleep(10)
             # claim = page.ele('x://button[text()="Claim "]')
