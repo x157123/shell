@@ -421,50 +421,6 @@ setup_novnc() {
 
 # 启动 Chrome 和 Python 脚本
 start_services() {
-    # 检查并清理特定 Chrome 调试端口
-    PIDS=$(lsof -t -i:$CHROME_DEBUG_PORT -sTCP:LISTEN)
-    if [ -n "$PIDS" ]; then
-        log_info "$CHROME_DEBUG_PORT 端口已被占用，终止占用该端口的进程：$PIDS"
-        kill -9 "$PIDS"
-        sleep 1
-    fi
-
-    # 查找运行中的 老版本 chrome.py 进程
-    pids=$(pgrep -f "/opt/chrome.py")
-    if [ -n "$pids" ]; then
-        echo "检测到正在运行的实例: $pids，准备终止..."
-        for pid in $pids; do
-            kill -9 "$pid"
-            echo "已终止 PID: $pid"
-        done
-    fi
-
-    # 查找运行中的 去除python进程
-    pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
-    if [ -n "$pids" ]; then
-        echo "检测到正在运行的实例: $pids，准备终止..."
-        for pid in $pids; do
-            kill -9 "$pid"
-            echo "已终止 PID: $pid"
-        done
-    fi
-
-    # 查找运行中的 老版本 chrome.py 进程
-    npids=$(pgrep -f "/opt/nexus/nexusChrom.py")
-    if [ -n "$npids" ]; then
-        echo "检测到正在运行的实例: $npids，准备终止..."
-        for pid in $npids; do
-            kill -9 "$pid"
-            echo "已终止 PID: $pid"
-        done
-    fi
-
-    # 清理特定显示号的 Python 脚本进程
-    PYTHON_PID_FILE="python_$VNC_DISPLAY.pid"
-    if [ -f "$PYTHON_PID_FILE" ] && kill -0 "$(cat "$PYTHON_PID_FILE")" 2>/dev/null; then
-        log_info "终止旧 Python 脚本进程..."
-        kill "$(cat "$PYTHON_PID_FILE")"
-    fi
 
     SUDO_USER="$USER"
 
@@ -473,6 +429,54 @@ start_services() {
     export DISPLAY=:${VNC_DISPLAY}
     sudo -u "$SUDO_USER" -i nohup python3 "$PYTHON_SCRIPT_DIR$FILE_NAME" --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --chromePort "$CHROME_DEBUG_PORT" --display "$VNC_DISPLAY"> "$FILE_NAME"Out.log 2>&1 &
     log_info "脚本执行完成，已在后台运行，VNC 显示号 :$VNC_DISPLAY，端口 $VNC_PORT，noVNC 端口 $NOVNC_PORT，Chrome 调试端口 $CHROME_DEBUG_PORT"
+}
+
+stop_services() {
+      # 检查并清理特定 Chrome 调试端口
+      PIDS=$(lsof -t -i:$CHROME_DEBUG_PORT -sTCP:LISTEN)
+      if [ -n "$PIDS" ]; then
+          log_info "$CHROME_DEBUG_PORT 端口已被占用，终止占用该端口的进程：$PIDS"
+          kill -9 "$PIDS"
+          sleep 1
+      fi
+
+      # 查找运行中的 老版本 chrome.py 进程
+      pids=$(pgrep -f "/opt/chrome.py")
+      if [ -n "$pids" ]; then
+          echo "检测到正在运行的实例: $pids，准备终止..."
+          for pid in $pids; do
+              kill -9 "$pid"
+              echo "已终止 PID: $pid"
+          done
+      fi
+
+      # 查找运行中的 去除python进程
+      pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
+      if [ -n "$pids" ]; then
+          echo "检测到正在运行的实例: $pids，准备终止..."
+          for pid in $pids; do
+              kill -9 "$pid"
+              echo "已终止 PID: $pid"
+          done
+      fi
+
+      # 查找运行中的 老版本 chrome.py 进程
+      npids=$(pgrep -f "/opt/nexus/nexusChrom.py")
+      if [ -n "$npids" ]; then
+          echo "检测到正在运行的实例: $npids，准备终止..."
+          for pid in $npids; do
+              kill -9 "$pid"
+              echo "已终止 PID: $pid"
+          done
+      fi
+
+      # 清理特定显示号的 Python 脚本进程
+      PYTHON_PID_FILE="python_$VNC_DISPLAY.pid"
+      if [ -f "$PYTHON_PID_FILE" ] && kill -0 "$(cat "$PYTHON_PID_FILE")" 2>/dev/null; then
+          log_info "终止旧 Python 脚本进程..."
+          kill "$(cat "$PYTHON_PID_FILE")"
+      fi
+
 }
 
 # 主执行流程
@@ -484,23 +488,25 @@ main() {
     # 清除现有的定时任务
     crontab -r
 
+    stop_services
+
     # 关闭所有浏览器
 #    pkill chrome
 
-    parse_args "$@"
-    update_system
-    install_system_deps
-    check_dependencies
-    setup_vnc
-#    install_chrome
-    install_chrome_120
-#    install_edge
-    install_wallet
-    setup_python_script
-    setup_xrdp
-    setup_novnc
-    install_python_packages
-    start_services
+#    parse_args "$@"
+#    update_system
+#    install_system_deps
+#    check_dependencies
+#    setup_vnc
+##    install_chrome
+#    install_chrome_120
+##    install_edge
+#    install_wallet
+#    setup_python_script
+#    setup_xrdp
+#    setup_novnc
+#    install_python_packages
+#    start_services
 }
 
 main "$@"
