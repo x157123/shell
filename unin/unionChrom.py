@@ -155,20 +155,12 @@ class Test(object):
                 print("找到目标元素:", target_div.html)
                 wallet_page.actions.move_to(target_div).click()
             else:
-                # enable_button = wallet_page.ele('x://button[normalize-space(.)="Enable"]')
-                # if enable_button:
-                #     enable_button.click()
-                #     time.sleep(3)
+                enable_button = wallet_page.ele('x://button[normalize-space(.)="Enable"]')
                 logger.info('没找到元素1')
-                add_wallet = page.new_tab(url="chrome-extension://dmkamcknogkgcdfhhbddcghachkejeap/register.html#?route=enable-chains&vaultId=a7d204aaf8c85de7&skipWelcome=true&initialSearchValue=Union%20Testnet")
-                time.sleep(5)
-                await self.__click_ele(page=add_wallet, xpath="x://input[@type=='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
-                time.sleep(5)
-                await self.__click_ele(page=add_wallet, xpath="x://button[normalize-space(.)='Save']")
-                time.sleep(5)
-                target_div = wallet_page.ele('x://div[normalize-space(text())="UNO"]/parent::div/parent::div/parent::div/parent::div')
-                if target_div:
-                    wallet_page.actions.move_to(target_div).click()
+                if enable_button:
+                    enable_button.click()
+                    time.sleep(3)
+                    await self.__deal_window(page)
             time.sleep(2)
             await self.__click_ele(page=wallet_page, xpath='x://div[@cursor="pointer" and .//div[contains(text(), "Send")]]')
             send_inputs = wallet_page.eles("x://input[@autocomplete='off' and contains(@class, 'sc-ikZpkk pEVcx')]")
@@ -249,9 +241,18 @@ class Test(object):
                     time.sleep(1)
                 if tab.wait.ele_displayed(loc_or_ele="x://button[@type='button' and contains(@class, 'sc-cOFTSb iuHbmd')]", timeout=3):
                     self.__click_ele(page=tab, xpath="x://button[@type='button' and contains(@class, 'sc-cOFTSb iuHbmd')]")
+            elif 'chrome-extension://dmkamcknogkgcdfhhbddcghachkejeap/register.html#?route=enable-chains' in tab.url:
+                await self.__click_ele(page=tab, xpath="x://input[@type=='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
+                time.sleep(5)
+                await self.__click_ele(page=tab, xpath="x://button[normalize-space(.)='Save']")
+                time.sleep(5)
+                target_div = tab.ele('x://div[normalize-space(text())="UNO"]/parent::div/parent::div/parent::div/parent::div')
+                if target_div:
+                    tab.actions.move_to(target_div).click()
                     time.sleep(1)
             elif '/register.html' in tab.url:
                 tab.close()
+
 
             #  evm 钱包
             elif '/popup.html?page=%2Fdapp-permission' in tab.url:
