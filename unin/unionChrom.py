@@ -241,15 +241,19 @@ class Test(object):
                     time.sleep(1)
                 if tab.wait.ele_displayed(loc_or_ele="x://button[@type='button' and contains(@class, 'sc-cOFTSb iuHbmd')]", timeout=3):
                     self.__click_ele(page=tab, xpath="x://button[@type='button' and contains(@class, 'sc-cOFTSb iuHbmd')]")
-            elif 'chrome-extension://dmkamcknogkgcdfhhbddcghachkejeap/register.html#?route=enable-chains' in tab.url:
+            elif '/register.html#?route=enable-chains' in tab.url:
+                logger.info('111111111')
                 await self.__click_ele(page=tab, xpath="x://input[@type=='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
                 time.sleep(5)
+                logger.info('22222222222')
                 await self.__click_ele(page=tab, xpath="x://button[normalize-space(.)='Save']")
                 time.sleep(5)
+                logger.info('3333333333')
                 target_div = tab.ele('x://div[normalize-space(text())="UNO"]/parent::div/parent::div/parent::div/parent::div')
                 if target_div:
                     tab.actions.move_to(target_div).click()
                     time.sleep(1)
+                time.sleep(200)
             elif '/register.html' in tab.url:
                 tab.close()
 
