@@ -252,10 +252,9 @@ class Test(object):
             elif '/register.html' in tab.url:
                 tab.close()
 
-
             #  evm 钱包
             elif '/popup.html?page=%2Fdapp-permission' in tab.url:
-                if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=3):
                     self.__click_ele(page=tab, xpath='x://*[@id="close"]')
                     time.sleep(1)
                 self.__click_ele(page=tab, xpath='x://button[@id="grantPermission"]')
