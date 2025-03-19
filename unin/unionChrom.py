@@ -313,10 +313,15 @@ class Test(object):
                         time.sleep(1)
                     self.__click_ele(page=tab, xpath='x://button[@id="addNewChain"]')
                     time.sleep(2)
-
+                                                                           
+                elif 'edge://newtab/' in tab.url:
+                    tab.close()
+                    time.sleep(2)
+                    
                 elif 'popout.html?windowId=backpack' in tab.url:
                     self.__click_ele(page=tab, xpath='x://div/span[text()="确认"]')
                     time.sleep(2)
+
         return True
 
     async def test(self, page, net):
@@ -325,18 +330,22 @@ class Test(object):
         time.sleep(4)                                                                            
         # 关联evm钱包
         await self.__click_ele(page=wallet_page, xpath='x://button[.//span[contains(text(), "Connect Wallet") or contains(text(), "Connected")]]')
-        await self.__click_ele(page=wallet_page, xpath='x://button[normalize-space(.)="Signma"]')
-        time.sleep(4)
-        await self.__deal_window(page)
-        await self.__click_ele(page=wallet_page, xpath='x://button[@data-melt-dialog-close]')
+        signma_but = wallet_page.ele('x://button[normalize-space(.)="Signma"]')
+        if signma_but:
+            await self.__click_ele(page=wallet_page, xpath='x://button[normalize-space(.)="Signma"]')
+            time.sleep(4)
+            await self.__deal_window(page)
+            await self.__click_ele(page=wallet_page, xpath='x://button[@data-melt-dialog-close]')
 
         time.sleep(4)
         # 关联钱包
         await self.__click_ele(page=wallet_page, xpath='x://button[.//span[contains(text(), "Connect Wallet") or contains(text(), "Connected")]]')
-        await self.__click_ele(page=wallet_page, xpath='x://button[normalize-space(.)="keplr"]')
-        time.sleep(4)
-        await self.__deal_window(page)
-        await self.__click_ele(page=wallet_page, xpath='x://button[@data-melt-dialog-close]')
+        keplr_but = wallet_page.ele('x://button[normalize-space(.)="keplr"]')
+        if keplr_but:
+            await self.__click_ele(page=wallet_page, xpath='x://button[normalize-space(.)="keplr"]')
+            time.sleep(4)
+            await self.__deal_window(page)
+            await self.__click_ele(page=wallet_page, xpath='x://button[@data-melt-dialog-close]')
 
         time.sleep(4)
         buttons = wallet_page.eles('x://div[contains(@class, "overflow-y-scroll")]//button[contains(@class, "inline-flex items-center")]')
@@ -391,10 +400,7 @@ class Test(object):
 
             button = wallet_page.ele('x://button[contains(text(), "Transfer")]')
             # 判断按钮是否被禁用
-            if button.attr('disabled') is not None:
-                print("按钮已禁用")
-            else:
-                print("按钮未禁用")
+            if button:
                 button.click()
                 conf_button = wallet_page.ele('x://button[contains(text(), "Confirm Transfer")]')
                 if conf_button:
