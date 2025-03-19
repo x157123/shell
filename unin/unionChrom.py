@@ -158,7 +158,7 @@ class Test(object):
                     enable_button.click()
                     time.sleep(3)
                     await self.__deal_window(page)
-                    wallet_page.refresh()
+                    wallet_page = page.get(url=url)
                     time.sleep(5)
                     target_div = wallet_page.ele('x://div[normalize-space(text())="UNO"]/parent::div/parent::div/parent::div/parent::div')
                     if target_div:
