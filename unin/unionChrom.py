@@ -321,7 +321,7 @@ class Test(object):
     async def test(self, page, net):
         url = 'https://app.union.build/transfer'
         wallet_page = page.new_tab(url=url)
-
+        time.sleep(4)                                                                            
         # 关联evm钱包
         await self.__click_ele(page=wallet_page, xpath='x://button[.//span[contains(text(), "Connect Wallet") or contains(text(), "Connected")]]')
         await self.__click_ele(page=wallet_page, xpath='x://button[normalize-space(.)="Signma"]')
