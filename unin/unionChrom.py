@@ -247,18 +247,14 @@ class Test(object):
                 logger.info('111111111')
                 buttons = tab.ele("x://input[@type='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
                 if buttons:
-                    logger.info('我找到按钮')
                     buttons.click()
-                    time.sleep(5)
-                    logger.info('22222222222')
+                    time.sleep(2)
                     await self.__click_ele(page=tab, xpath="x://button[normalize-space(.)='Save']")
-                    time.sleep(5)
-                    logger.info('3333333333')
+                    time.sleep(2)
                     target_div = tab.ele('x://div[normalize-space(text())="UNO"]/parent::div/parent::div/parent::div/parent::div')
                     if target_div:
                         tab.actions.move_to(target_div).click()
                         time.sleep(1)
-                    time.sleep(200)
             elif '/register.html' in tab.url:
                 tab.close()
 
