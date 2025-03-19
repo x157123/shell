@@ -237,6 +237,7 @@ class Test(object):
         if page.tabs_count >= 2:
             time.sleep(3)
             tab = page.get_tab()
+            time.sleep(3)
             logger.info(tab.url)
             # keplr 钱包
             if 'chrome-extension://dmkamcknogkgcdfhhbddcghachkejeap/popup.html' in tab.url:
