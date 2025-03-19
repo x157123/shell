@@ -52,7 +52,8 @@ class Test(object):
             if import_button:
                 import_button.click()
             time.sleep(5)
-            key_button = wallet_page.ele('x://button[contains(., "使用助记词或私钥")]')
+
+            key_button = wallet_page.ele('x://button[contains(., "使用助记词或私钥") or contains(., "Use recovery phrase or private key")]')
             if key_button:
                 key_button.click()
 
@@ -67,7 +68,7 @@ class Test(object):
                 input_ele.input(word)
                 time.sleep(1)
 
-            import_key_button = wallet_page.ele('x://button[normalize-space(.)="导入"]')
+            import_key_button = wallet_page.ele("x://button[@type='button' and contains(@class, 'sc-kLLXSd fnozug')]")
             if import_key_button:
                 import_key_button.click()
 
