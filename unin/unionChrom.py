@@ -243,7 +243,7 @@ class Test(object):
                     self.__click_ele(page=tab, xpath="x://button[@type='button' and contains(@class, 'sc-cOFTSb iuHbmd')]")
             elif '/register.html#?route=enable-chains' in tab.url:
                 logger.info('111111111')
-                buttons = tab.eles("x://input[@type=='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
+                buttons = tab.eles("x://input[@type='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
                 if buttons:
                     logger.info('我找到按钮')
                     tab.actions.move_to(buttons).click()
