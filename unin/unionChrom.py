@@ -239,8 +239,10 @@ class Test(object):
                 if tab.wait.ele_displayed(loc_or_ele="x://button[@type='submit' and contains(@class, 'sc-iTONeN jEEuKd')]", timeout=3):
                     self.__click_ele(page=tab, xpath="x://button[@type='submit' and contains(@class, 'sc-iTONeN jEEuKd')]")
                     time.sleep(1)
-                if tab.wait.ele_displayed(loc_or_ele="x://button[@type='button' and contains(@class, 'sc-cOFTSb iuHbmd')]", timeout=3):
+                elif tab.wait.ele_displayed(loc_or_ele="x://button[@type='button' and contains(@class, 'sc-cOFTSb iuHbmd')]", timeout=3):
                     self.__click_ele(page=tab, xpath="x://button[@type='button' and contains(@class, 'sc-cOFTSb iuHbmd')]")
+                else:
+                    tab.close()
             elif '/register.html#?route=enable-chains' in tab.url:
                 logger.info('111111111')
                 buttons = tab.ele("x://input[@type='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
