@@ -158,7 +158,9 @@ class Test(object):
                 add_wallet = page.new_tab(url="extension://dmkamcknogkgcdfhhbddcghachkejeap/register.html#?route=enable-chains&vaultId=a7d204aaf8c85de7&skipWelcome=true&initialSearchValue=Union%20Testnet")
                 await self.__click_ele(page=add_wallet, xpath="x://input[@type=='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
                 await self.__click_ele(page=add_wallet, xpath="x://button[normalize-space(.)='Save']")
-
+                target_div = wallet_page.ele('x://div[normalize-space(text())="UNO"]/parent::div/parent::div/parent::div/parent::div')
+                if target_div:
+                    wallet_page.actions.move_to(target_div).click()
             time.sleep(2)
             await self.__click_ele(page=wallet_page, xpath='x://div[@cursor="pointer" and .//div[contains(text(), "Send")]]')
             send_inputs = wallet_page.eles("x://input[@autocomplete='off' and contains(@class, 'sc-ikZpkk pEVcx')]")
