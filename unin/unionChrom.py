@@ -415,7 +415,7 @@ class Test(object):
                     time.sleep(5)
                     await self.__deal_window(page)
                 
-                    time.sleep(60)
+                    time.sleep(200)
         wallet_page.close()
 
     async def setup_evm_wallet(self, page, index):
