@@ -260,7 +260,9 @@ class Test(object):
                     if close_but:
                         tab.actions.move_to(close_but).click()
                     time.sleep(1)
-                self.__click_ele(page=tab, xpath='x://button[@id="grantPermission"]')
+                com_but = tab.ele('x://button[@id="grantPermission"]')
+                if com_but:
+                    tab.actions.move_to(com_but).click()
                 time.sleep(2)
 
             elif '/notification.html#connect' in tab.url:
