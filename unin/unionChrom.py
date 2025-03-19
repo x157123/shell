@@ -255,7 +255,9 @@ class Test(object):
             #  evm 钱包
             elif '/popup.html?page=%2Fdapp-permission' in tab.url:
                 if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=3):
-                    self.__click_ele(page=tab, xpath='x://*[@id="close"]')
+                    close_but = tab.ele('x://*[@id="close"]')
+                    if close_but:
+                        tab.actions.move_to(close_but).click()
                     time.sleep(1)
                 self.__click_ele(page=tab, xpath='x://button[@id="grantPermission"]')
                 time.sleep(2)
@@ -391,12 +393,12 @@ class Test(object):
             else:
                 print("按钮未禁用")
                 button.click()
-                button = wallet_page.ele('x://button[contains(text(), "Confirm Transfer")]')
-                if button:
-                    button.click()
+                conf_button = wallet_page.ele('x://button[contains(text(), "Confirm Transfer")]')
+                if conf_button:
+                    wallet_page.actions.move_to(conf_button).click()
                     time.sleep(5)
                     await self.__deal_window(page)
-                time.sleep(200)
+                    time.sleep(200)
         wallet_page.close()
 
     async def setup_evm_wallet(self, page, index):
