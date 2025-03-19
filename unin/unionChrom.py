@@ -316,7 +316,7 @@ class Test(object):
 
     async def test(self, page, net):
         url = 'https://app.union.build/transfer'
-        wallet_page = page.new_tab(url1=url)
+        wallet_page = page.new_tab(url=url)
 
         # 关联evm钱包
         await self.__click_ele(page=wallet_page, xpath='x://button[.//span[contains(text(), "Connect Wallet")]]')
