@@ -243,17 +243,19 @@ class Test(object):
                     self.__click_ele(page=tab, xpath="x://button[@type='button' and contains(@class, 'sc-cOFTSb iuHbmd')]")
             elif '/register.html#?route=enable-chains' in tab.url:
                 logger.info('111111111')
-                await self.__click_ele(page=tab, xpath="x://input[@type=='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
-                time.sleep(5)
-                logger.info('22222222222')
-                await self.__click_ele(page=tab, xpath="x://button[normalize-space(.)='Save']")
-                time.sleep(5)
-                logger.info('3333333333')
-                target_div = tab.ele('x://div[normalize-space(text())="UNO"]/parent::div/parent::div/parent::div/parent::div')
-                if target_div:
-                    tab.actions.move_to(target_div).click()
-                    time.sleep(1)
-                time.sleep(200)
+                buttons = tab.eles("x://input[@type=='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
+                if buttons:
+                    page.actions.move_to(buttons).click()
+                    time.sleep(5)
+                    logger.info('22222222222')
+                    await self.__click_ele(page=tab, xpath="x://button[normalize-space(.)='Save']")
+                    time.sleep(5)
+                    logger.info('3333333333')
+                    target_div = tab.ele('x://div[normalize-space(text())="UNO"]/parent::div/parent::div/parent::div/parent::div')
+                    if target_div:
+                        tab.actions.move_to(target_div).click()
+                        time.sleep(1)
+                    time.sleep(200)
             elif '/register.html' in tab.url:
                 tab.close()
 
