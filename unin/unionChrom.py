@@ -43,7 +43,7 @@ class Test(object):
         return 1
 
     # 设置钱包
-    async def open_wallet(self, page, text):
+    async def open_wallet(self, page, union_address, text):
         try:
             url = 'chrome-extension://dmkamcknogkgcdfhhbddcghachkejeap/register.html#'
             wallet_page = page.new_tab(url=url)
@@ -104,7 +104,7 @@ class Test(object):
                 end_button.click()
 
             # 激活钱包
-            await self.activate_wallet(page)
+            await self.activate_wallet(page, union_address)
             wallet_page.close()
         except Exception as error:
             logger.error(f'error ==> {error}')
@@ -112,7 +112,7 @@ class Test(object):
             await self.__deal_window(page)
 
     # 登陆钱包
-    async def get_wallet(self, page, text):
+    async def get_wallet(self, page, union_address, text):
         wallet_page = None
         try:
             url = 'chrome-extension://dmkamcknogkgcdfhhbddcghachkejeap/popup.html'
@@ -138,11 +138,11 @@ class Test(object):
             if wallet_page:
                 wallet_page.close()
             # 异常 重新导入钱包
-            await asyncio.wait_for(fut=self.open_wallet(page=page, text=text), timeout=100)
+            await asyncio.wait_for(fut=self.open_wallet(page=page, union_address=union_address, text=text), timeout=100)
         finally:
             await self.__deal_window(page)
 
-    async def activate_wallet(self, page):
+    async def activate_wallet(self, page, union_address):
         url = 'chrome-extension://dmkamcknogkgcdfhhbddcghachkejeap/popup.html'
         wallet_page = page.new_tab(url=url)
         input = wallet_page.ele("x://input[@autocomplete='off' and contains(@class, 'sc-ikZpkk pEVcx')]")
@@ -161,10 +161,15 @@ class Test(object):
                     enable_button.click()
                     time.sleep(3)
                     await self.__deal_window(page)
+                    target_div = wallet_page.ele('x://div[normalize-space(text())="UNO"]/parent::div/parent::div/parent::div/parent::div')
+                    if target_div:
+                        print("激活钱包:", target_div.html)
+                        wallet_page.actions.move_to(target_div).click()
+
             time.sleep(2)
             await self.__click_ele(page=wallet_page, xpath='x://div[@cursor="pointer" and .//div[contains(text(), "Send")]]')
             send_inputs = wallet_page.eles("x://input[@autocomplete='off' and contains(@class, 'sc-ikZpkk pEVcx')]")
-            values = ['union15mnfrhm5dnnsuy7f6jyzdc65twqf302jlc0c6j', '0.0001', 'send']
+            values = [union_address, '0.0001', 'send']
 
             # 遍历输入框与对应的值，依次填入
             for input_ele, value in zip(send_inputs, values):
@@ -225,7 +230,6 @@ class Test(object):
             logger.error(f'领水失败 ==> {data}')
 
         return data
-
 
     # 处理弹窗
     async def __deal_window(self, page):
@@ -441,7 +445,7 @@ class Test(object):
         page = await self.__get_page(index=union_id, port=port, user=user)
         try:
             await asyncio.wait_for(fut=self.setup_evm_wallet(page=page, index=union_id), timeout=100)
-            await asyncio.wait_for(fut=self.get_wallet(page=page, text=text), timeout=100)
+            await asyncio.wait_for(fut=self.get_wallet(page=page, union_address, text=text), timeout=100)
             await asyncio.wait_for(fut=self.__do_task(page=page, union_id=union_id, union_address=union_address), timeout=100)
             await self.test(page, net="Babylon Testnet")
             await self.test(page, net="Stargaze Testnet")
