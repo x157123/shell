@@ -215,7 +215,7 @@ class Test(object):
 
         # 验证第二个
         await self.__click_ele(page=main_page, xpath='x://button[contains(text(), "Verify")]')
-        await asyncio.sleep(5)
+        time.sleep(5)
         ele = main_page.ele(locator='x://div[@class=" svelte-d2x57e"]/div').shadow_root.child().ele('x://body').shadow_root.ele('x:./div/div/div')
         if ele.html.count('<input type="checkbox">'):
             ele.ele('x://label/input').click()
