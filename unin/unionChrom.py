@@ -102,9 +102,6 @@ class Test(object):
             end_button = wallet_page.ele('x://button[normalize-space(.)="完成" or normalize-space(.)="Finish"]')
             if end_button:
                 end_button.click()
-
-            # 激活钱包
-            self.activate_wallet(page, union_address)
             wallet_page.close()
         except Exception as error:
             logger.error(f'error ==> {error}')
@@ -414,7 +411,7 @@ class Test(object):
                     time.sleep(5)
                     await self.__deal_window(page)
                 
-                    time.sleep(200)
+                    time.sleep(60)
         wallet_page.close()
 
     async def setup_evm_wallet(self, page, index):
@@ -452,7 +449,9 @@ class Test(object):
         page = await self.__get_page(index=union_id, port=port, user=user)
         # try:
         await asyncio.wait_for(fut=self.setup_evm_wallet(page=page, index=union_id), timeout=100)
-        await asyncio.wait_for(fut=self.open_wallet(page=page, union_address=union_address, text=text), timeout=100)     
+        await asyncio.wait_for(fut=self.open_wallet(page=page, union_address=union_address, text=text), timeout=100)
+        # 激活钱包                                    
+        await asyncio.wait_for(fut=self.activate_wallet(page=page, union_address=union_address), timeout=100)
         # await asyncio.wait_for(fut=self.get_wallet(page=page, union_address=union_address, text=text), timeout=100)
         # await asyncio.wait_for(fut=self.__do_task(page=page, union_id=union_id, union_address=union_address), timeout=100)
         await self.test(page, net="Babylon Testnet")
