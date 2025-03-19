@@ -1,9 +1,16 @@
-import time
+import random
 import asyncio
-
+import os
+from DrissionPage._pages.chromium_page import ChromiumPage
+import time
+from DrissionPage._configs.chromium_options import ChromiumOptions
+import json
 import argparse
 from loguru import logger
-from DrissionPage import ChromiumPage, ChromiumOptions
+import base64
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+from datetime import datetime, timedelta
 
 
 class Test(object):
@@ -530,6 +537,45 @@ class Test(object):
         #     page.quit()
         return True
 
+def read_file(file_path):
+    """从文件中读取内容并去除多余空白"""
+    try:
+        # logger.info(f"读取文件: {file_path}")
+        with open(file_path, 'r') as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        raise ValueError(f"文件未找到: {file_path}")
+
+
+def decrypt_aes_ecb(secret_key, data_encrypted_base64, accountType):
+    """
+    解密 AES ECB 模式的 Base64 编码数据，
+    去除 PKCS7 填充后返回所有 accountType 为 "hyper" 的记录。
+    """
+    try:
+        # Base64 解码
+        encrypted_bytes = base64.b64decode(data_encrypted_base64)
+        # 创建 AES 解密器
+        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
+        # 解密数据
+        decrypted_bytes = cipher.decrypt(encrypted_bytes)
+        # 去除 PKCS7 填充（AES.block_size 默认为 16）
+        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
+        # 将字节转换为字符串
+        decrypted_text = decrypted_bytes.decode('utf-8')
+
+        # 解析 JSON 字符串为 Python 对象（通常为列表）
+        data_list = json.loads(decrypted_text)
+
+        # 创建结果列表，收集所有 accountType 为 "hyper" 的记录
+        result = [item for item in data_list if item.get('accountType') == accountType]
+
+        # 返回结果列表，如果没有匹配项则返回空列表
+        return result
+    except Exception as e:
+        # 记录错误日志
+        logger.error(f"解密失败: {e}")
+        return []
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
@@ -540,7 +586,39 @@ if __name__ == '__main__':
     parser.add_argument("--display", type=str, help="执行窗口", required=True)
     parser.add_argument("--chromePort", type=str, help="浏览器端口", required=True)
     args = parser.parse_args()
-    test = Test()
-    asyncio.run(test.run(union_id='78546', port='5934', key='0xa3f9c3f2e9e7d48d94e80415bdd33316570ef4e0', user='ubuntu',
-                         union_address='union18pld2dxq9uxrzjrvffkd5ntql6aekmdnv892ec',
-                         text='zoo horse way supreme narrow crunch ritual tonight party report story thought'))
+    data_map = {}
+    # 从文件加载密文
+    encrypted_data_base64 = read_file('/opt/data/' + args.appId + '_user.json')
+    # 解密并发送解密结果
+    public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, "pond")
+    
+    if len(public_key_tmp) > 0:
+        for key in public_key_tmp:
+            logger.info(f"发现账号{key['secretKey']}")
+        while True:
+            current_date = datetime.now().strftime('%Y%m%d')  # 当前日期
+            args.day_count = 0
+            if current_date in data_map and data_map[current_date] is not None:
+                args.day_count = data_map[current_date]
+                logger.info(f"已标记被执行")
+
+            now = datetime.now()
+            # 早上四点后才执行
+            if now.hour >= 0 and args.day_count <= 1:
+                for key in public_key_tmp:
+                    try:
+                        logger.info(f'执行: {args.user}：{key["secretKey"]}：{key["publicKey"]}：{key["region"]}：{key["remarks"]}')
+                        test = Test()
+                        asyncio.run(test.run(union_id=key["secretKey"], port=args.chromePort, key=key["publicKey"], user=args.user,
+                                         union_address=key["region"],
+                                         text=key["remarks"]))
+                    except Exception as e:
+                        logger.info(f"发生错误: {e}")
+                    time.sleep(random.randint(23, 50))
+                logger.info(f"执行完毕")
+                data_map[current_date] = args.day_count + 1
+            else:
+                logger.info(f"执行完毕等待一小时")
+                time.sleep(3600)
+    else:
+        logger.info("未绑定需要执行的账号")
