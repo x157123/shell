@@ -314,9 +314,9 @@ class Test(object):
                     self.__click_ele(page=tab, xpath='x://button[@id="addNewChain"]')
                     time.sleep(2)
                                                                            
-                elif 'edge://newtab/' in tab.url:
-                    tab.close()
-                    time.sleep(2)
+                # elif 'edge://newtab/' in tab.url:
+                    # tab.close()
+                    # time.sleep(2)
                     
                 elif 'popout.html?windowId=backpack' in tab.url:
                     self.__click_ele(page=tab, xpath='x://div/span[text()="确认"]')
