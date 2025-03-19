@@ -333,7 +333,7 @@ class Test(object):
         await self.__click_ele(page=wallet_page, xpath='x://button[.//span[contains(text(), "Connect Wallet") or contains(text(), "Connected")]]')
         signma_but = wallet_page.ele('x://button[normalize-space(.)="Signma"]')
         if signma_but:
-            await self.__click_ele(page=wallet_page, xpath='x://button[normalize-space(.)="Signma"]')
+            await self.__click_ele(page=wallet_page, xpath='x://button[normalize-space(.)="Signma" or text()="Signma"]')
             time.sleep(4)
             await self.__deal_window(page)
             await self.__click_ele(page=wallet_page, xpath='x://button[@data-melt-dialog-close]')
@@ -346,13 +346,6 @@ class Test(object):
             await self.__click_ele(page=wallet_page, xpath='x://button[normalize-space(.)="keplr"]')
             time.sleep(4)
             await self.__deal_window(page)
-            
-            signma_but = wallet_page.ele('x://button[normalize-space(.)="Signma"]')
-            if signma_but:
-                await self.__click_ele(page=wallet_page, xpath='x://button[normalize-space(.)="Signma"]')
-                time.sleep(4)
-                await self.__deal_window(page)
-            
             await self.__click_ele(page=wallet_page, xpath='x://button[@data-melt-dialog-close]')
 
         time.sleep(4)
