@@ -162,7 +162,7 @@ class Test(object):
                     time.sleep(5)
                     target_div = wallet_page.ele('x://div[normalize-space(text())="UNO"]/parent::div/parent::div/parent::div/parent::div')
                     if target_div:
-                        print("激活钱包:", target_div.html)
+                        print("激活钱包:")
                         wallet_page.actions.move_to(target_div).click()
 
             time.sleep(2)
@@ -239,7 +239,6 @@ class Test(object):
                 for index in range(page.tabs_count):
                     tab = page.get_tab(index)
                     time.sleep(3)
-                    logger.info(tab.url)
                     # keplr 钱包
                     if 'chrome-extension://dmkamcknogkgcdfhhbddcghachkejeap/popup.html' in tab.url:
                         if tab.wait.ele_displayed(loc_or_ele="x://button[normalize-space(.)='Approve']", timeout=3):
@@ -325,6 +324,63 @@ class Test(object):
             logger.error(f'error ==> {error}')
         return True
 
+    async def __do_faucet_task(self, page, evm_id, evm_address):
+        data = f'{evm_id} {evm_address}'
+        url = 'https://faucet.circle.com/'
+        faucet_page = page.new_tab(url=url)
+        await asyncio.sleep(5)
+        faucet_page.wait.ele_displayed(loc_or_ele='x://input[@placeholder="Wallet address"]', timeout=10)
+
+        # 领取 Ethereum Sepolia usdc
+        await self.__click_ele(page=faucet_page, xpath='x://button[@aria-haspopup="listbox"]')
+        await asyncio.sleep(2)
+        await self.__click_ele(page=faucet_page, xpath='x://span/span[text()="Ethereum Sepolia"]')
+        await asyncio.sleep(2)
+        faucet_page.ele(locator='x://input[@placeholder="Wallet address"]', timeout=3).input(evm_address)
+        await asyncio.sleep(2)
+        await self.__click_ele(page=faucet_page, xpath='x://button/span[text()="Send 10 USDC"]')
+        await asyncio.sleep(5)
+        if faucet_page.wait.ele_displayed(loc_or_ele='x://a[contains(@href, "/tx/0x")]', timeout=5):
+            logger.success(f'sepolia usdc {data} 领取成功')
+        else:
+            logger.error(f'sepolia usdc {data} 领取失败')
+        await self.__click_ele(page=faucet_page, xpath='x://button/span[text()="Get more tokens" or text()="Go Back"]')
+        await asyncio.sleep(2)
+
+        # 领取 Arbitrum Sepolia usdc
+        await self.__click_ele(page=faucet_page, xpath='x://button[@aria-haspopup="listbox"]')
+        await asyncio.sleep(2)
+        await self.__click_ele(page=faucet_page, xpath='x://span[text()="Arbitrum Sepolia"]')
+        await asyncio.sleep(2)
+        faucet_page.ele(locator='x://input[@placeholder="Wallet address"]', timeout=3).input(evm_address)
+        await asyncio.sleep(2)
+        await self.__click_ele(page=faucet_page, xpath='x://button/span[text()="Send 10 USDC"]')
+        await asyncio.sleep(5)
+        if faucet_page.wait.ele_displayed(loc_or_ele='x://a[contains(@href, "/tx/0x")]', timeout=5):
+            logger.success(f'arb usdc {data} 领取成功')
+        else:
+            logger.error(f'arb usdc {data} 领取失败')
+        await self.__click_ele(page=faucet_page, xpath='x://button/span[text()="Get more tokens" or text()="Go Back"]')
+        await asyncio.sleep(2)
+
+        # 领取 Base Sepolia usdc
+        await self.__click_ele(page=faucet_page, xpath='x://button[@aria-haspopup="listbox"]')
+        await asyncio.sleep(2)
+        await self.__click_ele(page=faucet_page, xpath='x://span[text()="Base Sepolia"]')
+        await asyncio.sleep(2)
+        faucet_page.ele(locator='x://input[@placeholder="Wallet address"]', timeout=3).input(evm_address)
+        await asyncio.sleep(2)
+        await self.__click_ele(page=faucet_page, xpath='x://button/span[text()="Send 10 USDC"]')
+        await asyncio.sleep(5)
+        if faucet_page.wait.ele_displayed(loc_or_ele='x://a[contains(@href, "/tx/0x")]', timeout=5):
+            logger.success(f'base usdc {data} 领取成功')
+        else:
+            logger.error(f'base usdc {data} 领取失败')
+        await self.__click_ele(page=faucet_page, xpath='x://button/span[text()="Get more tokens" or text()="Go Back"]')
+        faucet_page.close()
+        return data
+        
+        
     async def test(self, page, net):
         url = 'https://app.union.build/transfer'
         wallet_page = page.new_tab(url=url)
@@ -454,9 +510,10 @@ class Test(object):
         return result
 
     # 开始
-    async def run(self, union_id, user, port, union_address, text) -> bool:
+    async def run(self, union_id, user, port, key, union_address, text) -> bool:
         page = await self.__get_page(index=union_id, port=port, user=user)
         # try:
+        await asyncio.wait_for(fut=self.__do_faucet_task(page=page, evm_id=union_id, evm_address=key), timeout=100)
         await asyncio.wait_for(fut=self.setup_evm_wallet(page=page, index=union_id), timeout=100)
         await asyncio.wait_for(fut=self.open_wallet(page=page, union_address=union_address, text=text), timeout=100)
         # 激活钱包                                    
@@ -484,5 +541,6 @@ if __name__ == '__main__':
     parser.add_argument("--chromePort", type=str, help="浏览器端口", required=True)
     args = parser.parse_args()
     test = Test()
-    asyncio.run(test.run(union_id='78546', port='5934', user='ubuntu', union_address='union18pld2dxq9uxrzjrvffkd5ntql6aekmdnv892ec',
+    asyncio.run(test.run(union_id='78546', port='5934', key='0xa3f9c3f2e9e7d48d94e80415bdd33316570ef4e0', user='ubuntu',
+                         union_address='union18pld2dxq9uxrzjrvffkd5ntql6aekmdnv892ec',
                          text='zoo horse way supreme narrow crunch ritual tonight party report story thought'))
