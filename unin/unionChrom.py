@@ -246,7 +246,7 @@ class Test(object):
                 buttons = tab.eles("x://input[@type='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
                 if buttons:
                     logger.info('我找到按钮')
-                    tab.actions.move_to(buttons).click()
+                    buttons.click()
                     time.sleep(5)
                     logger.info('22222222222')
                     await self.__click_ele(page=tab, xpath="x://button[normalize-space(.)='Save']")
