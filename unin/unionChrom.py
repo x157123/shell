@@ -439,7 +439,7 @@ class Test(object):
         await asyncio.wait_for(fut=self.setup_evm_wallet(page=page, index=union_id), timeout=100)
         await asyncio.wait_for(fut=self.open_wallet(page=page, union_address=union_address, text=text), timeout=100)     
         # await asyncio.wait_for(fut=self.get_wallet(page=page, union_address=union_address, text=text), timeout=100)
-        await asyncio.wait_for(fut=self.__do_task(page=page, union_id=union_id, union_address=union_address), timeout=100)
+        # await asyncio.wait_for(fut=self.__do_task(page=page, union_id=union_id, union_address=union_address), timeout=100)
         await self.test(page, net="Babylon Testnet")
         await self.test(page, net="Stargaze Testnet")
         await self.test(page, net="Stride Testnet")
