@@ -83,22 +83,22 @@ class Test(object):
                 confirmPassword.input('xujiaxujia')
 
             time.sleep(2)
-            step_button = wallet_page.ele('x://button[normalize-space(.)="下一步"]')
+            step_button = wallet_page.ele('x://button[normalize-space(.)="下一步" or normalize-space(.)="Next"]')
             if step_button:
                 step_button.click()
 
             time.sleep(2)
-            save_button = wallet_page.ele('x://button[normalize-space(.)="保存"]')
+            save_button = wallet_page.ele('x://button[normalize-space(.)="保存" or normalize-space(.)="Save"]')
             if save_button:
                 save_button.click()
 
             time.sleep(2)
-            imp_button = wallet_page.ele('x://button[normalize-space(.)="导入"]')
+            imp_button = wallet_page.ele('x://button[normalize-space(.)="导入" or normalize-space(.)="Import"]')
             if imp_button:
                 imp_button.click()
 
             time.sleep(2)
-            end_button = wallet_page.ele('x://button[normalize-space(.)="完成"]')
+            end_button = wallet_page.ele('x://button[normalize-space(.)="完成" or normalize-space(.)="Finish"]')
             if end_button:
                 end_button.click()
 
