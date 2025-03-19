@@ -83,6 +83,11 @@ class Test(object):
                 confirmPassword.input('xujiaxujia')
 
             time.sleep(2)
+            imp_button = wallet_page.ele('x://button[normalize-space(.)="导入" or normalize-space(.)="Import"]')
+            if imp_button:
+                imp_button.click()
+
+            time.sleep(2)
             step_button = wallet_page.ele('x://button[normalize-space(.)="下一步" or normalize-space(.)="Next"]')
             if step_button:
                 step_button.click()
@@ -112,6 +117,7 @@ class Test(object):
 
     # 登陆钱包
     async def get_wallet(self, page, text):
+        wallet_page = None
         try:
             url = 'chrome-extension://dmkamcknogkgcdfhhbddcghachkejeap/popup.html'
             wallet_page = page.new_tab(url=url)
@@ -133,6 +139,8 @@ class Test(object):
                 print(money_clean)
 
         except Exception as error:
+            if wallet_page:
+                wallet_page.close()
             # 异常 重新导入钱包
             await asyncio.wait_for(fut=self.open_wallet(page=page, text=text), timeout=100)
         finally:
