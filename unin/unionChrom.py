@@ -68,10 +68,10 @@ class Test(object):
                 input_ele.input(word)
                 time.sleep(1)
 
-            import_key_button = wallet_page.ele("x://button[@type='button' and contains(@class, 'sc-kLLXSd fnozug')]")
+            time.sleep(2)
+            import_key_button = wallet_page.ele('x://button[normalize-space(.)="导入" or normalize-space(.)="Import"]')
             if import_key_button:
                 import_key_button.click()
-
 
             input_name = wallet_page.ele('x://input[@name="name"]')
             input_name.input('key')
@@ -82,10 +82,6 @@ class Test(object):
             if confirmPassword:
                 confirmPassword.input('xujiaxujia')
 
-            time.sleep(2)
-            imp_button = wallet_page.ele('x://button[normalize-space(.)="导入" or normalize-space(.)="Import"]')
-            if imp_button:
-                imp_button.click()
 
             time.sleep(2)
             step_button = wallet_page.ele('x://button[normalize-space(.)="下一步" or normalize-space(.)="Next"]')
