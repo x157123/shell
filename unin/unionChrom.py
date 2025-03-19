@@ -414,8 +414,13 @@ class Test(object):
                     wallet_page.actions.move_to(conf_button).click()
                     time.sleep(5)
                     await self.__deal_window(page)
-                
-                    time.sleep(200)
+                    time.sleep(60)
+                    retry_but = wallet_page.ele('x://button[contains(text(), "RETRY")]')
+                    if retry_but:
+                        wallet_page.actions.move_to(retry_but).click()
+                        time.sleep(10)
+                        await self.__deal_window(page)
+                        time.sleep(100)
         wallet_page.close()
 
     async def setup_evm_wallet(self, page, index):
@@ -479,5 +484,5 @@ if __name__ == '__main__':
     parser.add_argument("--chromePort", type=str, help="浏览器端口", required=True)
     args = parser.parse_args()
     test = Test()
-    asyncio.run(test.run(union_id='38834', port='5934', user='ubuntu', union_address='union1nzkwpqshaeqq4rhgwv0em4wfe99lqcrhzsyzfj',
-                         text='toward combine wide chapter topple high wild rescue bleak topple afraid hover'))
+    asyncio.run(test.run(union_id='78546', port='5934', user='ubuntu', union_address='union18pld2dxq9uxrzjrvffkd5ntql6aekmdnv892ec',
+                         text='zoo horse way supreme narrow crunch ritual tonight party report story thought'))
