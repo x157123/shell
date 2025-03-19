@@ -244,17 +244,11 @@ class Test(object):
                     await self.__click_ele(page=tab, xpath="x://button[normalize-space(.)='Approve']")
                     time.sleep(1)
             elif '/register.html#?route=enable-chains' in tab.url:
-                logger.info('111111111')
                 buttons = tab.ele("x://input[@type='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
                 if buttons:
                     buttons.click()
                     time.sleep(2)
                     await self.__click_ele(page=tab, xpath="x://button[normalize-space(.)='Save']")
-                    time.sleep(2)
-                    target_div = tab.ele('x://div[normalize-space(text())="UNO"]/parent::div/parent::div/parent::div/parent::div')
-                    if target_div:
-                        tab.actions.move_to(target_div).click()
-                        time.sleep(1)
             elif '/register.html' in tab.url:
                 tab.close()
 
@@ -322,7 +316,7 @@ class Test(object):
 
     async def test(self, page, net):
         url = 'https://app.union.build/transfer'
-        wallet_page = page.new_tab(url=url)
+        wallet_page = page.new_tab(url1=url)
 
         # 关联evm钱包
         await self.__click_ele(page=wallet_page, xpath='x://button[.//span[contains(text(), "Connect Wallet")]]')
