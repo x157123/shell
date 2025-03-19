@@ -407,6 +407,13 @@ class Test(object):
                     wallet_page.actions.move_to(conf_button).click()
                     time.sleep(5)
                     await self.__deal_window(page)
+                time.sleep(5)
+                conf_button = wallet_page.ele('x://button[contains(text(), "Confirm Transfer")]')
+                if conf_button:
+                    wallet_page.actions.move_to(conf_button).click()
+                    time.sleep(5)
+                    await self.__deal_window(page)
+                
                     time.sleep(200)
         wallet_page.close()
 
