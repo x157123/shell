@@ -12,7 +12,8 @@ class Test(object):
     async def __get_page(index, port, user):
         page = ChromiumPage(
             addr_or_opts=ChromiumOptions().set_browser_path(path=r"/usr/bin/microsoft-edge")
-            .add_extension(r"/home/" + user + "/extensions")
+            .add_extension(r"/home/" + user + "/extensions/chrome-cloud")
+            .add_extension(r"/home/" + user + "/extensions/keplr")
             .set_user_data_path("/home/" + user + "/edge/" + index)
             .auto_port()
             .headless(on_off=False))
