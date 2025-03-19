@@ -323,7 +323,7 @@ class Test(object):
         wallet_page = page.new_tab(url=url)
 
         # 关联evm钱包
-        await self.__click_ele(page=wallet_page, xpath='x://button[.//span[contains(text(), "Connect Wallet")]]')
+        await self.__click_ele(page=wallet_page, xpath='x://button[.//span[contains(text(), "Connect Wallet") or contains(text(), "Connected")]]')
         await self.__click_ele(page=wallet_page, xpath='x://button[normalize-space(.)="Signma"]')
         time.sleep(4)
         await self.__deal_window(page)
@@ -331,7 +331,7 @@ class Test(object):
 
         time.sleep(4)
         # 关联钱包
-        await self.__click_ele(page=wallet_page, xpath='x://button[.//span[contains(text(), "Connected")]]')
+        await self.__click_ele(page=wallet_page, xpath='x://button[.//span[contains(text(), "Connect Wallet") or contains(text(), "Connected")]]')
         await self.__click_ele(page=wallet_page, xpath='x://button[normalize-space(.)="keplr"]')
         time.sleep(4)
         await self.__deal_window(page)
@@ -342,7 +342,6 @@ class Test(object):
         # 检查是否找到了至少三个按钮
         if len(buttons) >= 3:
             second_button = buttons[1]  # 列表索引从0开始，索引1为第二个按钮
-            logger.info(second_button.html)
             wallet_page.actions.move_to(second_button).click()
             await self.__click_ele(page=wallet_page, xpath=f'x://div[contains(text(), "{net}")]')
 
