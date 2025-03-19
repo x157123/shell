@@ -104,7 +104,7 @@ class Test(object):
                 end_button.click()
 
             # 激活钱包
-            await self.activate_wallet(page, union_address)
+            self.activate_wallet(page, union_address)
             wallet_page.close()
         except Exception as error:
             logger.error(f'error ==> {error}')
@@ -160,7 +160,7 @@ class Test(object):
                 if enable_button:
                     enable_button.click()
                     time.sleep(3)
-                    await self.__deal_window(page)
+                    self.__deal_window(page)
                     target_div = wallet_page.ele('x://div[normalize-space(text())="UNO"]/parent::div/parent::div/parent::div/parent::div')
                     if target_div:
                         print("激活钱包:", target_div.html)
