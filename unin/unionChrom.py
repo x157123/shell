@@ -155,7 +155,12 @@ class Test(object):
                 print("找到目标元素:", target_div.html)
                 wallet_page.actions.move_to(target_div).click()
             else:
-                add_wallet = page.new_tab(url="extension://dmkamcknogkgcdfhhbddcghachkejeap/register.html#?route=enable-chains&vaultId=a7d204aaf8c85de7&skipWelcome=true&initialSearchValue=Union%20Testnet")
+                # enable_button = wallet_page.ele('x://button[normalize-space(.)="Enable"]')
+                # if enable_button:
+                #     enable_button.click()
+                #     time.sleep(3)
+                logger.info('没找到元素')
+                add_wallet = page.new_tab(url="chrome-extension://dmkamcknogkgcdfhhbddcghachkejeap/register.html#?route=enable-chains&vaultId=a7d204aaf8c85de7&skipWelcome=true&initialSearchValue=Union%20Testnet")
                 await self.__click_ele(page=add_wallet, xpath="x://input[@type=='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
                 await self.__click_ele(page=add_wallet, xpath="x://button[normalize-space(.)='Save']")
                 target_div = wallet_page.ele('x://div[normalize-space(text())="UNO"]/parent::div/parent::div/parent::div/parent::div')
