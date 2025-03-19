@@ -240,13 +240,9 @@ class Test(object):
             logger.info(tab.url)
             # keplr 钱包
             if 'chrome-extension://dmkamcknogkgcdfhhbddcghachkejeap/popup.html' in tab.url:
-                if tab.wait.ele_displayed(loc_or_ele="x://button[@type='submit' and contains(@class, 'sc-iTONeN jEEuKd')]", timeout=3):
-                    self.__click_ele(page=tab, xpath="x://button[@type='submit' and contains(@class, 'sc-iTONeN jEEuKd')]")
+                if tab.wait.ele_displayed(loc_or_ele="x://button[normalize-space(.)='Approve']", timeout=3):
+                    await self.__click_ele(page=tab, xpath="x://button[normalize-space(.)='Approve']")
                     time.sleep(1)
-                elif tab.wait.ele_displayed(loc_or_ele="x://button[@type='button' and contains(@class, 'sc-cOFTSb iuHbmd')]", timeout=3):
-                    self.__click_ele(page=tab, xpath="x://button[@type='button' and contains(@class, 'sc-cOFTSb iuHbmd')]")
-                else:
-                    tab.close()
             elif '/register.html#?route=enable-chains' in tab.url:
                 logger.info('111111111')
                 buttons = tab.ele("x://input[@type='checkbox' and contains(@class, 'sc-kIKDeO jbWSkg')]")
