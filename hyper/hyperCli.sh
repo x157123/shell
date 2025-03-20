@@ -58,6 +58,8 @@ if [ -z "$USER" ]; then
   echo "Warning: --user 未指定，将默认以 admin 身份执行相关操作（如需特定用户，请使用 --user）"
 fi
 
+apt install -y python3-pip curl
+
 # 安装其他插件
 pip3 install psutil requests paho-mqtt selenium pycryptodome loguru pyperclip
 
