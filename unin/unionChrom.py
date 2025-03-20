@@ -15,6 +15,15 @@ from datetime import datetime, timedelta
 
 class Test(object):
 
+    def __init__(self):
+        if not os.path.isfile('./unionStat.txt'):
+            with open(file='./unionStat.txt', mode='a+', encoding='utf-8') as file:
+                file.close()
+            time.sleep(0.1)
+            del file
+        self.__union_faucet = open(file='./unionStat.txt', mode='r+', encoding='utf-8')
+        self.__union_faucet_str = self.__union_faucet.read()
+
     @staticmethod
     async def __get_page(index, port, user):
         page = ChromiumPage(
@@ -147,6 +156,9 @@ class Test(object):
             await self.__deal_window(page)
 
     async def activate_wallet(self, page, union_address):
+        if union_address in self.__union_faucet_str:
+            logger.info('钱包已激活,跳过激活')
+            return True
         url = 'chrome-extension://dmkamcknogkgcdfhhbddcghachkejeap/popup.html'
         wallet_page = page.new_tab(url=url)
         input = wallet_page.ele("x://input[@autocomplete='off' and contains(@class, 'sc-ikZpkk pEVcx')]")
@@ -187,7 +199,10 @@ class Test(object):
             time.sleep(1)
             # 确定转账
             await self.__click_ele(page=wallet_page, xpath="x://button[@type='button' and contains(@class, 'sc-cOFTSb iuHbmd')]")
-
+            time.sleep(10)
+            logger.info('钱包已激活')
+            self.__union_faucet.write(union_address + '\r')
+            self.__union_faucet.flush()
 
     async def __do_task(self, page, union_id, union_address):
         data = f'{union_id} {union_address}'
@@ -605,10 +620,10 @@ if __name__ == '__main__':
             now = datetime.now()
             # 早上四点后才执行
             if now.hour >= 0 and args.day_count <= 1:
+                test = Test()
                 for key in public_key_tmp:
                     try:
                         logger.info(f'执行: {args.user}：{key["secretKey"]}：{key["publicKey"]}：{key["region"]}：{key["remarks"]}')
-                        test = Test()
                         asyncio.run(test.run(union_id=key["secretKey"], port=args.chromePort, key=key["publicKey"], user=args.user,
                                          union_address=key["region"],
                                          text=key["remarks"]))
