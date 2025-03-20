@@ -514,6 +514,8 @@ main() {
     # 关闭浏览器
     pkill -9 msedge
 
+    pkill -9 chrome
+
     parse_args "$@"
     update_system
     install_system_deps
