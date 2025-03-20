@@ -433,7 +433,7 @@ class Test(object):
             second_button = buttons[1]  # 列表索引从0开始，索引1为第二个按钮
             wallet_page.actions.move_to(second_button).click()
             await self.__click_ele(page=wallet_page, xpath=f'x://div[contains(text(), "{net}")]')
-
+            logger.info(f'切换网络：{net}')
             # await self.__click_ele(page=wallet_page, xpath='x://div[contains(text(), "Stargaze Testnet")]')
             # await self.__click_ele(page=wallet_page, xpath='x://div[contains(text(), "Stride Testnet")]')
         # time.sleep(4)
@@ -498,7 +498,7 @@ class Test(object):
                         wallet_page.actions.move_to(retry_but).click()
                         time.sleep(10)
                         await self.__deal_window(page)
-                        time.sleep(100)
+                        time.sleep(60)
         wallet_page.close()
 
     async def setup_evm_wallet(self, page, index):
