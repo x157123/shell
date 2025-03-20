@@ -619,7 +619,7 @@ if __name__ == '__main__':
 
             now = datetime.now()
             # 早上四点后才执行
-            if now.hour >= 0 and args.day_count <= 1:
+            if now.hour >= 9 and args.day_count <= 1:
                 test = Test()
                 for key in public_key_tmp:
                     try:
