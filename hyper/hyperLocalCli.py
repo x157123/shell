@@ -7,7 +7,6 @@ import json
 import zlib
 import base64
 import os
-import stat
 
 def run_command_blocking(cmd, print_output=True):
     """
@@ -15,7 +14,7 @@ def run_command_blocking(cmd, print_output=True):
     """
     result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if print_output:
-        print(result.stdout)
+        logger.info(result.stdout)
     return result.stdout
 
 
@@ -31,7 +30,7 @@ def run_command_and_print(cmd, wait_for=None, print_output=True):
         if line:
             collected_output += line
             if print_output:
-                print(line.strip())
+                logger.info(line.strip())
             if wait_for and wait_for in line:
                 break
         if not line and process.poll() is not None:
@@ -50,10 +49,10 @@ def read_last_n_lines(file_path, n):
             lines = deque(file, maxlen=n)
             return list(lines)
     except FileNotFoundError:
-        print(f"错误：文件 {file_path} 未找到。")
+        logger.info(f"错误：文件 {file_path} 未找到。")
         return []
     except Exception as e:
-        print(f"读取文件时发生错误：{e}")
+        logger.info(f"读取文件时发生错误：{e}")
         return []
 
 
