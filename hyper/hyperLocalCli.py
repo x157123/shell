@@ -68,7 +68,6 @@ def start():
     install_output = run_command_blocking("curl https://download.hyper.space/api/install | bash")
     if "Installation completed successfully." not in install_output:
         logger.info("安装失败或未检测到成功提示。")
-        return
     logger.info("安装成功！")
 
     logger.info("===== 检测是否已启动 =====")
