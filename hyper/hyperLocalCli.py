@@ -3,6 +3,9 @@ import time
 import re
 import argparse
 from loguru import logger
+import json
+import zlib
+import base64
 
 def run_command_blocking(cmd, print_output=True):
     """
@@ -120,11 +123,22 @@ def restart():
     run_command_blocking("/root/.aios/aios-cli hive connect")
     logger.info("connect 命令执行完毕。")
 
+def decompress_data(compressed_b64):
+    # 先进行 base64 解码，得到压缩后的 bytes
+    compressed = base64.b64decode(compressed_b64)
+    # 解压得到原始 JSON 字符串
+    json_str = zlib.decompress(compressed).decode('utf-8')
+    # 将 JSON 字符串转换回字典
+    data = json.loads(json_str)
+    return data
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--data", type=str, help="数据", required=True)
     args = parser.parse_args()
     logger.info(f"===== 启动 ====={args.data}")
+    restored_data = decompress_data(args.data)
+    print("恢复后的数据：")
     # start()
     # # 等待20S
     # time.sleep(20)
