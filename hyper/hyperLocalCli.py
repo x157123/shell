@@ -134,6 +134,7 @@ def decompress_data(compressed_b64):
     data = json.loads(json_str)
     return data
 
+
 def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/key.pem"):
     """
     确保密钥文件存在且内容匹配，不存在时自动创建
@@ -152,10 +153,10 @@ def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/key.pem
     try:
         os.makedirs(key_dir, mode=0o700, exist_ok=True)  # 确保目录权限安全
     except PermissionError:
-        print(f"权限不足，无法创建目录 {key_dir}")
+        logger.info(f"权限不足，无法创建目录 {key_dir}")
         return False, False
     except Exception as e:
-        print(f"目录创建失败: {str(e)}")
+        logger.info(f"目录创建失败: {str(e)}")
         return False, False
 
     # 检查文件存在性
@@ -171,7 +172,7 @@ def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/key.pem
                 if not content_matched:
                     # 如果内容不匹配，删除旧的密钥文件
                     os.remove(key_path)
-                    print(f"旧密钥文件 {key_path} 已被删除。")
+                    logger.info(f"旧密钥文件 {key_path} 已被删除。")
 
                     # 创建并写入新的密钥文件
                     temp_path = key_path + ".tmp"
@@ -181,8 +182,8 @@ def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/key.pem
                     # 设置严格权限（仅用户可读）
                     os.chmod(temp_path, 0o600)
                     os.rename(temp_path, key_path)  # 原子操作
-                    print(f"已创建新密钥文件: {key_path}")
-                    return True, True
+                    logger.info(f"已创建新密钥文件: {key_path}")
+                    return
         # 文件不存在时创建并写入
         else:
             # 原子写入模式：先写入临时文件再重命名
@@ -194,17 +195,15 @@ def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/key.pem
             os.chmod(temp_path, 0o600)
             os.rename(temp_path, key_path)  # 原子操作
 
-            print(f"已创建新密钥文件: {key_path}")
-            return True, True
+            logger.info(f"已创建新密钥文件: {key_path}")
+            return
 
     except PermissionError:
-        print(f"权限不足，无法操作文件 {key_path}")
+        logger.info(f"权限不足，无法操作文件 {key_path}")
         return file_exists, False
     except Exception as e:
-        print(f"文件操作异常: {str(e)}")
+        logger.info(f"文件操作异常: {str(e)}")
         return file_exists, False
-
-    return file_exists, content_matched
 
 
 if __name__ == "__main__":
@@ -213,9 +212,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     logger.info(f"===== 启动 ====={args.data}")
     restored_data = decompress_data(args.data)
-    print(f"恢复后的数据：{restored_data['public_key']}")
-    print(f"恢复后的数据：{restored_data['private_key']}")
-    print(f"恢复后的数据：{restored_data['remarks']}")
+    logger.info(f"恢复后的数据：{restored_data['public_key']}")
+    logger.info(f"恢复后的数据：{restored_data['private_key']}")
+    logger.info(f"恢复后的数据：{restored_data['remarks']}")
     ensure_key_file(restored_data['remarks'])
 
     # start()
