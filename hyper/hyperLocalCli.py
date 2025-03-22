@@ -181,7 +181,7 @@ def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/key.pem
                     # 设置严格权限（仅用户可读）
                     os.chmod(temp_path, 0o600)
                     os.rename(temp_path, key_path)  # 原子操作
-                    logger.info(f"已创建新密钥文件: {key_path}")
+                    logger.info(f"已创建新密钥文件1: {key_path}")
                     return
         # 文件不存在时创建并写入
         else:
@@ -194,7 +194,7 @@ def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/key.pem
             os.chmod(temp_path, 0o600)
             os.rename(temp_path, key_path)  # 原子操作
 
-            logger.info(f"已创建新密钥文件: {key_path}")
+            logger.info(f"已创建新密钥文件2: {key_path}")
             return
 
     except PermissionError:
