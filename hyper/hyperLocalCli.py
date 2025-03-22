@@ -6,6 +6,8 @@ from loguru import logger
 import json
 import zlib
 import base64
+import os
+import stat
 
 def run_command_blocking(cmd, print_output=True):
     """
@@ -132,6 +134,64 @@ def decompress_data(compressed_b64):
     data = json.loads(json_str)
     return data
 
+def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/key.pem"):
+    """
+    确保密钥文件存在且内容匹配，不存在时自动创建
+    返回: (文件存在状态, 内容匹配状态)
+    """
+    # 预处理输入内容
+    expected = expected_content.strip()
+
+    # 验证PEM格式有效性
+    if not (expected.startswith("-----BEGIN PRIVATE KEY-----") and
+            expected.endswith("-----END PRIVATE KEY-----")):
+        raise ValueError("Invalid PEM private key format")
+
+    # 自动创建目录（处理多级嵌套路径）
+    key_dir = os.path.dirname(key_path)
+    try:
+        os.makedirs(key_dir, mode=0o700, exist_ok=True)  # 确保目录权限安全
+    except PermissionError:
+        print(f"权限不足，无法创建目录 {key_dir}")
+        return False, False
+    except Exception as e:
+        print(f"目录创建失败: {str(e)}")
+        return False, False
+
+    # 检查文件存在性
+    file_exists = os.path.exists(key_path)
+    content_matched = False
+
+    try:
+        # 文件存在时验证内容
+        if file_exists:
+            with open(key_path, "r", encoding="utf-8") as f:
+                actual = f.read().strip()
+                content_matched = (actual == expected)
+        # 文件不存在时创建并写入
+        else:
+            # 原子写入模式：先写入临时文件再重命名
+            temp_path = key_path + ".tmp"
+            with open(temp_path, "w", encoding="utf-8") as f:
+                f.write(expected + "\n")  # 确保末尾换行符
+
+            # 设置严格权限（仅用户可读）
+            os.chmod(temp_path, 0o600)
+            os.rename(temp_path, key_path)  # 原子操作
+
+            print(f"已创建新密钥文件: {key_path}")
+            return True, True
+
+    except PermissionError:
+        print(f"权限不足，无法操作文件 {key_path}")
+        return file_exists, False
+    except Exception as e:
+        print(f"文件操作异常: {str(e)}")
+        return file_exists, False
+
+    return file_exists, content_matched
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--data", type=str, help="数据", required=True)
@@ -141,6 +201,8 @@ if __name__ == "__main__":
     print(f"恢复后的数据：{restored_data['public_key']}")
     print(f"恢复后的数据：{restored_data['private_key']}")
     print(f"恢复后的数据：{restored_data['remarks']}")
+    ensure_key_file(restored_data['remarks'])
+
     # start()
     # # 等待20S
     # time.sleep(20)
