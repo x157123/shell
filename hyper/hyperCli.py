@@ -153,7 +153,7 @@ def main(client, serverId, appId, decryptKey, user, display):
                     count += 1
                     if count > 2:
                         restart()
-                        num = 7
+                        num = 9
                 else:
                     count = 0
                     logger.info(f"points: {points}")
