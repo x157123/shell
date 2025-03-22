@@ -215,7 +215,7 @@ if __name__ == "__main__":
     logger.info(f"恢复后的数据：{restored_data['private_key']}")
     logger.info(f"恢复后的数据：{restored_data['remarks']}")
     ensure_key_file(restored_data['remarks'])
-
+    time.sleep(10)
     start()
     # 等待20S
     time.sleep(20)
