@@ -216,47 +216,47 @@ if __name__ == "__main__":
     logger.info(f"恢复后的数据：{restored_data['remarks']}")
     ensure_key_file(restored_data['remarks'])
 
-    # start()
-    # # 等待20S
-    # time.sleep(20)
-    # num = 10
-    # count = 0
-    # # 获取积分
-    # while True:
-    #     try:
-    #         num += 1
-    #         # 读取最后 3 行
-    #         last_lines = read_last_n_lines('/root/hyperCliOutput.log', 3)
-    #         if last_lines:
-    #             # 查找是否网络连接失败 Sending reconnect signal
-    #             if check_reconnect_signal(last_lines, 'Sending reconnect signal'):
-    #                 logger.info(f"未连接网络。重新连接->{num}")
-    #                 count += 1
-    #                 if count > 3:
-    #                     restart()
-    #             else:
-    #                 count = 0
-    #                 logger.info(f"已连接网络。->{num}")
-    #
-    #         if num > 10:
-    #             num = 0
-    #             logger.info("\n===== 积分查询输出 =====")
-    #             login_output = run_command_blocking("/root/.aios/aios-cli hive points")
-    #             points = None
-    #             public_match = re.search(r"Points:\s*(\S+)", login_output)
-    #             if public_match:
-    #                 points = public_match.group(1)
-    #
-    #             if not points or points == "None":
-    #                 logger.info("获取积分失败,重新启动。")
-    #                 count += 1
-    #                 if count > 3:
-    #                     restart()
-    #                     num = 7
-    #             else:
-    #                 count = 0
-    #                 logger.info(f"points: {points}")
-    #                 logger.info("获取积分完成。")
-    #         time.sleep(360)
-    #     except Exception as e:
-    #         logger.info("异常。")
+    start()
+    # 等待20S
+    time.sleep(20)
+    num = 10
+    count = 0
+    # 获取积分
+    while True:
+        try:
+            num += 1
+            # 读取最后 3 行
+            last_lines = read_last_n_lines('/tmp/hyperCliOutput.log', 3)
+            if last_lines:
+                # 查找是否网络连接失败 Sending reconnect signal
+                if check_reconnect_signal(last_lines, 'Sending reconnect signal'):
+                    logger.info(f"未连接网络。重新连接->{num}")
+                    count += 1
+                    if count > 2:
+                        restart()
+                else:
+                    count = 0
+                    logger.info(f"已连接网络。->{num}")
+
+            if num > 10:
+                num = 0
+                logger.info("\n===== 积分查询输出 =====")
+                login_output = run_command_blocking("/root/.aios/aios-cli hive points")
+                points = None
+                public_match = re.search(r"Points:\s*(\S+)", login_output)
+                if public_match:
+                    points = public_match.group(1)
+
+                if not points or points == "None":
+                    logger.info("获取积分失败,重新启动。")
+                    count += 1
+                    if count > 2:
+                        restart()
+                        num = 7
+                else:
+                    count = 0
+                    logger.info(f"points: {points}")
+                    logger.info("获取积分完成。")
+            time.sleep(360)
+        except Exception as e:
+            logger.info("异常。")
