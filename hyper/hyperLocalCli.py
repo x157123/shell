@@ -138,7 +138,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     logger.info(f"===== 启动 ====={args.data}")
     restored_data = decompress_data(args.data)
-    print(f"恢复后的数据：{restored_data}")
+    print(f"恢复后的数据：{restored_data['remarks']}")
     # start()
     # # 等待20S
     # time.sleep(20)
