@@ -168,6 +168,21 @@ def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/key.pem
             with open(key_path, "r", encoding="utf-8") as f:
                 actual = f.read().strip()
                 content_matched = (actual == expected)
+                if not content_matched:
+                    # 如果内容不匹配，删除旧的密钥文件
+                    os.remove(key_path)
+                    print(f"旧密钥文件 {key_path} 已被删除。")
+
+                    # 创建并写入新的密钥文件
+                    temp_path = key_path + ".tmp"
+                    with open(temp_path, "w", encoding="utf-8") as f:
+                        f.write(expected + "\n")  # 确保末尾换行符
+
+                    # 设置严格权限（仅用户可读）
+                    os.chmod(temp_path, 0o600)
+                    os.rename(temp_path, key_path)  # 原子操作
+                    print(f"已创建新密钥文件: {key_path}")
+                    return True, True
         # 文件不存在时创建并写入
         else:
             # 原子写入模式：先写入临时文件再重命名
