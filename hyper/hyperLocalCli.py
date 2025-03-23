@@ -121,8 +121,8 @@ def start():
     run_command_blocking("/root/.aios/aios-cli hive connect")
     logger.info("connect 命令执行完毕。")
 
-def restart():
 
+def restart():
     logger.info("开始 Hive 登录...")
     run_command_and_print("/root/.aios/aios-cli hive login", wait_for="Authenticated successfully!")
 
@@ -237,15 +237,12 @@ if __name__ == "__main__":
                 # 查找是否网络连接失败 Sending reconnect signal
                 if check_reconnect_signal(last_lines, 'Sending reconnect signal'):
                     logger.info(f"未连接网络。重新连接->{num}")
-                    count += 1
-                    if count > 2:
-                        restart()
+                    restart()
                 else:
                     count = 0
                     logger.info(f"已连接网络。->{num}")
 
             if num > 10:
-                num = 0
                 logger.info("\n===== 积分查询输出 =====")
                 login_output = run_command_blocking("/root/.aios/aios-cli hive points")
                 points = None
@@ -255,12 +252,10 @@ if __name__ == "__main__":
 
                 if not points or points == "None":
                     logger.info("获取积分失败,重新启动。")
-                    count += 1
-                    if count > 2:
-                        restart()
-                        num = 7
+                    restart()
                 else:
                     count = 0
+                    num = 0
                     logger.info(f"points: {points}")
                     logger.info("获取积分完成。")
             time.sleep(360)
