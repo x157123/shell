@@ -65,10 +65,10 @@ def check_reconnect_signal(lines, target_string):
 
 def start():
 
-    install_output = run_command_blocking("curl https://download.hyper.space/api/install | bash")
-    if "Installation completed successfully." not in install_output:
-        logger.info("安装失败或未检测到成功提示。")
-    logger.info("安装成功！")
+    # install_output = run_command_blocking("curl https://download.hyper.space/api/install | bash")
+    # if "Installation completed successfully." not in install_output:
+    #     logger.info("安装失败或未检测到成功提示。")
+    # logger.info("安装成功！")
 
     logger.info("===== 检测是否已启动 =====")
     status_output = run_command_blocking("/root/.aios/aios-cli status")
