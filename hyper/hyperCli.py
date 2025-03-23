@@ -140,7 +140,6 @@ def main(client, serverId, appId, decryptKey, user, display):
                     logger.info(f"已连接网络。->{num}")
 
             if num > 10:
-                num = 0
                 logger.info("\n===== 积分查询输出 =====")
                 login_output = run_command_blocking("/root/.aios/aios-cli hive points")
                 points = None
@@ -156,6 +155,7 @@ def main(client, serverId, appId, decryptKey, user, display):
                         num = 9
                 else:
                     count = 0
+                    num = 0
                     logger.info(f"points: {points}")
                     app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
                                                      '运行中， 并到采集积分:' + str(points))
