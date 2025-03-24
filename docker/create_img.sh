@@ -72,7 +72,7 @@ docker run -it --restart always --network ${NETWORK_NAME} --ip ${IP_PREFIX}.${NE
 # 6. 重设容器内全局代理（先删除之前设置的代理，再写入新的代理配置到 /etc/environment）
 # --------------------------------------------------------------
 echo ">>> 重设容器内全局代理..."
-docker exec myubuntu bash -c 'sed -i "/[Hh][Tt][Tt][Pp]_proxy=/d" /etc/environment && \
-sed -i "/[Hh][Tt][Tt][Pp][Ss]_proxy=/d" /etc/environment && \
-echo "http_proxy=${PROXY}" >> /etc/environment && \
-echo "https_proxy=${PROXY}" >> /etc/environment'
+docker exec myubuntu bash -c "sed -i '/[Hh][Tt][Tt][Pp]_proxy=/d' /etc/environment && \
+sed -i '/[Hh][Tt][Tt][Pp][Ss]_proxy=/d' /etc/environment && \
+echo \"http_proxy=${PROXY}\" >> /etc/environment && \
+echo \"https_proxy=${PROXY}\" >> /etc/environment"
