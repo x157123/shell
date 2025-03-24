@@ -4,6 +4,7 @@ set -e
 # --------------------------------------------------------------
 # 1. 基础变量：请根据实际环境进行修改
 # --------------------------------------------------------------
+PROXY="http://192.168.1.30:7890"
 IP_PREFIX="192.168"
 NETWORK_SEGMENT="2"
 SUBNET="${IP_PREFIX}.${NETWORK_SEGMENT}.0/24"
@@ -73,5 +74,5 @@ docker run -it --restart always --network ${NETWORK_NAME} --ip ${IP_PREFIX}.${NE
 echo ">>> 重设容器内全局代理..."
 docker exec myubuntu bash -c 'sed -i "/[Hh][Tt][Tt][Pp]_proxy=/d" /etc/environment && \
 sed -i "/[Hh][Tt][Tt][Pp][Ss]_proxy=/d" /etc/environment && \
-echo "http_proxy=http://192.168.1.30:7890" >> /etc/environment && \
-echo "https_proxy=http://192.168.1.30:7890" >> /etc/environment'
+echo "http_proxy=${PROXY}" >> /etc/environment && \
+echo "https_proxy=${PROXY}" >> /etc/environment'
