@@ -66,7 +66,7 @@ fi
 # 5. 启动 Docker 容器（去掉 --rm，加上 --restart always 保证容器重启后不会丢失）
 # --------------------------------------------------------------
 echo ">>> 启动容器..."
-docker run -it --restart always --network ${NETWORK_NAME} --ip ${IP_PREFIX}.${NETWORK_SEGMENT}.100 --name myubuntu ${IMAGE_NAME}
+docker run -d --network ${NETWORK_NAME} --ip ${IP_PREFIX}.${NETWORK_SEGMENT}.100 --name myubuntu ${IMAGE_NAME}
 
 # --------------------------------------------------------------
 # 6. 重设容器内全局代理（先删除之前设置的代理，再写入新的代理配置到 /etc/environment）
