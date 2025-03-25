@@ -63,7 +63,6 @@ def check_reconnect_signal(lines, target_string):
     return False
 
 def start():
-
     # install_output = run_command_blocking("curl https://download.hyper.space/api/install | bash")
     # if "Installation completed successfully." not in install_output:
     #     logger.info("安装失败或未检测到成功提示。")
@@ -152,6 +151,28 @@ def decompress_data(compressed_b64):
     # 将 JSON 字符串转换回字典
     data = json.loads(json_str)
     return data
+
+
+def set_proxy(proxy):
+    # 定义文件路径
+    env_file_path = '/etc/environment'
+
+    # 读取现有的 /etc/environment 文件内容
+    with open(env_file_path, 'r') as file:
+        lines = file.readlines()
+
+    # 删除已有的 http_proxy 和 https_proxy 设置（不区分大小写）
+    lines = [line for line in lines if not re.match(r'^[Hh][Tt][Tt][Pp]_proxy=', line) and not re.match(r'^[Hh][Tt][Tt][Pp][Ss]_proxy=', line)]
+
+    # 添加新的代理配置
+    lines.append(f"http_proxy=http://{proxy}\n")
+    lines.append(f"https_proxy=https://{proxy}\n")
+
+    # 将修改后的内容写回到 /etc/environment 文件
+    with open(env_file_path, 'w') as file:
+        file.writelines(lines)
+
+    print("代理设置已更新")
 
 
 def create_key_file(expected_content, key_path="/root/.config/hyperspace/imp.pem"):
@@ -262,8 +283,9 @@ if __name__ == "__main__":
     logger.info(f"恢复后的数据：{restored_data['public_key']}")
     logger.info(f"恢复后的数据：{restored_data['private_key']}")
     logger.info(f"恢复后的数据：{restored_data['remarks']}")
+    set_proxy({restored_data['proxy']})
     create_key_file(restored_data['remarks'])
-    time.sleep(10)
+    time.sleep(20)
     start()
     # 等待20S
     time.sleep(20)
