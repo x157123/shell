@@ -90,8 +90,8 @@ def start():
     # else:
 
     time.sleep(2)
-
     # 导入私钥
+    logger.info("导入私钥...")
     subprocess.Popen("/root/.aios/aios-cli hive import-keys /root/.config/hyperspace/imp.pem", shell=True)
 
     time.sleep(5)
