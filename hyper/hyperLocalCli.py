@@ -90,6 +90,13 @@ def start():
     #     logger.info("已配置了key...")
     # else:
 
+    time.sleep(2)
+
+    # 导入私钥
+    subprocess.Popen("/root/.aios/aios-cli hive import-keys /root/.config/hyperspace/imp.pem", shell=True)
+
+    time.sleep(5)
+
     # 6. 获取key执行 hive whoami 命令
     logger.info("执行 hive whoami 命令...")
     login_output = run_command_blocking("/root/.aios/aios-cli hive whoami")
@@ -147,7 +154,7 @@ def decompress_data(compressed_b64):
     return data
 
 
-def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/key.pem"):
+def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/imp.pem"):
     """
     确保密钥文件存在且内容匹配，不存在时自动创建
     返回: (文件存在状态, 内容匹配状态)
