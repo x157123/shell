@@ -172,6 +172,8 @@ def set_proxy(proxy):
     with open(env_file_path, 'w') as file:
         file.writelines(lines)
 
+    run_command_blocking("source /etc/environment")
+
     print("代理设置已更新")
 
 
