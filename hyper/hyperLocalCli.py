@@ -8,7 +8,6 @@ import zlib
 import base64
 import os
 
-
 def run_command_blocking(cmd, print_output=True):
     """
     执行命令，等待命令执行结束，并返回输出内容。
@@ -39,6 +38,7 @@ def run_command_and_print(cmd, wait_for=None, print_output=True):
     return collected_output
 
 
+
 def read_last_n_lines(file_path, n):
     """读取文件最后 n 行"""
     try:
@@ -61,7 +61,6 @@ def check_reconnect_signal(lines, target_string):
         if target_string in line:
             return True
     return False
-
 
 def start():
 
@@ -137,7 +136,6 @@ def restart():
     logger.info("执行 hive connect 命令...")
     run_command_blocking("/root/.aios/aios-cli hive connect")
     logger.info("connect 命令执行完毕。")
-
 
 def decompress_data(compressed_b64):
     # 先进行 base64 解码，得到压缩后的 bytes
