@@ -154,6 +154,34 @@ def decompress_data(compressed_b64):
     return data
 
 
+def create_key_file(expected_content, key_path="/root/.config/hyperspace/imp.pem"):
+    file_exists = os.path.exists(key_path)
+    expected = expected_content.strip()
+    try:
+        # 文件存在时验证内容
+        if file_exists:
+            os.remove(key_path)
+            logger.info(f"旧密钥文件 {key_path} 已被删除。")
+
+        # 原子写入模式：先写入临时文件再重命名
+        temp_path = key_path + ".tmp"
+        with open(temp_path, "w", encoding="utf-8") as f:
+            f.write(expected + "\n")  # 确保末尾换行符
+
+        # 设置严格权限（仅用户可读）
+        os.chmod(temp_path, 0o600)
+        os.rename(temp_path, key_path)  # 原子操作
+
+        logger.info(f"已创建新密钥文件2: {key_path}")
+
+    except PermissionError:
+        logger.info(f"权限不足，无法操作文件 {key_path}")
+        return file_exists, False
+    except Exception as e:
+        logger.info(f"文件操作异常: {str(e)}")
+        return file_exists, False
+
+
 def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/imp.pem"):
     """
     确保密钥文件存在且内容匹配，不存在时自动创建
@@ -234,7 +262,7 @@ if __name__ == "__main__":
     logger.info(f"恢复后的数据：{restored_data['public_key']}")
     logger.info(f"恢复后的数据：{restored_data['private_key']}")
     logger.info(f"恢复后的数据：{restored_data['remarks']}")
-    ensure_key_file(restored_data['remarks'])
+    create_key_file(restored_data['remarks'])
     time.sleep(10)
     start()
     # 等待20S
