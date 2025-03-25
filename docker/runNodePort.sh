@@ -49,8 +49,7 @@ if ! docker ps -a --format '{{.Names}}' | grep -q "${container_name}"; then
     # 启动 Docker 容器
     docker run -d \
         --name "${container_name}" \
-        --network "${NETWORK_NAME}" \
-        --ip "${container_ip}" \
+        --p "${ip_suffix}:2222" \
         ${IMAGE_NAME}
 else
     echo "容器 ${container_name} 已存在"

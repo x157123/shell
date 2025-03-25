@@ -1,4 +1,5 @@
 import csv
+import time
 import json
 import zlib
 import base64
@@ -9,8 +10,8 @@ from cryptography.hazmat.primitives import serialization
 
 
 # 文件路径
-# csv_file_path = '/root/hyperClis.csv'
-csv_file_path = 'C://Users/liulei/Desktop/data/hyperCli.csv'
+csv_file_path = '/root/prod/hyperTest.csv'
+# csv_file_path = 'C://Users/liulei/Desktop/data/hyperCli.csv'
 
 def compress_data(data):
     # 校验字符串是否正常
@@ -28,10 +29,11 @@ def set_pem_data(data):
     # 首先判断 data 是否有 remarks 属性，并且 remarks 是字符串类型
     if 'remarks' in data and isinstance(data['remarks'], str) and data['remarks'].strip():
         # 如果存在且去除空白后非空字符串，就执行相应逻辑
-        print("remarks 属性存在且有效:", data['remarks'])
+        # print("remarks 属性存在且有效:", data['remarks'])
+        print("remarks 属性存在且有效")
         # 这里可以加入其他的处理逻辑
     else:
-        print(f"remarks 属性不存在或者为空/仅含空格{data['remarks']}")
+        print("remarks 属性不存在重新生成")
 
         # 解码Base58私钥为字节
         private_key_bytes = base58.b58decode(data['private_key'])
@@ -72,7 +74,6 @@ def set_pem_data(data):
 
         public_key_pem = begin_str + "\n" + output_private_str + "\n" + output_public_str + "\n" + end_str
 
-        print(public_key_pem)
         data['remarks'] = public_key_pem
 
 
@@ -81,7 +82,7 @@ def set_pem_data(data):
 # 函数：启动容器应用
 def run_shell_script(data, ip_suffix, network_segment, proxy):
     # 定义脚本路径
-    script_path = '/root/runNode.sh'
+    script_path = '/root/prod/runNode.sh'
 
     # 调用 shell 脚本并传递参数
     try:
@@ -116,3 +117,4 @@ with open(csv_file_path, mode='r', encoding='utf-8-sig') as f:
 for item in data_list:
     data = compress_data(item)
     run_shell_script(data, item['id'], item['network_segment'], item['proxy'])
+    time.sleep(5)
