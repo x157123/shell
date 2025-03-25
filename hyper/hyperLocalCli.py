@@ -283,7 +283,7 @@ if __name__ == "__main__":
     logger.info(f"恢复后的数据：{restored_data['public_key']}")
     logger.info(f"恢复后的数据：{restored_data['private_key']}")
     logger.info(f"恢复后的数据：{restored_data['remarks']}")
-    set_proxy({restored_data['proxy']})
+    set_proxy(restored_data['proxy'])
     ensure_key_file(restored_data['remarks'])
     time.sleep(20)
     start()
