@@ -203,7 +203,7 @@ def create_key_file(expected_content, key_path="/root/.config/hyperspace/imp.pem
         return file_exists, False
 
 
-def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/imp.pem"):
+def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/key.pem"):
     """
     确保密钥文件存在且内容匹配，不存在时自动创建
     返回: (文件存在状态, 内容匹配状态)
