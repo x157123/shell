@@ -171,10 +171,12 @@ def set_proxy(proxy):
     # 将修改后的内容写回到 /etc/environment 文件
     with open(env_file_path, 'w') as file:
         file.writelines(lines)
-
-    run_command_blocking("source /etc/environment")
-
+        
     print("代理设置已更新")
+
+    # 使用 subprocess 调用 source 命令重新加载环境变量
+    subprocess.run(["source", "/etc/environment"], shell=True)
+    print("环境变量已重新加载")
 
 
 def create_key_file(expected_content, key_path="/root/.config/hyperspace/imp.pem"):
