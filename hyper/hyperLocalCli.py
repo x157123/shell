@@ -89,10 +89,10 @@ def start():
     #     logger.info("已配置了key...")
     # else:
 
-    time.sleep(2)
-    # 导入私钥
-    logger.info("导入私钥...")
-    subprocess.Popen("/root/.aios/aios-cli hive import-keys /root/.config/hyperspace/imp.pem", shell=True)
+    # time.sleep(2)
+    # # 导入私钥
+    # logger.info("导入私钥...")
+    # subprocess.Popen("/root/.aios/aios-cli hive import-keys /root/.config/hyperspace/imp.pem", shell=True)
 
     time.sleep(5)
 
@@ -284,7 +284,7 @@ if __name__ == "__main__":
     logger.info(f"恢复后的数据：{restored_data['private_key']}")
     logger.info(f"恢复后的数据：{restored_data['remarks']}")
     set_proxy({restored_data['proxy']})
-    create_key_file(restored_data['remarks'])
+    ensure_key_file(restored_data['remarks'])
     time.sleep(20)
     start()
     # 等待20S
