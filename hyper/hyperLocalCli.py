@@ -154,25 +154,25 @@ def decompress_data(compressed_b64):
 
 
 def set_proxy(proxy):
-    # # 定义文件路径
-    # env_file_path = '/etc/environment'
-    #
-    # # 读取现有的 /etc/environment 文件内容
-    # with open(env_file_path, 'r') as file:
-    #     lines = file.readlines()
-    #
-    # # 删除已有的 http_proxy 和 https_proxy 设置（不区分大小写）
-    # lines = [line for line in lines if not re.match(r'^[Hh][Tt][Tt][Pp]_proxy=', line) and not re.match(r'^[Hh][Tt][Tt][Pp][Ss]_proxy=', line)]
-    #
-    # # 添加新的代理配置
-    # lines.append(f"http_proxy=http://{proxy}\n")
-    # lines.append(f"https_proxy=https://{proxy}\n")
-    #
-    # # 将修改后的内容写回到 /etc/environment 文件
-    # with open(env_file_path, 'w') as file:
-    #     file.writelines(lines)
-    #
-    # print("代理设置已更新")
+    # 定义文件路径
+    env_file_path = '/etc/environment'
+
+    # 读取现有的 /etc/environment 文件内容
+    with open(env_file_path, 'r') as file:
+        lines = file.readlines()
+
+    # 删除已有的 http_proxy 和 https_proxy 设置（不区分大小写）
+    lines = [line for line in lines if not re.match(r'^[Hh][Tt][Tt][Pp]_proxy=', line) and not re.match(r'^[Hh][Tt][Tt][Pp][Ss]_proxy=', line)]
+
+    # 添加新的代理配置
+    lines.append(f'http_proxy="http://{proxy}"\n')
+    lines.append(f'https_proxy="http://{proxy}"\n')
+
+    # 将修改后的内容写回到 /etc/environment 文件
+    with open(env_file_path, 'w') as file:
+        file.writelines(lines)
+
+    print("代理设置已更新")
 
     # 使用 subprocess 调用 source 命令重新加载环境变量
     subprocess.run(["source", "/etc/environment"], shell=True)
