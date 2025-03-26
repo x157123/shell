@@ -1,4 +1,6 @@
 import argparse
+import time
+
 from loguru import logger
 import base64
 from Crypto.Cipher import AES
@@ -65,9 +67,11 @@ def main(appId, decryptKey):
         # 1) 执行 bash <(wget -qO- -o- https://git.io/v2ray.sh)
         #   由于用到了 <(...) 进程替换，我们需要指定 shell='True' 并指定 executable='/bin/bash'
         subprocess.run("bash <(wget -qO- -o- https://git.io/v2ray.sh)", shell=True, executable='/bin/bash')
-
+        time.sleep(5)
         # 2) v2ray del
         subprocess.run("v2ray del", shell=True)
+
+        time.sleep(5)
 
         # 3) v2ray add ws \"{dns}\" 8d653735-cd42-4e35-b5e7-9d3724009ef0
         subprocess.run(f'v2ray add ws {domain} 8d653735-cd42-4e35-b5e7-9d3724009ef0', shell=True)
