@@ -459,6 +459,24 @@ start_services() {
         done
     fi
 
+    # 检查并清理特定 nexus_chrom 调试端口
+    PIDS=$(lsof -t -i:9544 -sTCP:LISTEN)
+    if [ -n "$PIDS" ]; then
+        log_info "9544 端口已被占用，终止占用该端口的进程：$PIDS"
+        kill -9 "$PIDS"
+        sleep 1
+    fi
+
+    # 查找运行中的 老版本 nexusChrom 进程
+    npids=$(pgrep -f "/opt/nexus_chrom")
+    if [ -n "$npids" ]; then
+        echo "检测到正在运行的实例: $npids，准备终止..."
+        for pid in $npids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
+    fi
+
     # 清理特定显示号的 Python 脚本进程
     PYTHON_PID_FILE="python_$VNC_DISPLAY.pid"
     if [ -f "$PYTHON_PID_FILE" ] && kill -0 "$(cat "$PYTHON_PID_FILE")" 2>/dev/null; then
