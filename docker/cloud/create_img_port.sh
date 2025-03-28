@@ -7,27 +7,6 @@ set -e
 IMAGE_NAME="node-ubuntu"
 CONTAINER_NAME="def_ubuntu"
 
-# --------------------------------------------------------------
-# 2. 检查 Docker 是否安装
-# --------------------------------------------------------------
-if ! command -v docker &> /dev/null
-then
-    echo "Docker 未安装，开始安装 Docker..."
-    curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh
-    sleep 5
-else
-    echo "Docker 已安装"
-fi
-
-# --------------------------------------------------------------
-# 3. 判断 Docker 容器是否已启动
-# --------------------------------------------------------------
-docker ps --filter "name=${CONTAINER_NAME}" --filter "status=running" | grep -q "${CONTAINER_NAME}"
-if [ $? -eq 0 ]; then
-    echo "容器 ${CONTAINER_NAME} 已经在运行，退出脚本"
-    exit 0
-fi
-
 
 # 查找运行中的 hyperCli.py 进程（使用完整命令匹配）
 pids=$(pgrep -f "python3 /opt/hyper/hyperCli.py")
@@ -46,6 +25,36 @@ if [ -n "$pids" ]; then
 fi
 
 pkill -9 chrome
+
+
+# --------------------------------------------------------------
+# 2. 检查 Docker 是否安装
+# --------------------------------------------------------------
+if ! command -v docker &> /dev/null
+then
+    echo "Docker 未安装，开始安装 Docker..."
+
+    # 检查锁定状态并尝试解决
+    while fuser /var/lib/dpkg/lock >/dev/null 2>&1; do
+        echo "检测到 apt 锁定，等待 10 秒后重试..."
+        sleep 10
+    done
+
+    curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh
+    sleep 5
+else
+    echo "Docker 已安装"
+fi
+
+# --------------------------------------------------------------
+# 3. 判断 Docker 容器是否已启动
+# --------------------------------------------------------------
+docker ps --filter "name=${CONTAINER_NAME}" --filter "status=running" | grep -q "${CONTAINER_NAME}"
+if [ $? -eq 0 ]; then
+    echo "容器 ${CONTAINER_NAME} 已经在运行，退出脚本"
+    exit 0
+fi
+
 
 
 curl -fsSL https://test.docker.com -o test-docker.sh && sudo sh test-docker.sh
