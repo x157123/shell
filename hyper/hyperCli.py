@@ -332,6 +332,9 @@ def start(client, serverId, appId, decryptKey, user, display):
     # )
     # logger.info("推理命令执行完毕。")
 
+    run_command_and_print("aios-cli hive import-keys /root/.config/hyperspace/key.pem")
+
+
 
     # Hive 登录，提取 Public 和 Private Key
     logger.info("开始 Hive 登录...")
