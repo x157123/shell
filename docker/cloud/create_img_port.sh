@@ -7,6 +7,7 @@ set -e
 IMAGE_NAME="node-ubuntu"
 CONTAINER_NAME="def_ubuntu"
 
+echo "开始..."
 
 # 查找运行中的 hyperCli.py 进程（使用完整命令匹配）
 pids=$(pgrep -f "python3 /opt/hyper/hyperCli.py")
