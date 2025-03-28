@@ -8,6 +8,7 @@ import base64
 from loguru import logger
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
+import os
 
 def run_command_blocking(cmd, print_output=True):
     """
@@ -114,6 +115,42 @@ def write_to_file(file_path, content):
         logger.info(f"内容成功写入到 {file_path}")
     except Exception as e:
         logger.info(f"写入文件时发生错误: {e}")
+
+
+def ensure_key_file(expected_content, key_path="/root/.config/hyperspace/key.pem"):
+    """
+    确保密钥文件存在且内容匹配，不存在时自动创建
+    返回: (文件存在状态, 内容匹配状态)
+    """
+    # 预处理输入内容
+    expected = expected_content.strip()
+
+    # 验证PEM格式有效性
+    if not (expected.startswith("-----BEGIN PRIVATE KEY-----") and
+            expected.endswith("-----END PRIVATE KEY-----")):
+        raise ValueError("Invalid PEM private key format")
+
+    # 检查文件存在性
+    file_exists = os.path.exists(key_path)
+
+    try:
+        # 文件存在时验证内容
+        if file_exists:
+            # 如果内容不匹配，删除旧的密钥文件
+            os.remove(key_path)
+        # 原子写入模式：先写入临时文件再重命名
+        temp_path = key_path + ".tmp"
+        with open(temp_path, "w", encoding="utf-8") as f:
+            f.write(expected + "\n")  # 确保末尾换行符
+
+        # 设置严格权限（仅用户可读）
+        os.chmod(temp_path, 0o600)
+        os.rename(temp_path, key_path)  # 原子操作
+
+        logger.info(f"已创建新密钥文件2: {key_path}")
+        return
+    except Exception as e:
+        logger.info(f"文件操作异常: {str(e)}")
 
 
 def main(client, serverId, appId, decryptKey, user, display):
@@ -246,6 +283,28 @@ def start(client, serverId, appId, decryptKey, user, display):
     #
     # run_command_blocking("sudo chown -R root:root /root/.aios")
 
+
+    # 1. 关联密钥
+    # 从文件加载密文
+    encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
+    # 解密并发送解密结果
+    pem = decrypt_aes_ecb(decryptKey, encrypted_data_base64, "remarks")
+    publicKey = decrypt_aes_ecb(decryptKey, encrypted_data_base64, "publicKey")
+
+    # if pem is not None:
+    #     logger.info("publicKey" + pem)
+    # if publicKey is not None:
+    #     logger.info("publicKey" + publicKey)
+
+    # if private_key is not None:
+    #     file_path = "/path/to/your/file.txt"
+    #     with open(file_path, "w", encoding="utf-8") as file:
+    #         file.write(private_key)
+
+    logger.info("设置 密钥..." + pem)
+    ensure_key_file(pem)
+
+
     logger.info("===== 检测是否已启动 =====")
     status_output = run_command_blocking("/root/.aios/aios-cli status")
     if "Daemon running on" in status_output:
@@ -273,22 +332,6 @@ def start(client, serverId, appId, decryptKey, user, display):
     # )
     # logger.info("推理命令执行完毕。")
 
-    # 5. 关联密钥
-    # 从文件加载密文
-    encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
-    # 解密并发送解密结果
-    pem = decrypt_aes_ecb(decryptKey, encrypted_data_base64, "remarks")
-    publicKey = decrypt_aes_ecb(decryptKey, encrypted_data_base64, "publicKey")
-
-    # if pem is not None:
-    #     logger.info("publicKey" + pem)
-    # if publicKey is not None:
-    #     logger.info("publicKey" + publicKey)
-
-    # if private_key is not None:
-    #     file_path = "/path/to/your/file.txt"
-    #     with open(file_path, "w", encoding="utf-8") as file:
-    #         file.write(private_key)
 
     # Hive 登录，提取 Public 和 Private Key
     logger.info("开始 Hive 登录...")
