@@ -7,34 +7,6 @@ set -e
 IMAGE_NAME="node-ubuntu"
 CONTAINER_NAME="def_ubuntu"
 
-# 查找运行中的 hyperCli.py 进程（使用 timeout 和 pgrep）
-pids=$(timeout 5s pgrep -f "python3 /opt/hyper/hyperCli.py")
-if [ $? -eq 124 ]; then
-    echo "pgrep 命令超时，进程查找失败"
-fi
-echo "开始11..."
-if [ -n "$pids" ]; then
-    echo "检测到正在运行的实例: $pids，准备终止..."
-    # 注意：kill -9 是强制终止，可根据实际情况换成 kill
-    kill -9 $pids
-fi
-
-echo "开始2..."
-
-pidss=$(timeout 5s pgrep -f "python3 /opt/hyper_chrome")
-if [ $? -eq 124 ]; then
-    echo "pgrep 命令超时，进程查找失败"
-fi
-echo "开始22..."
-if [ -n "$pidss" ]; then
-    echo "检测到正在运行的实例: $pidss，准备终止..."
-    # 注意：kill -9 是强制终止，可根据实际情况换成 kill
-    kill -9 $pidss
-fi
-
-echo "开始3..."
-
-pkill -9 chrome
 
 echo "开始安装 Docker..."
 
