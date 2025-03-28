@@ -7,6 +7,78 @@ import json
 import zlib
 import base64
 import os
+import paho.mqtt.client as mqtt
+
+
+
+# =================================================   MQTT   ======================================
+def create_mqtt_client(broker, port, username, password, topic):
+    """
+    创建并配置MQTT客户端，使用 MQTTv5 回调方式
+    protocol=mqtt.MQTTv5 来避免旧版回调弃用警告
+    """
+    client = mqtt.Client(
+        protocol=mqtt.MQTTv5,  # 指定使用 MQTTv5
+        userdata={"topic": topic}  # 传递自定义数据
+    )
+    client.username_pw_set(username, password)
+
+    # 注册回调函数（使用 v5 风格签名）
+    client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
+    client.on_message = on_message
+
+    try:
+        client.connect(broker, port, keepalive=60)
+    except Exception as e:
+        raise ConnectionError(f"Error connecting to broker: {e}")
+
+    return client
+
+
+# ========== MQTT 事件回调函数（MQTTv5） ==========
+def on_connect(client, userdata, flags, reason_code, properties=None):
+    """
+    当客户端与 Broker 建立连接后触发
+    reason_code = 0 表示连接成功，否则为失败码
+    """
+    if reason_code == 0:
+        print("Connected to broker successfully.")
+        # 仅发布消息，去除订阅
+        pass
+    else:
+        print(f"Connection failed with reason code: {reason_code}")
+
+
+def on_disconnect(client, userdata, reason_code, properties=None):
+    """
+    当客户端与 Broker 断开连接后触发
+    可以在此处进行自动重连逻辑
+    """
+    print(f"Disconnected from broker, reason_code: {reason_code}")
+    # 如果 reason_code != 0，则表示非正常断开
+    while True:
+        try:
+            print("Attempting to reconnect...")
+            client.reconnect()
+            print("Reconnected successfully.")
+            break
+        except Exception as e:
+            print(f"Reconnect failed: {e}")
+            time.sleep(5)  # 等待 5 秒后重试
+
+
+def on_message(client, userdata, msg):
+    """
+    当收到订阅主题的新消息时触发
+    v5 中的 on_message 参数与 v3.x 相同： (client, userdata, message)
+    """
+    print(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
+
+
+# =================================================   MQTT   ======================================
+
+
 
 def run_command_blocking(cmd, print_output=True):
     """
@@ -61,6 +133,18 @@ def check_reconnect_signal(lines, target_string):
         if target_string in line:
             return True
     return False
+
+
+def get_app_info_integral(serverId, appId, public_key, integral, operationType, description):
+    return {
+        "serverId": f"{serverId}",
+        "applicationId": f"{appId}",
+        "publicKey": f"{public_key}",
+        "integral": f"{integral}",
+        "operationType": f"{operationType}",
+        "description": f"{description}",
+    }
+
 
 def start():
     # install_output = run_command_blocking("curl https://download.hyper.space/api/install | bash")
@@ -282,6 +366,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--data", type=str, help="数据", required=True)
     args = parser.parse_args()
+
+    # 创建 MQTT 客户端（使用 MQTTv5）
+    client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
+    client.loop_start()
+
+
     logger.info(f"===== 启动 ====={args.data}")
     restored_data = decompress_data(args.data)
     logger.info(f"恢复后的数据：{restored_data['public_key']}")
@@ -325,6 +415,9 @@ if __name__ == "__main__":
                     count = 0
                     num = 0
                     logger.info(f"points: {points}")
+                    app_info = get_app_info_integral('0', '0', restored_data['public_key'], points, 2,
+                                                     '运行中， 并到采集积分:' + str(points))
+                    client.publish("appInfo", json.dumps(app_info))
                     logger.info("获取积分完成。")
             time.sleep(360)
         except Exception as e:
