@@ -38,10 +38,6 @@ if [ $? -eq 0 ]; then
     exit 0
 fi
 
-
-
-curl -fsSL https://test.docker.com -o test-docker.sh && sudo sh test-docker.sh
-
 sleep 5
 
 
