@@ -5,6 +5,29 @@ set -e
 # 1. 基础变量：请根据实际环境进行修改
 # --------------------------------------------------------------
 IMAGE_NAME="node-ubuntu"
+CONTAINER_NAME="def_ubuntu"
+
+# --------------------------------------------------------------
+# 2. 检查 Docker 是否安装
+# --------------------------------------------------------------
+if ! command -v docker &> /dev/null
+then
+    echo "Docker 未安装，开始安装 Docker..."
+    curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh
+    sleep 5
+else
+    echo "Docker 已安装"
+fi
+
+# --------------------------------------------------------------
+# 3. 判断 Docker 容器是否已启动
+# --------------------------------------------------------------
+docker ps --filter "name=${CONTAINER_NAME}" --filter "status=running" | grep -q "${CONTAINER_NAME}"
+if [ $? -eq 0 ]; then
+    echo "容器 ${CONTAINER_NAME} 已经在运行，退出脚本"
+    exit 0
+fi
+
 
 # 查找运行中的 hyperCli.py 进程（使用完整命令匹配）
 pids=$(pgrep -f "python3 /opt/hyper/hyperCli.py")
@@ -76,7 +99,7 @@ docker build -t ${IMAGE_NAME} .
 # 5. 启动 Docker 容器（去掉 --rm，加上 --restart always 保证容器重启后不会丢失）
 # --------------------------------------------------------------
 echo ">>> 启动容器..."
-docker run -d -p 222:2222 --name def_ubuntu ${IMAGE_NAME}
+docker run -d -p 222:2222 --name ${CONTAINER_NAME} ${IMAGE_NAME}
 
 
 
@@ -85,7 +108,7 @@ echo ">>> 开始启动脚本..."
 # --------------------------------------------------------------
 # 执行远程脚本并将日志输出到文件
 # --------------------------------------------------------------
-docker exec -d def_ubuntu bash -c "
+docker exec -d ${CONTAINER_NAME} bash -c "
     rm -rf /tmp/initNode.py && \
     curl -o /tmp/initNode.py ${SCRIPT_URL} && \
     nohup python3 /tmp/initNode.py "
