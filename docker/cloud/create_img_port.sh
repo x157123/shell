@@ -32,11 +32,18 @@ fi
 # --------------------------------------------------------------
 # 3. 判断 Docker 容器是否已启动
 # --------------------------------------------------------------
-docker ps --filter "name=${CONTAINER_NAME}" --filter "status=running" | grep -q "${CONTAINER_NAME}"
-if [ $? -eq 0 ]; then
-    echo "容器 ${CONTAINER_NAME} 已经在运行，退出脚本"
+if ! docker ps -a --format '{{.Names}}' | grep -q "${CONTAINER_NAME}"; then
+    echo "容器 ${CONTAINER_NAME} 不存在，创建并启动容器..."
+else
+    echo "容器 ${CONTAINER_NAME} 已存在"
+    # 检查容器是否已启动，如果已启动，跳过创建
+    if ! docker ps --format '{{.Names}}' | grep -q "${CONTAINER_NAME}"; then
+        echo "容器 ${CONTAINER_NAME} 已存在，但未启动，正在启动..."
+        docker start "${CONTAINER_NAME}"
+    fi
     exit 0
 fi
+
 
 sleep 5
 
