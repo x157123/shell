@@ -11,6 +11,7 @@ echo "开始1..."
 
 # 查找运行中的 hyperCli.py 进程（使用完整命令匹配）
 pids=$(pgrep -f "python3 /opt/hyper/hyperCli.py")
+echo "开始11..."
 if [ -n "$pids" ]; then
     echo "检测到正在运行的实例: $pids，准备终止..."
     # 注意：kill -9 是强制终止，可根据实际情况换成 kill
