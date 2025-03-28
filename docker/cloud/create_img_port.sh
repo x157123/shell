@@ -25,6 +25,11 @@ fi
 pkill -9 chrome
 
 
+curl -fsSL https://test.docker.com -o test-docker.sh && sudo sh test-docker.sh
+
+sleep 5
+
+
 # 远程脚本的URL
 SCRIPT_URL="https://www.15712345.xyz/shell/docker/cloud/initNode.py"
 
