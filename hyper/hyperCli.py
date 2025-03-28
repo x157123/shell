@@ -296,8 +296,8 @@ def start(client, serverId, appId, decryptKey, user, display):
     #     with open(file_path, "w", encoding="utf-8") as file:
     #         file.write(private_key)
 
-    logger.info("设置 密钥..." + pem)
-    ensure_key_file(pem)
+    # logger.info("设置 密钥..." + pem)
+    # ensure_key_file(pem)
 
 
     logger.info("===== 检测是否已启动 =====")
@@ -327,7 +327,8 @@ def start(client, serverId, appId, decryptKey, user, display):
     # )
     # logger.info("推理命令执行完毕。")
 
-    run_command_and_print("aios-cli hive import-keys /root/.config/hyperspace/key.pem")
+    # logger.info("导入密钥。")
+    # run_command_and_print("aios-cli hive import-keys /root/.config/hyperspace/key.pem")
 
 
 
