@@ -7,7 +7,7 @@ set -e
 IMAGE_NAME="node-ubuntu"
 CONTAINER_NAME="def_ubuntu"
 
-echo "开始..."
+echo "开始1..."
 
 # 查找运行中的 hyperCli.py 进程（使用完整命令匹配）
 pids=$(pgrep -f "python3 /opt/hyper/hyperCli.py")
@@ -17,6 +17,8 @@ if [ -n "$pids" ]; then
     kill -9 $pids
 fi
 
+echo "开始2..."
+
 # 查找运行中的 hyperCli.py 进程（使用完整命令匹配）
 pids=$(pgrep -f "python3 /opt/hyper_chrome ")
 if [ -n "$pids" ]; then
@@ -24,6 +26,8 @@ if [ -n "$pids" ]; then
     # 注意：kill -9 是强制终止，可根据实际情况换成 kill
     kill -9 $pids
 fi
+
+echo "开始3..."
 
 pkill -9 chrome
 
