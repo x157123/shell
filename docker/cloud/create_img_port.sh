@@ -40,7 +40,7 @@ then
         sleep 10
     done
 
-    curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh
+    curl -fsSL https://test.docker.com -o test-docker.sh && sudo sh test-docker.sh
     sleep 5
 else
     echo "Docker 已安装"
