@@ -249,7 +249,12 @@ main() {
             sleep 10
         fi
 
-        docker commit def_ubuntu unbutu:node
+        if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "unbutu:node"; then
+            echo "镜像 unbutu:node 不存在，正在创建..."
+            docker commit def_ubuntu unbutu:node
+        else
+            echo "镜像 unbutu:node 已存在"
+        fi
     fi
 
     check_dependencies
