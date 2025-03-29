@@ -379,7 +379,7 @@ if __name__ == "__main__":
                     count = 0
                     num = 0
                     logger.info(f"points: {points}")
-                    app_info = get_app_info_integral('0', '0', restored_data['public_key'], points, 2,
+                    app_info = get_app_info_integral('0', '0', restored_data['publicKey'], points, 2,
                                                      '运行中， 并到采集积分:' + str(points))
                     client.publish("appInfo", json.dumps(app_info))
                     logger.info("获取积分完成。")
