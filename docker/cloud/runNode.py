@@ -162,7 +162,7 @@ if __name__ == "__main__":
     if len(public_key_tmp) > 0:
         start_id = 20000  # 设置起始ID
         for index, item in enumerate(public_key_tmp):
-            time.sleep(150)
+            time.sleep(200)
             item['id'] = start_id + index  # 将ID设置为序号，从20000开始
             data = compress_data(item)
             run_shell_script(data, item['id'])
