@@ -15,7 +15,7 @@ ip_suffix="$2"
 IMAGE_NAME="unbutu:node"
 
 # 远程脚本的URL
-SCRIPT_URL="https://www.15712345.xyz/shell/hyper/hyperLocalCli.py"
+SCRIPT_URL="https://www.15712345.xyz/shell/hyper/hyperCloudCli.py"
 
 container_name="node${ip_suffix}"
 
