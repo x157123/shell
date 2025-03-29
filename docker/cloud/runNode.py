@@ -80,7 +80,7 @@ def set_pem_data(data):
         print("remarks 属性不存在重新生成")
 
         # 解码Base58私钥为字节
-        private_key_bytes = base58.b58decode(data['private_key'])
+        private_key_bytes = base58.b58decode(data['privateKey'])
 
         # 从私钥字节创建Ed25519私钥对象
         private_key = ed25519.Ed25519PrivateKey.from_private_bytes(private_key_bytes)
