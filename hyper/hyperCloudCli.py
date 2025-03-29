@@ -10,7 +10,6 @@ import os
 import paho.mqtt.client as mqtt
 
 
-
 # =================================================   MQTT   ======================================
 def create_mqtt_client(broker, port, username, password, topic):
     """
@@ -355,7 +354,7 @@ if __name__ == "__main__":
         try:
             num += 1
             # 读取最后 3 行
-            last_lines = read_last_n_lines('/tmp/hyperCliOutput.log', 3)
+            last_lines = read_last_n_lines('/opt/hyperCliOutput.log', 3)
             if last_lines:
                 # 查找是否网络连接失败 Sending reconnect signal
                 if check_reconnect_signal(last_lines, 'Sending reconnect signal'):
