@@ -124,7 +124,7 @@ def set_pem_data(data):
 # 函数：启动容器应用
 def run_shell_script(data, ip_suffix):
     # 定义脚本路径
-    script_path = '/root/docker/runNodePort.sh'
+    script_path = '/opt/runNodePort.sh'
 
     # 调用 shell 脚本并传递参数
     try:
@@ -160,7 +160,9 @@ if __name__ == "__main__":
     public_key_tmp = decrypt_aes_ecb(all_args.decryptKey, encrypted_data_base64, 'hyperDocker')
 
     if len(public_key_tmp) > 0:
-        for item in public_key_tmp:
+        start_id = 20000  # 设置起始ID
+        for index, item in enumerate(public_key_tmp):
+            item['id'] = start_id + index  # 将ID设置为序号，从20000开始
             data = compress_data(item)
             run_shell_script(data, item['id'])
             time.sleep(5)

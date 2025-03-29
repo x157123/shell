@@ -340,8 +340,8 @@ if __name__ == "__main__":
 
     logger.info(f"===== 启动 ====={args.data}")
     restored_data = decompress_data(args.data)
-    logger.info(f"恢复后的数据：{restored_data['public_key']}")
-    logger.info(f"恢复后的数据：{restored_data['private_key']}")
+    logger.info(f"恢复后的数据：{restored_data['publicKey']}")
+    logger.info(f"恢复后的数据：{restored_data['privateKey']}")
     logger.info(f"恢复后的数据：{restored_data['remarks']}")
     ensure_key_file(restored_data['remarks'])
     time.sleep(20)

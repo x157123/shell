@@ -48,8 +48,8 @@ echo ">>> 开始启动脚本..."
 # 执行远程脚本并将日志输出到文件
 # --------------------------------------------------------------
 docker exec -d "${container_name}" bash -c "
-    rm -rf /tmp/hyperLocalCli.py && \
-    curl -o /tmp/hyperLocalCli.py ${SCRIPT_URL} && \
-    nohup python3 /tmp/hyperLocalCli.py --data '${DATA}' > /tmp/hyperCliOutput.log 2>&1 &"
+    rm -rf /opt/hyperCloudCli.py && \
+    curl -o /opt/hyperCloudCli.py ${SCRIPT_URL} && \
+    nohup python3 /opt/hyperCloudCli.py --data '${DATA}' > /opt/hyperCloudCli.log 2>&1 &"
 
 echo "已执行脚本"
