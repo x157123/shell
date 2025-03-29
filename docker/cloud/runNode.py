@@ -165,4 +165,4 @@ if __name__ == "__main__":
             item['id'] = start_id + index  # 将ID设置为序号，从20000开始
             data = compress_data(item)
             run_shell_script(data, item['id'])
-            time.sleep(50)
+            time.sleep(150)
