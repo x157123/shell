@@ -360,7 +360,7 @@ class Test(object):
         page.ele(locator='x://input[@placeholder="Address or ENS"]').input(evm_address)
         await self.__click_ele(page=page, xpath='x://button[text()="Save"]')
         await asyncio.sleep(2)
-        amount = "{:.6f}".format(random.uniform(0.000048, 0.000055))  # 0.2$ - 0.5$
+        amount = "{:.5f}".format(random.uniform(0.00055, 0.00066))  # 0.2$ - 0.5$
         page.wait.ele_displayed(loc_or_ele='x://input[@inputmode="decimal"]', timeout=10)
         page.ele(locator='x://input[@inputmode="decimal"]').input(amount)
         await asyncio.sleep(5)
