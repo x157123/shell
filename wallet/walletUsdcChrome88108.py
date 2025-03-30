@@ -391,7 +391,7 @@ class Test(object):
         await asyncio.sleep(10)
         for _ in range(30):
             base_balance = self.__get_base_balance(evm_address=evm_address)
-            if 0.00009 < base_balance:
+            if 0.9 < base_balance:
                 data += f'钱包金额： {base_balance}'
                 self.__swap_log.write(evm_address + '\r')
                 self.__swap_log.flush()
