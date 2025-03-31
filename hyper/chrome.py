@@ -265,7 +265,8 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
                         total = 0
                     else:
                         logger.info("需要刷新页面。")
-                        # tab.refresh()
+                        total = 30
+                        tab.refresh()
             if error == 9:
                 tab.refresh()
                 time.sleep(3)
