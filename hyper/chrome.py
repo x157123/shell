@@ -264,7 +264,7 @@ def monitor_switch(tab, client, serverId, appId, public_key_tmp, user, display):
                         logger.info("推送积分")
                         total = 0
                     else:
-                        logger.info("需要刷新页面。")
+                        logger.info(f"需要刷新页面。{total}")
                         total = 30
                         tab.refresh()
             if error == 9:
