@@ -177,7 +177,6 @@ class Test(object):
             return None
         # 去除前缀 '0x'
         address_without_prefix = result.get('result')[2:][-8:]
-        print(address_without_prefix)
         # 将哈希值转换为整数
         hash_int = int(address_without_prefix, 16)
         # 将整数转换为浮动数值（例如，除以一个大的常数）
