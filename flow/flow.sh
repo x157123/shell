@@ -66,6 +66,12 @@ setup_python_script() {
     chmod +x "$PYTHON_SCRIPT_DIR$FILE_NAME"
 }
 
+# 日志函数
+log_info() {
+    echo "[INFO] $1"
+}
+
+
 # 启动 Chrome 和 Python 脚本
 start_services() {
     # 启动 Python 脚本

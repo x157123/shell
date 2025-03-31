@@ -190,7 +190,8 @@ def get_flow(mq_client, serverId, appId, public_key, private_key, account, secre
                     subprocess.run("v2ray start", shell=True)
                     stat = 1
         if num >= 60:
-            mq_client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 0, f"流量使用百分比: {traffic_usage_percentage:.2f}%")))
+            logger.info('推送数据')
+            mq_client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 0, f"{traffic_usage_percentage:.2f}")))
         return stat
     except TencentCloudSDKException as err:
         print(err)
