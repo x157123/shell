@@ -174,7 +174,7 @@ def get_flow(mq_client, serverId, appId, public_key, private_key, account, secre
         # 计算流量使用百分比
         traffic_usage_percentage = (traffic_used / traffic_package_total) * 100
 
-        logger.info(f"检测{num}流量使用百分比: {traffic_usage_percentage:.2f}%")
+        logger.info(f"检测{num}，状态{stat}流量使用百分比: {traffic_usage_percentage:.2f}%")
         if traffic_usage_percentage > 90:
             logger.info("流量已超过90%")
             if stat == 1 or stat == 3:
@@ -184,7 +184,7 @@ def get_flow(mq_client, serverId, appId, public_key, private_key, account, secre
         else:
             logger.info("流量未超过90%")
             if stat == 0 or stat == 3:
-                status_output = run_command_blocking("/root/.aios/aios-cli status")
+                status_output = run_command_blocking("v2ray status")
                 if "stopped" in status_output:
                     print("启动流量")
                     subprocess.run("v2ray start", shell=True)
