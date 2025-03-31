@@ -186,7 +186,7 @@ def get_flow(mq_client, serverId, appId, public_key, private_key, account, secre
             if stat == 0 or stat == 3:
                 status_output = run_command_blocking("v2ray status")
                 if "stopped" in status_output:
-                    print("启动流量")
+                    logger.info("启动流量")
                     subprocess.run("v2ray start", shell=True)
                     stat = 1
         if num >= 60:
