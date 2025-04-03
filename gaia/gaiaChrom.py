@@ -1232,8 +1232,7 @@ class TaskSet:
                 #
                 # self.tab.run_js(js_code)
 
-                run_number = random.randint(1, 10)
-
+                run_number = random.randint(1, 6)
                 # 使用 XPath 定位所有符合条件的 div
                 div_elements = self.tab.eles('x://div[@class="cursor-pointer mb-2 flex items-center"]')
                 # 确保至少有一个元素，并且不超过前十个元素
