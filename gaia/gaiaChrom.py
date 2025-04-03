@@ -1460,7 +1460,7 @@ if __name__ == "__main__":
                         logger.info(f"发生错误: {e}")
                     finally:
                         task_set.close_browser()
-                        time.sleep(random.randint(23, 50))
+                        time.sleep(random.randint(5, 10))
                 logger.info(f"执行完第{all_args.day_count}轮")
                 data_map[current_date] = all_args.day_count + 1
             else:
