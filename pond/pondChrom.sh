@@ -483,9 +483,9 @@ main() {
     pkill -9 msedge
 
     parse_args "$@"
-#    update_system
-#    install_system_deps
-#    check_dependencies
+    update_system
+    install_system_deps
+    check_dependencies
     setup_vnc
 #    install_chrome
     install_chrome_120

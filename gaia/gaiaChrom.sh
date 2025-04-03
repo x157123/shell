@@ -491,7 +491,7 @@ main() {
 
     check_dependencies
     parse_args "$@"
-    update_system
+#    update_system
     install_system_deps
     setup_vnc
 #    install_chrome
