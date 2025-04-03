@@ -212,10 +212,10 @@ def main(serverId, appId, decryptKey):
     encrypted_data_base64 = read_file('/opt/data/' + appId + '_user.json')
     # 解密并发送解密结果
     db = decrypt_aes_ecb(decryptKey, encrypted_data_base64, 'flow_examine')
-
     if db is None:
         logger.info(f"未读取到相关信息")
         return
+    logger.info(f"检测服务器{db['account']}")
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
     client.loop_start()

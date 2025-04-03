@@ -378,6 +378,8 @@ class Test(object):
         time.sleep(2)
         pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
         time.sleep(2)
+        logger.info(f"输入密码{args.password}")
+        time.sleep(100)
         pond_page.ele('x://input[@placeholder="Enter password"]').input(args.password, clear=True)
         time.sleep(10)
         ele = pond_page.ele('xpath=//div[contains(@class, "css-1nkx66a")]/div/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
