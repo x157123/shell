@@ -1155,8 +1155,8 @@ class TaskSet:
             res = self.setup_wallet(all_args)
             if res:
                 # 设置钱包网络
-                logger.info('设置钱包网络')
-                self.__add_net_work(page=self.tab, coin_name='base')
+                # logger.info('设置钱包网络')
+                # self.__add_net_work(page=self.tab, coin_name='base')
 
                 self.res_info = ''
                 self.tab.get(url='https://www.gaianet.ai/chat')
@@ -1216,21 +1216,30 @@ class TaskSet:
                 self.__click_ele(page=self.tab, xpath='x://p[text()="SELECT A DOMAIN"]')
                 time.sleep(5)
 
-                domain = random.choice([
-                    "llama.gaia.domains",
-                    "vortex.gaia.domains",
-                    "hyper.gaia.domains",
-                    "we-are-gaia.gaia.domains",
-                ])
-                self.res_info = self.res_info + f'domain:{domain}'
-                js_code = f"""            
-                    const randomDomain = '{domain}'; 
-                    Array.from(document.getElementsByTagName('span')).filter(ele => {{
-                        (ele?.textContent === randomDomain) ? (ele.scrollIntoView(), ele?.click()) : 0
-                    }})
-                """
+                # domain = random.choice([
+                #     "llama.gaia.domains",
+                #     "vortex.gaia.domains",
+                #     "hyper.gaia.domains",
+                #     "we-are-gaia.gaia.domains",
+                # ])
+                # self.res_info = self.res_info + f'domain:{domain}'
+                # js_code = f"""
+                #     const randomDomain = '{domain}';
+                #     Array.from(document.getElementsByTagName('span')).filter(ele => {{
+                #         (ele?.textContent === randomDomain) ? (ele.scrollIntoView(), ele?.click()) : 0
+                #     }})
+                # """
+                #
+                # self.tab.run_js(js_code)
 
-                self.tab.run_js(js_code)
+
+                # 使用 XPath 定位所有符合条件的 div
+                div_elements = self.tab.eles('x://div[@class="cursor-pointer mb-2 flex items-center"]')
+                # 点击前五个 div 中的任意一个
+                for i in range(min(5, len(div_elements))):
+                    div_element = div_elements[i]
+                    div_element.click()
+
                 time.sleep(2)
                 chat = self.tab.ele('x://button[text()="Chat"]')
                 if chat:
