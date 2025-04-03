@@ -1316,7 +1316,7 @@ class TaskSet:
             time.sleep(5)
             redeemable_points = self.__getNumber(self.tab, 'xpath://span[text()="Current Redeemable Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-header-8") and not(text()="Current Redeemable Points")]')
             logger.info(f"可兑换积分：{redeemable_points}")
-            if redeemable_points is not None and float(redeemable_points) > 80:
+            if redeemable_points is not None and float(redeemable_points) > 100:
                 logger.info('有对话得积分')
                 redeem_now = self.tab.ele('x://button[text()="Redeem Now"]')
                 time.sleep(5)
