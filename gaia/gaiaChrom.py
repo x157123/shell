@@ -1232,14 +1232,17 @@ class TaskSet:
                 #
                 # self.tab.run_js(js_code)
 
+                run_number = random.randint(1, 10)
+
                 # 使用 XPath 定位所有符合条件的 div
                 div_elements = self.tab.eles('x://div[@class="cursor-pointer mb-2 flex items-center"]')
-                # 仅保留前十个元素
-                div_elements = div_elements[:10]
-                # 随机选择一个元素
-                random_div = random.choice(div_elements)
-                # 点击随机选择的元素
-                random_div.click()
+                # 确保至少有一个元素，并且不超过前十个元素
+                if div_elements and len(div_elements) >= run_number:
+                    # 随机选择一个元素（注意索引从0开始）
+                    random_div = div_elements[run_number - 1]
+                    # 点击随机选择的元素
+                    random_div.click()
+
                 time.sleep(2)
                 chat = self.tab.ele('x://button[text()="Chat"]')
                 if chat:
