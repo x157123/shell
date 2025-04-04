@@ -418,13 +418,6 @@ setup_novnc() {
 }
 
 stop_services() {
-      # 检查并清理特定 Chrome 调试端口
-      PIDS=$(lsof -t -i:$CHROME_DEBUG_PORT -sTCP:LISTEN)
-      if [ -n "$PIDS" ]; then
-          log_info "$CHROME_DEBUG_PORT 端口已被占用，终止占用该端口的进程：$PIDS"
-          kill -9 "$PIDS"
-          sleep 1
-      fi
 
       # 查找运行中的 去除python进程
       pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
@@ -434,6 +427,14 @@ stop_services() {
               kill -9 "$pid"
               echo "已终止 PID: $pid"
           done
+      fi
+
+      # 检查并清理特定 Chrome 调试端口
+      PIDS=$(lsof -t -i:$CHROME_DEBUG_PORT -sTCP:LISTEN)
+      if [ -n "$PIDS" ]; then
+          log_info "$CHROME_DEBUG_PORT 端口已被占用，终止占用该端口的进程：$PIDS"
+          kill -9 "$PIDS"
+          sleep 1
       fi
 
       # 清理特定显示号的 Python 脚本进程
