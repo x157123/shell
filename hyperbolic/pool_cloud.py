@@ -449,6 +449,7 @@ def __do_task(account, retry: int = 0):
         bool = False  # 失败
     finally:
         page.quit()
+        time.sleep(random.randint(400, 1000))
         return bool
 
 
