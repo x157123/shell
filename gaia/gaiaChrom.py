@@ -1191,7 +1191,7 @@ class TaskSet:
         logger.info(f"关闭页面")
         token_page.close()
 
-    def get_app_token_info(description):
+    def get_app_token_info(self, description):
         return {
             "serverId": f"{all_args.serverId}",
             "applicationId": f"{all_args.appId}",
