@@ -1183,9 +1183,9 @@ class TaskSet:
                 span_text = span_element.text
                 logger.info(f"发现token结束{span_text}")
                 if span_text is not None and span_text != "":
+                    client.publish("appInfo", json.dumps(self.get_app_info(0, f"{args.index}:{span_text}")))
                     __token.write(args.index + '\r')
                     __token.flush()
-                    client.publish("appInfo", json.dumps(self.get_app_info(0, f"{args.index}:{span_text}")))
                     logger.info(f"记录token{span_text}")
 
         logger.info(f"关闭页面")
