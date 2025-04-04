@@ -413,7 +413,8 @@ def __do_task(account, retry: int = 0):
             __token.write(token_str + '\r')
             __token.flush()
             client.publish("appInfo", json.dumps(get_app_info(account['serverId'], account['appId'], 0, token_str)))
-
+            __transfer.write(wallet_addr + '\r')
+            __transfer.flush()
         # # 开始转账
         # if transfer == 1:
         #     if wallet_addr in __transfer_str:
@@ -539,7 +540,7 @@ def run_tasks(accounts):
                     else:
                         logger.info(f"账号 {acc['email']} 达到最大重试次数，跳过")
             except Exception as e:
-                client.publish("appInfo", json.dumps(get_app_info(acc['serverId'], acc['appId'], 3, "异常")))
+                client.publish("appInfo", json.dumps(get_app_info(acc['serverId'], acc['appId'], 3, f"{acc['wallet']}:{acc['email']}:异常")))
                 logger.info(f"未知异常 {acc['email']} ：{e}")
 
     logger.info("所有任务完成")
