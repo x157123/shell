@@ -586,4 +586,4 @@ if __name__ == "__main__":
     for acc in account_data:
         logger.info(acc)
 
-    # run_tasks(account_data)
+    run_tasks(account_data)
