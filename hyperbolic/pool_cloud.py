@@ -311,10 +311,6 @@ def __do_task(account, retry: int = 0):
     __transfer = open(file='./transfer.txt', mode='r+', encoding='utf-8')
     __transfer_str = __transfer.read()
 
-    if account['wallet_addr'] in __transfer_str:
-        logger.info(f"跳过：{account['wallet_addr']}")
-        return True
-
     if not os.path.isfile('./token.txt'):
         with open(file='./token.txt', mode='a+', encoding='utf-8') as file:
             file.close()
@@ -322,6 +318,10 @@ def __do_task(account, retry: int = 0):
         del file
     __token = open(file='./token.txt', mode='r+', encoding='utf-8')
     __token_str = __token.read()
+
+    if account['wallet_addr'] in __token_str:
+        logger.info(f"跳过：{account['wallet_addr']}")
+        return True
 
     if not os.path.isfile('./register.txt'):
         with open(file='./register.txt', mode='a+', encoding='utf-8') as file:
@@ -413,8 +413,7 @@ def __do_task(account, retry: int = 0):
             __token.write(token_str + '\r')
             __token.flush()
             client.publish("appInfo", json.dumps(get_app_info(account['serverId'], account['appId'], 0, token_str)))
-            __transfer.write(wallet_addr + '\r')
-            __transfer.flush()
+
         # # 开始转账
         # if transfer == 1:
         #     if wallet_addr in __transfer_str:
