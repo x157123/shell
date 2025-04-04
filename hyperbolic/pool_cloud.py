@@ -127,7 +127,7 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, accountType):
         return []
 
 
-def __get_page(index, wallet, user):
+def __get_page(index, wallet, sys_user):
     # page = ChromiumPage(
     #     addr_or_opts=ChromiumOptions()
     #     .set_user_data_path(path=f'D://tmp/hyperbolic/{index}')
@@ -139,7 +139,7 @@ def __get_page(index, wallet, user):
         # .set_proxy("192.168.3.107:7890")
         # .add_extension("/home/lm/extensions/signma")
         .set_user(user=f"Profile {wallet}")
-        .set_user_data_path(path=f'/home/{user}/task/chrome_data/{wallet}')
+        .set_user_data_path(path=f'/home/{sys_user}/task/chrome_data/{wallet}')
         .set_local_port(7896 + index)
         .headless(on_off=False))
     page.wait.doc_loaded(timeout=30)
@@ -342,7 +342,7 @@ def __do_task(account, retry: int = 0):
     transfer = account['transfer']  # 转账
     logger.info(f"任务 {index} 开始 - {email} 第 {retry + 1} 次尝试")
 
-    page = __get_page(index, wallet, account.user)
+    page = __get_page(index, wallet, account['user'])
     try:
         hyperbolic_page = page.new_tab("https://app.hyperbolic.xyz")
         time.sleep(random.randint(4, 10))
