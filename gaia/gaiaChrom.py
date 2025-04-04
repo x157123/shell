@@ -1183,7 +1183,7 @@ class TaskSet:
                 span_text = span_element.text
                 logger.info(f"发现token结束{span_text}")
                 if span_text is not None and span_text != "":
-                    client.publish("appInfo", json.dumps(self.get_app_info(0, f"{args.index}:{span_text}")))
+                    client.publish("appInfo", json.dumps(self.get_app_token_info(f"{args.index}:{span_text}")))
                     __token.write(args.index + '\r')
                     __token.flush()
                     logger.info(f"记录token{span_text}")
@@ -1191,11 +1191,11 @@ class TaskSet:
         logger.info(f"关闭页面")
         token_page.close()
 
-    def get_app_info(operationType, description):
+    def get_app_token_info(description):
         return {
             "serverId": f"{all_args.serverId}",
             "applicationId": f"{all_args.appId}",
-            "operationType": f"{operationType}",
+            "operationType": "0",
             "description": f"{description}",
         }
     
