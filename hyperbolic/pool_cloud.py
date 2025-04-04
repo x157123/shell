@@ -393,7 +393,7 @@ def __do_task(account, retry: int = 0):
         __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Get Started")]', loop=1)
         # 绑定钱包
         hyperbolic_page.get("https://app.hyperbolic.xyz/billing")
-        __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Get Started")]', loop=1, must=True)
+        __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Get Started")]', loop=1)
         __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Wallet Address")]', loop=1, must=True)
         __input_ele(page=hyperbolic_page, xpath='x://input[@placeholder="Paste your wallet address here"]',
                     value=wallet_addr, must=True)
