@@ -588,7 +588,3 @@ if __name__ == "__main__":
         logger.info(acc)
 
     run_tasks(account_data)
-    time.sleep(random.randint(100, 300))
-    run_tasks(account_data)
-    time.sleep(random.randint(100, 300))
-    run_tasks(account_data)
