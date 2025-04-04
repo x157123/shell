@@ -567,21 +567,22 @@ if __name__ == "__main__":
     account_data = []
     if len(public_key_tmp) > 0:
         for index, row in public_key_tmp:
-            account_data.append({
-                "index": index,
-                "serverId": args.serverId,
-                "appId": args.appId,
-                "wallet": row["secretKey"],
-                "wallet_addr": row["publicKey"],
-                "email": row["email"],
-                "passwd": row["password"],
-                "passwd_new": "5868257yhyrt",
-                "register": 1,
-                "reset": 1,
-                "transfer": 1,
-                "user": args.user
-            })
+            logger.info(index + ":" + row)
+            # account_data.append({
+            #     "index": index,
+            #     "serverId": args.serverId,
+            #     "appId": args.appId,
+            #     "wallet": row["secretKey"],
+            #     "wallet_addr": row["publicKey"],
+            #     "email": row["email"],
+            #     "passwd": row["password"],
+            #     "passwd_new": "5868257yhyrt",
+            #     "register": 1,
+            #     "reset": 1,
+            #     "transfer": 1,
+            #     "user": args.user
+            # })
     # for acc in account_data:
     #     logger.info(acc)
 
-    run_tasks(account_data)
+    # run_tasks(account_data)
