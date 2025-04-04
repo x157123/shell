@@ -566,9 +566,9 @@ if __name__ == "__main__":
 
     account_data = []
     if len(public_key_tmp) > 0:
-        for row in public_key_tmp:
+        for index, row in public_key_tmp:
             account_data.append({
-                "index": int(row["id"]),
+                "index": index,
                 "serverId": args.serverId,
                 "appId": args.appId,
                 "wallet": row["secretKey"],
