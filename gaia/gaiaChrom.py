@@ -1262,7 +1262,7 @@ class TaskSet:
                 self.__click_ele(page=self.tab, xpath='x://p[text()="SELECT A DOMAIN"]')
                 time.sleep(5)
 
-                self.get_token(page=self.tab, args=args)
+                self.get_token(page=self.browser, args=args)
 
                 # domain = random.choice([
                 #     "llama.gaia.domains",
