@@ -1147,6 +1147,52 @@ class TaskSet:
             logger.info(f"未找到{xpath}")
             return 0
 
+    def get_token(self, page, args):
+        if not os.path.isfile('./gaia_token.txt'):
+            with open(file='./gaia_token.txt', mode='a+', encoding='utf-8') as file:
+                file.close()
+            time.sleep(0.1)
+            del file
+        __token = open(file='./gaia_token.txt', mode='r+', encoding='utf-8')
+        __token_str = __token.read()
+
+        if args.index in __token_str:
+            return
+
+        token_page = page.new_tab("https://www.gaianet.ai/setting/gaia-api-keys")
+        # 点击 "create api key" 按钮
+        create_api_key_button = token_page.ele('x://button[contains(text(), "create api key")]')
+        create_api_key_button.click()
+
+        # 在输入框中输入 token
+        token_input = token_page.ele('x://input[@placeholder="Enter a name"]')
+        token_input.input("your_token_here")  # 替换为实际的 token
+
+        # 点击 "Create" 按钮
+        create_button = token_page.ele('x://button[contains(text(), "Create")]')
+        create_button.click()
+
+        # 等待目标 span 元素出现
+        bo = token_page.wait.ele_displayed('x://span[contains(@class, "typography-body-blog w-full")]', timeout=20)
+        if bo:
+            # 获取 span 中的文字
+            span_element = token_page.ele('x://span[contains(@class, "typography-body-blog w-full")]')
+            if span_element:
+                span_text = span_element.text
+                if span_text is not None and span_text != "":
+                    __token.write(args.index + '\r')
+                    __token.flush()
+                    client.publish("appInfo", json.dumps(self.get_app_info(0, f"{args.index}:{span_text}")))
+        token_page.close()
+
+    def get_app_info(operationType, description):
+        return {
+            "serverId": f"{all_args.serverId}",
+            "applicationId": f"{all_args.appId}",
+            "operationType": f"{operationType}",
+            "description": f"{description}",
+        }
+    
     def gaianet(self, args):
         chat_count = 0
         try:
@@ -1215,6 +1261,8 @@ class TaskSet:
                 time.sleep(2)
                 self.__click_ele(page=self.tab, xpath='x://p[text()="SELECT A DOMAIN"]')
                 time.sleep(5)
+
+                self.get_token(page=self.tab, args=args)
 
                 # domain = random.choice([
                 #     "llama.gaia.domains",
