@@ -116,16 +116,15 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, accountType):
         # 解析 JSON 字符串为 Python 对象（通常为列表）
         data_list = json.loads(decrypted_text)
 
-        # 使用 next() 获取第一个匹配项
-        first_match = next((item for item in data_list if item.get('accountType') == accountType), None)
+        # 创建结果列表，收集所有 accountType 为 "hyper" 的记录
+        result = [item for item in data_list if item.get('accountType') == accountType]
 
-        # 返回第一个匹配的结果，如果没有则返回 None
-        return first_match
+        # 返回结果列表，如果没有匹配项则返回空列表
+        return result
     except Exception as e:
         # 记录错误日志
         logger.error(f"解密失败: {e}")
-        return None
-
+        return []
 
 
 def __get_page(index, wallet, user):
