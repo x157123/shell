@@ -221,7 +221,7 @@ def handle_signma_popup(page, count: int = 1, timeout: int = 15, must: bool = Fa
     return False
 
 
-def open_email(page, email, passwd, register: int = 0, reset: int = 0, passwd_new: str = ''):
+def open_email(page, email, passwd, account, register: int = 0, reset: int = 0, passwd_new: str = ''):
     email_page = page.new_tab(url='https://firstmail.ltd/ru-RU/webmail/login')
     time.sleep(2)
     # 获取邮箱输入框并输入邮箱
@@ -264,6 +264,8 @@ def open_email(page, email, passwd, register: int = 0, reset: int = 0, passwd_ne
                 # 检查是否超时（最多等待50秒）
                 if time.time() - start_time > 50:
                     logger.success("超过最大等待时间，跳出循环")
+                    # 邮件错误 提示
+                    client.publish("appInfo", json.dumps(get_app_info(account['serverId'], account['appId'], 2, account['wallet'])))
                     raise Exception(f'超过最大等待时间，跳出循环')
                     # email_page.close()
                     # break
@@ -386,7 +388,7 @@ def __do_task(account, retry: int = 0):
                 __register.flush()
             time.sleep(15)
             # 进入邮箱 进行验证
-            open_email(page, email=email, passwd=passwd, register=register, reset=reset, passwd_new=passwd_new)
+            open_email(page, email=email, passwd=passwd, register=register, reset=reset, passwd_new=passwd_new, account=account)
 
         time.sleep(5)
         # 关闭弹窗
