@@ -566,8 +566,10 @@ if __name__ == "__main__":
 
     account_data = []
     if len(public_key_tmp) > 0:
-        for index, row in public_key_tmp:
-            logger.info(index + ":" + row)
+        index = 1
+        for row in public_key_tmp:
+            logger.info(str(index) + ":" + row)
+            index += 1
             # account_data.append({
             #     "index": index,
             #     "serverId": args.serverId,
