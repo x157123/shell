@@ -311,6 +311,10 @@ def __do_task(account, retry: int = 0):
     __transfer = open(file='./transfer.txt', mode='r+', encoding='utf-8')
     __transfer_str = __transfer.read()
 
+    if account['wallet_addr'] in __transfer_str:
+        logger.info(f"跳过：{account['wallet_addr']}")
+        return True
+
     if not os.path.isfile('./token.txt'):
         with open(file='./token.txt', mode='a+', encoding='utf-8') as file:
             file.close()
@@ -318,10 +322,6 @@ def __do_task(account, retry: int = 0):
         del file
     __token = open(file='./token.txt', mode='r+', encoding='utf-8')
     __token_str = __token.read()
-
-    if account['wallet_addr'] in __token_str:
-        logger.info(f"跳过：{account['wallet_addr']}")
-        return True
 
     if not os.path.isfile('./register.txt'):
         with open(file='./register.txt', mode='a+', encoding='utf-8') as file:
@@ -414,35 +414,35 @@ def __do_task(account, retry: int = 0):
             __token.flush()
             client.publish("appInfo", json.dumps(get_app_info(account['serverId'], account['appId'], 0, token_str)))
 
-        # # 开始转账
-        # if transfer == 1:
-        #     if wallet_addr in __transfer_str:
-        #         logger.success(f'已转账跳过 ==> {wallet_addr}')
-        #     else:
-        #         hyperbolic_page.get("https://app.hyperbolic.xyz/billing")
-        #         time.sleep(20)
-        #         logger.info('开始转账')
-        #         random_number = random.randint(11, 20)
-        #         logger.info(f"转账金额0.000000000000{str(random_number)}")
-        #         # send_get_request(index, "0.000000000000" + str(random_number))
-        #         # 验证是否绑定成功
-        #         ok = hyperbolic_page.ele('x://span[contains(text(), "0xd3cB24E0Ba20865C530831C85Bd6EbC25f6f3B60")]')
-        #         to = "0xd3cB24E0Ba20865C530831C85Bd6EbC25f6f3B60"
-        #         # 获取转账合约地址
-        #         if ok:
-        #             url_tmp = "http://192.168.0.16:8082/service_route?service_name=token_trans&&index={}&&to={}&&value=0.000000000000{}&&contractAddr=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&&chainId=8453"
-        #             transfer_url = url_tmp.format(wallet, to, random_number)
-        #             logger.info(transfer_url)
-        #             transfer_page = page.new_tab(transfer_url)
-        #             time.sleep(10)
-        #             transfer_page.close()
-        #             __transfer.write(wallet_addr + '\r')
-        #             __transfer.flush()
-        #             time.sleep(50)
-        #             hyperbolic_page.refresh()
-        #             time.sleep(10)
-        #         else:
-        #             raise Exception(f'充值判断失败')
+        # 开始转账
+        if transfer == 1:
+            if wallet_addr in __transfer_str:
+                logger.success(f'已转账跳过 ==> {wallet_addr}')
+            else:
+                hyperbolic_page.get("https://app.hyperbolic.xyz/billing")
+                time.sleep(20)
+                logger.info('开始转账')
+                random_number = random.randint(11, 20)
+                logger.info(f"转账金额0.000000000000{str(random_number)}")
+                # send_get_request(index, "0.000000000000" + str(random_number))
+                # 验证是否绑定成功
+                ok = hyperbolic_page.ele('x://span[contains(text(), "0xd3cB24E0Ba20865C530831C85Bd6EbC25f6f3B60")]')
+                to = "0xd3cB24E0Ba20865C530831C85Bd6EbC25f6f3B60"
+                # 转账校验
+                if ok:
+                    # url_tmp = "http://192.168.0.16:8082/service_route?service_name=token_trans&&index={}&&to={}&&value=0.000000000000{}&&contractAddr=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&&chainId=8453"
+                    # transfer_url = url_tmp.format(wallet, to, random_number)
+                    # logger.info(transfer_url)
+                    # transfer_page = page.new_tab(transfer_url)
+                    # time.sleep(10)
+                    # transfer_page.close()
+                    __transfer.write(wallet_addr + '\r')
+                    __transfer.flush()
+                    # time.sleep(50)
+                    # hyperbolic_page.refresh()
+                    # time.sleep(10)
+                else:
+                    raise Exception(f'充值判断失败')
 
     except Exception as e:
         logger.info(f"任务 {index} 失败 - {email} 错误: {e}")
