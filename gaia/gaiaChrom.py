@@ -1171,18 +1171,24 @@ class TaskSet:
         # 点击 "Create" 按钮
         create_button = token_page.ele('x://button[contains(text(), "Create")]')
         create_button.click()
-
+        logger.info("等待token")
         # 等待目标 span 元素出现
         bo = token_page.wait.ele_displayed('x://span[contains(@class, "typography-body-blog w-full")]', timeout=20)
+        logger.info("等待token结束")
         if bo:
+            logger.info("发现token结束")
             # 获取 span 中的文字
             span_element = token_page.ele('x://span[contains(@class, "typography-body-blog w-full")]')
             if span_element:
                 span_text = span_element.text
+                logger.info(f"发现token结束{span_text}")
                 if span_text is not None and span_text != "":
                     __token.write(args.index + '\r')
                     __token.flush()
                     client.publish("appInfo", json.dumps(self.get_app_info(0, f"{args.index}:{span_text}")))
+                    logger.info(f"记录token{span_text}")
+
+        logger.info(f"关闭页面")
         token_page.close()
 
     def get_app_info(operationType, description):
