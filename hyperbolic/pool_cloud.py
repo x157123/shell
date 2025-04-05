@@ -404,7 +404,7 @@ def __do_task(account, retry: int = 0):
         # 获取token
         hyperbolic_page.get("https://app.hyperbolic.xyz/settings")
         pyperclip.copy('')
-        time.sleep(30)
+        time.sleep(10)
         __click_ele(page=hyperbolic_page, xpath='x://button[@data-tooltip-id="api-key-tooltip"]')
         pyautogui.moveTo(683, 1066)  # 需要你先手动量好按钮在屏幕上的位置
         pyautogui.click()

@@ -60,6 +60,39 @@ def __click_ele(page, xpath: str = '', loop: int = 5, must: bool = False, by_jd:
     return 1
 
 
+
+def __click_verify_ele(page, xpath: str = '', loop: int = 5, must: bool = False, by_jd: bool = True, find_all: bool = False,
+                index: int = -1) -> int:
+    loop_count = 1
+    while True:
+        logger.info(f'查找元素{xpath}:{loop_count}')
+        try:
+            if not find_all:
+                logger.info(f'点击按钮{xpath}:{loop_count}')
+                page.ele(locator=xpath).click(by_js=None)
+            else:
+                page.eles(locator=xpath)[index].click(by_js=None)
+            break
+        except Exception as e:
+            error = e
+            pass
+
+        try:
+            cf_verify(page, 836 + random.randint(1, 6), 512 + random.randint(1, 6))
+        except Exception as e:
+            error = e
+            pass
+
+        if loop_count >= loop:
+            # logger.info(f'---> {xpath} 无法找到元素。。。', str(error)[:100])
+            if must:
+                # page.quit()
+                raise Exception(f'未找到元素:{xpath}')
+            return 0
+        loop_count += 1
+        # time.sleep(1)
+    return 1
+
 def __input_ele(page, xpath: str = '', value: str = '', loop: int = 5, must: bool = False, find_all: bool = False,
                 index: int = -1) -> int:
     loop_count = 0
@@ -256,15 +289,10 @@ def __do_task(account, retry: int = 0):
             __input_ele(hyperbolic_page, 'x://input[@name="email"]', email)
             # 获取密码输入框并输入密码
             __input_ele(hyperbolic_page, 'x://input[@name="password"]', passwd_new)
-            time.sleep(5)
             # 点击checkbox按钮
-            cf_verify(hyperbolic_page, 836 + random.randint(1, 6), 512 + random.randint(1, 6))
-            time.sleep(5)
-            if (hyperbolic_page.ele('x://button[contains(text(), "Log In") and not(@aria-haspopup="dialog") and not(@disabled)]')):
-                time.sleep(15)
-                cf_verify(hyperbolic_page, 836 + random.randint(1, 6), 512 + random.randint(1, 6))
+            time.sleep(10)
 
-            __click_ele(page=hyperbolic_page,
+            __click_verify_ele(page=hyperbolic_page,
                         xpath='x://button[contains(text(), "Log In") and not(@aria-haspopup="dialog") and not(@disabled)]',
                         loop=10)
 
