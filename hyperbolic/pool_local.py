@@ -259,8 +259,10 @@ def __do_task(account, retry: int = 0):
             time.sleep(5)
             # 点击checkbox按钮
             cf_verify(hyperbolic_page, 837 + random.randint(2, 5), 513 + random.randint(2, 5))
-            time.sleep(20)
-            cf_verify(hyperbolic_page, 839 + random.randint(2, 5), 513 + random.randint(2, 5))
+            time.sleep(5)
+            if (hyperbolic_page.ele('x://button[contains(text(), "Log In") and not(@aria-haspopup="dialog") and not(@disabled)]')):
+                time.sleep(15)
+                cf_verify(hyperbolic_page, 839 + random.randint(2, 5), 513 + random.randint(2, 5))
 
             __click_ele(page=hyperbolic_page,
                         xpath='x://button[contains(text(), "Log In") and not(@aria-haspopup="dialog") and not(@disabled)]',
@@ -280,13 +282,13 @@ def __do_task(account, retry: int = 0):
         time.sleep(5)
         # 关闭弹窗
         __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Get Started")]', loop=1)
-        # 绑定钱包
-        hyperbolic_page.get("https://app.hyperbolic.xyz/billing")
-        __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Get Started")]', loop=1)
-        __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Wallet Address")]', loop=1, must=True)
-        __input_ele(page=hyperbolic_page, xpath='x://input[@placeholder="Paste your wallet address here"]',
-                    value=wallet_addr, must=True)
-        __click_ele(page=hyperbolic_page, xpath='x://button[text()="Add"]', loop=2, must=True)
+        # # 绑定钱包
+        # hyperbolic_page.get("https://app.hyperbolic.xyz/billing")
+        # __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Get Started")]', loop=1)
+        # __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Wallet Address")]', loop=1, must=True)
+        # __input_ele(page=hyperbolic_page, xpath='x://input[@placeholder="Paste your wallet address here"]',
+        #             value=wallet_addr, must=True)
+        # __click_ele(page=hyperbolic_page, xpath='x://button[text()="Add"]', loop=2, must=True)
 
         # 获取token
         hyperbolic_page.get("https://app.hyperbolic.xyz/settings")
