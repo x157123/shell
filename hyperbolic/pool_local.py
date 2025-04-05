@@ -10,7 +10,7 @@ import pyautogui
 import os
 
 # 最大重试次数
-MAX_RETRY = 3
+MAX_RETRY = 5
 max_workers = 1
 
 
@@ -151,8 +151,9 @@ def open_email(page, email, passwd, register: int = 0, reset: int = 0, passwd_ne
                 # 检查是否超时（最多等待50秒）
                 if time.time() - start_time > 50:
                     logger.success("超过最大等待时间，跳出循环")
-                    email_page.close()
-                    break
+                    raise Exception(f'超过最大等待时间，跳出循环')
+                    # email_page.close()
+                    # break
 
         logger.success(f'登录账号：{email}')
         # 找到登录按钮并点击
@@ -188,7 +189,6 @@ def open_email(page, email, passwd, register: int = 0, reset: int = 0, passwd_ne
 
 # 登录并操作函数，支持重试次数
 def __do_task(account, retry: int = 0):
-
     if not os.path.isfile('./transfer.txt'):
         with open(file='./transfer.txt', mode='a+', encoding='utf-8') as file:
             file.close()
@@ -231,44 +231,45 @@ def __do_task(account, retry: int = 0):
     page = __get_page(index, wallet)
     try:
         hyperbolic_page = page.new_tab("https://app.hyperbolic.xyz")
-        time.sleep(random.randint(4, 10))
-        if register is not None and register == 1 and wallet_addr not in __register_str:
-            if (not hyperbolic_page.ele('x://button[contains(text(), "Deposit")]')):
-                # 创建账号
-                __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Create an account ")]')
+        time.sleep(random.randint(2, 5))
+        # if register is not None and register == 1 and wallet_addr not in __register_str:
+        #     if (not hyperbolic_page.ele('x://button[contains(text(), "Deposit")]')):
+        #         # 创建账号
+        #         __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Create an account ")]')
+        #
+        #         # 获取邮箱输入框并输入邮箱
+        #         email_input = hyperbolic_page.ele('x://input[@name="email"]')
+        #         email_input.input(email, clear=True)
+        #
+        #         # 获取密码输入框并输入密码
+        #         password_input = hyperbolic_page.ele('x://input[@name="password"]')
+        #         password_input.input(passwd_new, clear=True)
+        #         time.sleep(5)
+        #         # 点击checkbox按钮
+        #         cf_verify(hyperbolic_page, 834, 563)
+        #         time.sleep(5)
+        #         __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Sign Up")]', loop=15)
+        #         time.sleep(5)
+        # else:
+        if hyperbolic_page.ele('x://input[@name="email"]'):
+            # 获取邮箱输入框并输入邮箱
+            __input_ele(hyperbolic_page, 'x://input[@name="email"]', email)
+            # 获取密码输入框并输入密码
+            __input_ele(hyperbolic_page, 'x://input[@name="password"]', passwd_new)
+            time.sleep(5)
+            # 点击checkbox按钮
+            cf_verify(hyperbolic_page, 837 + random.randint(2, 5), 513 + random.randint(2, 5))
+            time.sleep(20)
+            cf_verify(hyperbolic_page, 839 + random.randint(2, 5), 513 + random.randint(2, 5))
 
-                # 获取邮箱输入框并输入邮箱
-                email_input = hyperbolic_page.ele('x://input[@name="email"]')
-                email_input.input(email, clear=True)
-
-                # 获取密码输入框并输入密码
-                password_input = hyperbolic_page.ele('x://input[@name="password"]')
-                password_input.input(passwd_new, clear=True)
-                time.sleep(5)
-                # 点击checkbox按钮
-                cf_verify(hyperbolic_page)
-                time.sleep(5)
-                __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Sign Up")]', loop=15)
-                time.sleep(5)
-        else:
-            if hyperbolic_page.ele('x://input[@name="email"]'):
-                # 获取邮箱输入框并输入邮箱
-                __input_ele(hyperbolic_page, 'x://input[@name="email"]', email)
-                # 获取密码输入框并输入密码
-                __input_ele(hyperbolic_page, 'x://input[@name="password"]', passwd_new)
-                time.sleep(5)
-                # 点击checkbox按钮
-                cf_verify(hyperbolic_page)
-
-                __click_ele(page=hyperbolic_page,
-                            xpath='x://button[contains(text(), "Log In") and not(@aria-haspopup="dialog") and not(@disabled)]',
-                            loop=10)
+            __click_ele(page=hyperbolic_page,
+                        xpath='x://button[contains(text(), "Log In") and not(@aria-haspopup="dialog") and not(@disabled)]',
+                        loop=10)
 
         if (hyperbolic_page.ele('x://button[contains(text(), "Resend verification link")]')):
             __click_ele(page=hyperbolic_page,
                         xpath='x://button[contains(text(), "Resend verification link")]', must=True)
-            time.sleep(15)
-
+            time.sleep(5)
             if wallet_addr not in __register_str:
                 __register.write(wallet_addr + '\r')
                 __register.flush()
@@ -282,15 +283,15 @@ def __do_task(account, retry: int = 0):
         # 绑定钱包
         hyperbolic_page.get("https://app.hyperbolic.xyz/billing")
         __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Get Started")]', loop=1)
-        __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Wallet Address")]', loop=1)
+        __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Wallet Address")]', loop=1, must=True)
         __input_ele(page=hyperbolic_page, xpath='x://input[@placeholder="Paste your wallet address here"]',
-                    value=wallet_addr)
-        __click_ele(page=hyperbolic_page, xpath='x://button[text()="Add"]', loop=2)
+                    value=wallet_addr, must=True)
+        __click_ele(page=hyperbolic_page, xpath='x://button[text()="Add"]', loop=2, must=True)
 
         # 获取token
         hyperbolic_page.get("https://app.hyperbolic.xyz/settings")
         pyperclip.copy('')
-        time.sleep(30)
+        time.sleep(5)
         __click_ele(page=hyperbolic_page, xpath='x://button[@data-tooltip-id="api-key-tooltip"]')
         pyautogui.moveTo(683, 1066)  # 需要你先手动量好按钮在屏幕上的位置
         pyautogui.click()
@@ -317,16 +318,25 @@ def __do_task(account, retry: int = 0):
                 to = "0xd3cB24E0Ba20865C530831C85Bd6EbC25f6f3B60"
                 # 获取转账合约地址
                 if ok:
-                    url_tmp = "http://192.168.0.16:8082/service_route?service_name=token_trans&&index={}&&to={}&&value=0.000000000000{}&&contractAddr=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&&chainId=8453"
-                    transfer_url = url_tmp.format(wallet, to, random_number)
-                    logger.info(transfer_url)
-                    transfer_page = page.new_tab(transfer_url)
-                    time.sleep(10)
-                    transfer_page.close()
-                    __transfer.write(wallet_addr + '\r')
-                    __transfer.flush()
-                    time.sleep(50)
-                    hyperbolic_page.refresh()
+                    span_element = hyperbolic_page.ele('x://span[contains(@class, "text-base font-semibold")]')
+                    if span_element:
+                        span_text = span_element.text
+                        # 将文本转换为数字（整数或浮点数）
+                        span_value = float(span_text)  # 使用 float 以支持整数和浮动数字
+                        # 判断 span_value 是否大于 0
+                        if span_value <= 0:
+                            url_tmp = "http://192.168.0.16:8082/service_route?service_name=token_trans&&index={}&&to={}&&value=0.000000000000{}&&contractAddr=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&&chainId=8453"
+                            transfer_url = url_tmp.format(wallet, to, random_number)
+                            logger.info(transfer_url)
+                            transfer_page = page.new_tab(transfer_url)
+                            time.sleep(20)
+                            transfer_page.close()
+
+                        __transfer.write(wallet_addr + '\r')
+                        __transfer.flush()
+                        time.sleep(5)
+                        hyperbolic_page.refresh()
+                        time.sleep(5)
                 else:
                     raise Exception(f'充值判断失败')
 
@@ -335,11 +345,10 @@ def __do_task(account, retry: int = 0):
         bool = False  # 失败
     finally:
         page.quit()
-        time.sleep(300)
         return bool
 
 
-def cf_verify(window_page):
+def cf_verify(window_page, x, y):
     # 第二步：进入第一个 shadow-root 上下文
     shadow_host = window_page.ele('x://div[@id="cf-turnstile"]/div')  # 定位到 shadow-host
     shadow_root = shadow_host.shadow_root  # 获取 shadow-root
@@ -354,7 +363,7 @@ def cf_verify(window_page):
     __checkbox = shadow_root_2.ele('x://input[@type="checkbox"]')
     # __click_ele(shadow_root_2, 'x://input[@type="checkbox"]')
     if __checkbox:
-        pyautogui.moveTo(834, 563)  # 需要你先手动量好按钮在屏幕上的位置
+        pyautogui.moveTo(x, y)  # 需要你先手动量好按钮在屏幕上的位置
         pyautogui.click()
         # iframe_page_in_shadow.actions.move_to(__checkbox).click()
     logger.info('检测cf验证结束')
