@@ -379,7 +379,7 @@ class Test(object):
         pond_page.ele('x://input[@placeholder="Enter email"]').input(args.address, clear=True)
         time.sleep(2)
         logger.info(f"输入密码{args.password}")
-        time.sleep(100)
+        time.sleep(2)
         pond_page.ele('x://input[@placeholder="Enter password"]').input(args.password, clear=True)
         time.sleep(10)
         ele = pond_page.ele('xpath=//div[contains(@class, "css-1nkx66a")]/div/div').shadow_root.child().ele(locator='x://body').shadow_root.ele('x:./div/div/div')
@@ -445,6 +445,8 @@ class Test(object):
         self.__click_ele(page=pond_page, xpath='x://p[text()="Idea"]')
         go_in = pond_page.ele('x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button')
         if go_in:
+            index = random.randint(40, 200005)
+            pond_page.get(url=f"https://cryptopond.xyz/ideas?page={index}")
             time.sleep(3)
             self.__click_ele(page=pond_page, xpath='x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button')
             time.sleep(3)
