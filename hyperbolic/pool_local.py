@@ -264,7 +264,7 @@ def __do_task(account, retry: int = 0):
     page = __get_page(index, wallet)
     try:
         hyperbolic_page = page.new_tab("https://app.hyperbolic.xyz")
-        time.sleep(random.randint(2, 5))
+        # time.sleep(random.randint(2, 5))
         # if register is not None and register == 1 and wallet_addr not in __register_str:
         #     if (not hyperbolic_page.ele('x://button[contains(text(), "Deposit")]')):
         #         # 创建账号
@@ -307,7 +307,6 @@ def __do_task(account, retry: int = 0):
             # 进入邮箱 进行验证
             open_email(page, email=email, passwd=passwd, register=register, reset=reset, passwd_new=passwd_new)
 
-        time.sleep(5)
         # 关闭弹窗
         __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Get Started")]', loop=1)
         # # 绑定钱包
@@ -321,7 +320,7 @@ def __do_task(account, retry: int = 0):
         # 获取token
         hyperbolic_page.get("https://app.hyperbolic.xyz/settings")
         pyperclip.copy('')
-        time.sleep(5)
+        time.sleep(2)
         __click_ele(page=hyperbolic_page, xpath='x://button[@data-tooltip-id="api-key-tooltip"]')
         pyautogui.moveTo(683, 1066)  # 需要你先手动量好按钮在屏幕上的位置
         pyautogui.click()
@@ -359,14 +358,14 @@ def __do_task(account, retry: int = 0):
                             transfer_url = url_tmp.format(wallet, to, random_number)
                             logger.info(transfer_url)
                             transfer_page = page.new_tab(transfer_url)
-                            time.sleep(20)
+                            time.sleep(10)
                             transfer_page.close()
 
                         __transfer.write(wallet_addr + '\r')
                         __transfer.flush()
                         time.sleep(5)
-                        hyperbolic_page.refresh()
-                        time.sleep(5)
+                        # hyperbolic_page.refresh()
+                        # time.sleep(5)
                 else:
                     raise Exception(f'充值判断失败')
 
