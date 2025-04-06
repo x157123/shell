@@ -489,20 +489,20 @@ main() {
 
     stop_services
 
-#    parse_args "$@"
-#    update_system
-#    install_system_deps
-#    check_dependencies
-#    setup_vnc
-##    install_chrome
-#    install_chrome_120
-#    install_edge
-#    install_wallet
-#    setup_python_script
-#    setup_xrdp
-#    setup_novnc
-#    install_python_packages
-#    start_services
+    parse_args "$@"
+    update_system
+    install_system_deps
+    check_dependencies
+    setup_vnc
+#    install_chrome
+    install_chrome_120
+    install_edge
+    install_wallet
+    setup_python_script
+    setup_xrdp
+    setup_novnc
+    install_python_packages
+    start_services
 }
 
 main "$@"
