@@ -363,7 +363,7 @@ def __do_task(account, retry: int = 0):
 
                         __transfer.write(wallet_addr + '\r')
                         __transfer.flush()
-                        time.sleep(5)
+                        # time.sleep(5)
                         # hyperbolic_page.refresh()
                         # time.sleep(5)
                 else:
@@ -477,4 +477,7 @@ if __name__ == "__main__":
     # for acc in account_data:
     #     logger.info(acc)
 
+    run_tasks(account_data)
+    run_tasks(account_data)
+    run_tasks(account_data)
     run_tasks(account_data)
