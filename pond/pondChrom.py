@@ -445,10 +445,10 @@ class Test(object):
         self.__click_ele(page=pond_page, xpath='x://p[text()="Idea"]')
         go_in = pond_page.ele('x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button')
         if go_in:
-            index = random.randint(2, 7)
-            pond_page.get(url=f"https://cryptopond.xyz/ideas?page={index}")
             time.sleep(3)
             self.__click_ele(page=pond_page, xpath='x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button')
+            index = random.randint(2, 7)
+            pond_page.get(url=f"https://cryptopond.xyz/ideas?page={index}")
             time.sleep(3)
             ance = pond_page.ele('x://div[contains(@class, "css-1mfyor6")]')
             if ance:
