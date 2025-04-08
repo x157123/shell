@@ -235,9 +235,9 @@ class Test(object):
             loop_count += 1
 
     # div
-    def run(self, evm_id, questions):
-        page = self.__get_page(evm_id)
-        asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, questions=questions), timeout=60)
+    async def run(self, evm_id, questions):
+        page = await self.__get_page(evm_id)
+        await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, questions=questions), timeout=60)
 
 
 def read_questions_from_file(file_path):
@@ -324,7 +324,7 @@ if __name__ == '__main__':
                         logger.info(f"执行: {args.index}")
                         test = Test()
                         logger.info("开始执行")
-                        test.run(evm_id=args.index, questions=questions)
+                        asyncio.run(test.run(evm_id=args.index, questions=questions))
                     except Exception as e:
                         logger.info(f"发生错误: {e}")
                     time.sleep(random.randint(23, 50))
