@@ -191,17 +191,22 @@ class Test(object):
 
     async def __do_task(self, page, evm_id, questions):
 
-        if not os.path.isfile('./klokappChrome..txt'):
-            with open(file='./monad_faucet.txt', mode='a+', encoding='utf-8') as file:
-                file.close()
-            time.sleep(0.1)
-            del file
-        self.__monad_faucet = open(file='./monad_faucet.txt', mode='r+', encoding='utf-8')
-        self.__monad_faucet_str = self.__monad_faucet.read()
+        try:
+            with open('./klokappChromeUrl.txt', 'r', encoding='utf-8') as file:
+                content = file.read().strip()  # 读取并去除空白字符
+        except FileNotFoundError:
+            content = ""  # 如果文件不存在，则认为没有内容
+
+        # 已写入的字符串
+        written_strings = [line.strip() for line in content]
 
         logger.info("登录钱包")
         await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=evm_id), timeout=60)
         url = 'https://klokapp.ai/'
+
+        if content:
+            url = content
+
         hyperbolic_page = page.new_tab(url=url)
         await self.__click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=1)
         await self.__click_ele(page=hyperbolic_page, xpath='x://button//span[contains(text(), "Signma")]', loop=1)
@@ -209,13 +214,21 @@ class Test(object):
         await self.__click_ele(page=hyperbolic_page, xpath='x://button[text()="Sign in"]', loop=1)
         await self.__deal_window(page=page)
         await self.__click_ele(page=hyperbolic_page, xpath='x://button[@aria-label="Close modal"]', loop=1)
-        pyperclip.copy('')
-        logger.info('准备点击')
-        time.sleep(20)
-        await self.__click_ele(page=hyperbolic_page, xpath='x://button[text()="Copy Referral Link"]', loop=2)
-        time.sleep(3)
-        clipboard_text = pyperclip.paste().strip()
-        logger.info("输出拷贝结果："+clipboard_text)
+
+        if content:
+            logger.info('已记录，不再拷贝')
+        else:
+            pyperclip.copy('')
+            logger.info('准备点击')
+            time.sleep(20)
+            await self.__click_ele(page=hyperbolic_page, xpath='x://button[text()="Copy Referral Link"]', loop=2)
+            time.sleep(3)
+            clipboard_text = pyperclip.paste().strip()
+            logger.info("输出拷贝结果："+clipboard_text)
+            # 文件为空，写入字符串
+            with open('./klokappChromeUrl.txt', 'a', encoding='utf-8') as file:
+                file.write(clipboard_text)
+
         for i in range(15):
             # 提问
             await self.__send(page=hyperbolic_page, xpath='x://div[@class="style_loadingDots__NNnij"]',
