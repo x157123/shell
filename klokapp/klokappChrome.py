@@ -322,7 +322,7 @@ if __name__ == '__main__':
                     try:
                         args.id = key["id"]
                         args.index = key["secretKey"]
-                        logger.info(f"执行: {args.index}：{args.address}")
+                        logger.info(f"执行: {args.index}")
                         test = Test()
                         logger.info("开始执行")
                         test.run(evm_id=args.index, questions=questions)
