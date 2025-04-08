@@ -506,11 +506,11 @@ start_services() {
 
     SUDO_USER="$USER"
 
-#    # 启动 Python 脚本
-#    log_info "启动 $PYTHON_SCRIPT_DIR ..."
-#    export DISPLAY=:${VNC_DISPLAY}
-#    sudo -u "$SUDO_USER" -i nohup python3 "$PYTHON_SCRIPT_DIR$FILE_NAME" --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --chromePort "$CHROME_DEBUG_PORT" --display "$VNC_DISPLAY"> "$FILE_NAME"Out.log 2>&1 &
-#    log_info "脚本执行完成，已在后台运行，VNC 显示号 :$VNC_DISPLAY，端口 $VNC_PORT，noVNC 端口 $NOVNC_PORT，Chrome 调试端口 $CHROME_DEBUG_PORT"
+    # 启动 Python 脚本
+    log_info "启动 $PYTHON_SCRIPT_DIR ..."
+    export DISPLAY=:${VNC_DISPLAY}
+    sudo -u "$SUDO_USER" -i nohup python3 "$PYTHON_SCRIPT_DIR$FILE_NAME" --serverId "$SERVER_ID" --appId "$APP_ID" --decryptKey "$DECRYPT_KEY" --user "$SUDO_USER" --chromePort "$CHROME_DEBUG_PORT" --display "$VNC_DISPLAY"> "$FILE_NAME"Out.log 2>&1 &
+    log_info "脚本执行完成，已在后台运行，VNC 显示号 :$VNC_DISPLAY，端口 $VNC_PORT，noVNC 端口 $NOVNC_PORT，Chrome 调试端口 $CHROME_DEBUG_PORT"
 
 }
 
