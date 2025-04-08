@@ -132,7 +132,7 @@ class Test(object):
     async def __deal_window(self, page):
         # 如果窗口大于2才进行操作
         if page.tabs_count >= 2:
-            await asyncio.sleep(3)
+            time.sleep(8)
             tab = page.get_tab()
             if '/popup.html?page=%2Fdapp-permission' in tab.url:
                 if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
