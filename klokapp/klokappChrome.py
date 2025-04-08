@@ -215,7 +215,7 @@ class Test(object):
         await self.__click_ele(page=hyperbolic_page, xpath='x://button[text()="Copy Referral Link"]', loop=2)
         time.sleep(3)
         clipboard_text = pyperclip.paste().strip()
-        print("输出拷贝结果："+clipboard_text)
+        logger.info("输出拷贝结果："+clipboard_text)
         for i in range(15):
             # 提问
             await self.__send(page=hyperbolic_page, xpath='x://div[@class="style_loadingDots__NNnij"]',
