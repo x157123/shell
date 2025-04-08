@@ -190,6 +190,15 @@ class Test(object):
         return True
 
     async def __do_task(self, page, evm_id, questions):
+
+        if not os.path.isfile('./klokappChrome..txt'):
+            with open(file='./monad_faucet.txt', mode='a+', encoding='utf-8') as file:
+                file.close()
+            time.sleep(0.1)
+            del file
+        self.__monad_faucet = open(file='./monad_faucet.txt', mode='r+', encoding='utf-8')
+        self.__monad_faucet_str = self.__monad_faucet.read()
+
         logger.info("登录钱包")
         await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=evm_id), timeout=60)
         url = 'https://klokapp.ai/'
@@ -201,9 +210,11 @@ class Test(object):
         await self.__deal_window(page=page)
         await self.__click_ele(page=hyperbolic_page, xpath='x://button[@aria-label="Close modal"]', loop=1)
         pyperclip.copy('')
+        logger.info('准备点击')
+        time.sleep(20)
         await self.__click_ele(page=hyperbolic_page, xpath='x://button[text()="Copy Referral Link"]', loop=2)
         clipboard_text = pyperclip.paste().strip()
-        print(clipboard_text)
+        print("输出拷贝结果："+clipboard_text)
         for i in range(15):
             # 提问
             await self.__send(page=hyperbolic_page, xpath='x://div[@class="style_loadingDots__NNnij"]',
@@ -243,7 +254,7 @@ class Test(object):
             logger.info(f"发生错误: {e}")
         finally:
             page.quit()
-            
+
 def read_questions_from_file(file_path):
     with open(file_path, "r") as file:
         questions = file.readlines()
@@ -312,6 +323,7 @@ if __name__ == '__main__':
         for key in public_key_tmp:
             logger.info(f"发现账号{key['secretKey']}")
         questions = read_questions_from_file("/opt/data/questions.txt")
+
         while True:
             current_date = datetime.now().strftime('%Y%m%d')  # 当前日期
             args.day_count = 0
