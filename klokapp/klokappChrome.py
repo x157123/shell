@@ -220,7 +220,6 @@ class Test(object):
         else:
             pyperclip.copy('')
             logger.info('准备点击')
-            time.sleep(20)
             await self.__click_ele(page=hyperbolic_page, xpath='x://button[text()="Copy Referral Link"]', loop=2)
             time.sleep(3)
             clipboard_text = pyperclip.paste().strip()
