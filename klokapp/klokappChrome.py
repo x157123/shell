@@ -235,9 +235,9 @@ class Test(object):
             loop_count += 1
 
     # div
-    async def run(self, evm_id, questions):
-        page = await self.__get_page(evm_id)
-        await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, questions=questions), timeout=60)
+    def run(self, evm_id, questions):
+        page = self.__get_page(evm_id)
+        asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, questions=questions), timeout=60)
 
 
 def read_questions_from_file(file_path):
@@ -320,7 +320,6 @@ if __name__ == '__main__':
             if now.hour >= 0 and args.day_count <= 1:
                 for key in public_key_tmp:
                     try:
-                        args.id = key["id"]
                         args.index = key["secretKey"]
                         logger.info(f"执行: {args.index}")
                         test = Test()
