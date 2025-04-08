@@ -237,9 +237,13 @@ class Test(object):
     # div
     async def run(self, evm_id, questions):
         page = await self.__get_page(evm_id)
-        await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, questions=questions), timeout=60)
-
-
+        try:
+            await asyncio.wait_for(fut=self.__do_task(page=page, evm_id=evm_id, questions=questions), timeout=60)
+        except Exception as e:
+            logger.info(f"发生错误: {e}")
+        finally:
+            page.quit()
+            
 def read_questions_from_file(file_path):
     with open(file_path, "r") as file:
         questions = file.readlines()
