@@ -62,7 +62,7 @@ def __click_ele(page, xpath: str = '', loop: int = 5, must: bool = False, by_jd:
 
 
 def __click_verify_ele(page, xpath: str = '', loop: int = 5, must: bool = False, by_jd: bool = True, find_all: bool = False,
-                index: int = -1) -> int:
+                       index: int = -1) -> int:
     loop_count = 1
     while True:
         logger.info(f'查找元素{xpath}:{loop_count}')
@@ -293,8 +293,8 @@ def __do_task(account, retry: int = 0):
             time.sleep(10)
 
             __click_verify_ele(page=hyperbolic_page,
-                        xpath='x://button[contains(text(), "Log In") and not(@aria-haspopup="dialog") and not(@disabled)]',
-                        loop=10)
+                               xpath='x://button[contains(text(), "Log In") and not(@aria-haspopup="dialog") and not(@disabled)]',
+                               loop=10)
 
         if (hyperbolic_page.ele('x://button[contains(text(), "Resend verification link")]')):
             __click_ele(page=hyperbolic_page,
@@ -339,8 +339,9 @@ def __do_task(account, retry: int = 0):
                 hyperbolic_page.get("https://app.hyperbolic.xyz/billing")
                 time.sleep(5)
                 logger.info('开始转账')
-                random_number = random.randint(11, 20)
-                logger.info(f"转账金额0.000000000000{str(random_number)}")
+                # random_number = random.randint(11, 20)
+                random_number = __get_base_balance(wallet_addr)
+                logger.info(f"转账金额{str(random_number)}")
                 # send_get_request(index, "0.000000000000" + str(random_number))
                 # 验证是否绑定成功
                 ok = hyperbolic_page.ele('x://span[contains(text(), "0xd3cB24E0Ba20865C530831C85Bd6EbC25f6f3B60")]')
@@ -353,17 +354,18 @@ def __do_task(account, retry: int = 0):
                         # 将文本转换为数字（整数或浮点数）
                         span_value = float(span_text)  # 使用 float 以支持整数和浮动数字
                         # 判断 span_value 是否大于 0
-                        if span_value <= 0:
-                            url_tmp = "http://192.168.0.16:8082/service_route?service_name=token_trans&&index={}&&to={}&&value=0.000000000000{}&&contractAddr=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&&chainId=8453"
-                            transfer_url = url_tmp.format(wallet, to, random_number)
-                            logger.info(transfer_url)
-                            transfer_page = page.new_tab(transfer_url)
-                            time.sleep(10)
-                            transfer_page.close()
+                        # if span_value <= 0:
+
+                        url_tmp = "http://192.168.0.16:8082/service_route?service_name=token_trans&&index={}&&to={}&&value={}&&contractAddr=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&&chainId=8453"
+                        transfer_url = url_tmp.format(wallet, to, random_number)
+                        logger.info(transfer_url)
+                        transfer_page = page.new_tab(transfer_url)
+                        time.sleep(10)
+                        transfer_page.close()
 
                         __transfer.write(wallet_addr + '\r')
                         __transfer.flush()
-                        # time.sleep(5)
+                        time.sleep(5)
                         # hyperbolic_page.refresh()
                         # time.sleep(5)
                 else:
@@ -375,6 +377,62 @@ def __do_task(account, retry: int = 0):
     finally:
         page.quit()
         return bool
+
+def __get_base_balance(evm_address):
+    # 构造 JSON-RPC 请求数据
+    # 去除 '0x' 前缀并确保地址长度为 64 字符（32字节）
+    address = evm_address[2:].rjust(64, '0')
+    # 函数选择器 'balanceOf(address)' 对应的前 4 字节
+    selector = '0x70a08231'
+    # 拼接选择器和填充后的地址
+    encoded_data = selector + address
+
+    __headers = {
+        'authority': 'mainnet.base.org',
+        'accept': 'application/json, text/plain, */*',
+        'accept-language': 'zh-CN,zh;q=0.9',
+        'content-type': 'application/json',
+        'origin': 'https://ct.app',
+        'referer': 'https://ct.app/',
+        'sec-ch-ua': '"Not_A Brand";v="99", "Google Chrome";v="109", "Chromium";v="109"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'cross-site',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
+    }
+
+
+    json_data = {
+        "method": "eth_call",
+        "params": [
+            {
+                "to": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+                "data": encoded_data
+            },
+            "latest"
+        ],
+        "id": 2,
+        "jsonrpc": "2.0"
+    }
+    url = 'https://mainnet.base.org/'
+    response = requests.post(url=url, headers=__headers, json=json_data)  # 发起 POST 请求
+    result = response.json()  # 获取返回的 JSON 数据
+    if 'result' not in result:
+        print("错误: 无法获取余额")
+        return None
+    # 去除前缀 '0x'
+    address_without_prefix = result.get('result')[2:][-8:]
+    # 将哈希值转换为整数
+    hash_int = int(address_without_prefix, 16)
+    # 将整数转换为浮动数值（例如，除以一个大的常数 1000000）
+    float_value = hash_int / 10000
+    return convert_to_scaled_format(int(float_value))
+
+
+def convert_to_scaled_format(value):
+    return f"{value * 1e-14:.14f}"
 
 
 def cf_verify(window_page, x, y):
@@ -477,7 +535,4 @@ if __name__ == "__main__":
     # for acc in account_data:
     #     logger.info(acc)
 
-    run_tasks(account_data)
-    run_tasks(account_data)
-    run_tasks(account_data)
     run_tasks(account_data)

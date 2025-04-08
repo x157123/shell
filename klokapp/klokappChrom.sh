@@ -12,11 +12,12 @@ readonly CHROME_BAK_URL="https://www.15712345.xyz/chrome/$CHROME_DEB"
 readonly CHROME_URL_OLD="https://github.com/x157123/ACL4SSR/releases/download/chro/google-chrome-stable_120.0.6099.224-1_amd64.deb"
 readonly WALLET_URL="https://github.com/x157123/ACL4SSR/releases/download/v1.0.0/chrome-cloud.tar"
 readonly EDGE_URL="https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_133.0.3065.82-1_amd64.deb?brand=M102"
+readonly DOWN_QUESTIONS="https://github.com/x157123/ACL4SSR/releases/download/v.1.0.5/questions.txt"
 readonly PYTHON_SCRIPT_DIR="/opt/"  # 目录
 readonly DEFAULT_VNC_DISPLAY=23       # 默认显示号
 readonly VNC_BASE_PORT=5900           # VNC 基础端口
 readonly NOVNC_BASE_PORT=26300        # noVNC 基础端口
-readonly CHROME_DEBUG_BASE_PORT=9518  # Chrome 调试基础端口
+readonly CHROME_DEBUG_BASE_PORT=9515  # Chrome 调试基础端口
 
 # 默认值
 USER="${USER:-admin}"
@@ -157,7 +158,9 @@ parse_args() {
 # 更新系统包列表
 update_system() {
     log_info "更新系统软件包列表..."
-    sudo apt update -y
+    # 屏蔽掉google浏览器
+    sudo mv /etc/apt/sources.list.d/google-chrome.list /etc/apt/sources.list.d/google-chrome.list.bak
+    sudo apt update -y || error_exit "软件包列表更新失败"
 }
 
 # 安装系统依赖
@@ -303,6 +306,23 @@ setup_python_script() {
     chown "$USER:$USER" "$PYTHON_SCRIPT_DIR$FILE_NAME"
 }
 
+# 下载问题
+down_questions() {
+    if [ ! -d "/opt/data/" ]; then
+        log_info "目录 $PYTHON_SCRIPT_DIR 不存在，正在创建..."
+        mkdir -p "/opt/data/" || error_exit "无法创建目录 /opt/data/"
+        chown "$USER:$USER" /opt/data/
+    fi
+    if [ -f "/opt/data/questions.txt" ]; then
+        log_info "/opt/data/questions.txt 已存在，删除旧文件..."
+        rm -f /opt/data/questions.txt
+    fi
+    log_info "下载 Python 脚本..."
+    wget -q -O "/opt/data/questions.txt" "$DOWN_QUESTIONS" || error_exit "脚本下载失败"
+    chmod +x /opt/data/questions.txt
+    chown "$USER:$USER" /opt/data/questions.txt
+}
+
 # 检查并安装 VNC
 setup_vnc() {
     if ! command -v tightvncserver >/dev/null 2>&1; then
@@ -417,55 +437,72 @@ setup_novnc() {
     fi
 }
 
-stop_services() {
-      # 检查并清理特定 Chrome 调试端口
-      PIDS=$(lsof -t -i:$CHROME_DEBUG_PORT -sTCP:LISTEN)
-      if [ -n "$PIDS" ]; then
-          log_info "$CHROME_DEBUG_PORT 端口已被占用，终止占用该端口的进程：$PIDS"
-          kill -9 "$PIDS"
-          sleep 1
-      fi
-
-      # 查找运行中的 去除python进程
-      pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
-      if [ -n "$pids" ]; then
-          echo "检测到正在运行的实例: $pids，准备终止..."
-          for pid in $pids; do
-              kill -9 "$pid"
-              echo "已终止 PID: $pid"
-          done
-      fi
-
-      # 查找运行中的 老版本 chrome.py 进程
-      pids=$(pgrep -f "/opt/chrome.py")
-      if [ -n "$pids" ]; then
-          echo "检测到正在运行的实例: $pids，准备终止..."
-          for pid in $pids; do
-              kill -9 "$pid"
-              echo "已终止 PID: $pid"
-          done
-      fi
-
-      # 查找运行中的 老版本 chrome.py 进程
-      npids=$(pgrep -f "/opt/nexus/nexusChrom.py")
-      if [ -n "$npids" ]; then
-          echo "检测到正在运行的实例: $npids，准备终止..."
-          for pid in $npids; do
-              kill -9 "$pid"
-              echo "已终止 PID: $pid"
-          done
-      fi
-
-      # 清理特定显示号的 Python 脚本进程
-      PYTHON_PID_FILE="python_$VNC_DISPLAY.pid"
-      if [ -f "$PYTHON_PID_FILE" ] && kill -0 "$(cat "$PYTHON_PID_FILE")" 2>/dev/null; then
-          log_info "终止旧 Python 脚本进程..."
-          kill "$(cat "$PYTHON_PID_FILE")"
-      fi
-}
-
 # 启动 Chrome 和 Python 脚本
 start_services() {
+    # 检查并清理特定 Chrome 调试端口
+    PIDS=$(lsof -t -i:$CHROME_DEBUG_PORT -sTCP:LISTEN)
+    if [ -n "$PIDS" ]; then
+        log_info "$CHROME_DEBUG_PORT 端口已被占用，终止占用该端口的进程：$PIDS"
+        kill -9 "$PIDS"
+        sleep 1
+    fi
+
+    # 查找运行中的 老版本 chrome.py 进程
+    pids=$(pgrep -f "/opt/chrome.py")
+    if [ -n "$pids" ]; then
+        echo "检测到正在运行的实例: $pids，准备终止..."
+        for pid in $pids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
+    fi
+
+    # 查找运行中的 去除python进程
+    pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
+    if [ -n "$pids" ]; then
+        echo "检测到正在运行的实例: $pids，准备终止..."
+        for pid in $pids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
+    fi
+
+    # 查找运行中的 老版本 chrome.py 进程
+    npids=$(pgrep -f "/opt/malda_chrom")
+    if [ -n "$npids" ]; then
+        echo "检测到正在运行的实例: $npids，准备终止..."
+        for pid in $npids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
+    fi
+
+    # 查找运行中的 老版本 chrome.py 进程
+    npids=$(pgrep -f "/opt/pond_chrom")
+    if [ -n "$npids" ]; then
+        echo "检测到正在运行的实例: $npids，准备终止..."
+        for pid in $npids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
+    fi
+
+    # 查找运行中的 老版本 chrome.py 进程
+    npids=$(pgrep -f "/opt/hyper_chrome")
+    if [ -n "$npids" ]; then
+        echo "检测到正在运行的实例: $npids，准备终止..."
+        for pid in $npids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
+    fi
+
+    # 清理特定显示号的 Python 脚本进程
+    PYTHON_PID_FILE="python_$VNC_DISPLAY.pid"
+    if [ -f "$PYTHON_PID_FILE" ] && kill -0 "$(cat "$PYTHON_PID_FILE")" 2>/dev/null; then
+        log_info "终止旧 Python 脚本进程..."
+        kill "$(cat "$PYTHON_PID_FILE")"
+    fi
 
     SUDO_USER="$USER"
 
@@ -482,10 +519,11 @@ main() {
         error_exit "此脚本需要 root 权限运行，请使用 sudo 或以 root 用户执行"
     fi
 
-    # 关闭浏览器
-    pkill -9 msedge
+    # 清除现有的定时任务
+    crontab -r
 
-    stop_services
+    # 关闭所有浏览器
+    pkill chrome
 
     parse_args "$@"
     update_system
@@ -494,11 +532,12 @@ main() {
     setup_vnc
 #    install_chrome
     install_chrome_120
-    install_edge
+#    install_edge
     install_wallet
     setup_python_script
     setup_xrdp
     setup_novnc
+    down_questions
     install_python_packages
     start_services
 }
