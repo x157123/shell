@@ -346,7 +346,7 @@ if __name__ == '__main__':
 
             now = datetime.now()
             # 早上1点后才执行
-            if now.hour >= 0 and args.day_count <= 1:
+            if now.hour >= 0 and args.day_count <= 2:
                 for key in public_key_tmp:
                     try:
                         args.index = key["secretKey"]
