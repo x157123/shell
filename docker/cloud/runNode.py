@@ -165,4 +165,6 @@ if __name__ == "__main__":
             time.sleep(200)
             item['id'] = start_id + index  # 将ID设置为序号，从20000开始
             data = compress_data(item)
-            run_shell_script(data, item['id'])
+            if item['isActive'] == 2:
+                logger.info(f'启动私钥{item["publicKey"]}')
+                run_shell_script(data, item['id'])
