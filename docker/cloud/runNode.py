@@ -171,3 +171,5 @@ if __name__ == "__main__":
             if item['isActive'] == 2:
                 logger.info(f'启动私钥{item["publicKey"]}')
                 run_shell_script(data, item['id'])
+            else:
+                logger.info(f'跳过{item["publicKey"]}')
