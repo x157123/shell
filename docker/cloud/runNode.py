@@ -159,6 +159,8 @@ if __name__ == "__main__":
     # 解密并发送解密结果
     public_key_tmp = decrypt_aes_ecb(all_args.decryptKey, encrypted_data_base64, 'hyperDocker')
 
+    logger.info(f'我现在数据量{len(public_key_tmp)}')
+
     if len(public_key_tmp) > 0:
         start_id = 20000  # 设置起始ID
         for index, item in enumerate(public_key_tmp):
