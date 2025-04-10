@@ -220,6 +220,15 @@ setup_python_script() {
 # 启动 Chrome 和 Python 脚本
 start_services() {
 
+
+    sudo docker stop $(sudo docker ps -q --filter "name=node")
+    log_info "停止所有容器"
+
+    sleep 20
+    sudo docker rm $(sudo docker ps -a -q --filter "name=node")
+    log_info "删除所有容器"
+    sleep 20
+
     SUDO_USER="$USER"
 
     # 启动 Python 脚本

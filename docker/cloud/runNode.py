@@ -162,7 +162,7 @@ if __name__ == "__main__":
     logger.info(f'我现在数据量{len(public_key_tmp)}')
 
     if len(public_key_tmp) > 0:
-        public_key_tmp.sort(key=lambda item: item['isActive'])
+        public_key_tmp.sort(key=lambda item: item['id'])
         start_id = 20000  # 设置起始ID
         for index, item in enumerate(public_key_tmp):
             item['id'] = start_id + index  # 将ID设置为序号，从20000开始
