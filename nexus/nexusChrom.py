@@ -38,9 +38,7 @@ def configure_browser(user):
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
 
     browser = Chromium(co)
-    # tab = browser.new_tab(url="https://app.nexus.xyz")
-    tab = browser.latest_tab
-    return tab
+    return browser
 
 
 def click_element(tab, xpath, timeout=2, interval=0.5):
@@ -293,40 +291,15 @@ def main(client, serverId, appId, decryptKey, user, display):
 
     # 启动浏览器
     logger.info(f"start")
-    tab = configure_browser(user)
-
+    browser = configure_browser(user)
+    tab = browser.latest_tab
     time.sleep(10)
-    if len(tab.browser.get_tabs(title="Signma")) > 0:
-        time.sleep(3)
-        pop_tab = tab.browser.get_tab(title="Signma")
-        if pop_tab.url == 'chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/tab.html#/onboarding':
-            pop_tab.close()
-
-    time.sleep(2)
-    if len(tab.browser.get_tabs(title="Signma")) > 0:
-        time.sleep(3)
-        pop_tab = tab.browser.get_tab(title="Extensions")
-        if pop_tab.url == 'chrome://extensions':
-            pop_tab.close()
+    close_signma_popup(browser)
 
     logger.info(f"安装钱包:{obj['secretKey']}")
     tab = setup_wallet(tab, obj['secretKey'])
     time.sleep(3)
     tab = tab.browser.new_tab(url="https://app.nexus.xyz")
-
-    # 定位 class 属性中包含 'bg-[#ffffff]' 的 div 元素
-    div_ele = tab.ele('x://div[contains(@class, "bg-[#ffffff]")]')
-
-    # 判断元素是否存在，存在则执行点击操作
-    if div_ele:
-        div_ele.click(by_js=True)
-        logger.info("找到了包含 'bg-[#ffffff]' 的 div，已执行点击操作。")
-    else:
-        logger.info("未找到包含 'bg-[#ffffff]' 的 div。")
-
-    pyautogui.moveTo(400, 400)  # 需要你先手动量好按钮在屏幕上的位置
-    pyautogui.click()
-    time.sleep(1)
 
     # 点击 "Sign up to earn NEX" 元素
     signup_ele = tab.ele('x://div[text()="Sign up to earn points"]')
@@ -444,6 +417,31 @@ def main(client, serverId, appId, decryptKey, user, display):
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab, client, serverId, appId, user, display, obj["email"])
 
+
+def close_signma_popup(page, count: int = 1, timeout: int = 15, must: bool = False):
+    """处理 Signma 弹窗，遍历所有 tab 页签"""
+    start_time = time.time()
+    _count = 0
+    logger.info('关闭窗口')
+    while time.time() - start_time < timeout:
+        time.sleep(2)
+        # 获取所有打开的 tab 页签
+        all_tabs = page.get_tabs()  # 假设此方法返回所有标签页的页面对象
+        # 遍历所有的 tab 页签
+        for tab in all_tabs:
+            logger.info(tab.url)
+            if 'ohgmkpjifodfiomblclfpdhehohinlnn' in tab.url:
+                tab.close()  # 关闭符合条件的 tab 页签
+                _count += 1
+            if 'chrome://extensions' in tab.url:
+                tab.close()  # 关闭符合条件的 tab 页签
+                _count += 1
+
+            # 如果处理了足够数量的 tab，则退出
+            if _count >= count:
+                return True
+
+    return False
 
 def get_email_code(tab):
     email_url = 'https://mail.dmail.ai/inbox'
