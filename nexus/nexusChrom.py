@@ -294,7 +294,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     browser = configure_browser(user)
     tab = browser.latest_tab
     time.sleep(10)
-    close_signma_popup(browser)
+    close_signma_popup(page=browser,timeout=5)
 
     logger.info(f"安装钱包:{obj['secretKey']}")
     tab = setup_wallet(tab, obj['secretKey'])
@@ -433,14 +433,11 @@ def close_signma_popup(page, count: int = 1, timeout: int = 15, must: bool = Fal
             if 'ohgmkpjifodfiomblclfpdhehohinlnn' in tab.url:
                 tab.close()  # 关闭符合条件的 tab 页签
                 _count += 1
+                break
             if 'chrome://extensions' in tab.url:
                 tab.close()  # 关闭符合条件的 tab 页签
                 _count += 1
-
-            # 如果处理了足够数量的 tab，则退出
-            if _count >= count:
-                return True
-
+                break
     return False
 
 def get_email_code(tab):
