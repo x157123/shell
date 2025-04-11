@@ -294,7 +294,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     browser = configure_browser(user)
     tab = browser.latest_tab
     time.sleep(10)
-    close_signma_popup(tab.browser)
+    close_signma_popup(browser)
 
     logger.info(f"安装钱包:{obj['secretKey']}")
     tab = setup_wallet(tab, obj['secretKey'])
