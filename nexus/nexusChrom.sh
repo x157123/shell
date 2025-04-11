@@ -498,7 +498,7 @@ main() {
 #    pkill chrome
 
     parse_args "$@"
-    update_system
+#    update_system
     install_system_deps
     check_dependencies
     setup_vnc
