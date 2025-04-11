@@ -12,7 +12,6 @@ from Crypto.Util.Padding import unpad
 import random
 import subprocess
 import os
-import pyautogui
 
 def configure_browser(user):
     """配置并启动浏览器"""
@@ -300,7 +299,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     tab = setup_wallet(tab, obj['secretKey'])
     time.sleep(3)
     tab = tab.browser.new_tab(url="https://app.nexus.xyz")
-    
+
     close_signma_popup(page=browser, timeout=5)
 
     # 点击 "Sign up to earn NEX" 元素
