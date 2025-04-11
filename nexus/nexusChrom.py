@@ -400,17 +400,19 @@ def main(client, serverId, appId, decryptKey, user, display):
                     if code == '':
                         print("未获取到验证码")
                     if code != '':
-                        pyautogui.moveTo(400, 400)  # 需要你先手动量好按钮在屏幕上的位置
-                        pyautogui.click()
-                        time.sleep(1)
-                        pyautogui.write(code)
-                        # for index, digit in enumerate(code):
-                        #     input_box = shadow_root.ele(f'//input[@data-testid="{index}"]')  # 选择对应输入框
-                        #     if input_box:
-                        #         logger.info(f'开始输入验证码{digit}')
-                        #         input_box.click()  # 点击输入框
-                        #         input_box.input(digit)  # 输入单个数字
-                        #         time.sleep(0.2)  # 可选：稍微延迟，防止输入过快
+                        # pyautogui.moveTo(400, 400)  # 需要你先手动量好按钮在屏幕上的位置
+                        # pyautogui.click()
+                        # time.sleep(1)
+                        # pyautogui.write(code)
+                        shadow_host = tab.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+                        shadow_root = shadow_host.shadow_root
+                        for index, digit in enumerate(code):
+                            input_box = shadow_root.ele(f'//input[@data-testid="{index}"]')  # 选择对应输入框
+                            if input_box:
+                                logger.info(f'开始输入验证码{digit}')
+                                input_box.click()  # 点击输入框
+                                input_box.input(digit)  # 输入单个数字
+                                time.sleep(0.2)  # 可选：稍微延迟，防止输入过快
             else:
                 logger.info("没有找到13。")
         else:
