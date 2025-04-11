@@ -329,7 +329,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     time.sleep(1)
 
     # 点击 "Sign up to earn NEX" 元素
-    signup_ele = tab.ele('x://div[text()="Sign up to earn NEX"]/ancestor::button')
+    signup_ele = tab.ele('x://div[text()="Sign up to earn points"]')
     if signup_ele:
         signup_ele.click(by_js=True)
         # 根据实际情况调整等待时间，确保页面加载完成
