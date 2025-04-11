@@ -400,6 +400,9 @@ def main(client, serverId, appId, decryptKey, user, display):
                     if code == '':
                         print("未获取到验证码")
                     if code != '':
+                        pyautogui.moveTo(400, 400)  # 需要你先手动量好按钮在屏幕上的位置
+                        pyautogui.click()
+                        time.sleep(1)
                         pyautogui.write(code)
                         # for index, digit in enumerate(code):
                         #     input_box = shadow_root.ele(f'//input[@data-testid="{index}"]')  # 选择对应输入框
