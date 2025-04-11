@@ -491,7 +491,7 @@ main() {
         error_exit "此脚本需要 root 权限运行，请使用 sudo 或以 root 用户执行"
     fi
 
-    sudo apt-get install python3-tk python3-dev
+    sudo apt-get install python3-tk python3-dev -y
 
     # 关闭所有浏览器
 #    pkill chrome
