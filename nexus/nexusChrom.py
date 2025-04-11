@@ -300,6 +300,8 @@ def main(client, serverId, appId, decryptKey, user, display):
     tab = setup_wallet(tab, obj['secretKey'])
     time.sleep(3)
     tab = tab.browser.new_tab(url="https://app.nexus.xyz")
+    
+    close_signma_popup(page=browser, timeout=5)
 
     # 点击 "Sign up to earn NEX" 元素
     signup_ele = tab.ele('x://div[text()="Sign up to earn points"]')
