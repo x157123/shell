@@ -418,6 +418,27 @@ setup_novnc() {
     fi
 }
 
+stop_services(){
+
+    # 检查并清理特定 Chrome 调试端口
+    PIDS=$(lsof -t -i:$CHROME_DEBUG_PORT -sTCP:LISTEN)
+    if [ -n "$PIDS" ]; then
+        log_info "$CHROME_DEBUG_PORT 端口已被占用，终止占用该端口的进程：$PIDS"
+        kill -9 "$PIDS"
+        sleep 1
+    fi
+
+    # 查找运行中的 去除python进程
+    pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
+    if [ -n "$pids" ]; then
+        echo "检测到正在运行的实例: $pids，准备终止..."
+        for pid in $pids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
+    fi
+}
+
 # 启动 Chrome 和 Python 脚本
 start_services() {
     # 检查并清理特定 Chrome 调试端口
@@ -489,20 +510,22 @@ main() {
         error_exit "此脚本需要 root 权限运行，请使用 sudo 或以 root 用户执行"
     fi
 
-    check_dependencies
-    parse_args "$@"
-#    update_system
-    install_system_deps
-    setup_vnc
-#    install_chrome
-    install_chrome_120
-#    install_edge
-    install_wallet
-    setup_python_script
-    setup_xrdp
-    setup_novnc
-    install_python_packages
-    start_services
+    stop_services
+
+#    check_dependencies
+#    parse_args "$@"
+##    update_system
+#    install_system_deps
+#    setup_vnc
+##    install_chrome
+#    install_chrome_120
+##    install_edge
+#    install_wallet
+#    setup_python_script
+#    setup_xrdp
+#    setup_novnc
+#    install_python_packages
+#    start_services
 }
 
 main "$@"
