@@ -9,6 +9,7 @@ readonly DEPENDENCIES=("curl" "wget" "git" "pip3" "lsof" "expect")  # 依赖命�
 readonly CHROME_DEB="google-chrome-stable_current_amd64.deb"
 readonly CHROME_URL="https://dl.google.com/linux/direct/$CHROME_DEB"
 readonly CHROME_BAK_URL="https://www.15712345.xyz/chrome/$CHROME_DEB"
+readonly DOWN_IMG="https://img95.699pic.com/element/40204/2110.png_300.png"
 readonly CHROME_URL_OLD="https://github.com/x157123/ACL4SSR/releases/download/chro/google-chrome-stable_120.0.6099.224-1_amd64.deb"
 readonly WALLET_URL="https://github.com/x157123/ACL4SSR/releases/download/v1.0.0/chrome-cloud.tar"
 readonly EDGE_URL="https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_133.0.3065.82-1_amd64.deb?brand=M102"
@@ -287,6 +288,21 @@ install_wallet() {
 
   fi
 }
+# 下载image
+setup_img() {
+    if [ ! -d "/home/ubuntu/img/" ]; then
+        log_info "目录 /home/ubuntu/img/ 不存在，正在创建..."
+        mkdir -p "/home/ubuntu/img/" || error_exit "无法创建目录 /home/ubuntu/img/"
+        chown "$USER:$USER" "/home/ubuntu/img/"
+    fi
+    if [ -f "/home/ubuntu/img/img.png" ]; then
+        log_info "/home/ubuntu/img/img.png 已存在，删除旧文件..."
+        rm -f "/home/ubuntu/img/img.png"
+    fi
+    log_info "下载 Python 脚本..."
+    wget -q -O "/home/ubuntu/img/img.png" "$DOWN_IMG" || error_exit "脚本下载失败"
+    chown "$USER:$USER" "/home/ubuntu/img/img.png"
+}
 
 # 下载并配置 Python 脚本
 setup_python_script() {
@@ -304,6 +320,7 @@ setup_python_script() {
     chmod +x "$PYTHON_SCRIPT_DIR$FILE_NAME"
     chown "$USER:$USER" "$PYTHON_SCRIPT_DIR$FILE_NAME"
 }
+
 
 # 检查并安装 VNC
 setup_vnc() {
@@ -506,6 +523,7 @@ main() {
     install_chrome_120
 #    install_edge
     install_wallet
+    setup_img
     setup_python_script
     setup_xrdp
     setup_novnc
