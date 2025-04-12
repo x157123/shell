@@ -26,7 +26,7 @@ def configure_browser(user):
         "--export-tagged-pdf", "--disable-gpu",
         "--disable-infobars", "--disable-popup-blocking", "--allow-outdated-plugins",
         "--deny-permission-prompts", "--disable-suggestions-ui", "--window-size=1920,1080",
-        "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/9515",
+        "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/9525",
         "--disable-features=ServerSentEvents"
     ]
 
