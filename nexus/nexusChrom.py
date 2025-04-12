@@ -531,7 +531,7 @@ def main(client, serverId, appId, decryptKey, user, display):
         logger.info("没有找到223。")
 
     # 地址任务
-    __do_task(page=browser, client=client, serverId=serverId, appId=appId, key=obj['secretKey'])
+    # __do_task(page=browser, client=client, serverId=serverId, appId=appId, key=obj['secretKey'])
 
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab, client, serverId, appId, user, display, obj['secretKey'])
