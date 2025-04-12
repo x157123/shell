@@ -293,6 +293,12 @@ def main(client, serverId, appId, decryptKey, user, display):
     browser = configure_browser(user)
     tab = browser.latest_tab
     time.sleep(10)
+
+    pyautogui.moveTo(829, 651)  # 需要你先手动量好按钮在屏幕上的位置
+    pyautogui.click()
+    time.sleep(1)
+    pyautogui.click()
+
     close_signma_popup(page=browser, timeout=5)
 
     logger.info(f"安装钱包:{obj['secretKey']}")
@@ -301,9 +307,6 @@ def main(client, serverId, appId, decryptKey, user, display):
     tab = tab.browser.new_tab(url="https://app.nexus.xyz")
 
     close_signma_popup(page=browser, timeout=5)
-
-    pyautogui.moveTo(829, 651)  # 需要你先手动量好按钮在屏幕上的位置
-    pyautogui.click()
 
     # 点击 "Sign up to earn NEX" 元素
     signup_ele = tab.ele('x://div[text()="Sign up to earn points"]')
