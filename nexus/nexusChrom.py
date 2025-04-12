@@ -493,7 +493,6 @@ def main(client, serverId, appId, decryptKey, user, display):
             logger.info("找到123。")
             email = shadow_root.ele('x://input[@id="email"]')
             if email:
-                client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 88, obj['secretKey'])))
                 logger.info(f'发现邮箱，输入邮箱地址：{obj["email"]}')
                 email.input(obj["email"], clear=True)
                 time.sleep(2)
@@ -504,9 +503,8 @@ def main(client, serverId, appId, decryptKey, user, display):
                     time.sleep(2)
                     # 获取邮箱验证码
                     code = get_email_code(tab)
-                    if code == '':
-                        print("未获取到验证码")
-                    if code != '':
+                    print(f"获取到验证码{code}")
+                    if code is not None and code != '':
                         pyautogui.moveTo(829, 651)  # 需要你先手动量好按钮在屏幕上的位置
                         pyautogui.click()
                         pyautogui.click()
@@ -521,6 +519,10 @@ def main(client, serverId, appId, decryptKey, user, display):
                         #         input_box.click()  # 点击输入框
                         #         input_box.input(digit)  # 输入单个数字
                         #         time.sleep(0.2)  # 可选：稍微延迟，防止输入过快
+                    else:
+                        client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 88, obj['secretKey'])))
+                        print("未获取到验证码")
+
             else:
                 logger.info("没有找到13。")
         else:
