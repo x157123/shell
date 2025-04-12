@@ -294,9 +294,7 @@ def main(client, serverId, appId, decryptKey, user, display):
     tab = browser.latest_tab
     time.sleep(10)
 
-    pyautogui.moveTo(829, 651)  # 需要你先手动量好按钮在屏幕上的位置
-    pyautogui.click()
-    time.sleep(1)
+    pyautogui.moveTo(1209, 737)  # 需要你先手动量好按钮在屏幕上的位置
     pyautogui.click()
 
     close_signma_popup(page=browser, timeout=5)
