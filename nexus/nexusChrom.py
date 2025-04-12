@@ -534,84 +534,86 @@ def main(client, serverId, appId, decryptKey, user, display):
 
 def __do_task(page):
     explorer_page = page.new_tab(url='https://explorer.nexus.xyz/')
-    # try:
-    time.sleep(5)
-    connect = explorer_page.ele('x://button[text()="Connect"]')
-    if connect:
-        __click_ele(page=explorer_page, xpath='x://button[text()="Connect"]', loop=1)
+    try:
+        time.sleep(5)
+        connect = explorer_page.ele('x://button[text()="Connect"]')
+        if connect:
+            __click_ele(page=explorer_page, xpath='x://button[text()="Connect"]', loop=1)
 
-        modal = explorer_page.ele('x://w3m-modal[@style="--local-border-bottom-mobile-radius: 0px;"]')
-        shadow_root = modal.shadow_root
+            modal = explorer_page.ele('x://w3m-modal[@style="--local-border-bottom-mobile-radius: 0px;"]')
+            shadow_root = modal.shadow_root
 
-        modal = shadow_root.ele('x://w3m-router')
-        shadow_root = modal.shadow_root
+            modal = shadow_root.ele('x://w3m-router')
+            shadow_root = modal.shadow_root
 
-        modal = shadow_root.ele('x://w3m-connect-view')
-        shadow_root = modal.shadow_root
+            modal = shadow_root.ele('x://w3m-connect-view')
+            shadow_root = modal.shadow_root
 
-        modal = shadow_root.ele('x://w3m-wallet-login-list')
-        shadow_root = modal.shadow_root
+            modal = shadow_root.ele('x://w3m-wallet-login-list')
+            shadow_root = modal.shadow_root
 
-        modal = shadow_root.ele('x://w3m-connector-list')
-        shadow_root = modal.shadow_root
+            modal = shadow_root.ele('x://w3m-connector-list')
+            shadow_root = modal.shadow_root
 
-        modal = shadow_root.ele('x://w3m-connect-injected-widget')
-        shadow_root = modal.shadow_root
-        print(shadow_root.html)
+            modal = shadow_root.ele('x://w3m-connect-injected-widget')
+            shadow_root = modal.shadow_root
 
-        modal = shadow_root.ele('x://wui-list-wallet[@data-testid="wallet-selector-xyz.signma"]')
-        if modal:
-            modal.click(by_js=True)
-            handle_signma_popup(page=page, count=2, timeout=30)
-    # except Exception as e:
-    #     logger.info('打开https://explorer.nexus.xyz 错误')
-    # finally:
-    #     explorer_page.close()
+            modal = shadow_root.ele('x://wui-list-wallet[@data-testid="wallet-selector-xyz.signma"]')
+            if modal:
+                modal.click(by_js=True)
+                handle_signma_popup(page=page, count=2, timeout=30)
+    except Exception as e:
+        logger.info('打开https://explorer.nexus.xyz 错误')
+    finally:
+        explorer_page.close()
 
     nft_page = page.new_tab(url='https://nexus-nft-example.vercel.app')
-    # try:
-    connect = nft_page.ele('x://button[text()="Connect Wallet"]')
-    time.sleep(5)
-    if connect:
-        __click_ele(page=nft_page, xpath='x://button[text()="Connect Wallet"]', loop=1)
-        # 一次确认
-        handle_signma_popup(page=page, count=1, timeout=30)
-    time.sleep(5)
-    switch_network = nft_page.ele('x://button[text()="Switch Network"]')
-    if switch_network:
-        __click_ele(page=nft_page, xpath='x://button[text()="Switch Network"]', loop=1)
-        time.sleep(3)
+    try:
+        connect = nft_page.ele('x://button[text()="Connect Wallet"]')
+        time.sleep(5)
+        if connect:
+            __click_ele(page=nft_page, xpath='x://button[text()="Connect Wallet"]', loop=1)
+            # 一次确认
+            handle_signma_popup(page=page, count=1, timeout=30)
+        time.sleep(5)
+        switch_network = nft_page.ele('x://button[text()="Switch Network"]')
+        if switch_network:
+            __click_ele(page=nft_page, xpath='x://button[text()="Switch Network"]', loop=1)
+            time.sleep(3)
 
-    # 设置要上传的文件路径
-    nft_page.set.upload_files('/home/ubuntu/img/img.png')
-    # 点击触发文件选择框按钮
-    div_element = nft_page.ele('x://div[p[text()="Drop image here or click to upload"]]')
-    if div_element:
-        div_element.click()
-        # 等待路径填入
-        nft_page.wait.upload_paths_inputted()
+        # 设置要上传的文件路径
+        nft_page.set.upload_files('/home/ubuntu/img/img.png')
+        # 点击触发文件选择框按钮
+        div_element = nft_page.ele('x://div[p[text()="Drop image here or click to upload"]]')
+        if div_element:
+            div_element.click()
+            # 等待路径填入
+            nft_page.wait.upload_paths_inputted()
 
-        __click_ele(page=nft_page, xpath='x://button[text()="Deploy Collection"]')
-        # 确认两次
-        handle_signma_popup(page=page, count=2, timeout=30)
-        time.sleep(10)
-        __click_ele(page=nft_page, xpath='x://button[span[text()="Mint New NFT"]]')
-        # 确认1次
-        handle_signma_popup(page=page, count=1, timeout=30)
-        time.sleep(10)
+            __click_ele(page=nft_page, xpath='x://button[text()="Deploy Collection"]')
+            # 确认两次
+            handle_signma_popup(page=page, count=2, timeout=30)
+            time.sleep(10)
+            __click_ele(page=nft_page, xpath='x://button[span[text()="Mint New NFT"]]')
+            # 确认1次
+            handle_signma_popup(page=page, count=1, timeout=30)
+            time.sleep(10)
 
-        __click_ele(page=nft_page, xpath='x://button[span[text()="Transfer NFT"]]')
-        addr_element = nft_page.ele('x://input[@placeholder="Recipient address (0x...)"]')
-        if addr_element:
-            addr_element.input('0x3De6d5985d8b9EddAC0779A737703eA18724F9A6', clear=True)
-            time.sleep(2)
-            __click_ele(page=nft_page, xpath='x://button[span[text()="Send"]]')
-    else:
-        logger.info('没找到元素')
-    # except Exception as e:
-    #     logger.info('打开https://nexus-nft-example.vercel.app 错误')
-    # finally:
-    #     nft_page.close()
+            __click_ele(page=nft_page, xpath='x://button[span[text()="Transfer NFT"]]')
+            addr_element = nft_page.ele('x://input[@placeholder="Recipient address (0x...)"]')
+            if addr_element:
+                addr_element.input('0x3De6d5985d8b9EddAC0779A737703eA18724F9A6', clear=True)
+                time.sleep(2)
+                __click_ele(page=nft_page, xpath='x://button[span[text()="Send"]]')
+                # 确认1次
+                handle_signma_popup(page=page, count=1, timeout=30)
+                time.sleep(10)
+        else:
+            logger.info('没找到元素')
+    except Exception as e:
+        logger.info('打开https://nexus-nft-example.vercel.app 错误')
+    finally:
+        nft_page.close()
 
 
 
