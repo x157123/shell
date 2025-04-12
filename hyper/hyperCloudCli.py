@@ -208,7 +208,7 @@ def start():
     logger.info("执行 hive connect 命令...")
     run_command_blocking("/root/.aios/aios-cli hive connect")
     logger.info("connect 命令执行完毕。")
-    return public_key
+
 
 def restart():
     logger.info("===== 检测是否已启动 =====")
@@ -343,10 +343,10 @@ if __name__ == "__main__":
     logger.info(f"恢复后的数据：{restored_data['privateKey']}")
     logger.info(f"恢复后的数据：{restored_data['remarks']}")
 
-    # ensure_key_file(restored_data['remarks'])
+    ensure_key_file(restored_data['remarks'])
 
     time.sleep(20)
-    public_key = start()
+    start()
     # 等待20S
     time.sleep(20)
     num = 10
@@ -381,7 +381,7 @@ if __name__ == "__main__":
                     count = 0
                     num = 0
                     logger.info(f"points: {points}")
-                    app_info = get_app_info_integral('0', '0', public_key, points, 2,
+                    app_info = get_app_info_integral('0', '0', restored_data['publicKey'], points, 2,
                                                      '运行中， 并到采集积分:' + str(points))
                     client.publish("appInfo", json.dumps(app_info))
                     logger.info("获取积分完成。")
