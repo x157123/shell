@@ -19,6 +19,7 @@ def configure_browser(user):
           .set_local_port(args.chromePort)
           .set_paths(r"/opt/google/chrome/google-chrome")
           .add_extension(r"/home/" + user + "/extensions/chrome-cloud")
+          .set_user_data_path(path=f'/home/{user}/task/chrome_data/nexus')
           )
     arguments = [
         "--accept-lang=en-US", "--no-first-run", "--force-color-profile=srgb",
