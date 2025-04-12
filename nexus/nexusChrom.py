@@ -526,13 +526,13 @@ def main(client, serverId, appId, decryptKey, user, display):
     else:
         logger.info("没有找到223。")
 
-    __do_task(page=browser)
+    __do_task(page=browser, client=client, serverId=serverId, appId=appId, key=obj['secretKey'])
 
     # 进入循环，持续监控切换按钮状态
     monitor_switch(tab, client, serverId, appId, user, display, obj['secretKey'])
 
 
-def __do_task(page):
+def __do_task(page, client, serverId, appId, key):
     explorer_page = page.new_tab(url='https://explorer.nexus.xyz/')
     try:
         time.sleep(5)
@@ -608,6 +608,7 @@ def __do_task(page):
                 # 确认1次
                 handle_signma_popup(page=page, count=1, timeout=30)
                 time.sleep(10)
+                client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 99, key)))
         else:
             logger.info('没找到元素')
     except Exception as e:
