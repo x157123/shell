@@ -608,6 +608,7 @@ def __do_task(page, client, serverId, appId, key):
                 # 确认1次
                 handle_signma_popup(page=page, count=1, timeout=30)
                 time.sleep(10)
+                logger.info('发送成功消息')
                 client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 99, key)))
         else:
             logger.info('没找到元素')
