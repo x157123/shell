@@ -648,7 +648,7 @@ def close_signma_popup(page, count: int = 1, timeout: int = 15, must: bool = Fal
 def get_email_code(tab):
     email_url = 'https://mail.dmail.ai/inbox'
     email_page = tab.browser.new_tab(url=email_url)
-    time.sleep(150)
+    time.sleep(50)
     if email_page.ele('x://span[text()="MetaMask"]'):
         click_element(email_page, xpath='x://span[text()="MetaMask"]')
         for _ in range(3):
@@ -658,13 +658,13 @@ def get_email_code(tab):
     loop_count = 0
     while True:
         try:
-            time.sleep(15)
+            time.sleep(20)
             click_element(email_page, xpath='x://span[text()="Starred"]')
             time.sleep(3)
             click_element(email_page, xpath='x://span[text()="Inbox"]')
             time.sleep(3)
             click_element(email_page, xpath='x://div[contains(@class, "icon-refresh")]')
-            time.sleep(3)
+            time.sleep(20)
             click_element(email_page, xpath='x://div[contains(@class,"sc-eDPEul")]//ul/li[1]')
             time.sleep(3)
             # 读取验证码
