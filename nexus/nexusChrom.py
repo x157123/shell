@@ -493,6 +493,7 @@ def main(client, serverId, appId, decryptKey, user, display):
             logger.info("找到123。")
             email = shadow_root.ele('x://input[@id="email"]')
             if email:
+                client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 88, obj['secretKey'])))
                 logger.info(f'发现邮箱，输入邮箱地址：{obj["email"]}')
                 email.input(obj["email"], clear=True)
                 time.sleep(2)
