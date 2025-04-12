@@ -302,6 +302,9 @@ def main(client, serverId, appId, decryptKey, user, display):
 
     close_signma_popup(page=browser, timeout=5)
 
+    pyautogui.moveTo(829, 651)  # 需要你先手动量好按钮在屏幕上的位置
+    pyautogui.click()
+
     # 点击 "Sign up to earn NEX" 元素
     signup_ele = tab.ele('x://div[text()="Sign up to earn points"]')
     if signup_ele:
