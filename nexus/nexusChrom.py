@@ -281,7 +281,7 @@ def handle_signma_popup(page, count: int = 1, timeout: int = 15, must: bool = Fa
             elif ('popout.html?windowId=backpack' in tab.url):
                 __click_ele(page=tab, xpath='x://div/span[text()="确认"]')
                 time.sleep(2)
-            if 'ohgmkpjifodfiomblclfpdhehohinlnn' in tab.url:
+            elif ('ohgmkpjifodfiomblclfpdhehohinlnn' in tab.url):
                 tab.close()  # 关闭符合条件的 tab 页签
             # 如果处理了足够数量的 tab，则退出
             if _count >= count:
