@@ -220,6 +220,16 @@ setup_python_script() {
 # 启动 Chrome 和 Python 脚本
 start_services() {
 
+    # 查找运行中的 去除python进程
+    pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
+    if [ -n "$pids" ]; then
+        echo "检测到正在运行的实例: $pids，准备终止..."
+        for pid in $pids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
+    fi
+
 
     sudo docker stop $(sudo docker ps -q --filter "name=node")
     log_info "停止所有容器"
