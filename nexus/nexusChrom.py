@@ -19,7 +19,7 @@ def configure_browser(user):
           .set_local_port(args.chromePort)
           .set_paths(r"/opt/google/chrome/google-chrome")
           .add_extension(r"/home/" + user + "/extensions/chrome-cloud")
-          .set_user_data_path(path=f'/home/{user}/task/chrome_data/nexus')
+          .set_user_data_path(path=f'/home/{user}/task/chrome_data/nexus2')
           )
     arguments = [
         "--accept-lang=en-US", "--no-first-run", "--force-color-profile=srgb",
@@ -27,7 +27,7 @@ def configure_browser(user):
         "--export-tagged-pdf", "--disable-gpu",
         "--disable-infobars", "--disable-popup-blocking", "--allow-outdated-plugins",
         "--deny-permission-prompts", "--disable-suggestions-ui", "--window-size=1920,1080",
-        "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/9525",
+        "--disable-mobile-emulation", "--user-data-dir=/tmp/nexus/userData/9526",
         "--disable-features=ServerSentEvents"
     ]
 
