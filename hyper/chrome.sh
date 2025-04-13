@@ -468,7 +468,7 @@ main() {
 #    install_chrome
     install_chrome_120
 #    install_edge
-    install_wallet
+#    install_wallet
     setup_python_script
     setup_xrdp
     setup_novnc
