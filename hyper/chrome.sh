@@ -440,13 +440,6 @@ start_services() {
         done
     fi
 
-    # 清理特定显示号的 Python 脚本进程
-    PYTHON_PID_FILE="python_$VNC_DISPLAY.pid"
-    if [ -f "$PYTHON_PID_FILE" ] && kill -0 "$(cat "$PYTHON_PID_FILE")" 2>/dev/null; then
-        log_info "终止旧 Python 脚本进程..."
-        kill "$(cat "$PYTHON_PID_FILE")"
-    fi
-
     SUDO_USER="$USER"
 
     # 启动 Python 脚本
@@ -462,10 +455,6 @@ main() {
         error_exit "此脚本需要 root 权限运行，请使用 sudo 或以 root 用户执行"
     fi
 
-    # 清除现有的定时任务
-    crontab -r
-    crontab -u ubuntu -r
-    # 关闭所有浏览器
 #    pkill chrome
 
     parse_args "$@"

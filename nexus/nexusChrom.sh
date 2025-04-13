@@ -498,9 +498,6 @@ main() {
 
     sudo apt-get install python3-tk python3-dev -y
 
-    # 关闭所有浏览器
-#    pkill chrome
-
     parse_args "$@"
 #    update_system
     install_system_deps
