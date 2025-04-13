@@ -446,7 +446,6 @@ stop_services(){
     fi
 
     # 查找运行中的 去除python进程
-     echo "停止$PYTHON_SCRIPT_DIR$FILE_NAME..."
     pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
     if [ -n "$pids" ]; then
         echo "检测到正在运行的实例: $pids，准备终止..."
@@ -475,25 +474,25 @@ main() {
         error_exit "此脚本需要 root 权限运行，请使用 sudo 或以 root 用户执行"
     fi
 
+    parse_args "$@"
+
     stop_services
 
-#    sudo apt-get install python3-tk python3-dev -y
-#
-#    parse_args "$@"
-##    update_system
-#    install_system_deps
-#    check_dependencies
-#    setup_vnc
-##    install_chrome
-#    install_chrome_120
-##    install_edge
-##    install_wallet
-#    setup_img
-#    setup_python_script
-#    setup_xrdp
-#    setup_novnc
-#    install_python_packages
-#    start_services
+    sudo apt-get install python3-tk python3-dev -y
+#    update_system
+    install_system_deps
+    check_dependencies
+    setup_vnc
+#    install_chrome
+    install_chrome_120
+#    install_edge
+#    install_wallet
+    setup_img
+    setup_python_script
+    setup_xrdp
+    setup_novnc
+    install_python_packages
+    start_services
 }
 
 main "$@"

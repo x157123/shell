@@ -457,9 +457,10 @@ main() {
         error_exit "此脚本需要 root 权限运行，请使用 sudo 或以 root 用户执行"
     fi
 
+    parse_args "$@"
+
     stop_services
 
-    parse_args "$@"
     update_system
     install_system_deps
     check_dependencies

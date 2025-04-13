@@ -86,6 +86,8 @@ main() {
         error_exit "此脚本需要 root 权限运行，请使用 sudo 或以 root 用户执行"
     fi
 
+    parse_args "$@"
+
     # 查找运行中的 去除python进程
     pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
     if [ -n "$pids" ]; then
@@ -96,7 +98,6 @@ main() {
         done
     fi
 
-    parse_args "$@"
     setup_python_script
 
     pip3 install --upgrade tencentcloud-sdk-python
