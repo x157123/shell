@@ -1,7 +1,11 @@
 import time
+import random
+import asyncio
+import argparse
 import pyperclip
 from loguru import logger
 from DrissionPage import ChromiumPage, ChromiumOptions
+from datetime import datetime
 
 
 # 打开浏览器
@@ -19,13 +23,13 @@ def __get_page(index, user, chromePort):
 
 
 # 获取剪切板数据
-def __get_clipboard(page, xpath, loop: int = 5, must: bool = False):
+def __get_click_clipboard(page, xpath, loop: int = 5, must: bool = False):
     pyperclip.copy('')
     time.sleep(1)
     __click_ele(page=page, xpath=xpath, loop=loop, must=must)
     time.sleep(1)
     clipboard_text = pyperclip.paste().strip()
-    logger.info(f"输出拷贝结果：{clipboard_text}")
+    logger.info(f"输出剪切板结果：{clipboard_text}")
     return clipboard_text
 
 
@@ -129,7 +133,7 @@ def __input_ele_value(page, xpath: str = '', value: str = '', loop: int = 5, mus
         loop_count += 1
 
 
-# 窗口管理   handle_signma_popup(page=page, count=2, timeout=30)
+# 窗口管理   __handle_signma_popup(page=page, count=2, timeout=30)
 def __handle_signma_popup(page, count: int = 1, timeout: int = 15, must: bool = False):
     """处理 Signma 弹窗，遍历所有 tab 页签"""
     start_time = time.time()
@@ -214,7 +218,7 @@ def __get_email_code(page, xpath):
         __handle_signma_popup(page=page, count=1, timeout=15)
     code = None
     loop_count = 0
-    # 邮箱有时候很慢 多尝试几次
+    # 多尝试几次
     while True:
         try:
             __click_ele(email_page, xpath='x://div[contains(@class, "icon-refresh")]', loop=20)
@@ -239,9 +243,96 @@ def __get_email_code(page, xpath):
     return code
 
 
-# 读取txt 文件
-def read_questions_from_file(file_path):
+# 读取txt文件
+def read_questions_list_file(file_path):
     with open(file_path, "r") as file:
         questions = file.readlines()
     # 过滤掉空白行并去除每行末尾的换行符
     return [question.strip() for question in questions if question.strip()]
+
+
+# 启动任务
+def __do_task(page, evm_id, questions):
+    try:
+        with open('./inviteUrl.txt', 'r', encoding='utf-8') as file:
+            content = file.read().strip()  # 读取并去除空白字符
+    except FileNotFoundError:
+        content = ""  # 如果文件不存在，则认为没有内容
+
+    logger.info("登录钱包")
+    __login_wallet(page=page, evm_id=evm_id)
+
+    url = 'https://klokapp.ai/'
+    if content:
+        url = content
+
+    hyperbolic_page = page.new_tab(url=url)
+    # 关联钱包
+    if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=5):
+        __click_ele(page=hyperbolic_page, xpath='x://button//span[contains(text(), "Signma")]', loop=5)
+        __handle_signma_popup(page=page, count=1, timeout=15)
+        __click_ele(page=hyperbolic_page, xpath='x://button[text()="Sign in"]', loop=5)
+        __handle_signma_popup(page=page, count=1, timeout=15)
+    __click_ele(page=hyperbolic_page, xpath='x://button[@aria-label="Close modal"]', loop=5)
+
+    if content:
+        logger.info('已有邀请码，不再拷贝')
+    else:
+        # 获取邀请码
+        clipboard_text = __get_click_clipboard(page=page, xpath='x://button[text()="Copy Referral Link"]')
+        if clipboard_text is not None and clipboard_text != '':
+            # 文件为空，写入字符串
+            with open('./inviteUrl.txt', 'a', encoding='utf-8') as file:
+                file.write(clipboard_text)
+
+    # 提问
+    for i in range(15):
+        __dialogue(page=hyperbolic_page, value=random.choice(questions))
+
+    # 获取积分
+    integral = __get_ele_value(page=hyperbolic_page,
+                               xpath='x://div[contains(text(), "Total Mira Points")]/following-sibling::div')
+    if integral is None:
+        logger.info(f"获取积分:{integral}")
+
+
+def __dialogue(page, value):
+    loop_count = 0
+    while True:
+        try:
+            ele = page.ele(locator='x://div[@class="style_loadingDots__NNnij"]')
+            if ele:
+                time.sleep(2)
+            else:
+                # 已满
+                _input = page.ele('x://textarea[@name="message" and @disabled]')
+                if _input:
+                    return
+                __input_ele_value(page=page, xpath='x://textarea[@name="message"]', value=value)
+                __click_ele(page=page, xpath='x://button//img[@alt="Send message"]', loop=1)
+                return
+        except Exception as e:
+            error = e
+            pass
+        if loop_count >= 15:
+            return 0
+        loop_count += 1
+
+
+# 启动容器
+def run(evm_id, question):
+    page = __get_page(index=evm_id, user='lm', chromePort=39001)
+    try:
+        __do_task(page=page, evm_id=evm_id, questions=question)
+    except Exception as e:
+        logger.info(f"发生错误: {e}")
+    finally:
+        page.quit()
+
+
+if __name__ == '__main__':
+    # 钱包id
+    evm_id = 4333
+    # 问题
+    questions = read_questions_list_file("/opt/data/questions.txt")
+    run(evm_id=evm_id, question=questions)
