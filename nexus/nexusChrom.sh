@@ -456,12 +456,6 @@ stop_services(){
         done
     fi
 
-    # 清理特定显示号的 Python 脚本进程
-    PYTHON_PID_FILE="python_$VNC_DISPLAY.pid"
-    if [ -f "$PYTHON_PID_FILE" ] && kill -0 "$(cat "$PYTHON_PID_FILE")" 2>/dev/null; then
-        log_info "终止旧 Python 脚本进程..."
-        kill "$(cat "$PYTHON_PID_FILE")"
-    fi
 
 }
 
@@ -483,13 +477,6 @@ start_services() {
             kill -9 "$pid"
             echo "已终止 PID: $pid"
         done
-    fi
-
-    # 清理特定显示号的 Python 脚本进程
-    PYTHON_PID_FILE="python_$VNC_DISPLAY.pid"
-    if [ -f "$PYTHON_PID_FILE" ] && kill -0 "$(cat "$PYTHON_PID_FILE")" 2>/dev/null; then
-        log_info "终止旧 Python 脚本进程..."
-        kill "$(cat "$PYTHON_PID_FILE")"
     fi
 
     SUDO_USER="$USER"
