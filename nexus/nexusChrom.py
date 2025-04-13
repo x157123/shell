@@ -13,13 +13,13 @@ import random
 import subprocess
 import os
 
-def configure_browser(user):
+def configure_browser(user, index):
     """配置并启动浏览器"""
     co = (ChromiumOptions()
           .set_local_port(args.chromePort)
           .set_paths(r"/opt/google/chrome/google-chrome")
           .add_extension(r"/home/" + user + "/extensions/chrome-cloud")
-          .set_user_data_path(path=f'/home/{user}/task/chrome_data/nexus2')
+          .set_user_data_path(path=f'/home/{user}/task/chrome_data/{index}')
           )
     arguments = [
         "--accept-lang=en-US", "--no-first-run", "--force-color-profile=srgb",
@@ -392,7 +392,7 @@ def main(client, serverId, appId, decryptKey, user, display):
 
     # 启动浏览器
     logger.info(f"start")
-    browser = configure_browser(user)
+    browser = configure_browser(user, obj['secretKey'])
     tab = browser.latest_tab
     time.sleep(10)
 
