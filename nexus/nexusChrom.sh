@@ -446,6 +446,7 @@ stop_services(){
     fi
 
     # 查找运行中的 去除python进程
+     echo "停止$PYTHON_SCRIPT_DIR$FILE_NAME..."
     pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
     if [ -n "$pids" ]; then
         echo "检测到正在运行的实例: $pids，准备终止..."
