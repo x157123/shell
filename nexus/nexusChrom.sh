@@ -437,7 +437,6 @@ setup_novnc() {
 }
 
 stop_services(){
-
     # 检查并清理特定 Chrome 调试端口
     PIDS=$(lsof -t -i:$CHROME_DEBUG_PORT -sTCP:LISTEN)
     if [ -n "$PIDS" ]; then
@@ -455,8 +454,6 @@ stop_services(){
             echo "已终止 PID: $pid"
         done
     fi
-
-
 }
 
 # 启动 Chrome 和 Python 脚本

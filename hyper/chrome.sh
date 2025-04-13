@@ -419,8 +419,7 @@ setup_novnc() {
     fi
 }
 
-# 启动 Chrome 和 Python 脚本
-start_services() {
+stop_services(){
     # 检查并清理特定 Chrome 调试端口
     PIDS=$(lsof -t -i:$CHROME_DEBUG_PORT -sTCP:LISTEN)
     if [ -n "$PIDS" ]; then
@@ -428,7 +427,6 @@ start_services() {
         kill -9 "$PIDS"
         sleep 1
     fi
-
 
     # 查找运行中的 去除python进程
     pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
@@ -439,6 +437,10 @@ start_services() {
             echo "已终止 PID: $pid"
         done
     fi
+}
+
+# 启动 Chrome 和 Python 脚本
+start_services() {
 
     SUDO_USER="$USER"
 
@@ -455,7 +457,7 @@ main() {
         error_exit "此脚本需要 root 权限运行，请使用 sudo 或以 root 用户执行"
     fi
 
-#    pkill chrome
+    stop_services
 
     parse_args "$@"
     update_system
