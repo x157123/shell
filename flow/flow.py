@@ -182,7 +182,7 @@ def get_flow(mq_client, serverId, appId, public_key, private_key, account, secre
                 mq_client.publish("appInfo", json.dumps(get_app_info(serverId, appId, 3, f"流量使用百分比: {traffic_usage_percentage:.2f}%")))
             stat = 0
         else:
-            logger.info("流量未超过90%")
+            logger.info("流量未超过75%")
             if stat == 0 or stat == 3:
                 status_output = run_command_blocking("v2ray status")
                 if "stopped" in status_output:
