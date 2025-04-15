@@ -175,7 +175,7 @@ def get_flow(mq_client, serverId, appId, public_key, private_key, account, secre
         traffic_usage_percentage = (traffic_used / traffic_package_total) * 100
 
         logger.info(f"检测{num}，状态{stat}流量使用百分比: {traffic_usage_percentage:.2f}%")
-        if traffic_usage_percentage > 90:
+        if traffic_usage_percentage > 75:
             logger.info("流量已超过90%")
             if stat == 1 or stat == 3:
                 subprocess.run("v2ray stop", shell=True)

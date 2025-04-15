@@ -11,6 +11,7 @@ import os
 import socket
 from datetime import datetime
 
+
 evm_ext_id = "ohgmkpjifodfiomblclfpdhehohinlnn"
 file_lock = threading.Lock()
 # 打开浏览器
@@ -31,9 +32,9 @@ def __get_page(index, user, retry: int = 0):
         .set_argument(f'{pass_list}')
         .auto_port()
         .headless(on_off=False))
-
     page.set.window.max()
     return page
+
 
 # 获取剪切板数据
 def __get_click_clipboard(page, xpath, loop: int = 5, must: bool = False):
@@ -57,6 +58,7 @@ def __login_wallet(page, evm_id):
         all_tabs = page.get_tabs()  # 假设此方法返回所有标签页的页面对象
         # 遍历所有的 tab 页签
         for pop_tab in all_tabs:
+            # logger.info(f"网页地址：{pop_tab.url}")
             if pop_tab.url == wallet_url:
                 if __input_ele_value(page=pop_tab, xpath=xpath, value=evm_id):
                     time.sleep(1)
@@ -74,6 +76,7 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False):
     while True:
         # logger.info(f'查找元素{xpath}:{loop_count}')
         try:
+            # logger.info(f'点击按钮{xpath}:{loop_count}')
             txt = page.ele(locator=xpath)
             if txt:
                 return page.ele(locator=xpath)
@@ -128,6 +131,44 @@ def __click_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
             return False
         loop_count += 1
 
+
+def __click_verify_ele(page, xpath: str = '', loop: int = 5, must: bool = False, by_jd: bool = True, find_all: bool = False,
+                       index: int = -1) -> int:
+    loop_count = 1
+    while True:
+        try:
+            ele = (page.ele('xpath=//div[contains(@class, "css-1nkx66a")]/div/div')
+                   .shadow_root.child().ele(locator='x://body')
+                   .shadow_root.ele('x:./div/div/div'))
+            if ele.html.count('<input type="checkbox">'):
+                ele.ele('x://label/input').click()
+                time.sleep(5)
+        except Exception as e:
+            error = e
+            pass
+
+        # logger.info(f'查找元素{xpath}:{loop_count}')
+        try:
+            if not find_all:
+                # logger.info(f'点击按钮{xpath}:{loop_count}')
+                page.ele(locator=xpath).click(by_js=None)
+            else:
+                page.eles(locator=xpath)[index].click(by_js=None)
+            break
+        except Exception as e:
+            error = e
+            pass
+
+
+        if loop_count >= loop:
+            # logger.info(f'---> {xpath} 无法找到元素。。。', str(error)[:100])
+            if must:
+                # page.quit()
+                raise Exception(f'未找到元素:{xpath}')
+            return 0
+        loop_count += 1
+        # time.sleep(1)
+    return 1
 
 # 输入值
 def __input_ele_value(page, xpath: str = '', value: str = '', loop: int = 5, must: bool = False,
@@ -285,25 +326,11 @@ def append_date_to_file(file_path, data_str):
         file.write(data_str + '\n')
 
 
-# 读取第一行
-def read_data_first_file(file_path):
-    try:
-        with open(file_path, "r") as file:
-            # 只读取第一行
-            question = file.readline().strip()
-        # 返回读取的第一行（如果有内容）
-        return question if question else None
-    except FileNotFoundError:
-        # 如果文件不存在，捕获异常并返回 None
-        print(f"文件 {file_path} 不存在")
-        return None
-
 # 添加消息
 def add_log(message: str, task_name: str, index: str, node_name: str, server_url: str):
     url = "{}/service_route?service_name=signma_log&&task={}&&chain_id={}&&index={}&&msg={}"
     logger.info(url.format(server_url, task_name, node_name, index, message))
     requests.get(url.format(server_url, task_name, node_name, index, message), verify=False)
-
 
 # 通过端口杀掉浏览器
 def kill_edge_port(port):
@@ -323,50 +350,115 @@ def kill_edge_port(port):
     except subprocess.CalledProcessError as e:
         print(f"执行命令时出错: {e}")
 
+
 # 启动任务
 def __do_task(acc, retry: int = 0):
     page = None
     status = False
     try:
         evm_id = acc['evm_id']
-        page = __get_page(index=evm_id, user='lm', retry= retry)
-
+        email_address = acc['email_address']
+        password = acc['password']
         logger.info(f"登录钱包{evm_id},第{retry}次尝试访问")
-        __login_wallet(page=page, evm_id=evm_id)
+        page = __get_page(index=evm_id, user='lm', retry= retry)
+        pond_url = 'https://cryptopond.xyz/points?tab=idea'
+        pond_page = page.new_tab(url=pond_url)
+        __handle_signma_popup(page=page, count=0)
+        if __get_ele(page=pond_page, xpath='x://button[text()="Sign in"]', loop=2):
+            if  password is None or password == "" or password == "None" or password == "000000":
+                logger.info(f"登录钱包{evm_id}")
+                __login_wallet(page=page, evm_id=evm_id)
 
-        url = 'https://klokapp.ai/'
-        # if invite_url is not None and invite_url != '':
-        #     url = invite_url
-        hyperbolic_page = page.new_tab(url=url)
-        # 关联钱包
-        if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=2):
-            __click_ele(page=hyperbolic_page, xpath='x://button//span[contains(text(), "Signma")]', loop=5)
-            __handle_signma_popup(page=page, count=1, timeout=15)
-        if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Sign in"]', loop=2):
-            __handle_signma_popup(page=page, count=1, timeout=15)
-        __click_ele(page=hyperbolic_page, xpath='x://button[@aria-label="Close modal"]', loop=2)
+                if password == '000000':
+                    __click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
+                    __click_ele(page=pond_page, xpath='x://p[text()="Forgot?"]')
+                    __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter email"]', value=email_address)
+                    __click_verify_ele(page=pond_page, xpath='x://button[text()="Send email" and contains(@class, "chakra-button css-16ek3z6") and not(@disabled)]', loop=10)
+                else:
+                    __click_ele(page=pond_page, xpath='x://button[text()="Sign up"]')
+                    __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter email"]', value=email_address)
+                    __click_ele(page=pond_page, xpath='x://span[contains(@class, "chakra-checkbox__control")]')
+                    __click_verify_ele(page=pond_page, xpath='x://button[text()="Sign up" and contains(@class, "chakra-button css-16ek3z6") and not(@disabled)]', loop=10)
+                    # 判断邮箱是否已经注册 再次通过修改密码
+                    already = __get_ele(page=pond_page, xpath='x://div[text()="Email already registered"]', loop=3)
+                    if already is not None:
+                        pond_page.get(url=pond_url)
+                        __click_ele(page=pond_page, xpath='x://button[text()="Sign in"]')
+                        __click_ele(page=pond_page, xpath='x://p[text()="Forgot?"]')
+                        __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter email"]', value=email_address)
+                        __click_verify_ele(page=pond_page, xpath='x://button[text()="Send email" and not(@disabled)]', loop=10)
 
-        # if invite_url:
-        #     logger.info('已有邀请码，不再拷贝')
-        # else:
-        #     获取邀请码
-            # clipboard_text = __get_click_clipboard(page=hyperbolic_page, xpath='x://button[text()="Copy Referral Link"]')
-            # if clipboard_text is not None and clipboard_text != '':
-            #     文件为空，写入字符串
-                # with open('./inviteUrl.txt', 'a', encoding='utf-8') as file:
-                #     file.write(clipboard_text)
+                data = __get_email_code(page, 'x://p[contains(text(),"Your verification code is: ")]')
+                if data is not None:
+                    code = data.split(':')[-1].strip()
+                    __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter code"]', value=code)
+                    __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter password"]', value="yhy023r@23h34a7")
+                    if password == '000000':
+                        logger.info("重置密码成功")
+                        __click_ele(page=pond_page, xpath='x://button[text()="Reset password"]')
+                    else:
+                        print("注册成功")
+                        __click_ele(page=pond_page, xpath='x://button[text()="Join Pond"]')
+                    password = "yhy023r@23h34a7"
+                else:
+                    logger.info('有效错误')
+                pond_page.get(url=pond_url)
 
-        # 提问
-        for i in range(12):
-            status = __dialogue(page=hyperbolic_page, value=random.choice(questions))
-            if status:
-                # 已达到次数
-                break
+            if __click_ele(page=pond_page, xpath='x://button[text()="Sign in"]', loop=2):
+                __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter email"]', value=email_address)
+                __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter password"]', value=password)
+                __click_ele(page=pond_page, xpath='x://button[contains(@class, "chakra-button") and contains(@class, "css-16ek3z6") and text()="Sign in"]')
+                __click_verify_ele(page=pond_page, xpath='x://button[text()="Sign in" and contains(@class, "chakra-button css-16ek3z6") and not(@disabled)]', loop=10)
+                if __click_ele(page=pond_page, xpath='x://button[text()=" Continue"]', loop=2):
+                    __click_ele(page=pond_page, xpath='x://button[text()=" Continue"]', loop= 3)
+                    __click_ele(page=pond_page, xpath='x://button[text()="Got It"]', loop= 3)
+
+        # 开始任务
+
+        # 任务1   Common
+        __click_ele(page=pond_page, xpath='x://p[text()="Common"]', must=True)
+        if __click_ele(page=pond_page, xpath='x://span[text()="Complete Profile Information"]/ancestor::div[2]/following-sibling::div//button', loop=1):
+            __click_ele(page=pond_page, xpath='x://button[text()="Save"]')
+            time.sleep(3)
+            pond_page.get(url=pond_url)
+
+        # 任务 2  idea Propose an Idea
+        __click_ele(page=pond_page, xpath='x://p[text()="Idea"]')
+        go_in = pond_page.ele('x://span[text()="Propose an Idea"]/ancestor::div[2]/following-sibling::div//button')
+        if go_in:
+            __click_ele(page=pond_page, xpath='x://span[text()="Propose an Idea"]/ancestor::div[2]/following-sibling::div//button')
+            __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter the title of your model idea"]', value="SmartFormAI: AI-Powered Intelligent Form Autofill and Data Extraction")
+            __input_ele_value(page=pond_page, xpath='x://textarea[@placeholder="Enter a brief summary of your model idea"]', value="SmartFormAI is an AI model designed to automate form-filling processes and extract structured data from various document types. Leveraging natural language processing (NLP) and computer vision, this model can understand and interpret input fields, extract relevant user information, and accurately populate forms across web and desktop applications. The model is particularly useful for automating repetitive form submissions, enhancing data entry efficiency, and integrating with enterprise-level workflows.")
+            __click_ele(page=pond_page, xpath='x://div[@class="ProseMirror bn-editor bn-default-styles"]')
+            pond_page.actions.type("SmartFormAI is an AI model that combines OCR (Optical Character Recognition), NLP, and deep learning-based entity recognition to automatically fill out forms and extract structured information. The model follows these key steps:")
+            pond_page.actions.type("Document and Form Detection:")
+            pond_page.actions.type("Uses computer vision to identify form structures in images, PDFs, or digital forms.")
+            pond_page.actions.type("Recognizes input fields, labels, and section titles using OCR and layout analysis.")
+            pond_page.actions.type("Data Extraction and Interpretation:")
+            pond_page.actions.type("Analyzes provided text (e.g., user profile, ID cards, invoices) to extract relevant details.")
+            pond_page.actions.type("Uses NLP-based Named Entity Recognition (NER) to classify fields (e.g., name, address, email, etc.).")
+            pond_page.actions.type("Intelligent Form-Filling:")
+            pond_page.actions.type("Maps extracted data to corresponding fields using contextual understanding.")
+            pond_page.actions.type("Auto-fills fields dynamically, ensuring accuracy and format compliance.")
+            pond_page.actions.type("Supports learning from user interactions to improve accuracy over time.")
+            pond_page.actions.type("Integration & Automation:")
+            __click_ele(page=pond_page, xpath='x://button[text()="Save"]')
+            time.sleep(6)
+            pond_page.get(url=pond_url)
+
+        # 任务3  idea Propose an Idea
+        __click_ele(page=pond_page, xpath='x://p[text()="Idea"]')
+        if __click_ele(page=pond_page, xpath='x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button', loop=1):
+            index = random.randint(2, 7)
+            pond_page.get(url=f"https://cryptopond.xyz/ideas?page={index}")
+            __click_ele(page=pond_page, xpath='x://div[contains(@class, "css-1mfyor6")]', loop=10)
+            pond_page.get(url=pond_url)
+
         # 获取积分
-        integral = __get_ele_value(page=hyperbolic_page,
-                                   xpath='x://div[contains(text(), "Total Mira Points")]/following-sibling::div')
+        time.sleep(5)
+        integral = __get_ele_value(page=pond_page, xpath='x://p[contains(@class, "chakra-text") and contains(@class, "css-c1o5sq")]')
         if integral is not None:
-            add_log(message=integral, task_name='klokapp', index=evm_id, node_name=local_ip, server_url="http://192.168.0.16:8082")
+            add_log(message=integral, task_name='pond', index=evm_id, node_name=local_ip, server_url="http://192.168.0.16:8082")
             with file_lock:
                 append_date_to_file(ex_date_file, evm_id)
             status = True
@@ -378,34 +470,10 @@ def __do_task(acc, retry: int = 0):
                 page.quit()
             except Exception as pge:
                 logger.info(f"错误")
-    return status
-
-def __dialogue(page, value):
-    loop_count = 0
-    while True:
-        try:
-            ele = page.ele(locator='x://div[@class="style_loadingDots__NNnij"]')
-            if ele:
-                time.sleep(2)
-            else:
-                # 已满次数
-                _input = page.ele('x://textarea[@name="message" and @disabled]')
-                if _input:
-                    return True
-                __input_ele_value(page=page, xpath='x://textarea[@name="message"]', value=value)
-                __click_ele(page=page, xpath='x://button//img[@alt="Send message"]', loop=1)
-                return False
-        except Exception as e:
-            error = e
-            pass
-        if loop_count >= 15:
-            return False
-        loop_count += 1
-
-
+        return status
 
 # 启动容器
-def run(accounts, max_workers:int = 5, max_retry:int = 2):
+def run(accounts, max_workers:int = 3, max_retry:int = 2):
     retry_counts = {acc['evm_id']: 0 for acc in accounts}
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = []
@@ -423,7 +491,7 @@ def run(accounts, max_workers:int = 5, max_retry:int = 2):
                 if not success:
                     retry_counts[acc['evm_id']] += 1
                     if retry_counts[acc['evm_id']] < max_retry:
-                        logger.info(f"任务 {acc['evm_id']} 失败，稍后重试...")
+                        logger.info(f"任务 {acc['evm_id']} 失败，正在重试...")
                         # 重新提交失败的任务
                         executor.submit(__do_task, acc, retry_counts[acc['evm_id']])
                     else:
@@ -433,12 +501,15 @@ def run(accounts, max_workers:int = 5, max_retry:int = 2):
 
     logger.info("所有任务完成")
 
+
+
 def get_date_as_string():
     # 获取当前日期和时间
     now = datetime.now()
     # 将日期格式化为字符串 年-月-日
     date_string = now.strftime("%Y-%m-%d")
     return date_string
+
 
 def get_local_ip():
     # 获取主机名
@@ -454,8 +525,6 @@ if __name__ == '__main__':
         local_ip = get_local_ip()
         ex_list = read_data_list_file(ex_date_file, check_exists=True)
         account_list = read_data_list_file("./account.txt")
-        questions = read_data_list_file("./questions.txt")
-        # invite_url = read_data_first_file("./inviteUrl.txt")
         account_data = []
         for account in account_list:
             parts = account.split(",")
@@ -464,7 +533,8 @@ if __name__ == '__main__':
                 continue
             account_data.append({
                 "evm_id": parts[0],
+                "email_address": parts[1],
+                "password": parts[2],
             })
         # 启动
-        print(f'执行账号{len(account_data)}')
-        run(accounts=account_data, max_workers=8)
+        run(accounts = account_data, max_workers=4)

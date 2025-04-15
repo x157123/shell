@@ -86,7 +86,7 @@ def __get_ele_value(page, xpath: str = '', loop: int = 5, must: bool = False):
 # 点击元素
 def __click_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
                 find_all: bool = False,
-                index: int = -1) -> int:
+                index: int = -1) -> bool:
     loop_count = 1
     while True:
         logger.info(f'查找元素{xpath}:{loop_count}')
@@ -110,7 +110,7 @@ def __click_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
 # 输入值
 def __input_ele_value(page, xpath: str = '', value: str = '', loop: int = 5, must: bool = False,
                       find_all: bool = False,
-                      index: int = -1) -> int:
+                      index: int = -1) -> bool:
     loop_count = 0
     while True:
         try:
@@ -214,6 +214,14 @@ def __get_email_code(page, xpath):
         __handle_signma_popup(page=page, count=1, timeout=15)
     code = None
     loop_count = 0
+
+    # 首次邮箱点击
+    if __click_ele(page=email_page, xpath='x://a[text()="Next step"]'):
+        __click_ele(page=email_page, xpath='x://a[text()="Launch"]')
+        __click_ele(page=email_page, xpath='x://div[@data-title="Setting"]')
+    if __click_ele(page=email_page, xpath='x://a[text()="Next"]'):
+        __click_ele(page=email_page, xpath='x://a[text()="Finish"]')
+
     # 邮箱有时候很慢 多尝试几次
     while True:
         try:
@@ -240,7 +248,7 @@ def __get_email_code(page, xpath):
 
 
 # 读取txt 文件
-def read_questions_from_file(file_path):
+def read_data_list_file(file_path):
     with open(file_path, "r") as file:
         questions = file.readlines()
     # 过滤掉空白行并去除每行末尾的换行符

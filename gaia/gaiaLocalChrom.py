@@ -7,6 +7,7 @@ from loguru import logger
 from DrissionPage import ChromiumPage, ChromiumOptions
 import requests
 import subprocess
+import json
 import os
 import socket
 from datetime import datetime
@@ -58,7 +59,7 @@ def __login_wallet(page, evm_id):
         # 遍历所有的 tab 页签
         for pop_tab in all_tabs:
             if pop_tab.url == wallet_url:
-                if __input_ele_value(page=pop_tab, xpath=xpath, value=evm_id):
+                if __input_ele_value(page=pop_tab, xpath=xpath, value=evm_id, must=True):
                     time.sleep(1)
                     __click_ele(page=pop_tab, xpath="tag:button@@id=existingWallet")
     else:
@@ -108,15 +109,15 @@ def __click_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
                 index: int = -1) -> bool:
     loop_count = 1
     while True:
-        # logger.info(f'查找元素{xpath}:{loop_count}')
         try:
-            if not find_all:
+            # logger.info(f'查找{xpath}:{loop_count}：{find_all}：{index}')
+            if find_all:
+                page.eles(locator=xpath)[index].click()
+            else:
                 if by_js:
                     page.ele(locator=xpath).click()
                 else:
                     page.ele(locator=xpath).click(by_js=None)
-            else:
-                page.eles(locator=xpath)[index].click(by_js=None)
             # logger.info(f'点击按钮{xpath}:{loop_count}')
             return True
         except Exception as e:
@@ -136,11 +137,11 @@ def __input_ele_value(page, xpath: str = '', value: str = '', loop: int = 5, mus
     loop_count = 0
     while True:
         try:
-            if not find_all:
-                # logger.info(f'输入{value}')
-                page.ele(locator=xpath).input(value, clear=True)
-            else:
+            logger.info(f'输入数据:{value}')
+            if find_all:
                 page.eles(locator=xpath)[index].input(value, clear=True)
+            else:
+                page.ele(locator=xpath).input(value, clear=True)
             return True
         except Exception as e:
             error = e
@@ -323,6 +324,7 @@ def kill_edge_port(port):
     except subprocess.CalledProcessError as e:
         print(f"执行命令时出错: {e}")
 
+
 # 启动任务
 def __do_task(acc, retry: int = 0):
     page = None
@@ -334,39 +336,35 @@ def __do_task(acc, retry: int = 0):
         logger.info(f"登录钱包{evm_id},第{retry}次尝试访问")
         __login_wallet(page=page, evm_id=evm_id)
 
-        url = 'https://klokapp.ai/'
-        # if invite_url is not None and invite_url != '':
-        #     url = invite_url
-        hyperbolic_page = page.new_tab(url=url)
-        # 关联钱包
-        if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=2):
-            __click_ele(page=hyperbolic_page, xpath='x://button//span[contains(text(), "Signma")]', loop=5)
-            __handle_signma_popup(page=page, count=1, timeout=15)
-        if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Sign in"]', loop=2):
-            __handle_signma_popup(page=page, count=1, timeout=15)
-        __click_ele(page=hyperbolic_page, xpath='x://button[@aria-label="Close modal"]', loop=2)
+        gaia_page = page.new_tab(url='https://www.gaianet.ai/chat')
 
-        # if invite_url:
-        #     logger.info('已有邀请码，不再拷贝')
-        # else:
-        #     获取邀请码
-            # clipboard_text = __get_click_clipboard(page=hyperbolic_page, xpath='x://button[text()="Copy Referral Link"]')
-            # if clipboard_text is not None and clipboard_text != '':
-            #     文件为空，写入字符串
-                # with open('./inviteUrl.txt', 'a', encoding='utf-8') as file:
-                #     file.write(clipboard_text)
+        if __click_ele(page=gaia_page, xpath='x://button[text()="Connect"]', loop=2):
+            if __click_ele(page=gaia_page, xpath='x://div[text()="Signma"]', loop=2):
+                __handle_signma_popup(page=page)
+            if __click_ele(page=gaia_page, xpath='x://button[text()="Accept"]', loop=2):
+                __handle_signma_popup(page=page)
+
+        __click_ele(page=gaia_page, xpath='x://button[text()="Accept All"]', loop=1)
+        switch_network(page=gaia_page)
 
         # 提问
-        for i in range(12):
-            status = __dialogue(page=hyperbolic_page, value=random.choice(questions))
-            if status:
-                # 已达到次数
-                break
+        run_count = random.randint(4, 7)
+        for i in range(run_count):
+            try:
+                __input_ele_value(page=gaia_page, xpath='x://textarea[@placeholder="Ask me anything..."]', value=random.choice(questions))
+                __click_ele(page=gaia_page, xpath='x://button/p[text()="Send"]', loop=5)
+                for k in range(8):
+                    if __click_ele(page=gaia_page, xpath='x://button[text()="Confirm"]', loop=2):
+                        switch_network(page=gaia_page)
+                    if __get_ele(page=gaia_page, xpath='x://button/p[text()="Send"]', loop=2):
+                        break
+            except Exception as e:
+                error = e
+                pass
         # 获取积分
-        integral = __get_ele_value(page=hyperbolic_page,
-                                   xpath='x://div[contains(text(), "Total Mira Points")]/following-sibling::div')
+        integral = get_app_info_integral(page=gaia_page)
         if integral is not None:
-            add_log(message=integral, task_name='klokapp', index=evm_id, node_name=local_ip, server_url="http://192.168.0.16:8082")
+            add_log(message=integral, task_name='gaia', index=evm_id, node_name=local_ip, server_url="http://192.168.0.16:8082")
             with file_lock:
                 append_date_to_file(ex_date_file, evm_id)
             status = True
@@ -380,28 +378,49 @@ def __do_task(acc, retry: int = 0):
                 logger.info(f"错误")
     return status
 
-def __dialogue(page, value):
-    loop_count = 0
-    while True:
-        try:
-            ele = page.ele(locator='x://div[@class="style_loadingDots__NNnij"]')
-            if ele:
-                time.sleep(2)
-            else:
-                # 已满次数
-                _input = page.ele('x://textarea[@name="message" and @disabled]')
-                if _input:
-                    return True
-                __input_ele_value(page=page, xpath='x://textarea[@name="message"]', value=value)
-                __click_ele(page=page, xpath='x://button//img[@alt="Send message"]', loop=1)
-                return False
-        except Exception as e:
-            error = e
-            pass
-        if loop_count >= 15:
-            return False
-        loop_count += 1
+# 获取积分
+def get_app_info_integral(page):
+    info = {
+        "total_points": None,
+        "user_points": None,
+        "task_points": None,
+        "credits_balance": None,
+        "total_redeemed": None,
+        "total_consumed": None,
+    }
+    page.get(url='https://www.gaianet.ai/reward-summary')
+    
+    # # 兑换积分
+    # if __click_ele(page=page, xpath='x://button[text()="Redeem"]'):
+    #     redeemable_points = __get_ele_value(page, xpath='xpath://span[text()="Current Redeemable Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-header-8") and not(text()="Current Redeemable Points")]')
+    #     if redeemable_points is not None and float(redeemable_points) > 200:
+    #         __click_ele(page=page, xpath='x://button[text()="Redeem Now"]')
+    #         __handle_signma_popup(page=page.browser)
+    #         time.sleep(10)
+    #         page.get(url='https://www.gaianet.ai/reward-summary')
 
+    if __get_ele(page, xpath='x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]'):
+        info["total_points"] = __get_ele_value(page, 'x://span[text()="My gaiaPoints (Total)"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
+        info["user_points"] = __get_ele_value(page, 'xpath://span[text()="User Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-heading-8") and not(text()="User Points")]')
+        info["task_points"] = __get_ele_value(page, 'xpath://span[text()="Task Points"]/ancestor::div[contains(@class, "justify-between")]/span[contains(@class, "typography-heading-8") and not(text()="Task Points")]')
+
+    if __get_ele(page, xpath='x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]'):
+        info["credits_balance"] = __get_ele_value(page, 'x://span[text()="My Credits Balance"]/ancestor::div[contains(@class, "flex-1")]//span[contains(@class, "typography-heading-4-medium")]')
+        info["total_redeemed"] = __get_ele_value(page, 'x://span[text()="Total Redeemed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+        info["total_consumed"] = __get_ele_value(page, 'x://span[text()="Total Consumed"]/following-sibling::span[contains(@class, "typography-heading-8")]')
+
+    if info["total_points"] is None or info["credits_balance"] is None:
+        return None
+    return json.dumps(info)
+
+# 切换网络
+def switch_network(page):
+    __click_ele(page=page, xpath='x://button[text()="New chat"]', must= True, loop=3)
+    # 切换网络
+    __click_ele(page=page, xpath='x://p[text()="SELECT A DOMAIN"]')
+    run_number = random.randint(0, 9)
+    __click_ele(page=page, xpath='x://div[@class="infinite-scroll-component hiddenScrollBar"]/div[position() <= 10]', find_all=True, index = run_number)
+    __click_ele(page=page, xpath='x://button[text()="New chat"]', must= True, loop=2)
 
 
 # 启动容器
@@ -423,7 +442,7 @@ def run(accounts, max_workers:int = 5, max_retry:int = 2):
                 if not success:
                     retry_counts[acc['evm_id']] += 1
                     if retry_counts[acc['evm_id']] < max_retry:
-                        logger.info(f"任务 {acc['evm_id']} 失败，稍后重试...")
+                        logger.info(f"任务 {acc['evm_id']} 失败，正在重试...")
                         # 重新提交失败的任务
                         executor.submit(__do_task, acc, retry_counts[acc['evm_id']])
                     else:
@@ -455,7 +474,6 @@ if __name__ == '__main__':
         ex_list = read_data_list_file(ex_date_file, check_exists=True)
         account_list = read_data_list_file("./account.txt")
         questions = read_data_list_file("./questions.txt")
-        # invite_url = read_data_first_file("./inviteUrl.txt")
         account_data = []
         for account in account_list:
             parts = account.split(",")
@@ -466,5 +484,4 @@ if __name__ == '__main__':
                 "evm_id": parts[0],
             })
         # 启动
-        print(f'执行账号{len(account_data)}')
-        run(accounts=account_data, max_workers=8)
+        run(accounts=account_data, max_workers=10)
