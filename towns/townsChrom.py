@@ -279,7 +279,7 @@ def __handle_signma_popup(page, count: int = 1, timeout: int = 15, must: bool = 
 
 # 获取邮箱 验证码code
 def __get_email_code(page, xpath, evm_addr):
-    email_page = page.new_tab(url='https://mail.dmail.ai/inbox')
+    email_page = page.new_tab(url='https://mail.dmail.ai/login?path=%2Finbox')
     code = None
     try:
         # 通过小狐狸钱包打开狗头钱包
