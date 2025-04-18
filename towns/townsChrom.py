@@ -294,6 +294,8 @@ def __get_email_code(page, xpath, evm_addr):
             __click_ele(page=email_page, xpath='x://div[@data-title="Setting"]')
         if __click_ele(page=email_page, xpath='x://a[text()="Next"]', loop=5):
             __click_ele(page=email_page, xpath='x://a[text()="Finish"]')
+            __click_ele(page=email_page, xpath='x://a[text()="Finish"]')
+        __click_ele(email_page, xpath='x://span[text()="Inbox"]')
 
         # 多尝试几次
         while True:
