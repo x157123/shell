@@ -45,7 +45,7 @@ def __get_page(evm_id, user, retry: int = 0):
             .set_paths(r"/opt/google/chrome/google-chrome")
             .add_extension(f"/home/ubuntu/extensions/chrome-cloud")
             .set_user_data_path(f"/home/ubuntu/task/chrome_data/{evm_id}")
-            .set_proxy(f"192.168.3.107:7890")
+            # .set_proxy(f"192.168.3.107:7890")
             .set_local_port(int(evm_id[-4:]) + 3000)
             .headless(on_off=False))
     page.set.window.max()
