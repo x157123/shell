@@ -489,7 +489,7 @@ main() {
 
     stop_services
 
-    pkille chrome
+    pkill -9 chrome
 
     sudo apt-get install python3-tk python3-dev -y
 #    update_system
