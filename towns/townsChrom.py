@@ -504,6 +504,7 @@ def __do_task(acc, retry: int = 0):
     status = False
     try:
         logger.info(f"登录钱包{evm_id},第{retry}次尝试访问")
+        __handle_signma_popup(page=page, count=0, timeout=15)
         __login_wallet(page=page, evm_id=evm_id)
 
         hyperbolic_page = page.new_tab(url='https://app.towns.com/')
