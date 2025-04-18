@@ -288,11 +288,11 @@ def __get_email_code(page, xpath, evm_addr):
             if __click_ele(page=email_page, xpath='x://span[text()="MetaMask"]', loop=10):
                 __handle_signma_popup(page=page, count=1, timeout=60)
         # 首次进入邮箱
-        if __click_ele(page=email_page, xpath='x://a[text()="Next step"]', loop=5):
+        if __click_ele(page=email_page, xpath='x://a[text()="Next step"]', loop=2):
             __click_ele(page=email_page, xpath='x://a[text()="Next step"]', loop=1)
             __click_ele(page=email_page, xpath='x://a[text()="Launch"]')
             __click_ele(page=email_page, xpath='x://div[@data-title="Setting"]')
-        if __click_ele(page=email_page, xpath='x://a[text()="Next"]', loop=5):
+        if __click_ele(page=email_page, xpath='x://a[text()="Next"]', loop=2):
             __click_ele(page=email_page, xpath='x://a[text()="Finish"]')
             __click_ele(page=email_page, xpath='x://a[text()="Finish"]')
         __click_ele(email_page, xpath='x://span[text()="Inbox"]')
