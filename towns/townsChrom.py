@@ -285,7 +285,7 @@ def __get_email_code(page, xpath, evm_addr):
         logger.info('已登录邮箱')
     else:
         if __click_ele(page=email_page, xpath='x://span[text()="MetaMask"]', loop=10):
-            __handle_signma_popup(page=page, count=1, timeout=40)
+            __handle_signma_popup(page=page, count=1, timeout=60)
     # 首次进入邮箱
     if __click_ele(page=email_page, xpath='x://a[text()="Next step"]', loop=1):
         __click_ele(page=email_page, xpath='x://a[text()="Launch"]')
