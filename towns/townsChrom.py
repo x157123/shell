@@ -289,6 +289,7 @@ def __get_email_code(page, xpath, evm_addr):
                 __handle_signma_popup(page=page, count=1, timeout=60)
         # 首次进入邮箱
         if __click_ele(page=email_page, xpath='x://a[text()="Next step"]', loop=5):
+            __click_ele(page=email_page, xpath='x://a[text()="Next step"]', loop=1)
             __click_ele(page=email_page, xpath='x://a[text()="Launch"]')
             __click_ele(page=email_page, xpath='x://div[@data-title="Setting"]')
         if __click_ele(page=email_page, xpath='x://a[text()="Next"]', loop=5):
