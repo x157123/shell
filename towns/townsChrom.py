@@ -48,6 +48,8 @@ def __get_page(evm_id, user, retry: int = 0):
             # .set_proxy(f"192.168.3.107:7890")
             .set_local_port(int(evm_id[-4:]) + 3000)
             .headless(on_off=False))
+
+    page.wait.doc_loaded(timeout=130)
     page.set.window.max()
     return page
 
