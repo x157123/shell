@@ -57,7 +57,7 @@ class Test(object):
             addr_or_opts=ChromiumOptions()
             .set_browser_path(path="/opt/google/chrome/google-chrome")
             .set_tmp_path(path="/home/lm/task/wall/")
-            .set_local_port(35861)
+            .set_local_port(35865)
             .add_extension(path="/home/lm/extensions/signma")
             .headless(on_off=False))
         page.wait.doc_loaded(timeout=30)
@@ -225,9 +225,9 @@ class Test(object):
         return True
 
     async def __link_account(self, page):
-        url = 'https://relay.link/bridge/base?fromChainId=8453&toCurrency=0x0000000000000000000000000000000000000000&fromCurrency=0x0000000000000000000000000000000000000000'
+        url = 'https://bridge.gravity.xyz/?tab=swap'
         page.get(url=url)
-        time.sleep(10)
+        time.sleep(10000)
         claim = page.ele('x://button/div/div[text()="Select wallet"]')
         if claim:
             await self.__click_ele(page=page, xpath='x://button/div/div[text()="Select wallet"]')
@@ -308,15 +308,15 @@ class Test(object):
         try:
             logger.info("登录钱包")
             await asyncio.wait_for(fut=self.__login_wallet(page=page, evm_id=wallet), timeout=60)
-            # logger.info("开始添加网络")
-            # await asyncio.wait_for(fut=self.__add_net_work(page=page, coin_name='base'), timeout=60)
+            logger.info("开始添加网络")
+            await asyncio.wait_for(fut=self.__add_net_work(page=page, coin_name='base'), timeout=60)
             logger.info("连接钱包")
-            # time.sleep(5)
+            time.sleep(50000)
             # await self.handle_signma_popup(page)
-            flag = await asyncio.wait_for(fut=self.__link_account(page=page), timeout=60)
-            if not flag:
-                logger.error(f'连接钱包错误 ==> {flag}')
-                return False
+            # flag = await asyncio.wait_for(fut=self.__link_account(page=page), timeout=60)
+            # if not flag:
+            #     logger.error(f'连接钱包错误 ==> {flag}')
+            #     return False
             logger.info("开始充值")
             num = 1
             for key in address:
@@ -341,7 +341,7 @@ class Test(object):
                         logger.error(f'充值失败 ==> {key}')
                     time.sleep(2)
                     logger.info("重新打开页面")
-                    url = 'https://relay.link/bridge/base?fromChainId=8453&toCurrency=0x0000000000000000000000000000000000000000&fromCurrency=0x0000000000000000000000000000000000000000'
+                    url = 'https://bridge.gravity.xyz/?tab=swap'
                     page.get(url=url)
                     time.sleep(2)
                 except Exception as error:
@@ -386,7 +386,7 @@ def read_questions_from_file(file_path):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
     args = parser.parse_args()
-    address = read_questions_from_file("/home/lm/task/test/wallet1.txt")
+    address = read_questions_from_file("/home/lm/task/test/wallet.txt")
     if len(address) > 0:
         args.wallet = '88106'
         while True:

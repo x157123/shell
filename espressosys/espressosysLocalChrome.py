@@ -338,10 +338,21 @@ def __do_task(acc, retry: int = 0):
         # if invite_url is not None and invite_url != '':
         #     url = invite_url
         hyperbolic_page = page.new_tab(url=url)
-        # 关联钱包
-        if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=2):
-            __click_ele(page=hyperbolic_page, xpath='x://button//span[contains(text(), "Signma")]', loop=5)
-            __handle_signma_popup(page=page, count=1, timeout=15)
+        # 输入名称 <input placeholder="Display name" type="text" class="sc-aXZVg sc-dJiZtA sc-epALIP gNHJPd AjcNL" value="">
+        "x://button[.//span[contains(text(), 'RARI Chain')]]"
+
+
+        __click_ele(page=hyperbolic_page, xpath="x://button[.//span[contains(text(), 'RARI Chain')]]", loop=2)
+        __click_ele(page=hyperbolic_page, xpath="x://span[contains(text(), 'MetaMask')]", loop=2)
+
+        time.sleep(20)
+
+        if __click_ele(page=hyperbolic_page, xpath='x://input[@placeholder="Display name"]', loop=2):
+            __input_ele_value(page=hyperbolic_page, xpath='x://input[@placeholder="Display name"]', value="test")
+            __click_ele(page=hyperbolic_page, xpath='x://span[contains(text(), "I have read and accept the")]/following-sibling::div[1]', loop=2)
+            __click_ele(page=hyperbolic_page, xpath='x://span[contains(text(), "I want to receive announcements and news ")]/following-sibling::div[1]', loop=2)
+            __click_ele(page=hyperbolic_page, xpath="x://button[.//span[contains(text(), 'Finish sign-up')]]", loop=2)
+
         if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Sign in"]', loop=2):
             __handle_signma_popup(page=page, count=1, timeout=15)
         __click_ele(page=hyperbolic_page, xpath='x://button[@aria-label="Close modal"]', loop=2)
@@ -462,7 +473,7 @@ if __name__ == '__main__':
         account_data = []
         for account in account_list:
             parts = account.split(",")
-            if len(ex_list) > 0 and parts[0] in ex_list:
+            if len(ex_list) > 0  and parts[0] in ex_list:
                 logger.info(f'跳过账号：{parts[0]}')
                 continue
             account_data.append({
