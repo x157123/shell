@@ -138,7 +138,7 @@ def __get_ele_value(page, xpath: str = '', loop: int = 5, must: bool = False,
                     find_all: bool = False,
                     index: int = -1):
     try:
-        # logger.info(f'获取元素{xpath}')
+        logger.info(f'获取元素数据{xpath}')
         _ele = __get_ele(page=page, xpath=xpath, loop=loop, must=must, find_all=find_all, index=index)
         if _ele is not None:
             if _ele:
@@ -156,7 +156,7 @@ def __click_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
                 index: int = -1) -> bool:
     loop_count = 1
     while True:
-        # logger.info(f'查找元素{xpath}:{loop_count}')
+        logger.info(f'查找元素{xpath}:{loop_count}')
         try:
             if not find_all:
                 if by_js:
@@ -278,42 +278,44 @@ def __handle_signma_popup(page, count: int = 1, timeout: int = 15, must: bool = 
 # 获取邮箱 验证码code
 def __get_email_code(page, xpath, evm_addr):
     email_page = page.new_tab(url='https://mail.dmail.ai/inbox')
-    # 通过小狐狸钱包打开狗头钱包
     code = None
-    loop_count = 0
-    if __get_ele(email_page, xpath=f"x://div[@title='{evm_addr}']", loop=2):
-        logger.info('已登录邮箱')
-    else:
-        if __click_ele(page=email_page, xpath='x://span[text()="MetaMask"]', loop=10):
-            __handle_signma_popup(page=page, count=1, timeout=60)
-    # 首次进入邮箱
-    if __click_ele(page=email_page, xpath='x://a[text()="Next step"]', loop=1):
-        __click_ele(page=email_page, xpath='x://a[text()="Launch"]')
-        __click_ele(page=email_page, xpath='x://div[@data-title="Setting"]')
-    if __click_ele(page=email_page, xpath='x://a[text()="Next"]', loop=1):
-        __click_ele(page=email_page, xpath='x://a[text()="Finish"]')
-
-    # 多尝试几次
-    while True:
-        try:
-            __click_ele(email_page, xpath='x://div[contains(@class, "icon-refresh")]', loop=20, must=True)
-            time.sleep(10)
-            __click_ele(email_page, xpath='x://div[contains(@class,"sc-eDPEul")]//ul/li[1]', loop=40)
-            # 读取验证码
-            code = __get_ele_value(page=email_page, xpath=xpath, loop=20)
-            # 删除读取到的验证邮箱
-            if code is not None:
-                __click_ele(email_page, xpath='x://div[@data-title="trash"]')
-                time.sleep(3)
-        except Exception as e:
-            logger.error(f'error ==> {e}')
-        if loop_count >= 5:
-            break
-        if code is None:
-            loop_count += 1
-            continue  # 跳到下一次循环
+    try:
+        # 通过小狐狸钱包打开狗头钱包
+        loop_count = 0
+        if __get_ele(email_page, xpath=f"x://div[@title='{evm_addr}']", loop=2):
+            logger.info('已登录邮箱')
         else:
-            break
+            if __click_ele(page=email_page, xpath='x://span[text()="MetaMask"]', loop=10):
+                __handle_signma_popup(page=page, count=1, timeout=60)
+        # 首次进入邮箱
+        if __click_ele(page=email_page, xpath='x://a[text()="Next step"]', loop=1):
+            __click_ele(page=email_page, xpath='x://a[text()="Launch"]')
+            __click_ele(page=email_page, xpath='x://div[@data-title="Setting"]')
+        if __click_ele(page=email_page, xpath='x://a[text()="Next"]', loop=1):
+            __click_ele(page=email_page, xpath='x://a[text()="Finish"]')
+
+        # 多尝试几次
+        while True:
+            try:
+                __click_ele(email_page, xpath='x://div[contains(@class, "icon-refresh")]', loop=20, must=True)
+                __click_ele(email_page, xpath='x://div[contains(@class,"sc-eDPEul")]//ul/li[1]', loop=40, must=True)
+                # 读取验证码
+                code = __get_ele_value(page=email_page, xpath=xpath, loop=20)
+                # 删除读取到的验证邮箱
+                if code is not None:
+                    __click_ele(email_page, xpath='x://div[@data-title="trash"]')
+                    time.sleep(3)
+            except Exception as e:
+                logger.error(f'error ==> {e}')
+            if loop_count >= 5:
+                break
+            if code is None:
+                loop_count += 1
+                continue  # 跳到下一次循环
+            else:
+                break
+    except Exception as e:
+        logger.error(f'error ==> {e}')
     # 关闭邮箱页面
     email_page.close()
     return code
@@ -521,7 +523,7 @@ def __do_task(acc, retry: int = 0):
             __click_ele(page=hyperbolic_page,
                         xpath="x://button[contains(text(), 'Continue with Email')]", loop=2, must=True)
             __input_ele_value(page=hyperbolic_page, xpath='x://input[@id="email-input"]',
-                              value= (evm_addr.lower() + "@dmail.ai"))
+                              value=(evm_addr.lower() + "@dmail.ai"))
 
             __click_ele(page=hyperbolic_page,
                         xpath="x://button[span[contains(text(), 'Submit')] and not(@disabled)]", loop=2, must=True)
