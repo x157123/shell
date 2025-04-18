@@ -161,19 +161,11 @@ def __click_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
         logger.info(f'查找元素{xpath}:{loop_count}')
         try:
             if not find_all:
-                ele = page.ele(locator=xpath)
-                if ele:
-                    time.sleep(5)
-                    continue
                 if by_js:
-                    ele.click()
+                    page.ele(locator=xpath).click()
                 else:
-                    ele.click(by_js=None)
+                    page.ele(locator=xpath).click(by_js=None)
             else:
-                ele_all = page.eles(locator=xpath)
-                if ele_all is None:
-                    time.sleep(5)
-                    continue
                 page.eles(locator=xpath)[index].click(by_js=None)
             # logger.info(f'点击按钮{xpath}:{loop_count}')
             return True
