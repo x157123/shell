@@ -540,7 +540,7 @@ def __do_task(acc, retry: int = 0):
                 logger.info(f'{evm_id}:solana_val:{solana_val},base_eth:{base_eth}')
                 client.publish("appInfo", json.dumps(get_app_info_integral(base_eth,base_eth,0)))
                 client.publish("appInfo", json.dumps(get_app_info_integral(solana_val,solana_val,1)))
-
+                status = True
                 # add_log(message=solana_val, task_name='towns_solana_key', index=evm_id, node_name='127.0.0.1',server_url="http://192.168.0.16:8082")
                 # add_log(message=base_eth, task_name='towns_base_eth_key', index=evm_id, node_name='127.0.0.1',server_url="http://192.168.0.16:8082")
 
