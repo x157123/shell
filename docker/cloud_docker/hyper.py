@@ -228,6 +228,7 @@ if __name__ == '__main__':
     # options.set_browser_path(r'C:\Users\liulei\Desktop\chrome-win\chrome.exe')
     options.set_browser_path('/usr/bin/chromium-browser')
     options.set_argument('--no-sandbox')
+    options.set_argument('--disable-setuid-sandbox')
 
     # ...............
     page = ChromiumPage(options)
