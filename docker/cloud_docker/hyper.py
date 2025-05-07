@@ -238,11 +238,10 @@ if __name__ == '__main__':
     args.display = '5903'
     args.publicKey = 'J4BRHjFRNd438DcigpiooJd17FXdFuuXvYYzMhUpFyCN'
     args.privateKey = 'G9afgDMmmSnjNWAENgvyMK2dAEZmsFZCxDzy5Q6LcV3z'
-
     im_public_key = args.publicKey
     im_private_Key = args.privateKey
 
-    time.sleep(5)
+    time.sleep(10)
     if __click_ele(page, "x://p[text()='Public Key:']/following-sibling::div//button"):
         public_key = pyperclip.paste().strip()
         print(public_key)
