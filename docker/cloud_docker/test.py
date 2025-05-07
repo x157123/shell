@@ -151,7 +151,9 @@ if __name__ == '__main__':
     # options.set_browser_path(r'C:\Users\liulei\Desktop\chrome-win\chrome.exe')
     options.set_browser_path('/usr/bin/chromium-browser')
     options.set_argument('--no-sandbox')
-    options.set_argument('--disable-setuid-sandbox')
+    options.set_argument('--disable-dev-shm-usage')
+    options.set_argument('--disable-gpu')
+    options.set_argument('--single-process')
 
     page = ChromiumPage(options)
     page.get('https://node.hyper.space/')
