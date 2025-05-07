@@ -23,22 +23,23 @@ def __click_ele(_page, xpath: str = '', loop: int = 5, must: bool = False,
                 index: int = -1) -> bool:
     loop_count = 1
     while True:
-        # logger.info(f'查找元素{xpath}:{loop_count}')
+        logger.info(f'get {xpath}:{loop_count}')
         try:
             if not find_all:
                 _page.ele(locator=xpath).click()
             else:
                 _page.eles(locator=xpath)[index].click()
-            # logger.info(f'点击按钮{xpath}:{loop_count}')
+            logger.info(f'click {xpath}:{loop_count}')
             return True
         except Exception as e:
             error = e
             pass
         if loop_count >= loop:
             if must:
-                raise Exception(f'未找到元素:{xpath}')
+                raise Exception(f'not ele:{xpath}')
             return False
         loop_count += 1
+        time.sleep(1)
 
 
 def get_app_info(serverId, appId, operationType, description):
@@ -67,7 +68,7 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
               index: int = -1):
     loop_count = 1
     while True:
-        # logger.info(f'查找元素{xpath}:{loop_count}')
+        logger.info(f'get ele {xpath}:{loop_count}')
         try:
             if not find_all:
                 # logger.info(f'查找元素{xpath}:{loop_count}')
@@ -87,6 +88,7 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
                 raise Exception(f'未找到元素:{xpath}')
             return None
         loop_count += 1
+        time.sleep(1)
 
 
 def monitor_switch(tab):
