@@ -146,13 +146,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
     args = parser.parse_args()
     data_map = {}
-    # .....................
+
     options = ChromiumOptions()
     # options.set_browser_path(r'C:\Users\liulei\Desktop\chrome-win\chrome.exe')
     options.set_browser_path('/usr/bin/chromium-browser')
     options.set_argument('--no-sandbox')
 
-    # ...............
     page = ChromiumPage(options)
     page.get('https://node.hyper.space/')
 
@@ -164,7 +163,7 @@ if __name__ == '__main__':
     im_public_key = args.publicKey
     im_private_Key = args.privateKey
 
-    time.sleep(10)
+    time.sleep(100)
     if __click_ele(page, "x://p[text()='Public Key:']/following-sibling::div//button"):
         public_key = pyperclip.paste().strip()
         print(public_key)
