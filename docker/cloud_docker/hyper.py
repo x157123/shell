@@ -167,10 +167,12 @@ def monitor_switch(tab):
             time.sleep(num)
             logger.info("sw")
             if __get_ele(page=tab, xpath='x://button[@role="switch"]', loop=2):
+                logger.info("check net")
                 if __click_ele(_page=tab, xpath='x://button[@role="switch" and @aria-checked="false"]', loop=2):
                     logger.info("not net")
                     error += 1
                 else:
+                    logger.info("up net")
                     if __get_ele(page=tab, xpath='x://span[text()="Connected"]', loop=1):
                         logger.info("net")
                         if error > 0:
