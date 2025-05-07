@@ -165,43 +165,48 @@ def monitor_switch(tab):
     while True:
         try:
             time.sleep(num)
+            logger.info("sw")
+            if __get_ele(page=tab, xpath='x://button[@role="switch"]', loop=2):
+                if __click_ele(_page=tab, xpath='x://button[@role="switch" and @aria-checked="false"]', loop=2):
+                    logger.info("not net")
+                    error += 1
+                else:
+                    if __get_ele(page=tab, xpath='x://span[text()="Connected"]', loop=1):
+                        logger.info("net")
+                        if error > 0:
+                            client.publish("appInfo",
+                                           json.dumps(get_app_info(args.serverId, args.appId, 2, '已连接到主网络')))
+                        error = 0
 
-            if __click_ele(_page=tab, xpath='x://button[@role="switch" and @aria-checked="false"]', loop=2):
-                logger.info("未连接到主网络")
-                error += 1
-            else:
-                if __get_ele(page=tab, xpath='x://span[text()="Connected"]', loop=1):
-                    logger.info("已连接到主网络")
-                    if error > 0:
-                        client.publish("appInfo",
-                                       json.dumps(get_app_info(args.serverId, args.appId, 2, '已连接到主网络')))
+                        if total > 60:
+                            # 获取积分 每循环60次检测 获取一次积分
+                            points = get_points(tab)
+                            # 关闭积分弹窗（如果存在）
+                            __click_ele(tab, 'x://button[.//span[text()="Close"]]')
+                            if points is not None and points != "":
+                                app_info = get_app_info_integral(args.serverId, args.appId, im_public_key, points, 2, args.display,
+                                                                 '运行中， 并到采集积分:' + str(points))
+                                client.publish("appInfo", json.dumps(app_info))
+                                logger.info(f"推送积分:{points}")
+                                total = 0
+                            elif total > 70:
+                                logger.info(f"需要刷新页面。{total}")
+                                total = 30
+                                tab.refresh()
+                if error == 9:
+                    tab.refresh()
+                    time.sleep(3)
+                    logger.info("refresh page:")    # 关闭弹窗（如果存在）
+                    __click_ele(tab, 'x://button[.//span[text()="Close"]]')
+
+                if error == 10:
+                    client.publish("appInfo",
+                                   json.dumps(get_app_info(args.serverId, args.appId, 3, '检查过程中出现异常：未连接到主网络')))
                     error = 0
-
-                    if total > 60:
-                        # 获取积分 每循环60次检测 获取一次积分
-                        points = get_points(tab)
-                        # 关闭积分弹窗（如果存在）
-                        __click_ele(tab, 'x://button[.//span[text()="Close"]]')
-                        if points is not None and points != "":
-                            app_info = get_app_info_integral(args.serverId, args.appId, im_public_key, points, 2, args.display,
-                                                             '运行中， 并到采集积分:' + str(points))
-                            client.publish("appInfo", json.dumps(app_info))
-                            logger.info(f"推送积分:{points}")
-                            total = 0
-                        elif total > 70:
-                            logger.info(f"需要刷新页面。{total}")
-                            total = 30
-                            tab.refresh()
-            if error == 9:
+            else:
+                logger.info("refresh")
                 tab.refresh()
-                time.sleep(3)
-                logger.info("refresh page:")    # 关闭弹窗（如果存在）
-                __click_ele(tab, 'x://button[.//span[text()="Close"]]')
 
-            if error == 10:
-                client.publish("appInfo",
-                               json.dumps(get_app_info(args.serverId, args.appId, 3, '检查过程中出现异常：未连接到主网络')))
-                error = 0
             total += 1
         except Exception as e:
             client.publish("appInfo", json.dumps(get_app_info(args.serverId, args.appId, 3, '检查过程中出现异常: ' + str(e))))
@@ -218,10 +223,8 @@ if __name__ == '__main__':
     data_map = {}
     # .....................
     options = ChromiumOptions()
-    options.set_browser_path(r'C:\Users\liulei\Desktop\chrome-win\chrome.exe')
-    # options.set_browser_path('/usr/bin/chromium-browser')
-    options.set_argument('--no-sandbox')
-    options.set_argument('--disable-setuid-sandbox')
+    # options.set_browser_path(r'C:\Users\liulei\Desktop\chrome-win\chrome.exe')
+    options.set_browser_path('/usr/bin/chromium-browser')
 
     # ...............
     page = ChromiumPage(options)
