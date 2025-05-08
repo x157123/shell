@@ -2,20 +2,15 @@
 # -*- coding: utf-8 -*-
 from DrissionPage import ChromiumPage
 import time, threading
+from DrissionPage import ChromiumPage, ChromiumOptions
+import time
+import pyperclip
+import random
 import json
 from loguru import logger
 import paho.mqtt.client as mqtt
 import argparse
-import subprocess
-import time
-import json
-import zlib
-import base64
-import subprocess
-import argparse
-from loguru import logger
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import unpad
+
 
 # =================================================   MQTT   ======================================
 def create_mqtt_client(broker, port, username, password, topic):
@@ -85,49 +80,6 @@ def on_message(client, userdata, msg):
 # =================================================   MQTT   ======================================
 
 
-def read_file(file_path):
-    """从文件中读取内容并去除多余空白"""
-    try:
-        # logger.info(f"读取文件: {file_path}")
-        with open(file_path, 'r') as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        raise ValueError(f"文件未找到: {file_path}")
-
-
-def decrypt_aes_ecb(secret_key, data_encrypted_base64, accountType):
-    """
-    解密 AES ECB 模式的 Base64 编码数据，
-    去除 PKCS7 填充后返回所有 accountType 为 "hyper" 的记录。
-    """
-    try:
-        # Base64 解码
-        encrypted_bytes = base64.b64decode(data_encrypted_base64)
-        # 创建 AES 解密器
-        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
-        # 解密数据
-        decrypted_bytes = cipher.decrypt(encrypted_bytes)
-        # 去除 PKCS7 填充（AES.block_size 默认为 16）
-        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
-        # 将字节转换为字符串
-        decrypted_text = decrypted_bytes.decode('utf-8')
-
-        # 解析 JSON 字符串为 Python 对象（通常为列表）
-        data_list = json.loads(decrypted_text)
-
-        logger.info(data_list)
-
-        # 创建结果列表，收集所有 accountType 为 "hyper" 的记录
-        result = [item for item in data_list if item.get('accountType') == accountType]
-
-        # 返回结果列表，如果没有匹配项则返回空列表
-        return result
-    except Exception as e:
-        # 记录错误日志
-        logger.error(f"解密失败: {e}")
-        return []
-
-
 def get_points(tab):
     # 获取积分：点击按钮后从剪贴板读取
     if __click_ele(tab, "x://button[.//span[text()='Points']]"):
@@ -183,7 +135,6 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
         "description": f"{description}",
     }
 
-
 # 获取元素
 def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
               find_all: bool = False,
@@ -212,6 +163,17 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
         loop_count += 1
 
 
+URL = 'https://node.hyper.space'
+HOST = '127.0.0.1'
+
+# ① 你的“任务数组”——内容按需修改
+keys = ['2SBckLEM279e5ypQqJkmAxo2rkQJbtoWRUeB1zcsgzXd', '73F8jwu5CWUSmwJtDoaBCEekPkMqwsACadZ3ascttp8L', 'FNmB49DFeakiZetyuvihqJDE2Wf1jHTbDKhRYbWaMDUC', '561WbUqLhRqwQa3ioiLVTxUCyar9yAWXEBjedEwQ9txP', '2N9z9sTu5ExmKEHdo73U1q2HStunvVrscWxLyz69h74y', 'DF1Hkm5MpSW1UCFYQFSfZHciKpd5qe945rR4VMuBdXsk']   # ⬅️ 长度决定端口数量
+
+BASE_PORT = 6901
+PORTS = [BASE_PORT + i for i in range(len(keys))]         # ② 动态生成 [6901, 6902, ...]
+
+ELEMENT_SELECTOR = 'css->div.result > span'
+POLL_INTERVAL = 300     # 5 分钟
 
 
 def poll_element(tab, key, endpoint, port):
@@ -235,9 +197,10 @@ def poll_element(tab, key, endpoint, port):
                         time.sleep(5)
                         tab.refresh()
                         time.sleep(3)
-                        _init = 1
+                        
                     # 关闭私钥弹窗（如果存在）
                     __click_ele(_page=tab, xpath='x://button[.//span[text()="Close"]]', loop=2)
+
 
                 logger.info("check net")
                 if __click_ele(_page=tab, xpath='x://button[@role="switch" and @aria-checked="false"]', loop=2):
@@ -285,27 +248,13 @@ def poll_element(tab, key, endpoint, port):
         time.sleep(POLL_INTERVAL)
 
 
-def start_chrome_in_container(index):
-    """docker exec -d nodex_N /root/start_chrome_vnc.sh"""
-    container = f'nodex_{index}'
-    cmd = ['docker', 'exec', '-d', container, '/root/start_chrome_vnc.sh']
-    try:
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print(f'[init] 已在容器 {container} 启动 /root/start_chrome_vnc.sh')
-    except subprocess.CalledProcessError as e:
-        print(f'[init] 容器 {container} 执行失败: {e}')
-        raise
-
-
 def main():
     threads = []
 
     # ③ 同时拿到序号(标签)和端口
-    for idx, (key, port) in enumerate(zip(keys, PORTS), start=1):
+    for key, port in zip(keys, PORTS):
         endpoint = f'{HOST}:{port}'
         try:
-            start_chrome_in_container(idx)
-            time.sleep(20)
             page = ChromiumPage(addr_or_opts=endpoint)
             page.get(URL)
             print(f'[{key} | {endpoint}] 打开成功 → {page.title}')
@@ -330,35 +279,12 @@ def main():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
-    parser.add_argument("--serverId", type=str, help="服务ID", required=True)
-    parser.add_argument("--appId", type=str, help="应用ID", required=True)
-    parser.add_argument("--decryptKey", type=str, help="解密key", required=True)
     args = parser.parse_args()
-    # 从文件加载密文
-    encrypted_data_base64 = read_file('/opt/data/' + args.appId + '_user.json')
-    # 解密并发送解密结果
-    public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, 'hyper')
-
-    logger.info(f'我现在数据量{len(public_key_tmp)}')
-
-    URL = 'https://node.hyper.space'
-    HOST = '127.0.0.1'
-
-    # ① 你的“任务数组”——内容按需修改
-    # keys = ['2SBckLEM279e5ypQqJkmAxo2rkQJbtoWRUeB1zcsgzXd', '73F8jwu5CWUSmwJtDoaBCEekPkMqwsACadZ3ascttp8L', 'FNmB49DFeakiZetyuvihqJDE2Wf1jHTbDKhRYbWaMDUC', '561WbUqLhRqwQa3ioiLVTxUCyar9yAWXEBjedEwQ9txP', '2N9z9sTu5ExmKEHdo73U1q2HStunvVrscWxLyz69h74y', 'DF1Hkm5MpSW1UCFYQFSfZHciKpd5qe945rR4VMuBdXsk']
-    keys = []
-
-    BASE_PORT = 6901
-    PORTS = [BASE_PORT + i for i in range(len(public_key_tmp))]         # 动态生成 [6901, 6902, ...]
-
-    POLL_INTERVAL = 60     # 1 分钟
+    args.serverId = '1'
+    args.appId = '1'
 
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
     client.loop_start()
-    if len(public_key_tmp) > 0:
-        public_key_tmp.sort(key=lambda item: item['id'])
-        for index, item in enumerate(public_key_tmp):
-            keys.append(item["privateKey"])
-            logger.info(f'启动私钥:{item["privateKey"]}')
-        # main()
+
+    main()
