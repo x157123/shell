@@ -72,7 +72,6 @@ def on_message(client, userdata, msg):
     """
     print(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
 
-
 # =================================================   MQTT   ======================================
 
 def get_points(tab):
