@@ -10,6 +10,7 @@ from decimal import Decimal
 import os
 from datetime import datetime, timedelta
 import platform
+from typing import Union
 
 evm_ext_id = "ohgmkpjifodfiomblclfpdhehohinlnn"
 file_lock = threading.Lock()
@@ -20,7 +21,7 @@ def __get_page(evm_id, window: int = 0):
     if platform.system().lower() == "windows":
         page = ChromiumPage(
             addr_or_opts=ChromiumOptions()
-            .set_paths(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
+            .add_extension(r"C:\Users\liulei\Desktop\fsdownload\signma")
             .set_user_data_path(f"D://tmp//rarible//{window}")
             .set_local_port(55443 + window)
             .headless(on_off=False))
@@ -562,24 +563,13 @@ def __do_task(evm_id, acc, num: int = 0):
     page = __get_page(evm_id=evm_id, window=num)
     logger.info(f'线程{num}:{len(acc)}')
     __login_wallet(page=page, evm_id=evm_id)
-    # Arb
-    fromChainId = 42161
-    net = 'arb'
-    # Base
-    fromChainId = 8453
-    net = 'base'
-    # OP
-    fromChainId = 10
-    net = 'op'
 
-    start_bal = 0.002801
-    min_bal = 0.002501
-    end_bal = 0.004501
-    page.get(url=f"https://relay.link/bridge/arbitrum?fromChainId={fromChainId}")
+
+    page.get(url=f"https://relay.link/bridge/ethereum")
     __close_signma_popup(page=page, count=0)
     for ac in acc:
         try:
-            base_balance = __get_arb_balance(evm_address=ac["evm_addr"])
+            base_balance = get_eth_balance(address=ac["evm_addr"], return_eth=True, return_str=True)
             if min_bal <= float(base_balance):
                 logger.success(f'钱包金额充足:{base_balance}，跳过当前账号')
                 with file_lock:
@@ -605,7 +595,7 @@ def __do_task(evm_id, acc, num: int = 0):
                     send_amount = send_amount.strip().replace('$', '')
                     receive_amount = receive_amount.strip().replace('$', '')
                     gas_fee = round(float(send_amount) - float(receive_amount), 3)
-                    if float(gas_fee) > 0.08:
+                    if float(gas_fee) > max_gas_fee:
                         logger.error(f'{gas_fee} gas too high {evm_id} to {ac["evm_addr"]}')
                         return False
                     if __click_ele(page=page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
@@ -614,15 +604,15 @@ def __do_task(evm_id, acc, num: int = 0):
                             if __get_ele(page=page, xpath='x://button[text()="View Details"]', loop=1):
                                 if __click_ele(page=page, xpath='x://button[text()="Done"]', loop=5):
                                     time.sleep(2)
-                                    new_balance = __get_arb_balance(evm_address=ac["evm_addr"])
+                                    new_balance = get_eth_balance(address=ac["evm_addr"], return_eth=True, return_str=True)
                                     if min_bal <= float(new_balance):
                                         with file_lock:
                                             append_date_to_file(ex_log_file, ac["evm_addr"])
                                             append_date_to_file(ex_data_file, f"{evm_id},{net},{ac['evm_id']},{ac['evm_addr']},{base_balance},{amount},{new_balance},{get_local_time()}")
-                                            logger.info(f'充值成功')
+                                            logger.info(f"充值成功{ac['evm_id']}:{ac['evm_addr']}")
                         if not __close_signma_popup(page=page, count=0):
                             __click_ele(page=page, xpath="x//button[contains(@class, 'relay-cursor_pointer') and contains(@class, 'relay-text_gray9')]", loop=1)
-                page.get(url=f"https://relay.link/bridge/arbitrum?fromChainId={fromChainId}")
+                page.get(url=f"https://relay.link/bridge/ethereum")
         except Exception as e:
             logger.info(f'异常数据：{e}')
             try:
@@ -632,7 +622,7 @@ def __do_task(evm_id, acc, num: int = 0):
             page = __get_page(evm_id=evm_id, window=num)
             __login_wallet(page=page, evm_id=evm_id)
             __close_signma_popup(page=page, count=0)
-            page.get(url=f"https://relay.link/bridge/arbitrum?fromChainId={fromChainId}")
+            page.get(url=f"https://relay.link/bridge/ethereum")
 
 
 def split_array(arr, num_parts):
@@ -688,13 +678,61 @@ def get_arbiscan_wallet(page ,evm_address):
     arbiscan_page = page.new_tab(url=f'https://arbiscan.io/address/{evm_address}')
     time.sleep(2000)
 
-if __name__ == '__main__':
 
+def get_eth_balance(
+        address: str,
+        *,
+        url: str = "https://eth-mainnet.public.blastapi.io/",
+        block_tag: str = "latest",
+        timeout: int = 10,
+        return_eth: bool = False,
+        return_str: bool = False,
+) -> Union[int, Decimal, str]:
+    payload = [{
+        "id": 1,
+        "jsonrpc": "2.0",
+        "method": "eth_getBalance",
+        "params": [address, block_tag],
+    }]
+
+    resp = requests.post(url, json=payload, timeout=timeout)
+    resp.raise_for_status()
+
+    result_hex = resp.json()[0]["result"]         # e.g. '0x27bc86...'
+    balance_wei = int(result_hex, 16)
+
+    if not return_eth:
+        return balance_wei
+
+    # Wei → ETH，使用 Decimal 避免精度丢失与科学计数
+    balance_eth = Decimal(balance_wei) / Decimal(10**18)
+
+    if return_str:
+        # format(..., 'f') 始终输出定点小数；再去掉多余 0 与 .
+        return format(balance_eth, 'f').rstrip('0').rstrip('.')
+
+    return balance_eth
+
+
+if __name__ == '__main__':
+    # 钱包最小余额，大于这个钱就不转
+    min_bal = 0.00213
+    # 随机转账金额 开始
+    start_bal = 0.00263
+    # 随机转账金额 结束
+    end_bal = 0.03125
+    # 钱包地址
     eve_id = 88102
-    max_workers = 5
-    task_file = "./task_88102.txt"
-    ex_log_file = "./task_88102_dt.txt"
-    ex_data_file = "./task_88102_data.txt"
+    # 损耗现在
+    max_gas_fee = 0.08
+    # 转账窗口
+    max_workers = 1
+    # 需要转账的地址格式如下  1,0xd7746eaed250ba139ab09df7b15d3eea447246d4
+    task_file = "./base_eth.txt"
+    # 记录文件
+    ex_log_file = "./base_eth_dt.txt"
+    ex_data_file = "./base_eth_data.txt"
+    net = 'base'
 
     while True:
         # 执行任务情况
@@ -715,7 +753,8 @@ if __name__ == '__main__':
 
         # 启动
         if len(task_data) <= 0:
-            logger.info("已处理完毕")
-            break
-        print(f'执行任务数{len(task_data)}')
-        run(eve_id=eve_id, data=task_data, max_workers=max_workers)
+            logger.info("已处理完毕,等待60秒")
+            time.sleep(60)
+        else:
+            print(f'执行任务数{len(task_data)}')
+            run(eve_id=eve_id, data=task_data, max_workers=max_workers)

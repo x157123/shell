@@ -7,7 +7,15 @@ from loguru import logger
 import paho.mqtt.client as mqtt
 import argparse
 import subprocess
-
+import time
+import json
+import zlib
+import base64
+import subprocess
+import argparse
+from loguru import logger
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
 
 # =================================================   MQTT   ======================================
 def create_mqtt_client(broker, port, username, password, topic):
@@ -75,6 +83,49 @@ def on_message(client, userdata, msg):
     print(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
 
 # =================================================   MQTT   ======================================
+
+
+def read_file(file_path):
+    """从文件中读取内容并去除多余空白"""
+    try:
+        # logger.info(f"读取文件: {file_path}")
+        with open(file_path, 'r') as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        raise ValueError(f"文件未找到: {file_path}")
+
+
+def decrypt_aes_ecb(secret_key, data_encrypted_base64, accountType):
+    """
+    解密 AES ECB 模式的 Base64 编码数据，
+    去除 PKCS7 填充后返回所有 accountType 为 "hyper" 的记录。
+    """
+    try:
+        # Base64 解码
+        encrypted_bytes = base64.b64decode(data_encrypted_base64)
+        # 创建 AES 解密器
+        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
+        # 解密数据
+        decrypted_bytes = cipher.decrypt(encrypted_bytes)
+        # 去除 PKCS7 填充（AES.block_size 默认为 16）
+        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
+        # 将字节转换为字符串
+        decrypted_text = decrypted_bytes.decode('utf-8')
+
+        # 解析 JSON 字符串为 Python 对象（通常为列表）
+        data_list = json.loads(decrypted_text)
+
+        logger.info(data_list)
+
+        # 创建结果列表，收集所有 accountType 为 "hyper" 的记录
+        result = [item for item in data_list if item.get('accountType') == accountType]
+
+        # 返回结果列表，如果没有匹配项则返回空列表
+        return result
+    except Exception as e:
+        # 记录错误日志
+        logger.error(f"解密失败: {e}")
+        return []
 
 
 def get_points(tab):
@@ -161,17 +212,6 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
         loop_count += 1
 
 
-URL = 'https://node.hyper.space'
-HOST = '127.0.0.1'
-
-# ① 你的“任务数组”——内容按需修改
-# keys = ['2SBckLEM279e5ypQqJkmAxo2rkQJbtoWRUeB1zcsgzXd', '73F8jwu5CWUSmwJtDoaBCEekPkMqwsACadZ3ascttp8L', 'FNmB49DFeakiZetyuvihqJDE2Wf1jHTbDKhRYbWaMDUC', '561WbUqLhRqwQa3ioiLVTxUCyar9yAWXEBjedEwQ9txP', '2N9z9sTu5ExmKEHdo73U1q2HStunvVrscWxLyz69h74y', 'DF1Hkm5MpSW1UCFYQFSfZHciKpd5qe945rR4VMuBdXsk']
-keys = ['2SBckLEM279e5ypQqJkmAxo2rkQJbtoWRUeB1zcsgzXd']
-
-BASE_PORT = 6901
-PORTS = [BASE_PORT + i for i in range(len(keys))]         # 动态生成 [6901, 6902, ...]
-
-POLL_INTERVAL = 300     # 5 分钟
 
 
 def poll_element(tab, key, endpoint, port):
@@ -290,12 +330,35 @@ def main():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
+    parser.add_argument("--serverId", type=str, help="服务ID", required=True)
+    parser.add_argument("--appId", type=str, help="应用ID", required=True)
+    parser.add_argument("--decryptKey", type=str, help="解密key", required=True)
     args = parser.parse_args()
-    args.serverId = '1'
-    args.appId = '1'
+    # 从文件加载密文
+    encrypted_data_base64 = read_file('/opt/data/' + args.appId + '_user.json')
+    # 解密并发送解密结果
+    public_key_tmp = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, 'hyper')
+
+    logger.info(f'我现在数据量{len(public_key_tmp)}')
+
+    URL = 'https://node.hyper.space'
+    HOST = '127.0.0.1'
+
+    # ① 你的“任务数组”——内容按需修改
+    # keys = ['2SBckLEM279e5ypQqJkmAxo2rkQJbtoWRUeB1zcsgzXd', '73F8jwu5CWUSmwJtDoaBCEekPkMqwsACadZ3ascttp8L', 'FNmB49DFeakiZetyuvihqJDE2Wf1jHTbDKhRYbWaMDUC', '561WbUqLhRqwQa3ioiLVTxUCyar9yAWXEBjedEwQ9txP', '2N9z9sTu5ExmKEHdo73U1q2HStunvVrscWxLyz69h74y', 'DF1Hkm5MpSW1UCFYQFSfZHciKpd5qe945rR4VMuBdXsk']
+    keys = []
+
+    BASE_PORT = 6901
+    PORTS = [BASE_PORT + i for i in range(len(public_key_tmp))]         # 动态生成 [6901, 6902, ...]
+
+    POLL_INTERVAL = 60     # 1 分钟
 
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
     client.loop_start()
-
-    main()
+    if len(public_key_tmp) > 0:
+        public_key_tmp.sort(key=lambda item: item['id'])
+        for index, item in enumerate(public_key_tmp):
+            keys.append(item["privateKey"])
+            logger.info(f'启动私钥:{item["privateKey"]}')
+        # main()
