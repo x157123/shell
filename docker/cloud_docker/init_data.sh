@@ -86,7 +86,7 @@ setup_python_script() {
 
 # 启动 Chrome 和 Python 脚本
 start_services() {
-
+    apt
     # 启动 Python 脚本
     log_info "启动 $PYTHON_SCRIPT_DIR ..."
     python3 -m venv ~/drission_venv

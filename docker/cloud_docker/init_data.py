@@ -280,9 +280,34 @@ def poll_element(tab, key, endpoint, port):
         time.sleep(POLL_INTERVAL)
 
 
+def _run(cmd: list[str], *, silent: bool = True) -> subprocess.CompletedProcess:
+    """运行命令并返回 CompletedProcess；silent=True 时吞掉输出。"""
+    kwargs = {}
+    if silent:
+        kwargs |= dict(stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return subprocess.run(cmd, check=False, text=True, **kwargs)
+
+
 def start_chrome_in_container(index):
     """docker exec -d nodex_N /root/start_chrome_vnc.sh"""
-    container = f'nodex_{index}'
+    container = f'node{index}'
+
+    try:
+        # ① 查询运行状态（Running=true/false）
+        running = subprocess.check_output(
+            ['docker', 'inspect', '-f', '{{.State.Running}}', container],
+            text=True
+        ).strip().lower()
+    except subprocess.CalledProcessError:
+        raise RuntimeError(f'[init] 容器 {container} 不存在，请先创建')
+
+    # ② 若未运行则启动
+    if running != 'true':
+        print(f'[init] 容器 {container} 未启动，执行 docker start ...')
+        subprocess.check_call(['docker', 'start', container])
+        print(f'[init] 容器 {container} 已启动')
+        time.sleep(5)
+
     cmd = ['docker', 'exec', '-d', container, '/root/start_chrome_vnc.sh']
     try:
         subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -356,4 +381,4 @@ if __name__ == '__main__':
         for index, item in enumerate(public_key_tmp):
             keys.append(item["privateKey"])
             logger.info(f'启动私钥:{item["privateKey"]}')
-        # main()
+        main()
