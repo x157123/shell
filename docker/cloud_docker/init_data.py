@@ -217,12 +217,11 @@ def poll_element(tab, public_key, key, endpoint, port):
 
     while True:
         try:
-            logger.info("sw")
+            logger.info(f"{port}:{public_key}:检测状态")
             if __get_ele(page=tab, xpath='x://button[@role="switch"]', loop=2):
-
                 if _init == 0 and __click_ele(tab, "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
                     if __click_ele(tab, "x://div[contains(@class, 'cursor-text')]"):
-                        print(f"write key")
+                        logger.info(f"{port}:{public_key}:write key{key}")
                         tab.actions.type(key)
                         time.sleep(1)
                         # 确认导入
@@ -236,7 +235,7 @@ def poll_element(tab, public_key, key, endpoint, port):
 
                 logger.info("check net")
                 if __click_ele(_page=tab, xpath='x://button[@role="switch" and @aria-checked="false"]', loop=2):
-                    logger.info("not net")
+                    logger.info("未连接到网络")
                     error += 1
                 else:
                     logger.info("up net")
@@ -265,15 +264,15 @@ def poll_element(tab, public_key, key, endpoint, port):
                 if error == 9:
                     tab.refresh()
                     time.sleep(3)
-                    logger.info("refresh page:")    # 关闭弹窗（如果存在）
+                    logger.info("刷新页面")    # 关闭弹窗（如果存在）
                     __click_ele(tab, 'x://button[.//span[text()="Close"]]')
 
-                if error == 10:
+                if error >= 10:
                     client.publish("appInfo",
                                    json.dumps(get_app_info(args.serverId, args.appId, 3, '检查过程中出现异常：未连接到主网络')))
                     error = 0
             else:
-                logger.info("refresh")
+                logger.info("刷新页面")
                 tab.refresh()
         except Exception as e:
             print(f'[{key} | {endpoint}] 抓取失败: {e}')
