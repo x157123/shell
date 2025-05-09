@@ -209,7 +209,7 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
 
 
 
-def poll_element(tab, key, endpoint, port):
+def poll_element(tab, public_key, key, endpoint, port):
 
     total = 70
     error = 5
@@ -253,7 +253,7 @@ def poll_element(tab, key, endpoint, port):
                             # 关闭积分弹窗（如果存在）
                             __click_ele(tab, 'x://button[.//span[text()="Close"]]')
                             if points is not None and points != "":
-                                app_info = get_app_info_integral(args.serverId, args.appId, key, points, 2, port,
+                                app_info = get_app_info_integral(args.serverId, args.appId, public_key, points, 2, port,
                                                                  '运行中， 并到采集积分:' + str(points))
                                 client.publish("appInfo", json.dumps(app_info))
                                 logger.info(f"推送积分:{points}")
@@ -321,25 +321,25 @@ def main():
     threads = []
 
     # ③ 同时拿到序号(标签)和端口
-    for idx, (key, port) in enumerate(zip(keys, PORTS), start=1):
+    for idx, (key, port) in enumerate(zip(public_key_tmp, PORTS), start=1):
         endpoint = f'{HOST}:{port}'
         try:
             start_chrome_in_container(idx)
             time.sleep(20)
             page = ChromiumPage(addr_or_opts=endpoint)
             page.get(URL)
-            print(f'[{key} | {endpoint}] 打开成功 → {page.title}')
+            print(f'[{key["publicKey"]} | {endpoint}] 打开成功 → {page.title}')
 
             t = threading.Thread(
                 target=poll_element,
-                args=(page, key, endpoint, port),
+                args=(page, key["publicKey"], key["privateKey"], endpoint, port),
                 daemon=True
             )
             t.start()
             threads.append(t)
 
         except Exception as err:
-            print(f'[{key} | {endpoint}] 连接失败: {err}')
+            print(f'[{key["publicKey"]} | {endpoint}] 连接失败: {err}')
 
     try:
         while True:
@@ -366,7 +366,7 @@ if __name__ == '__main__':
 
     # ① 你的“任务数组”——内容按需修改
     # keys = ['2SBckLEM279e5ypQqJkmAxo2rkQJbtoWRUeB1zcsgzXd', '73F8jwu5CWUSmwJtDoaBCEekPkMqwsACadZ3ascttp8L', 'FNmB49DFeakiZetyuvihqJDE2Wf1jHTbDKhRYbWaMDUC', '561WbUqLhRqwQa3ioiLVTxUCyar9yAWXEBjedEwQ9txP', '2N9z9sTu5ExmKEHdo73U1q2HStunvVrscWxLyz69h74y', 'DF1Hkm5MpSW1UCFYQFSfZHciKpd5qe945rR4VMuBdXsk']
-    keys = []
+    # keys = []
 
     BASE_PORT = 6901
     PORTS = [BASE_PORT + i for i in range(len(public_key_tmp))]         # 动态生成 [6901, 6902, ...]
@@ -379,6 +379,6 @@ if __name__ == '__main__':
     if len(public_key_tmp) > 0:
         public_key_tmp.sort(key=lambda item: item['id'])
         for index, item in enumerate(public_key_tmp):
-            keys.append(item["privateKey"])
-            logger.info(f'启动私钥:{item["privateKey"]}')
+            # keys.append(item["publicKey"])
+            logger.info(f'启动公钥:{item["publicKey"]}')
         main()
