@@ -238,14 +238,12 @@ def poll_element(tab, public_key, key, endpoint, port):
                     logger.info("未连接到网络")
                     error += 1
                 else:
-                    logger.info("up net")
                     if __get_ele(page=tab, xpath='x://span[text()="Connected"]', loop=1):
-                        logger.info("net")
+                        logger.info(f"{port}:{public_key}:已连接网络")
                         if error > 0:
                             client.publish("appInfo",
                                            json.dumps(get_app_info(args.serverId, args.appId, 2, '已连接到主网络')))
                         error = 0
-
                         if total > 60:
                             # 获取积分 每循环60次检测 获取一次积分
                             points = get_points(tab)
@@ -255,16 +253,19 @@ def poll_element(tab, public_key, key, endpoint, port):
                                 app_info = get_app_info_integral(args.serverId, args.appId, public_key, points, 2, port,
                                                                  '运行中， 并到采集积分:' + str(points))
                                 client.publish("appInfo", json.dumps(app_info))
-                                logger.info(f"推送积分:{points}")
+                                logger.info(f"{port}:{public_key}:推送积分:{points}")
                                 total = 0
                             elif total > 70:
                                 logger.info(f"需要刷新页面。{total}")
                                 total = 30
                                 tab.refresh()
+                    else:
+                        logger.info(f"{port}:{public_key}:正在连接网络")
+                        error += 1
                 if error == 9:
+                    logger.info(f"{port}:{public_key}:刷新页面")    # 关闭弹窗（如果存在）
                     tab.refresh()
                     time.sleep(3)
-                    logger.info("刷新页面")    # 关闭弹窗（如果存在）
                     __click_ele(tab, 'x://button[.//span[text()="Close"]]')
 
                 if error >= 10:
@@ -272,7 +273,7 @@ def poll_element(tab, public_key, key, endpoint, port):
                                    json.dumps(get_app_info(args.serverId, args.appId, 3, '检查过程中出现异常：未连接到主网络')))
                     error = 0
             else:
-                logger.info("刷新页面")
+                logger.info(f"{port}:{public_key}:页面加载失败，刷新页面")
                 tab.refresh()
         except Exception as e:
             print(f'[{key} | {endpoint}] 抓取失败: {e}')
