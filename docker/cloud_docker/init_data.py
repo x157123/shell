@@ -371,7 +371,7 @@ if __name__ == '__main__':
     BASE_PORT = 6901
     PORTS = [BASE_PORT + i for i in range(len(public_key_tmp))]         # 动态生成 [6901, 6902, ...]
 
-    POLL_INTERVAL = 180     # 3 分钟
+    POLL_INTERVAL = 70     # 3 分钟
 
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
