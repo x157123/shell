@@ -98,6 +98,16 @@ start_services() {
 # 主执行流程
 main() {
 
+    # 查找运行中的 去除python进程
+    pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
+    if [ -n "$pids" ]; then
+        echo "检测到正在运行的实例: $pids，准备终止..."
+        for pid in $pids; do
+            kill -9 "$pid"
+            echo "已终止 PID: $pid"
+        done
+    fi
+
     parse_args "$@"
     setup_python_script
     start_services
