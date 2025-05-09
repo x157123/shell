@@ -233,7 +233,6 @@ def poll_element(tab, public_key, key, endpoint, port):
                     # 关闭私钥弹窗（如果存在）
                     __click_ele(_page=tab, xpath='x://button[.//span[text()="Close"]]', loop=2)
 
-                logger.info("check net")
                 if __click_ele(_page=tab, xpath='x://button[@role="switch" and @aria-checked="false"]', loop=2):
                     logger.info("未连接到网络")
                     error += 1
