@@ -234,7 +234,7 @@ def poll_element(tab, public_key, key, endpoint, port):
                     __click_ele(_page=tab, xpath='x://button[.//span[text()="Close"]]', loop=2)
 
                 if __click_ele(_page=tab, xpath='x://button[@role="switch" and @aria-checked="false"]', loop=2):
-                    logger.info("未连接到网络")
+                    logger.info(f"{port}:{public_key}:未连接到网络")
                     error += 1
                 else:
                     if __get_ele(page=tab, xpath='x://span[text()="Connected"]', loop=1):
@@ -255,7 +255,7 @@ def poll_element(tab, public_key, key, endpoint, port):
                                 logger.info(f"{port}:{public_key}:推送积分:{points}")
                                 total = 0
                             elif total > 70:
-                                logger.info(f"需要刷新页面。{total}")
+                                logger.info(f"{port}:{public_key}:需要刷新页面。{total}")
                                 total = 30
                                 tab.refresh()
                     else:
