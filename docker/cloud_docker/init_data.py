@@ -239,6 +239,7 @@ def poll_element(tab, public_key, key, endpoint, port):
                 else:
                     if __get_ele(page=tab, xpath='x://span[text()="Connected"]', loop=1):
                         logger.info(f"{port}:{public_key}:已连接网络")
+                        total += 1
                         if error > 0:
                             client.publish("appInfo",
                                            json.dumps(get_app_info(args.serverId, args.appId, 2, '已连接到主网络')))
