@@ -325,7 +325,6 @@ def main():
         endpoint = f'{HOST}:{port}'
         try:
             start_chrome_in_container(idx)
-            time.sleep(50)
             page = ChromiumPage(addr_or_opts=endpoint)
             page.get(URL)
             print(f'[{key["publicKey"]} | {endpoint}] 打开成功 → {page.title}')
@@ -337,10 +336,9 @@ def main():
             )
             t.start()
             threads.append(t)
-
         except Exception as err:
             print(f'[{key["publicKey"]} | {endpoint}] 连接失败: {err}')
-
+        time.sleep(480)
     try:
         while True:
             time.sleep(60)
