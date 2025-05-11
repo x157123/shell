@@ -211,8 +211,8 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
 
 def poll_element(tab, public_key, key, endpoint, port):
 
-    total = 70
-    error = 5
+    total = 35
+    error = 2
     _init = 0
 
     while True:
@@ -244,7 +244,7 @@ def poll_element(tab, public_key, key, endpoint, port):
                             client.publish("appInfo",
                                            json.dumps(get_app_info(args.serverId, args.appId, 2, '已连接到主网络')))
                         error = 0
-                        if total > 60:
+                        if total > 30:
                             # 获取积分 每循环60次检测 获取一次积分
                             points = get_points(tab)
                             # 关闭积分弹窗（如果存在）
@@ -255,20 +255,20 @@ def poll_element(tab, public_key, key, endpoint, port):
                                 client.publish("appInfo", json.dumps(app_info))
                                 logger.info(f"{port}:{public_key}:推送积分:{points}")
                                 total = 0
-                            elif total > 70:
+                            elif total > 35:
                                 logger.info(f"{port}:{public_key}:需要刷新页面。{total}")
-                                total = 30
+                                total = 15
                                 tab.refresh()
                     else:
                         logger.info(f"{port}:{public_key}:正在连接网络")
                         error += 1
-                if error == 9:
+                if error == 4:
                     logger.info(f"{port}:{public_key}:刷新页面")    # 关闭弹窗（如果存在）
                     tab.refresh()
                     time.sleep(3)
                     __click_ele(tab, 'x://button[.//span[text()="Close"]]')
 
-                if error >= 10:
+                if error >= 6:
                     client.publish("appInfo",
                                    json.dumps(get_app_info(args.serverId, args.appId, 3, '检查过程中出现异常：未连接到主网络')))
                     error = 0
@@ -398,7 +398,7 @@ if __name__ == '__main__':
     BASE_PORT = 6901
     PORTS = [BASE_PORT + i for i in range(len(public_key_tmp))]         # 动态生成 [6901, 6902, ...]
 
-    POLL_INTERVAL = 180     # 3 分钟
+    POLL_INTERVAL = 300     # 3 分钟
 
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
