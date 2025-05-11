@@ -288,6 +288,28 @@ def _run(cmd: list[str], *, silent: bool = True) -> subprocess.CompletedProcess:
     return subprocess.run(cmd, check=False, text=True, **kwargs)
 
 
+def stop_chrome_in_container(index):
+    """docker exec -d nodex_N /root/start_chrome_vnc.sh"""
+    container = f'node{index}'
+
+    try:
+        # ① 查询运行状态（Running=true/false）
+        running = subprocess.check_output(
+            ['docker', 'inspect', '-f', '{{.State.Running}}', container],
+            text=True
+        ).strip().lower()
+    except subprocess.CalledProcessError:
+        raise RuntimeError(f'[init] 容器 {container} 不存在，请先创建')
+
+    # ② 若未运行则启动
+    if running == 'true':
+        print(f'[init] 容器 {container} 未启动，执行 docker start ...')
+        subprocess.check_call(['docker', 'stop', container])
+        print(f'[init] 容器 {container} 已启动')
+        time.sleep(5)
+
+
+
 def start_chrome_in_container(index):
     """docker exec -d nodex_N /root/start_chrome_vnc.sh"""
     container = f'node{index}'
@@ -319,6 +341,13 @@ def start_chrome_in_container(index):
 
 def main():
     threads = []
+
+    for idx, (key, port) in enumerate(zip(public_key_tmp, PORTS), start=1):
+        try:
+            stop_chrome_in_container(idx)
+            time.sleep(5)
+        except Exception as err:
+            print(f'关闭docker异常')
 
     # ③ 同时拿到序号(标签)和端口
     for idx, (key, port) in enumerate(zip(public_key_tmp, PORTS), start=1):
