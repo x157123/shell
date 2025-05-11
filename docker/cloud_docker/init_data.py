@@ -126,7 +126,7 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, accountType):
 def get_points(tab):
     # 获取积分：点击按钮后从剪贴板读取
     if __click_ele(tab, "x://button[.//span[text()='Points']]"):
-        time.sleep(15)  # 确保剪贴板内容更新
+        time.sleep(45)  # 确保剪贴板内容更新
         # 定位到指定的 div 元素并获取其文本内容
         target_div = tab.ele("x://div[text()='Accumlated points']/following-sibling::div")
         # 获取该 div 中的文本
@@ -371,7 +371,7 @@ if __name__ == '__main__':
     BASE_PORT = 6901
     PORTS = [BASE_PORT + i for i in range(len(public_key_tmp))]         # 动态生成 [6901, 6902, ...]
 
-    POLL_INTERVAL = 70     # 3 分钟
+    POLL_INTERVAL = 180     # 3 分钟
 
     # 创建 MQTT 客户端（使用 MQTTv5）
     client = create_mqtt_client("150.109.5.143", 1883, "userName", "liuleiliulei", "appInfo")
