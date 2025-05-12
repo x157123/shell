@@ -151,7 +151,8 @@ def main():
     CERT_DIR = os.path.join(HOME, ".acme.sh", f"{domain}_ecc")
 
     if is_docker_container_running('x-ui'):
-        return 
+        logger.info('docker已启动 跳过')
+        return
 
     # 1. 安装依赖
     run("apk update")
