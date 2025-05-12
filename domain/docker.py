@@ -164,19 +164,24 @@ def main():
     else:
         print(f"[INFO] acme.sh 已存在：{ACME}")
 
-    # 3. 注册账户
-    run(f"{ACME} --register-account -m {EMAIL}")
+    private_key = os.path.join(X_RAY_DIR, 'private.key')
 
-    # 4. 签发证书，失败时重试
-    issue_with_retry(domain, ACME, retry_interval=5)
+    if os.path.exists(private_key):
+        logger.info('跳过安装证书')
+    else:
+        # 3. 注册账户
+        run(f"{ACME} --register-account -m {EMAIL}")
 
-    # 5. 安装证书到 Xray 目录
-    os.makedirs(X_RAY_DIR, exist_ok=True)
-    run(
-        f"{ACME} --installcert -d {domain} "
-        f"--key-file      {X_RAY_DIR}/private.key "
-        f"--fullchain-file {X_RAY_DIR}/cert.crt"
-    )
+        # 4. 签发证书，失败时重试
+        issue_with_retry(domain, ACME, retry_interval=5)
+
+        # 5. 安装证书到 Xray 目录
+        os.makedirs(X_RAY_DIR, exist_ok=True)
+        run(
+            f"{ACME} --installcert -d {domain} "
+            f"--key-file      {X_RAY_DIR}/private.key "
+            f"--fullchain-file {X_RAY_DIR}/cert.crt"
+        )
 
     generate_config(20000, 22291, X_RAY_DIR)
 
