@@ -171,6 +171,11 @@ def main():
     print(f"完整链  ：{CERT_DIR}/fullchain.cer")
     print("===========================")
 
+    run("mkdir -p /etc/x-ui/db/")
+    run("mkdir -p /etc/x-ui/db/")
+    run("docker run -itd --network=host -v /etc/x-ui/db/:/etc/x-ui/ -v /etc/xray/:/root/cert/ --name x-ui --restart=always enwaiax/x-ui:latest")
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="获取应用信息")
