@@ -74,7 +74,7 @@ def issue_with_retry(domain: str, acme_path: str, retry_interval: int = 5):
     用 standalone 模式申请证书，失败时每隔 retry_interval 秒重试
     并流式打印 acme.sh 输出。
     """
-    cmd = f"{acme_path} --issue -d {domain} --standalone"
+    cmd = f"{acme_path} --issue -d {domain} --standalone --force"
     while True:
         print(f"[INFO] 尝试签发证书：{cmd}")
         proc = subprocess.Popen(
