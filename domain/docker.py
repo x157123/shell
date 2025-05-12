@@ -128,6 +128,20 @@ def generate_config(socks_port, vmess_port, x_ray_dir):
     print(f"[INFO] 生成配置文件：{config_path}")
 
 
+def is_docker_container_running(container_name):
+    try:
+        # Run docker ps command to check if the container is running
+        result = subprocess.run(['docker', 'ps', '-q', '-f', f'name={container_name}'], capture_output=True, text=True)
+
+        # If the result is not empty, the container is running
+        if result.stdout.strip():
+            return True
+        else:
+            return False
+    except subprocess.CalledProcessError as e:
+        print(f"Error occurred: {e}")
+        return False
+
 def main():
     # 配置项：根据需要修改
     EMAIL = f"x1{random.randint(10000, 50000)}@126.com"
@@ -135,6 +149,9 @@ def main():
     HOME = os.path.expanduser("~")
     ACME = os.path.join(HOME, ".acme.sh", "acme.sh")
     CERT_DIR = os.path.join(HOME, ".acme.sh", f"{domain}_ecc")
+
+    if is_docker_container_running('x-ui'):
+        return 
 
     # 1. 安装依赖
     run("apk update")
@@ -171,7 +188,6 @@ def main():
     print(f"完整链  ：{CERT_DIR}/fullchain.cer")
     print("===========================")
 
-    run("mkdir -p /etc/x-ui/db/")
     run("mkdir -p /etc/x-ui/db/")
     run("docker run -itd --network=host -v /etc/x-ui/db/:/etc/x-ui/ -v /etc/xray/:/root/cert/ --name x-ui --restart=always enwaiax/x-ui:latest")
 
