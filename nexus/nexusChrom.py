@@ -213,10 +213,10 @@ def __click_ele(page, xpath: str = '', loop: int = 5, must: bool = False, by_jd:
             if must:
                 # page.quit()
                 raise Exception(f'未找到元素:{xpath}')
-            return 0
+            return False
         loop_count += 1
         # time.sleep(1)
-    return 1
+    return True
 
 def handle_signma_popup(page, count: int = 1, timeout: int = 15, must: bool = False):
     """处理 Signma 弹窗，遍历所有 tab 页签"""
@@ -408,10 +408,14 @@ def main(client, serverId, appId, decryptKey, user, display):
 
     close_signma_popup(page=browser, timeout=5)
 
-    # 点击 "Sign up to earn NEX" 元素
-    signup_ele = tab.ele('x://div[text()="Sign up to earn points"]')
-    if signup_ele:
-        signup_ele.click(by_js=True)
+    time.sleep(8)
+    checkbox = get_element(tab=tab, xpath="x://input[@type='checkbox']")
+    if checkbox.attr('checked') is None:
+        print("Battery saver 未勾选，开始点击勾上")
+        checkbox.click(by_js=True)
+
+
+    if __click_ele(page=browser, xpath='x://button[.//span[contains(normalize-space(.), "Sign up")]]'):
         # 根据实际情况调整等待时间，确保页面加载完成
         time.sleep(2)
 
@@ -453,7 +457,7 @@ def main(client, serverId, appId, decryptKey, user, display):
         else:
             logger.info("没有找到 'Continue with a wallet' 元素。")
     else:
-        logger.info("没有找到 'Sign up to earn NEX' 元素。")
+        logger.info("不需要登录。")
 
     time.sleep(3)
     logger.info("再次查看是否需要联网。")
