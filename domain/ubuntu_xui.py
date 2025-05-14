@@ -150,11 +150,11 @@ def main():
     ACME = os.path.join(HOME, ".acme.sh", "acme.sh")
     CERT_DIR = os.path.join(HOME, ".acme.sh", f"{domain}_ecc")
 
+    run("curl -fsSL https://get.docker.com | sh")
+
     if is_docker_container_running('x-ui'):
         logger.info('docker已启动 跳过')
         return
-
-    run("curl -fsSL https://get.docker.com | sh")
 
     # 1. 安装依赖
     run("apt update")
