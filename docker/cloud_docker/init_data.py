@@ -345,14 +345,18 @@ def main():
     for idx, (key, port) in enumerate(zip(public_key_tmp, PORTS), start=1):
         try:
             if key['isActive'] == 1:
+                logger.info(f'关闭容器{idx}')
                 stop_chrome_in_container(idx)
                 time.sleep(5)
+            else:
+                logger.info(f'跳过容器{idx}')
         except Exception as err:
             print(f'关闭docker异常')
 
     # ③ 同时拿到序号(标签)和端口
     for idx, (key, port) in enumerate(zip(public_key_tmp, PORTS), start=1):
         if key['isActive'] == 1:
+            logger.info(f'启动容器{idx}')
             endpoint = f'{HOST}:{port}'
             try:
                 start_chrome_in_container(idx)
@@ -371,7 +375,7 @@ def main():
                 print(f'[{key["publicKey"]} | {endpoint}] 连接失败: {err}')
             time.sleep(480)
         else:
-            logger.info('跳过账号')
+            logger.info(f'跳过容器{idx}')
     try:
         while True:
             time.sleep(60)
