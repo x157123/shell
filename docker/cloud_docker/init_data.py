@@ -344,30 +344,34 @@ def main():
 
     for idx, (key, port) in enumerate(zip(public_key_tmp, PORTS), start=1):
         try:
-            stop_chrome_in_container(idx)
-            time.sleep(5)
+            if key['isActive'] == 1:
+                stop_chrome_in_container(idx)
+                time.sleep(5)
         except Exception as err:
             print(f'关闭docker异常')
 
     # ③ 同时拿到序号(标签)和端口
     for idx, (key, port) in enumerate(zip(public_key_tmp, PORTS), start=1):
-        endpoint = f'{HOST}:{port}'
-        try:
-            start_chrome_in_container(idx)
-            page = ChromiumPage(addr_or_opts=endpoint)
-            page.get(URL)
-            print(f'[{key["publicKey"]} | {endpoint}] 打开成功 → {page.title}')
+        if key['isActive'] == 1:
+            endpoint = f'{HOST}:{port}'
+            try:
+                start_chrome_in_container(idx)
+                page = ChromiumPage(addr_or_opts=endpoint)
+                page.get(URL)
+                print(f'[{key["publicKey"]} | {endpoint}] 打开成功 → {page.title}')
 
-            t = threading.Thread(
-                target=poll_element,
-                args=(page, key["publicKey"], key["privateKey"], endpoint, port),
-                daemon=True
-            )
-            t.start()
-            threads.append(t)
-        except Exception as err:
-            print(f'[{key["publicKey"]} | {endpoint}] 连接失败: {err}')
-        time.sleep(480)
+                t = threading.Thread(
+                    target=poll_element,
+                    args=(page, key["publicKey"], key["privateKey"], endpoint, port),
+                    daemon=True
+                )
+                t.start()
+                threads.append(t)
+            except Exception as err:
+                print(f'[{key["publicKey"]} | {endpoint}] 连接失败: {err}')
+            time.sleep(480)
+        else:
+            logger.info('跳过账号')
     try:
         while True:
             time.sleep(60)
