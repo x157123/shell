@@ -209,7 +209,7 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
 
 
 
-def poll_element(tab, public_key, key, endpoint, port):
+def poll_element(tab, public_key, key, is_active, endpoint, port):
 
     total = 35
     error = 2
@@ -219,7 +219,7 @@ def poll_element(tab, public_key, key, endpoint, port):
         try:
             logger.info(f"{port}:{public_key}:检测状态")
             if __get_ele(page=tab, xpath='x://button[@role="switch"]', loop=2):
-                if _init == 0 and __click_ele(tab, "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
+                if _init == 0 and is_active == '1' and __click_ele(tab, "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
                     if __click_ele(tab, "x://div[contains(@class, 'cursor-text')]"):
                         logger.info(f"{port}:{public_key}:设置密钥")
                         tab.actions.type(key)
@@ -355,27 +355,24 @@ def main():
 
     # ③ 同时拿到序号(标签)和端口
     for idx, (key, port) in enumerate(zip(public_key_tmp, PORTS), start=1):
-        if key['isActive'] == 1:
-            logger.info(f'启动容器{idx}')
-            endpoint = f'{HOST}:{port}'
-            try:
-                start_chrome_in_container(idx)
-                page = ChromiumPage(addr_or_opts=endpoint)
-                page.get(URL)
-                print(f'[{key["publicKey"]} | {endpoint}] 打开成功 → {page.title}')
+        logger.info(f'启动容器{idx}')
+        endpoint = f'{HOST}:{port}'
+        try:
+            start_chrome_in_container(idx)
+            page = ChromiumPage(addr_or_opts=endpoint)
+            page.get(URL)
+            print(f'[{key["publicKey"]} | {endpoint}] 打开成功 → {page.title}')
 
-                t = threading.Thread(
-                    target=poll_element,
-                    args=(page, key["publicKey"], key["privateKey"], endpoint, port),
-                    daemon=True
-                )
-                t.start()
-                threads.append(t)
-            except Exception as err:
-                print(f'[{key["publicKey"]} | {endpoint}] 连接失败: {err}')
-            time.sleep(480)
-        else:
-            logger.info(f'跳过容器{idx}')
+            t = threading.Thread(
+                target=poll_element,
+                args=(page, key["publicKey"], key["privateKey"], key["isActive"], endpoint, port),
+                daemon=True
+            )
+            t.start()
+            threads.append(t)
+        except Exception as err:
+            print(f'[{key["publicKey"]} | {endpoint}] 连接失败: {err}')
+        time.sleep(480)
     try:
         while True:
             time.sleep(60)
