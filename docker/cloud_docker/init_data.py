@@ -344,12 +344,12 @@ def main():
 
     for idx, (key, port) in enumerate(zip(public_key_tmp, PORTS), start=1):
         try:
-            if key['isActive'] == 1:
-                logger.info(f'关闭容器{idx}')
-                stop_chrome_in_container(idx)
-                time.sleep(5)
-            else:
-                logger.info(f'跳过容器{idx}')
+            # if key['isActive'] == 1:
+            logger.info(f'关闭容器{idx}')
+            stop_chrome_in_container(idx)
+            time.sleep(5)
+            # else:
+            #     logger.info(f'跳过容器{idx}')
         except Exception as err:
             print(f'关闭docker异常')
 
@@ -361,7 +361,7 @@ def main():
             start_chrome_in_container(idx)
             page = ChromiumPage(addr_or_opts=endpoint)
             page.get(URL)
-            print(f'[{key["publicKey"]} | {endpoint}] 打开成功 → {page.title}')
+            logger.info(f'[{key["publicKey"]} | {endpoint}] 打开成功 → {page.title}')
 
             t = threading.Thread(
                 target=poll_element,
@@ -371,8 +371,8 @@ def main():
             t.start()
             threads.append(t)
         except Exception as err:
-            print(f'[{key["publicKey"]} | {endpoint}] 连接失败: {err}')
-        time.sleep(480)
+            logger.info(f'[{key["publicKey"]} | {endpoint}] 连接失败: {err}')
+        time.sleep(180)
     try:
         while True:
             time.sleep(60)
