@@ -386,7 +386,7 @@ def main():
             threads.append(t)
         except Exception as err:
             logger.info(f'[{key["publicKey"]} | {endpoint}] 连接失败: {err}')
-        time.sleep(180)
+        time.sleep(360)
     try:
         while True:
             time.sleep(60)
