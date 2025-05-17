@@ -219,7 +219,7 @@ def poll_element(tab, public_key, key, is_active, endpoint, port):
         try:
             logger.info(f"{port}:{public_key}:检测状态")
             if __get_ele(page=tab, xpath='x://button[@role="switch"]', loop=2):
-                if _init == 0 and is_active == '1' and __click_ele(tab, "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
+                if _init == 0 and __click_ele(tab, "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
                     if __click_ele(tab, "x://div[contains(@class, 'cursor-text')]"):
                         logger.info(f"{port}:{public_key}:设置密钥")
                         tab.actions.type(key)
