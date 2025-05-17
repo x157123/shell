@@ -250,11 +250,25 @@ def poll_element(tab, public_key, key, is_active, endpoint, port):
                             # 关闭积分弹窗（如果存在）
                             __click_ele(tab, 'x://button[.//span[text()="Close"]]')
                             if points is not None and points != "":
-                                app_info = get_app_info_integral(args.serverId, args.appId, public_key, points, 2, port,
-                                                                 '运行中， 并到采集积分:' + str(points))
-                                client.publish("appInfo", json.dumps(app_info))
-                                logger.info(f"{port}:{public_key}:推送积分:{points}")
-                                total = 0
+                                if points == '0':
+                                    if __click_ele(tab, "x://div[contains(@class, 'cursor-text')]"):
+                                        logger.info(f"{port}:{public_key}:设置密钥")
+                                        tab.actions.type(key)
+                                        time.sleep(1)
+                                        # 确认导入
+                                        __click_ele(tab, "x://button[normalize-space()='IMPORT KEY']")
+                                        time.sleep(5)
+                                        tab.refresh()
+                                        time.sleep(3)
+                                        _init = 1
+                                    # 关闭私钥弹窗（如果存在）
+                                    __click_ele(_page=tab, xpath='x://button[.//span[text()="Close"]]', loop=2)
+                                else:
+                                    app_info = get_app_info_integral(args.serverId, args.appId, public_key, points, 2, port,
+                                                                     '运行中， 并到采集积分:' + str(points))
+                                    client.publish("appInfo", json.dumps(app_info))
+                                    logger.info(f"{port}:{public_key}:推送积分:{points}")
+                                    total = 0
                             elif total > 35:
                                 logger.info(f"{port}:{public_key}:需要刷新页面。{total}")
                                 total = 15
