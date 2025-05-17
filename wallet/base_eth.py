@@ -522,7 +522,7 @@ def __get_base_balance(evm_address):
     return base_balance
 
 
-def __get_arb_balance(evm_address):
+def __get_arb_balance(address):
     __headers = {
         "accept": "application/json, text/plain, */*",
         "accept-language": "en-US,en;q=0.9",
@@ -542,7 +542,7 @@ def __get_arb_balance(evm_address):
         "jsonrpc": "2.0",
         "method": "eth_getBalance",
         "params": [
-            evm_address.lower(),
+            address.lower(),
             "latest"
         ]
     }
@@ -564,12 +564,11 @@ def __do_task(evm_id, acc, num: int = 0):
     logger.info(f'线程{num}:{len(acc)}')
     __login_wallet(page=page, evm_id=evm_id)
 
-
-    page.get(url=f"https://relay.link/bridge/ethereum")
+    page.get(url=url)
     __close_signma_popup(page=page, count=0)
     for ac in acc:
         try:
-            base_balance = get_eth_balance(address=ac["evm_addr"], return_eth=True, return_str=True)
+            base_balance = __get_arb_balance(address=ac["evm_addr"])
             if min_bal <= float(base_balance):
                 logger.success(f'钱包金额充足:{base_balance}，跳过当前账号')
                 with file_lock:
@@ -604,7 +603,7 @@ def __do_task(evm_id, acc, num: int = 0):
                             if __get_ele(page=page, xpath='x://button[text()="View Details"]', loop=1):
                                 if __click_ele(page=page, xpath='x://button[text()="Done"]', loop=5):
                                     time.sleep(2)
-                                    new_balance = get_eth_balance(address=ac["evm_addr"], return_eth=True, return_str=True)
+                                    new_balance = __get_arb_balance(address=ac["evm_addr"])
                                     if min_bal <= float(new_balance):
                                         with file_lock:
                                             append_date_to_file(ex_log_file, ac["evm_addr"])
@@ -612,7 +611,8 @@ def __do_task(evm_id, acc, num: int = 0):
                                             logger.info(f"充值成功{ac['evm_id']}:{ac['evm_addr']}")
                         if not __close_signma_popup(page=page, count=0):
                             __click_ele(page=page, xpath="x//button[contains(@class, 'relay-cursor_pointer') and contains(@class, 'relay-text_gray9')]", loop=1)
-                page.get(url=f"https://relay.link/bridge/ethereum")
+                page.get(url=url)
+                time.sleep(1)
         except Exception as e:
             logger.info(f'异常数据：{e}')
             try:
@@ -622,7 +622,7 @@ def __do_task(evm_id, acc, num: int = 0):
             page = __get_page(evm_id=evm_id, window=num)
             __login_wallet(page=page, evm_id=evm_id)
             __close_signma_popup(page=page, count=0)
-            page.get(url=f"https://relay.link/bridge/ethereum")
+            page.get(url=url)
 
 
 def split_array(arr, num_parts):
@@ -716,15 +716,15 @@ def get_eth_balance(
 
 if __name__ == '__main__':
     # 钱包最小余额，大于这个钱就不转
-    min_bal = 0.00213
+    min_bal = 0.0005
     # 随机转账金额 开始
-    start_bal = 0.00263
+    start_bal = 0.000611
     # 随机转账金额 结束
-    end_bal = 0.03125
+    end_bal = 0.000651
     # 钱包地址
     eve_id = 88102
     # 损耗现在
-    max_gas_fee = 0.08
+    max_gas_fee = 0.04
     # 转账窗口
     max_workers = 1
     # 需要转账的地址格式如下  1,0xd7746eaed250ba139ab09df7b15d3eea447246d4
@@ -732,7 +732,9 @@ if __name__ == '__main__':
     # 记录文件
     ex_log_file = "./base_eth_dt.txt"
     ex_data_file = "./base_eth_data.txt"
-    net = 'base'
+    net = 'op'
+
+    url = "https://relay.link/bridge/arbitrum?fromChainId=8453"
 
     while True:
         # 执行任务情况
