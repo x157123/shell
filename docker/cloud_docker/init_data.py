@@ -250,7 +250,7 @@ def poll_element(tab, public_key, key, is_active, endpoint, port):
                             # 关闭积分弹窗（如果存在）
                             __click_ele(tab, 'x://button[.//span[text()="Close"]]')
                             if points is not None and points != "":
-                                if points == '0':
+                                if int(points) < 300:
                                     if __click_ele(tab, "x://div[contains(@class, 'cursor-text')]"):
                                         logger.info(f"{port}:{public_key}:设置密钥")
                                         tab.actions.type(key)
