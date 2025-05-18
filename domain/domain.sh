@@ -93,10 +93,10 @@ main() {
             echo "已终止 PID: $pid"
         done
     fi
-#
-#    parse_args "$@"
-#    setup_python_script
-#    start_services
+
+    parse_args "$@"
+    setup_python_script
+    start_services
 }
 
 main "$@"
