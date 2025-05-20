@@ -60,6 +60,45 @@ def decrypt_aes_ecb(secret_key, data_encrypted_base64, type, key):
         raise ValueError(f"解密失败: {e}")
 
 
+
+def decrypt_aes_ecb_list(secret_key, data_encrypted_base64, type, key):
+    """
+    解密 AES ECB 模式的 Base64 编码数据，
+    去除 PKCS7 填充后返回所有 accountType 为 "hyper" 的记录中的指定 key 值列表。
+    """
+    try:
+        # Base64 解码
+        encrypted_bytes = base64.b64decode(data_encrypted_base64)
+        # 创建 AES 解密器
+        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
+        # 解密数据
+        decrypted_bytes = cipher.decrypt(encrypted_bytes)
+        # 去除 PKCS7 填充（AES.block_size 默认为 16）
+        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
+        # 将字节转换为字符串
+        decrypted_text = decrypted_bytes.decode('utf-8')
+
+        # logger.info(f"获取数据中的 {key}: {decrypted_text}")
+
+        # 解析 JSON 字符串为 Python 对象（通常为列表）
+        data_list = json.loads(decrypted_text)
+
+        # 创建结果列表，收集所有匹配的 key 值
+        result = []
+        for item in data_list:
+            if item.get('accountType') == type:
+                value = item.get(key)
+                if value is not None:  # 确保只添加存在的 key 值
+                    result.append(value)
+
+        # 返回结果列表，如果没有匹配项则返回空列表
+        return result
+
+    except Exception as e:
+        raise ValueError(f"解密失败: {e}")
+
+
+
 def run(cmd: str):
     """封装 subprocess.run，用于执行 shell 命令并失败退出"""
     print(f"[INFO] Running: {cmd}")
@@ -164,6 +203,8 @@ if __name__ == "__main__":
     encrypted_data_base64 = read_file('/opt/data/' + args.appId + '_user.json')
     # 解密并发送解密结果
     domain = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, 'domain', 'remarks')
+    nodes = decrypt_aes_ecb_list(args.decryptKey, encrypted_data_base64, 'domain_node', 'remarks')
+
     # 确保以 root 身份运行
     if os.geteuid() != 0:
         print("请以 root 身份运行此脚本。", file=sys.stderr)
