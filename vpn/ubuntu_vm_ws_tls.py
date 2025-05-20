@@ -180,13 +180,13 @@ def main():
 
     # 定义脚本路径和参数列表
     script_path = './xray_vmess.sh'
-    servers = ['10.3.1.1', '10.3.2.2', '10.3.3.3']
+    # servers = ['10.3.1.1', '10.3.2.2', '10.3.3.3']
 
     # 确保脚本可执行
     subprocess.run(['chmod', '+x', script_path], check=True)
 
     # 执行脚本并捕获输出
-    subprocess.run([script_path] + servers, capture_output=True, text=True)
+    subprocess.run([script_path] + nodes, capture_output=True, text=True)
 
 
 if __name__ == "__main__":
