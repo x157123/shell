@@ -96,6 +96,8 @@ start_services() {
 # 主执行流程
 main() {
 
+    pip3 install pycryptodome
+
     # 查找运行中的 去除python进程
     pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
     if [ -n "$pids" ]; then
