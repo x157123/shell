@@ -115,7 +115,7 @@ def issue_with_retry(domain: str, acme_path: str, retry_interval: int = 5):
     用 standalone 模式申请证书，失败时每隔 retry_interval 秒重试
     并流式打印 acme.sh 输出。
     """
-    cmd = f"{acme_path} --issue -d {domain} --standalone --force"
+    cmd = f"{acme_path} --issue -d {domain} --standalone"
     while True:
         logger.info(f"[INFO] 尝试签发证书：{cmd}")
         proc = subprocess.Popen(
@@ -131,6 +131,7 @@ def issue_with_retry(domain: str, acme_path: str, retry_interval: int = 5):
             break
         else:
             logger.info(f"[WARN] 证书签发失败 (退出码 {ret})，{retry_interval} 秒后重试...", file=sys.stderr)
+            run(f"{acme_path} --set-default-ca --server letsencrypt")
             time.sleep(retry_interval)
 
 
@@ -163,7 +164,7 @@ def main():
     with open(script_path, 'w', encoding='utf-8') as f:
         f.write(resp.text)
 
-        
+
 
     # 2. 安装 acme.sh（如果已安装则跳过）
     if not os.path.isfile(ACME):
