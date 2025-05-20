@@ -161,6 +161,8 @@ def main():
         # 3. 注册账户
         run(f"{ACME} --register-account -m {EMAIL}")
 
+        logger.info(f'领取证书{domain}')
+        
         # 4. 签发证书，失败时重试
         issue_with_retry(domain, ACME, retry_interval=5)
 
