@@ -13,6 +13,8 @@ import json
 import time
 from loguru import logger
 import base64
+import requests
+from pathlib import Path
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 
@@ -133,6 +135,7 @@ def issue_with_retry(domain: str, acme_path: str, retry_interval: int = 5):
 
 
 def main():
+
     # 配置项：根据需要修改
     EMAIL = f"xiaomin{random.randint(1000, 5000)}@126.com"
     X_RAY_DIR = "/etc/xray"
@@ -181,6 +184,19 @@ def main():
     # 定义脚本路径和参数列表
     script_path = './xray_vmess.sh'
     # servers = ['10.3.1.1', '10.3.2.2', '10.3.3.3']
+
+    script_url = 'https://www.15712345.xyz/shell/vpn/xray_vmess.sh'
+
+    # 1. 如果已存在旧脚本，先删除
+    _script_path = Path('./xray_vmess.sh')
+    if _script_path.exists():
+        print(f"{_script_path} 已存在，先删除旧文件")
+        _script_path.unlink()
+
+    resp = requests.get(script_url)
+    resp.raise_for_status()  # 如果下载失败会抛异常
+    with open(script_path, 'w', encoding='utf-8') as f:
+        f.write(resp.text)
 
     # 确保脚本可执行
     subprocess.run(['chmod', '+x', script_path], check=True)
