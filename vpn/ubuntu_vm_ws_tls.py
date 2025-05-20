@@ -103,10 +103,10 @@ def decrypt_aes_ecb_list(secret_key, data_encrypted_base64, type, key):
 
 def run(cmd: str):
     """封装 subprocess.run，用于执行 shell 命令并失败退出"""
-    print(f"[INFO] Running: {cmd}")
+    logger.info(f"[INFO] Running: {cmd}")
     result = subprocess.run(cmd, shell=True)
     if result.returncode != 0:
-        print(f"[ERROR] Command failed ({result.returncode}): {cmd}", file=sys.stderr)
+        logger.info(f"[ERROR] Command failed ({result.returncode}): {cmd}", file=sys.stderr)
         sys.exit(result.returncode)
 
 
@@ -117,20 +117,20 @@ def issue_with_retry(domain: str, acme_path: str, retry_interval: int = 5):
     """
     cmd = f"{acme_path} --issue -d {domain} --standalone --force"
     while True:
-        print(f"[INFO] 尝试签发证书：{cmd}")
+        logger.info(f"[INFO] 尝试签发证书：{cmd}")
         proc = subprocess.Popen(
             cmd, shell=True,
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
         )
         assert proc.stdout is not None
         for line in proc.stdout:
-            print(line, end="")
+            logger.info(line, end="")
         ret = proc.wait()
         if ret == 0:
-            print("[INFO] 证书签发成功。")
+            logger.info("[INFO] 证书签发成功。")
             break
         else:
-            print(f"[WARN] 证书签发失败 (退出码 {ret})，{retry_interval} 秒后重试...", file=sys.stderr)
+            logger.info(f"[WARN] 证书签发失败 (退出码 {ret})，{retry_interval} 秒后重试...", file=sys.stderr)
             time.sleep(retry_interval)
 
 
@@ -147,11 +147,29 @@ def main():
     run("apt update")
     run("apt install -y curl socat")
 
+
+
+    # 定义脚本路径和参数列表
+    script_path = './xray_vmess.sh'
+    # servers = ['10.3.1.1', '10.3.2.2', '10.3.3.3']
+    script_url = 'https://www.15712345.xyz/shell/vpn/xray_vmess.sh'
+    # 1. 如果已存在旧脚本，先删除
+    _script_path = Path('./xray_vmess.sh')
+    if _script_path.exists():
+        logger.info(f"{_script_path} 已存在，先删除旧文件")
+        _script_path.unlink()
+    resp = requests.get(script_url)
+    resp.raise_for_status()  # 如果下载失败会抛异常
+    with open(script_path, 'w', encoding='utf-8') as f:
+        f.write(resp.text)
+
+        
+
     # 2. 安装 acme.sh（如果已安装则跳过）
     if not os.path.isfile(ACME):
         run("curl https://get.acme.sh | sh")
     else:
-        print(f"[INFO] acme.sh 已存在：{ACME}")
+        logger.info(f"[INFO] acme.sh 已存在：{ACME}")
 
     private_key = os.path.join(X_RAY_DIR, 'private.key')
 
@@ -175,30 +193,14 @@ def main():
         )
 
     # 6. 打印安装结果
-    print("\n====== 证书安装完成 ======")
-    print(f"私钥路径：{X_RAY_DIR}/private.key")
-    print(f"证书路径：{X_RAY_DIR}/cert.crt")
-    print(f"原始证书：{CERT_DIR}/{domain}.cer")
-    print(f"中间 CA  ：{CERT_DIR}/ca.cer")
-    print(f"完整链  ：{CERT_DIR}/fullchain.cer")
-    print("===========================")
+    logger.info("\n====== 证书安装完成 ======")
+    logger.info(f"私钥路径：{X_RAY_DIR}/private.key")
+    logger.info(f"证书路径：{X_RAY_DIR}/cert.crt")
+    logger.info(f"原始证书：{CERT_DIR}/{domain}.cer")
+    logger.info(f"中间 CA  ：{CERT_DIR}/ca.cer")
+    logger.info(f"完整链  ：{CERT_DIR}/fullchain.cer")
+    logger.info("===========================")
 
-    # 定义脚本路径和参数列表
-    script_path = './xray_vmess.sh'
-    # servers = ['10.3.1.1', '10.3.2.2', '10.3.3.3']
-
-    script_url = 'https://www.15712345.xyz/shell/vpn/xray_vmess.sh'
-
-    # 1. 如果已存在旧脚本，先删除
-    _script_path = Path('./xray_vmess.sh')
-    if _script_path.exists():
-        print(f"{_script_path} 已存在，先删除旧文件")
-        _script_path.unlink()
-
-    resp = requests.get(script_url)
-    resp.raise_for_status()  # 如果下载失败会抛异常
-    with open(script_path, 'w', encoding='utf-8') as f:
-        f.write(resp.text)
 
     # 确保脚本可执行
     subprocess.run(['chmod', '+x', script_path], check=True)
@@ -222,7 +224,7 @@ if __name__ == "__main__":
 
     # 确保以 root 身份运行
     if os.geteuid() != 0:
-        print("请以 root 身份运行此脚本。", file=sys.stderr)
+        logger.info("请以 root 身份运行此脚本。", file=sys.stderr)
         sys.exit(1)
     main()
 
