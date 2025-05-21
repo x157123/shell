@@ -373,6 +373,7 @@ def monitor(pages, interval=300):
                 if bf != points:
                     app_info = get_app_info_integral(serverId, appId, public_key, points, 2,
                                                      '运行中， 并到采集积分:' + str(points))
+                    bf = points
                     client.publish("appInfo", json.dumps(app_info))
         time.sleep(interval)
 
