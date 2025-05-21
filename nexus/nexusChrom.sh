@@ -478,7 +478,7 @@ main() {
 
     stop_services
 
-    sudo apt-get install python3-tk python3-dev -y
+#    sudo apt-get install python3-tk python3-dev -y
 #    update_system
     install_system_deps
     check_dependencies
@@ -487,12 +487,12 @@ main() {
     install_chrome_120
 #    install_edge
 #    install_wallet
-    setup_img
+#    setup_img
     setup_python_script
     setup_xrdp
-    setup_novnc
+#    setup_novnc
     install_python_packages
-    start_services
+
 }
 
 main "$@"
