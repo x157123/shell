@@ -492,7 +492,7 @@ main() {
     setup_xrdp
 #    setup_novnc
     install_python_packages
-
+    start_services
 }
 
 main "$@"
