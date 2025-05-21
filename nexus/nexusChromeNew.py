@@ -358,7 +358,7 @@ def __click_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
         loop_count += 1
 
 
-def monitor(pages, interval=30):
+def monitor(pages, interval=300):
     bf = '0'
     """每隔 interval 秒，依次检查所有页面的速度并必要时重连"""
     while True:
