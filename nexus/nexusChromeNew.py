@@ -541,7 +541,7 @@ if __name__ == '__main__':
                     time.sleep(2)
                     # 获取邮箱验证码
                     code = get_email_code(nexus)
-                    print(f"获取到验证码{code}")
+                    logger.info(f"获取到验证码{code}")
                     if code is not None and code != '':
                         logger.info('验证码')
                         em_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
