@@ -392,7 +392,6 @@ def get_email(tab):
     email_url = 'https://mail.dmail.ai/inbox'
     email_page = tab.browser.new_tab(url=email_url)
     email = None
-    __click_ele(page=email_page, xpath='x://a[text()="Confirm"]', loop=2)
     if __click_ele(email_page, xpath='x://span[text()="MetaMask"]', loop=2):
         __handle_signma_popup(page=page, count=3)
     if __click_ele(email_page, xpath='x://div[@data-title="Setting"]'):
