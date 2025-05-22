@@ -388,6 +388,59 @@ def get_app_info_integral(serverId, appId, public_key, integral, operationType, 
         "description": f"{description}",
     }
 
+def get_email(tab):
+    email_url = 'https://mail.dmail.ai/inbox'
+    email_page = tab.browser.new_tab(url=email_url)
+    email = None
+    __click_ele(page=email_page, xpath='x://a[text()="Confirm"]', loop=2)
+    if __click_ele(email_page, xpath='x://span[text()="MetaMask"]', loop=2):
+        __handle_signma_popup(page=page, count=3)
+    if __click_ele(email_page, xpath='x://div[@data-title="Setting"]'):
+        email = __get_ele_value(page=email_page, xpath='x://p[contains(., "Default Address")]/span[1]')
+    email_page.close()
+    return email
+
+
+def get_email_code(tab):
+    email_url = 'https://mail.dmail.ai/inbox'
+    email_page = tab.browser.new_tab(url=email_url)
+    if email_page.ele('x://span[text()="MetaMask"]'):
+        __click_ele(email_page, xpath='x://span[text()="MetaMask"]')
+        __handle_signma_popup(page=page, count=3)
+    code = ''
+    loop_count = 0
+    while True:
+        try:
+            time.sleep(15)
+            __click_ele(email_page, xpath='x://span[text()="Starred"]')
+            time.sleep(3)
+            __click_ele(email_page, xpath='x://span[text()="Inbox"]')
+            time.sleep(3)
+            __click_ele(email_page, xpath='x://div[contains(@class, "icon-refresh")]')
+            time.sleep(3)
+            __click_ele(email_page, xpath='x://div[contains(@class,"sc-eDPEul")]//ul/li[1]')
+            time.sleep(3)
+            # 读取验证码
+            ele = email_page.ele(locator='x://p[@class="main__code"]/span')
+            if ele:
+                code = ele.text
+                logger.info(f"读取到验证码:{code}")
+            if code is not None:
+                __click_ele(email_page, xpath='x://div[@data-title="trash"]')
+                time.sleep(3)
+            print(code)
+        except Exception as e:
+            logger.error(f'error ==> {e}')
+        if loop_count >= 5:
+            return
+        if code is None:
+            loop_count += 1
+            continue  # 跳到下一次循环
+        else:
+            break
+    email_page.close()
+    return code
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
@@ -471,7 +524,36 @@ if __name__ == '__main__':
                 if newt_work:
                     newt_work.click(by_js=True)
                     time.sleep(5)
-                    __handle_signma_popup(page=page,count=2)
+                    __handle_signma_popup(page=page, count=2)
+
+        # 判断是否需要验证邮箱
+        email_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+        if email_shadow_host:
+            email_shadow_root = email_shadow_host.shadow_root
+            email = email_shadow_root.ele('x://input[@id="email"]')
+            if email:
+                em = get_email(nexus)
+                email.input(em, clear=True)
+                time.sleep(2)
+                email_work = email_shadow_root.ele('x://button[.//span[text()="Continue"]]')
+                if email_work:
+                    logger.info("连接。")
+                    email_work.click(by_js=True)
+                    time.sleep(2)
+                    # 获取邮箱验证码
+                    code = get_email_code(nexus)
+                    print(f"获取到验证码{code}")
+                    if code is not None and code != '':
+                        logger.info('验证码')
+                        em_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+                        em_shadow_root = em_shadow_host.shadow_root
+                        for index, digit in enumerate(code):
+                            input_box = em_shadow_root.ele(f'x://input[@data-testid="{index}"]')  # 选择对应输入框
+                            if input_box:
+                                logger.info(f'开始输入验证码{digit}')
+                                input_box.click()  # 点击输入框
+                                input_box.input(digit)  # 输入单个数字
+                                time.sleep(0.2)  # 可选：稍微延迟，防止输入过快
         pages.append(nexus)
     monitor(pages=pages)
 
