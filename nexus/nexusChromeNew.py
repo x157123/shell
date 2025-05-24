@@ -482,6 +482,14 @@ if __name__ == '__main__':
             print("Battery saver 未勾选，开始点击勾上")
             checkbox.click(by_js=True)
 
+        # 定位到包含 shadow DOM 的元素 注册邮箱
+        net_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+        if net_shadow_host:
+            # 进入 shadow DOM
+            net_shadow_root = net_shadow_host.shadow_root
+            if net_shadow_root:
+                __click_ele(page=net_shadow_root, xpath="x://button[text()='Log out']")
+
         shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
         if shadow_host:
             shadow_root = shadow_host.shadow_root
