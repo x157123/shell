@@ -679,6 +679,7 @@ def get_email_code(tab):
             if code is not None:
                 click_element(email_page, xpath='x://div[@data-title="trash"]')
                 time.sleep(3)
+                
             print(code)
         except Exception as e:
             logger.error(f'error ==> {e}')
