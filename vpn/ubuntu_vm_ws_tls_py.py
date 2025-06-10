@@ -157,8 +157,8 @@ if __name__ == "__main__":
         domain, *nodes = s.split("|")
 
         # 输出验证
-        print("domain =", domain)
-        print("nodes  =", nodes)
+        logger.info("domain =", domain)
+        logger.info("nodes  =", nodes)
 
         # 确保以 root 身份运行
         if os.geteuid() != 0:
