@@ -20,6 +20,7 @@ XRAY_BIN="/usr/local/bin/xray"
 SERVICE_NAME="xray-socks"
 CONFIG_DIR="/etc/xray"
 CONFIG_FILE="${CONFIG_DIR}/config.toml"
+CERT_DIR="/etc/xray"
 
 # ---- 更新或创建 systemd 服务 ----
 update_service() {
