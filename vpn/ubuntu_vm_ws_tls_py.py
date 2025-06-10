@@ -9,96 +9,10 @@ import os
 import random
 import subprocess
 import sys
-import json
 import time
 from loguru import logger
-import base64
 import requests
 from pathlib import Path
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import unpad
-
-
-def read_file(file_path):
-    """从文件中读取内容并去除多余空白"""
-    try:
-        with open(file_path, 'r') as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        raise ValueError(f"文件未找到: {file_path}")
-
-
-def decrypt_aes_ecb(secret_key, data_encrypted_base64, type, key):
-    """
-    解密 AES ECB 模式的 Base64 编码数据，
-    去除 PKCS7 填充后直接返回 accountType 为 "hyper" 的记录中的 privateKey。
-    """
-    try:
-        # Base64 解码
-        encrypted_bytes = base64.b64decode(data_encrypted_base64)
-        # 创建 AES 解密器
-        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
-        # 解密数据
-        decrypted_bytes = cipher.decrypt(encrypted_bytes)
-        # 去除 PKCS7 填充（AES.block_size 默认为 16）
-        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
-        # 将字节转换为字符串
-        decrypted_text = decrypted_bytes.decode('utf-8')
-
-        # logger.info(f"获取数据中的 {key}: {decrypted_text}")
-
-        # 解析 JSON 字符串为 Python 对象（通常为列表）
-        data_list = json.loads(decrypted_text)
-
-        # 遍历数组，查找 accountType 为 "hyper" 的第一个记录
-        for item in data_list:
-            if item.get('accountType') == type:
-                return item.get(key)
-
-        # 没有找到匹配的记录，返回 None
-        return None
-
-    except Exception as e:
-        raise ValueError(f"解密失败: {e}")
-
-
-
-def decrypt_aes_ecb_list(secret_key, data_encrypted_base64, type, key):
-    """
-    解密 AES ECB 模式的 Base64 编码数据，
-    去除 PKCS7 填充后返回所有 accountType 为 "hyper" 的记录中的指定 key 值列表。
-    """
-    try:
-        # Base64 解码
-        encrypted_bytes = base64.b64decode(data_encrypted_base64)
-        # 创建 AES 解密器
-        cipher = AES.new(secret_key.encode('utf-8'), AES.MODE_ECB)
-        # 解密数据
-        decrypted_bytes = cipher.decrypt(encrypted_bytes)
-        # 去除 PKCS7 填充（AES.block_size 默认为 16）
-        decrypted_bytes = unpad(decrypted_bytes, AES.block_size)
-        # 将字节转换为字符串
-        decrypted_text = decrypted_bytes.decode('utf-8')
-
-        # logger.info(f"获取数据中的 {key}: {decrypted_text}")
-
-        # 解析 JSON 字符串为 Python 对象（通常为列表）
-        data_list = json.loads(decrypted_text)
-
-        # 创建结果列表，收集所有匹配的 key 值
-        result = []
-        for item in data_list:
-            if item.get('accountType') == type:
-                value = item.get(key)
-                if value is not None:  # 确保只添加存在的 key 值
-                    result.append(value)
-
-        # 返回结果列表，如果没有匹配项则返回空列表
-        return result
-
-    except Exception as e:
-        raise ValueError(f"解密失败: {e}")
-
 
 
 def run(cmd: str):
@@ -135,7 +49,7 @@ def issue_with_retry(domain: str, acme_path: str, retry_interval: int = 5):
             time.sleep(retry_interval)
 
 
-def main():
+def in_node():
 
     # 配置项：根据需要修改
     EMAIL = f"xiaomin{random.randint(1000, 5000)}@126.com"
@@ -147,8 +61,6 @@ def main():
     # 1. 安装依赖
     run("apt update")
     run("apt install -y curl socat")
-
-
 
     # 定义脚本路径和参数列表
     script_path = './xray_vmess.sh'
@@ -163,8 +75,6 @@ def main():
     resp.raise_for_status()  # 如果下载失败会抛异常
     with open(script_path, 'w', encoding='utf-8') as f:
         f.write(resp.text)
-
-
 
     # 2. 安装 acme.sh（如果已安装则跳过）
     if not os.path.isfile(ACME):
@@ -209,22 +119,52 @@ def main():
     subprocess.run([script_path] + nodes, capture_output=True, text=True)
 
 
+def out_node():
+
+    # 1. 安装依赖
+    run("apt update")
+    run("apt install -y curl socat")
+
+    # 定义脚本路径和参数列表
+    script_path = './xray_socks.sh'
+    # servers = ['10.3.1.1', '10.3.2.2', '10.3.3.3']
+    script_url = 'https://www.15712345.xyz/shell/vpn/xray_socks.sh'
+    # 1. 如果已存在旧脚本，先删除
+    _script_path = Path('./xray_socks.sh')
+    if _script_path.exists():
+        logger.info(f"{_script_path} 已存在，先删除旧文件")
+        _script_path.unlink()
+    resp = requests.get(script_url)
+    resp.raise_for_status()  # 如果下载失败会抛异常
+    with open(script_path, 'w', encoding='utf-8') as f:
+        f.write(resp.text)
+
+    # 确保脚本可执行
+    subprocess.run(['chmod', '+x', script_path], check=True)
+
+    # 执行脚本并捕获输出
+    subprocess.run([script_path], capture_output=True, text=True)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="获取应用信息")
-    parser.add_argument("--serverId", type=str, help="服务ID", required=True)
-    parser.add_argument("--appId", type=str, help="应用ID", required=True)
-    parser.add_argument("--decryptKey", type=str, help="解密key", required=True)
+    parser.add_argument("--param", type=str, help="参数")
     args = parser.parse_args()
 
-    # 从文件加载密文
-    encrypted_data_base64 = read_file('/opt/data/' + args.appId + '_user.json')
-    # 解密并发送解密结果
-    domain = decrypt_aes_ecb(args.decryptKey, encrypted_data_base64, 'domain', 'remarks')
-    nodes = decrypt_aes_ecb_list(args.decryptKey, encrypted_data_base64, 'domain_node', 'remarks')
+    # 拆分
+    s = args.param
+    if s is not None:
+        domain, *nodes = s.split("|")
 
-    # 确保以 root 身份运行
-    if os.geteuid() != 0:
-        logger.info("请以 root 身份运行此脚本。", file=sys.stderr)
-        sys.exit(1)
-    main()
+        # 输出验证
+        print("domain =", domain)
+        print("nodes  =", nodes)
+
+        # 确保以 root 身份运行
+        if os.geteuid() != 0:
+            logger.info("请以 root 身份运行此脚本。", file=sys.stderr)
+            sys.exit(1)
+        in_node()
+    else:
+        out_node()
 

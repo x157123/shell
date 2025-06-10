@@ -39,6 +39,7 @@ if [ "$#" -ge 1 ]; then
 else
     REMOTE_SOCKS_SERVERS=("${DEFAULT_REMOTE_SOCKS_SERVERS[@]}")
 fi
+
 # ---- 更新或创建 systemd 服务 ----
 update_service() {
     echo "[INFO] 更新 systemd 服务文件..."

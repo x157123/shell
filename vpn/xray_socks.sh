@@ -21,6 +21,28 @@ SERVICE_NAME="xray-socks"
 CONFIG_DIR="/etc/xray"
 CONFIG_FILE="${CONFIG_DIR}/config.toml"
 
+# ---- 更新或创建 systemd 服务 ----
+update_service() {
+    echo "[INFO] 更新 systemd 服务文件..."
+    mkdir -p "$CERT_DIR"
+    cat <<EOF >/etc/systemd/system/${SERVICE_NAME}.service
+[Unit]
+Description=XrayL Service
+After=network.target
+
+[Service]
+ExecStart=${XRAY_BIN} -config ${CONFIG_FILE}
+Restart=on-failure
+User=root
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    systemctl daemon-reload
+    systemctl enable ${SERVICE_NAME}
+}
+
 # ---- 安装 Xray Core ----
 install_xray() {
   echo "[INFO] 安装 Xray Core..."
@@ -36,28 +58,6 @@ install_xray() {
   chmod +x "$XRAY_BIN"
 }
 
-# ---- 生成 systemd 服务 ----
-create_service() {
-  echo "[INFO] 创建 systemd 服务：${SERVICE_NAME}.service"
-  mkdir -p "$CONFIG_DIR"
-  cat > /etc/systemd/system/${SERVICE_NAME}.service <<EOF
-[Unit]
-Description=Xray SOCKS5 Proxy Service
-After=network.target
-
-[Service]
-ExecStart=${XRAY_BIN} -config ${CONFIG_FILE}
-Restart=on-failure
-User=root
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-  systemctl daemon-reload
-  systemctl enable ${SERVICE_NAME}
-}
 
 # ---- 生成 TOML 配置 ----
 generate_config() {
@@ -88,16 +88,14 @@ EOF
 
 # ---- 主流程 ----
 main() {
-  install_xray
-  generate_config
-  create_service
-
-  echo "[INFO] 重启并启动服务..."
-  systemctl restart ${SERVICE_NAME}
-  echo "[SUCCESS] Xray SOCKS5 代理已启动："
-  echo "         地址：0.0.0.0:${LISTEN_PORT}"
-  echo "         用户：${SOCKS_USER}"
-  echo "         密码：${SOCKS_PASS}"
+    if ! command -v "$XRAY_BIN" &>/dev/null; then
+        install_xray
+    else
+        update_service
+    fi
+    generate_config
+    systemctl restart ${SERVICE_NAME}
+    echo "[INFO] Xray 服务已重启，配置已生效。"
 }
 
 main
