@@ -84,7 +84,7 @@ generate_config() {
     mkdir -p "$CERT_DIR"
     cat > "$CONFIG_FILE" <<EOF
 [log]
-loglevel = "info"
+loglevel = "error"
 
 # 直连节点
 [[inbounds]]

@@ -66,7 +66,7 @@ generate_config() {
   mkdir -p "$CONFIG_DIR"
   cat > "$CONFIG_FILE" <<EOF
 [log]
-loglevel = "info"
+loglevel = "error"
 
 # inbound: SOCKS5 代理
 [[inbounds]]
