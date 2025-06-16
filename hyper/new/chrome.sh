@@ -141,8 +141,8 @@ main() {
 
 
   # 循环创建 :23 到 :27 的 VNC 会话
-  for display in {0..0}; do
-      port=$((5923 + display))
+  for display in {23..23}; do
+      port=$((5900 + display))
       log_info "=== 启动 VNC 会话 :$display (端口 $port) ==="
       VNC_DISPLAY="$display" VNC_PORT="$port" setup_vnc
   done

@@ -145,9 +145,10 @@ def monitor_switch(pages):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
     # parser.add_argument("--param", type=str, help="参数")
+    # parser.add_argument("--ip", type=str, help="参数")
     args = parser.parse_args()
     args.param = 'B9iVW9VUxnqStXExWgTjxSjkysQkAymvnM3eNrUkgCxh,BSRRk8xQK6D8HzNAhJi9w1jNT9DgL6AHUf8bMxTikgpJ||GJhUeJjfPBmLt8mXBwsCVikTomDyY1ZqjUbpMKACwLtu,4wukT6d7gPZ3diESi91DbHXcAwArneoZ7LFJtyi5NxBn||8NB5bu39yXujAPo3HPVqu5VvcergbNq6sKAzMec9kbb9,GYZhrMmuYQZnAm1ewb4YnsryKqhV7uu9xr8mE59Wh3CB||A81PdNoysd36UKpZNQR5Ko9khYkk6Y6E5GSBW6AsJSLv,BagcKnmjMy6EDfWc1vaXYcQg2vr4Evhv32tV8QuTPq3M||9XcK4haEVYzfBxpGDzRjLdkWm3D1WMff7WK3DYmoxi2p,tZ2ntSgbWxSeq2Fa2T4dD8bRZEihon57S1zbLheL1tr||GSomWNYtjvCs8vG4abhQtV7br11qCAY7osi4gvExbCAs,7GaGYEHFa5uQwCzQgGn3zaQmR6238vRb7tmt2EK1BTXv'
-
+    args.ip = '10.0.0.1'
     pages = []
     idx = 0
     for part in args.param.split("||"):
@@ -159,7 +160,7 @@ if __name__ == '__main__':
         im_private_Key = arg[1]
 
         options = ChromiumOptions()
-        options.set_browser_path('/opt/google/chrome/google-chrome')
+        options.set_browser_path('/opt/google/chrome')
         options.set_user_data_path(f"/home/ubuntu/task/hyper/chrome_data/{im_public_key}")
         options.set_local_port(port)
 
