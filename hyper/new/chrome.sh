@@ -219,8 +219,8 @@ INNEREOF
 # 配置 XRDP
 setup_xrdp() {
     log_info "配置 XRDP..."
-    echo "startxfce4" > "/home/$USER/.xsession"
-    chown "$USER:$USER" "/home/$USER/.xsession"
+    echo "startxfce4" > "/home/ubuntu/vnc/.xsession"
+    chown "$USER:$USER" "/home/ubuntu/vnc/.xsession"
     if ! service xrdp status | grep -q "running"; then
         log_info "XRDP 未运行，启动服务..."
         service xrdp start || error_exit "XRDP 启动失败"
