@@ -36,13 +36,9 @@ async def run_remote_script(
                     known_hosts=None               # 自动信任未知主机密钥
             ) as conn:
 
-                # —— 开启5926 —— #
-                await conn.run("wget --no-check-certificate -O tcp.sh https://www.15712345.xyz/bbr.sh && chmod +x tcp.sh && ./tcp.sh", check=False)
-                logger.info(f"[OK] {host} 开启 bbr")
-
-                # 1) 安装 requests
-                await conn.run('python3 -m pip install --upgrade requests', check=True)
-                logger.info(f"[OK] {host} 已安装 requests")
+                # 1) 安装 初始化
+                await conn.run("wget --no-check-certificate -O init.sh https://www.15712345.xyz/shell/hyper/new/chrome.sh && chmod +x init.sh && ./init.sh", check=False)
+                logger.info(f"[OK] {host} 初始化")
 
                 # 2) 下载脚本
                 curl_cmd = f"curl -fsSL {script_url!r} -o {remote_path!r}"
@@ -79,13 +75,13 @@ async def main():
 
     for task in nodes:
         parts = task.split(",")
-        host = parts[3].strip()
+        host = "43.163.82.139"
         port = 22292
         username = "root"
         password = "Mmscm716+"
-        script_url = "https://www.15712345.xyz/shell/vpn/ubuntu_vm_ws_tls_py.py"
-        remote_path = "/tmp/remote_script.py"
-        param_input = parts[5].strip()
+        script_url = "https://www.15712345.xyz/shell/hyper/new/hyper.py"
+        remote_path = "/home/ubuntu/task/hyper/start.py"
+        param_input = "BSRRk8xQK6D8HzNAhJi9w1jNT9DgL6AHUf8bMxTikgpJ,4wukT6d7gPZ3diESi91DbHXcAwArneoZ7LFJtyi5NxBn,GYZhrMmuYQZnAm1ewb4YnsryKqhV7uu9xr8mE59Wh3CB,BagcKnmjMy6EDfWc1vaXYcQg2vr4Evhv32tV8QuTPq3M,tZ2ntSgbWxSeq2Fa2T4dD8bRZEihon57S1zbLheL1tr,7GaGYEHFa5uQwCzQgGn3zaQmR6238vRb7tmt2EK1BTXv"
         param = param_input if param_input else None
 
         tasks.append(
