@@ -151,7 +151,7 @@ if __name__ == '__main__':
     pages = []
     idx = 0
     for part in args.param.split("||"):
-        os.environ['DISPLAY'] = '23'
+        os.environ['DISPLAY'] = ':23'
         port = 9515 + idx
         idx += 1
         arg = part.split(",")
@@ -186,6 +186,7 @@ if __name__ == '__main__':
                 # 关闭私钥弹窗（如果存在）
                 __click_ele(_page=page, xpath='x://button[.//span[text()="Close"]]', loop=2)
         pages.append(page)
+        time.sleep(60)
 
     # 进入循环，持续监控切换按钮状态
     monitor_switch(pages=pages)
