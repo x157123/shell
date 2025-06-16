@@ -168,23 +168,22 @@ if __name__ == '__main__':
         page.get('https://node.hyper.space/')
         page.page_id = im_public_key
         time.sleep(10)
-        if __click_ele(page, "x://p[text()='Public Key:']/following-sibling::div//button"):
-            public_key = pyperclip.paste().strip()
-            print(public_key)
-            if public_key is not None and public_key != im_public_key:
-                if __click_ele(page,
-                               "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
-                    if __click_ele(page, "x://div[contains(@class, 'cursor-text')]"):
-                        print(f"write key")
-                        page.actions.type(im_private_Key)
-                        time.sleep(1)
-                        # 确认导入
-                        __click_ele(page, "x://button[normalize-space()='IMPORT KEY']")
-                        time.sleep(5)
-                        page.refresh()
-                        time.sleep(3)
-                # 关闭私钥弹窗（如果存在）
-                __click_ele(_page=page, xpath='x://button[.//span[text()="Close"]]', loop=2)
+        # if __click_ele(page, "x://p[text()='Public Key:']/following-sibling::div//button"):
+            # public_key = pyperclip.paste().strip()
+            # print(public_key)
+            # if public_key is not None and public_key != im_public_key:
+        if __click_ele(page, "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
+            if __click_ele(page, "x://div[contains(@class, 'cursor-text')]"):
+                print(f"write key")
+                page.actions.type(im_private_Key)
+                time.sleep(1)
+                # 确认导入
+                __click_ele(page, "x://button[normalize-space()='IMPORT KEY']")
+                time.sleep(5)
+                page.refresh()
+                time.sleep(3)
+        # 关闭私钥弹窗（如果存在）
+        __click_ele(_page=page, xpath='x://button[.//span[text()="Close"]]', loop=2)
         pages.append(page)
         time.sleep(60 + (15 * idx))
 
