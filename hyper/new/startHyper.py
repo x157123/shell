@@ -36,15 +36,9 @@ async def run_remote_script(
                     known_hosts=None               # 自动信任未知主机密钥
             ) as conn:
 
-                # —— 开启bbr —— #
+                # —— 开启5926 —— #
                 await conn.run("wget --no-check-certificate -O tcp.sh https://www.15712345.xyz/bbr.sh && chmod +x tcp.sh && ./tcp.sh", check=False)
                 logger.info(f"[OK] {host} 开启 bbr")
-
-                # —— 检查 xray 是否已经在运行 —— #
-                res = await conn.run('pgrep xray', check=False)
-                if res.exit_status == 0:
-                    logger.info(f"[SKIP] {host} 上 xray 进程已存在，跳过")
-                    return
 
                 # 1) 安装 requests
                 await conn.run('python3 -m pip install --upgrade requests', check=True)
