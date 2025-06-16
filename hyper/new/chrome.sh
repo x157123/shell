@@ -175,8 +175,8 @@ setup_vnc() {
         # 在这里引用外层传来的 VNC_PASS 和 VNC_REAL_PORT
 
         # 确保 ~/.vnc 文件夹存在，并设置正确权限
-        mkdir -p "$HOME/.vnc"
-        chmod 700 "$HOME/.vnc"
+        mkdir -p "/home/ubuntu/vnc/.vnc"
+        chmod 700 "/home/ubuntu/vnc/.vnc"
 
         # 构造 expect 脚本，用于初始化 VNC 密码
         EXPECT_SCRIPT=$(cat <<EOL
@@ -198,13 +198,13 @@ EOL
   expect -c "$EXPECT_SCRIPT"
 
   # 写入 xstartup 脚本，启动 Xfce4
-  cat > "$HOME/.vnc/xstartup" <<'XSTARTUP'
+  cat > "/home/ubuntu/vnc/.vnc/xstartup" <<'XSTARTUP'
 #!/bin/bash
 xrdb $HOME/.Xresources
 startxfce4 &
 XSTARTUP
 
-  chmod +x "$HOME/.vnc/xstartup"
+  chmod +x "/home/ubuntu/vnc/.vnc/xstartup"
 
   # 为了确保 xstartup 配置生效，先关闭已有的 VNC 会话（如果有的话）
   tightvncserver -kill :${VNC_REAL_DISPLAY} >/dev/null 2>&1 || true
