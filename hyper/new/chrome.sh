@@ -1,21 +1,13 @@
 #!/bin/bash
 
-# 脚本描述: 用于配置和管理 Chrome 浏览器的自动化环境，支持多实例 VNC 配置和动态端口
-
-# 常量定义
-readonly APT_PACKAGES=("net-tools" "fontconfig" "fonts-wqy-zenhei" "fonts-wqy-microhei" "lsof" "python3-tk" "python3-dev" "libu2f-udev" "expect")  # 添加 lsof
-readonly PYTHON_PACKAGES=("psutil" "requests" "paho-mqtt" "selenium" "pycryptodome" "loguru" "pyperclip" "drissionpage" "pyautogui")
-readonly DEPENDENCIES=("curl" "wget" "git" "pip3" "lsof" "expect")  # 依赖命令
-readonly DEFAULT_VNC_DISPLAY=26       # 默认显示号
-
 # 默认值
-USER="${USER:-admin}"
-PASSWORD="${PASSWORD:-Mmscm716+}"
-VNC_DISPLAY="${VNC_DISPLAY:-$DEFAULT_VNC_DISPLAY}"
+USER="lm"
+PASSWORD="bllm1234"
 
 # 错误处理函数
 error_exit() {
     echo "ERROR: $1" >&2
+    exit 1
 }
 
 # 日志函数
@@ -23,21 +15,6 @@ log_info() {
     echo "[INFO] $1"
 }
 
-# 检查命令是否成功
-check_command() {
-    if [ $? -ne 0 ]; then
-        error_exit "$1"
-    fi
-}
-
-# 检查依赖命令
-check_dependencies() {
-    for dep in "${DEPENDENCIES[@]}"; do
-        if ! command -v "$dep" >/dev/null 2>&1; then
-            error_exit "缺少依赖命令: $dep，请先安装"
-        fi
-    done
-}
 
 # 检查端口是否在监听，返回 0 表示已监听，1 表示未监听
 check_port() {
@@ -50,99 +27,6 @@ check_port() {
         return 1
     fi
 }
-
-# 检查 Python 包是否已安装
-check_python_package() {
-    local package=$1
-    if pip3 show "$package" >/dev/null 2>&1; then
-        log_info "Python 包 $package 已安装，跳过"
-        return 0
-    else
-        return 1
-    fi
-}
-
-# 安装 Python 包
-install_python_packages() {
-    local to_install=()
-    for pkg in "${PYTHON_PACKAGES[@]}"; do
-        if ! check_python_package "$pkg"; then
-            to_install+=("$pkg")
-        fi
-    done
-    if [ ${#to_install[@]} -gt 0 ]; then
-        log_info "安装未检测到的 Python 包: ${to_install[*]}"
-        pip3 install -q "${to_install[@]}" || error_exit "Python 包安装失败"
-        log_info "Python 包安装完成"
-    else
-        log_info "所有 Python 包已安装，跳过安装"
-    fi
-}
-
-# 检查系统包是否已安装
-check_apt_package() {
-    local package=$1
-    if dpkg-query -W "$package" >/dev/null 2>&1; then
-        log_info "系统包 $package 已安装，跳过"
-        return 0
-    else
-        return 1
-    fi
-}
-
-# 安装系统包
-install_apt_packages() {
-    local to_install=()
-    for pkg in "${APT_PACKAGES[@]}"; do
-        if ! check_apt_package "$pkg"; then
-            to_install+=("$pkg")
-        fi
-    done
-    if [ ${#to_install[@]} -gt 0 ]; then
-        log_info "安装未检测到的系统包: ${to_install[*]}"
-        sudo apt-get install -y "${to_install[@]}" || error_exit "系统包安装失败"
-        log_info "系统包安装完成"
-    else
-        log_info "所有系统包已安装，跳过安装"
-    fi
-}
-
-# 更新系统包列表
-update_system() {
-    log_info "更新系统软件包列表..."
-    # 屏蔽掉google浏览器
-    sudo mv /etc/apt/sources.list.d/google-chrome.list /etc/apt/sources.list.d/google-chrome.list.bak
-    sudo apt update -y || error_exit "软件包列表更新失败"
-}
-
-# 安装系统依赖
-install_system_deps() {
-    log_info "安装 xclip..."
-    if ! command -v xclip >/dev/null 2>&1; then
-        sudo apt-get install -y xclip || {
-            log_info "xclip 安装失败，尝试更换镜像源..."
-            sudo tee /etc/apt/sources.list > /dev/null <<'EOL'
-deb https://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
-deb https://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
-deb https://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
-deb https://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
-EOL
-            sudo apt-get update -y && sudo apt-get install -y xclip || error_exit "xclip 安装失败，即使更换源后仍未成功"
-        }
-        log_info "xclip 安装成功"
-    else
-        log_info "xclip 已安装，跳过"
-    fi
-
-    export DEBIAN_FRONTEND=noninteractive
-    install_apt_packages
-
-}
-
 
 # 检查并安装 VNC
 setup_vnc() {
@@ -175,8 +59,8 @@ setup_vnc() {
         # 在这里引用外层传来的 VNC_PASS 和 VNC_REAL_PORT
 
         # 确保 ~/.vnc 文件夹存在，并设置正确权限
-        mkdir -p "/home/ubuntu/vnc/.vnc"
-        chmod 700 "/home/ubuntu/vnc/.vnc"
+        mkdir -p "$HOME/.vnc"
+        chmod 700 "$HOME/.vnc"
 
         # 构造 expect 脚本，用于初始化 VNC 密码
         EXPECT_SCRIPT=$(cat <<EOL
@@ -198,13 +82,13 @@ EOL
   expect -c "$EXPECT_SCRIPT"
 
   # 写入 xstartup 脚本，启动 Xfce4
-  cat > "/home/ubuntu/vnc/.vnc/xstartup" <<'XSTARTUP'
+  cat > "$HOME/.vnc/xstartup" <<'XSTARTUP'
 #!/bin/bash
 xrdb $HOME/.Xresources
 startxfce4 &
 XSTARTUP
 
-  chmod +x "/home/ubuntu/vnc/.vnc/xstartup"
+  chmod +x "$HOME/.vnc/xstartup"
 
   # 为了确保 xstartup 配置生效，先关闭已有的 VNC 会话（如果有的话）
   tightvncserver -kill :${VNC_REAL_DISPLAY} >/dev/null 2>&1 || true
@@ -219,8 +103,8 @@ INNEREOF
 # 配置 XRDP
 setup_xrdp() {
     log_info "配置 XRDP..."
-    echo "startxfce4" > "/home/ubuntu/vnc/.xsession"
-    chown "$USER:$USER" "/home/ubuntu/vnc/.xsession"
+    echo "startxfce4" > "/home/$USER/.xsession"
+    chown "$USER:$USER" "/home/$USER/.xsession"
     if ! service xrdp status | grep -q "running"; then
         log_info "XRDP 未运行，启动服务..."
         service xrdp start || error_exit "XRDP 启动失败"
@@ -231,16 +115,40 @@ setup_xrdp() {
 
 # 主执行流程
 main() {
-    if [ "$(id -u)" -ne 0 ]; then
-        error_exit "此脚本需要 root 权限运行，请使用 sudo 或以 root 用户执行"
-    fi
+    # 必须以 root 运行
+	if [ "$(id -u)" -ne 0 ]; then
+		error_exit "此脚本需要以 root 权限运行，请使用 sudo 或以 root 用户执行"
+	fi
 
-    update_system
-    install_system_deps
-    check_dependencies
-    setup_vnc
+	# 更新软件源并安装 Python 运行时及虚拟环境支持
+	apt-get update \
+		&& apt-get install -y \
+			python3-pip \
+			python3-venv \
+			python3-tk \
+			python3-dev \
+		|| error_exit "Python 组件安装失败"
+
+	# 升级 pip 并安装依赖包
+	pip install --upgrade pip \
+		|| error_exit "升级 pip 失败"
+	pip install \
+		pyautogui \
+		drissionpage \
+		pyperclip \
+		logger \
+		|| error_exit "Python 包安装失败"
+
+
+  # 循环创建 :23 到 :27 的 VNC 会话
+  for display in {0..3}; do
+      port=$((5923 + display))
+      log_info "=== 启动 VNC 会话 :$display (端口 $port) ==="
+      VNC_DISPLAY="$display" VNC_PORT="$port" setup_vnc
+  done
+
+    # 配置并启动 XRDP（所有会话共用）
     setup_xrdp
-    install_python_packages
 }
 
 main "$@"
