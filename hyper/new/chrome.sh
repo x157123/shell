@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # 默认值
-USER="lm"
-PASSWORD="bllm1234"
+USER="ubuntu"
+PASSWORD="Mmscm716+"
 
 # 错误处理函数
 error_exit() {
