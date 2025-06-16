@@ -92,23 +92,16 @@ def signma_log(message: str, task_name: str, index: str, node_name: str, total: 
 
 def monitor_switch(pages):
     total = 70
-    error = 5
     while True:
         try:
             time.sleep(random.randint(60, 80))
             for idx, tab in enumerate(pages, start=1):
                 if __get_ele(page=tab, xpath='x://button[@role="switch"]', loop=2):
                     if __click_ele(_page=tab, xpath='x://button[@role="switch" and @aria-checked="false"]', loop=2):
-                        logger.info(f"未链接网络:{error}")
-                        error += 1
+                        logger.info(f"未链接网络")
                     else:
                         logger.info(f"已链接网络:{total}")
                         if __get_ele(page=tab, xpath='x://span[text()="Connected"]', loop=1):
-                            logger.info("net")
-                            if error > 0:
-                                logger.info("appInfo", args.ip + ',链接到主网')
-                            error = 0
-
                             if total > 60:
                                 # 获取积分 每循环60次检测 获取一次积分
                                 points = get_points(tab)
@@ -118,24 +111,11 @@ def monitor_switch(pages):
                                     logger.info("appInfo", args.ip + ',采集积分,' + str(points))
                                     signma_log(message=str(points), task_name="hyper", index=tab.page_id, node_name=args.ip)
                                     logger.info(f"推送积分:{points}")
-                                    total = 0
-                                elif total > 70:
-                                    logger.info(f"需要刷新页面。{total}")
-                                    total = 30
-                                    tab.refresh()
-                    if error == 9:
-                        tab.refresh()
-                        time.sleep(3)
-                        logger.info("refresh page:")  # 关闭弹窗（如果存在）
-                        __click_ele(tab, 'x://button[.//span[text()="Close"]]')
-
-                    if error == 10:
-                        logger.info("appInfo", args.ip + ',检查过程中出现异常：未连接到主网络')
-                        error = 0
                 else:
-                    logger.info("refresh")
+                    logger.info("刷新页面")
                     tab.refresh()
-
+            if total > 60:
+                total = 0
             total += 1
         except Exception as e:
             logger.info("appInfo", args.ip + ',检查过程中出现异常: ' + str(e))
