@@ -159,6 +159,7 @@ if __name__ == '__main__':
 
         options = ChromiumOptions()
         options.set_browser_path('/opt/google/chrome/google-chrome')
+        options.set_user_data_path(f"/home/ubuntu/task/hyper/chrome_data/{im_public_key}")
         options.set_local_port(port)
 
         # ...............
