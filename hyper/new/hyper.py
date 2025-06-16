@@ -149,10 +149,11 @@ if __name__ == '__main__':
     args.param = 'B9iVW9VUxnqStXExWgTjxSjkysQkAymvnM3eNrUkgCxh,BSRRk8xQK6D8HzNAhJi9w1jNT9DgL6AHUf8bMxTikgpJ||GJhUeJjfPBmLt8mXBwsCVikTomDyY1ZqjUbpMKACwLtu,4wukT6d7gPZ3diESi91DbHXcAwArneoZ7LFJtyi5NxBn||8NB5bu39yXujAPo3HPVqu5VvcergbNq6sKAzMec9kbb9,GYZhrMmuYQZnAm1ewb4YnsryKqhV7uu9xr8mE59Wh3CB||A81PdNoysd36UKpZNQR5Ko9khYkk6Y6E5GSBW6AsJSLv,BagcKnmjMy6EDfWc1vaXYcQg2vr4Evhv32tV8QuTPq3M||9XcK4haEVYzfBxpGDzRjLdkWm3D1WMff7WK3DYmoxi2p,tZ2ntSgbWxSeq2Fa2T4dD8bRZEihon57S1zbLheL1tr||GSomWNYtjvCs8vG4abhQtV7br11qCAY7osi4gvExbCAs,7GaGYEHFa5uQwCzQgGn3zaQmR6238vRb7tmt2EK1BTXv'
 
     pages = []
-
-    for idx, part in args.param.split("||"):
+    idx = 0
+    for part in args.param.split("||"):
         os.environ['DISPLAY'] = '23'
         port = 9515 + idx
+        idx += 1
         arg = part.split(",")
         im_public_key = arg[0]
         im_private_Key = arg[1]
