@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import asyncio
+import time
+
 import asyncssh
 import os
 import sys
@@ -35,6 +37,11 @@ async def run_remote_script(
                     password=password,
                     known_hosts=None               # 自动信任未知主机密钥
             ) as conn:
+
+                await conn.run(f"pkill -9 {remote_path}", check=False)
+                time.sleep(2)
+                await conn.run(f"pkill -9 chrome", check=False)
+                logger.info(f"[OK] {host} 关闭程序")
 
                 # 1) 安装 初始化
                 await conn.run("wget --no-check-certificate -O init.sh https://www.15712345.xyz/shell/hyper/new/chrome.sh && chmod +x init.sh && ./init.sh", check=False)
@@ -74,14 +81,14 @@ async def main():
     tasks: list[asyncio.Task] = []
 
     for task in nodes:
-        parts = task.split(",")
+        parts = task.split("|||")
         host = "43.163.82.139"
         port = 22292
         username = "root"
         password = "Mmscm716+"
         script_url = "https://www.15712345.xyz/shell/hyper/new/hyper.py"
         remote_path = "/home/ubuntu/task/hyper/start.py"
-        param_input = "BSRRk8xQK6D8HzNAhJi9w1jNT9DgL6AHUf8bMxTikgpJ,4wukT6d7gPZ3diESi91DbHXcAwArneoZ7LFJtyi5NxBn,GYZhrMmuYQZnAm1ewb4YnsryKqhV7uu9xr8mE59Wh3CB,BagcKnmjMy6EDfWc1vaXYcQg2vr4Evhv32tV8QuTPq3M,tZ2ntSgbWxSeq2Fa2T4dD8bRZEihon57S1zbLheL1tr,7GaGYEHFa5uQwCzQgGn3zaQmR6238vRb7tmt2EK1BTXv"
+        param_input = "B9iVW9VUxnqStXExWgTjxSjkysQkAymvnM3eNrUkgCxh,BSRRk8xQK6D8HzNAhJi9w1jNT9DgL6AHUf8bMxTikgpJ||GJhUeJjfPBmLt8mXBwsCVikTomDyY1ZqjUbpMKACwLtu,4wukT6d7gPZ3diESi91DbHXcAwArneoZ7LFJtyi5NxBn||8NB5bu39yXujAPo3HPVqu5VvcergbNq6sKAzMec9kbb9,GYZhrMmuYQZnAm1ewb4YnsryKqhV7uu9xr8mE59Wh3CB||A81PdNoysd36UKpZNQR5Ko9khYkk6Y6E5GSBW6AsJSLv,BagcKnmjMy6EDfWc1vaXYcQg2vr4Evhv32tV8QuTPq3M"
         param = param_input if param_input else None
 
         tasks.append(

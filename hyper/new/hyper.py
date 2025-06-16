@@ -135,7 +135,7 @@ if __name__ == '__main__':
         arg = part.split(",")
         im_public_key = arg[0]
         im_private_Key = arg[1]
-
+        logger.info(f"启动:{im_public_key}")
         options = ChromiumOptions()
         options.set_browser_path('/opt/google/chrome')
         options.set_user_data_path(f"/home/ubuntu/task/hyper/chrome_data/{im_public_key}")
