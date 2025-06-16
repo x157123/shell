@@ -54,7 +54,7 @@ async def run_remote_script(
                 # 4) 执行脚本
                 exec_cmd = f"python3 {remote_path!r}"
                 if param:
-                    exec_cmd += f' --param "{param}"'
+                    exec_cmd += f' --ip "{host}" --param "{param}"'
                 logger.info(f"[→] {host} 执行：{exec_cmd}")
                 res = await conn.run(exec_cmd, check=False)
 

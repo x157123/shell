@@ -1,3 +1,4 @@
+import requests
 from DrissionPage import ChromiumPage, ChromiumOptions
 import time
 import pyperclip
@@ -42,26 +43,6 @@ def __click_ele(_page, xpath: str = '', loop: int = 5, must: bool = False,
         loop_count += 1
 
 
-def get_app_info(serverId, appId, operationType, description):
-    return {
-        "serverId": f"{serverId}",
-        "applicationId": f"{appId}",
-        "operationType": f"{operationType}",
-        "description": f"{description}",
-    }
-
-
-def get_app_info_integral(serverId, appId, public_key, integral, operationType, integralE, description):
-    return {
-        "serverId": f"{serverId}",
-        "applicationId": f"{appId}",
-        "publicKey": f"{public_key}",
-        "integral": f"{integral}",
-        "operationType": f"{operationType}",
-        "integralE": f"{integralE}",
-        "description": f"{description}",
-    }
-
 # 获取元素
 def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
               find_all: bool = False,
@@ -90,6 +71,25 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
         loop_count += 1
 
 
+def signma_log(message: str, task_name: str, index: str, node_name: str, total: str = "N", keywords: str = "") -> bool:
+    try:
+        url = "{}/service_route?service_name=signma_log&&task={}&&chain_id={}&&index={}&&msg={}&&total={}&&keywords={}"
+        server_url = 'https://signma.bll06.xyz'
+        full_url = url.format(server_url, task_name, node_name, index, message, total, keywords)
+        try:
+            response = requests.get(full_url, verify=False)
+            if response.status_code == 200:
+                logger.info("积分提交成功,")
+            return True
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Request failed: {e}")
+            return False
+    except requests.exceptions.RequestException as e:
+        raise logger.error(f"网络请求失败: {str(e)}")
+    except Exception as e:
+        raise logger.error(f"发送日志失败: {str(e)}")
+
+
 def monitor_switch(pages):
     total = 70
     error = 5
@@ -98,12 +98,11 @@ def monitor_switch(pages):
             time.sleep(random.randint(60, 80))
             for idx, tab in enumerate(pages, start=1):
                 if __get_ele(page=tab, xpath='x://button[@role="switch"]', loop=2):
-                    logger.info("check net")
                     if __click_ele(_page=tab, xpath='x://button[@role="switch" and @aria-checked="false"]', loop=2):
-                        logger.info("not net")
+                        logger.info(f"未链接网络:{error}")
                         error += 1
                     else:
-                        logger.info("up net")
+                        logger.info(f"已链接网络:{total}")
                         if __get_ele(page=tab, xpath='x://span[text()="Connected"]', loop=1):
                             logger.info("net")
                             if error > 0:
@@ -116,8 +115,8 @@ def monitor_switch(pages):
                                 # 关闭积分弹窗（如果存在）
                                 __click_ele(tab, 'x://button[.//span[text()="Close"]]')
                                 if points is not None and points != "":
-
                                     logger.info("appInfo", args.ip + ',采集积分,' + str(points))
+                                    signma_log(message=str(points), task_name="hyper", index=tab.page_id, node_name=args.ip)
                                     logger.info(f"推送积分:{points}")
                                     total = 0
                                 elif total > 70:
@@ -127,7 +126,7 @@ def monitor_switch(pages):
                     if error == 9:
                         tab.refresh()
                         time.sleep(3)
-                        logger.info("refresh page:")    # 关闭弹窗（如果存在）
+                        logger.info("refresh page:")  # 关闭弹窗（如果存在）
                         __click_ele(tab, 'x://button[.//span[text()="Close"]]')
 
                     if error == 10:
@@ -167,13 +166,14 @@ if __name__ == '__main__':
         # ...............
         page = ChromiumPage(options)
         page.get('https://node.hyper.space/')
-
+        page.page_id = im_public_key
         time.sleep(10)
         if __click_ele(page, "x://p[text()='Public Key:']/following-sibling::div//button"):
             public_key = pyperclip.paste().strip()
             print(public_key)
             if public_key is not None and public_key != im_public_key:
-                if __click_ele(page, "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
+                if __click_ele(page,
+                               "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
                     if __click_ele(page, "x://div[contains(@class, 'cursor-text')]"):
                         print(f"write key")
                         page.actions.type(im_private_Key)
