@@ -186,7 +186,7 @@ if __name__ == '__main__':
                 # 关闭私钥弹窗（如果存在）
                 __click_ele(_page=page, xpath='x://button[.//span[text()="Close"]]', loop=2)
         pages.append(page)
-        time.sleep(60)
+        time.sleep(60 + (15 * idx))
 
     # 进入循环，持续监控切换按钮状态
     monitor_switch(pages=pages)
