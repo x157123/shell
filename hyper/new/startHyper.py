@@ -18,6 +18,14 @@ def read_data_list_file(file_path: str, check_exists: bool = True) -> list[str]:
     with open(file_path, 'r') as f:
         return [line.strip() for line in f if line.strip()]
 
+# 文件追加
+def append_date_to_file(file_path, data_str):
+    with open(file_path, 'a') as file:
+        file.write(data_str + '\n')
+
+
+
+
 async def run_remote_script(
         host: str,
         port: int,
@@ -37,10 +45,12 @@ async def run_remote_script(
                     password=password,
                     known_hosts=None               # 自动信任未知主机密钥
             ) as conn:
-
-                await conn.run(f"pkill -9 {remote_path}", check=False)
+                await conn.run(f"pkill -f {remote_path}", check=False)
                 time.sleep(2)
                 await conn.run(f"pkill -9 chrome", check=False)
+                await conn.run(f"rm ~/.config/google-chrome/SingletonLock", check=False)
+                await conn.run(f"rm -rf ~/.config/google-chrome/SingletonSocket", check=False)
+                await conn.run(f"mkdir -p /home/ubuntu/task/hyper", check=False)
                 logger.info(f"[OK] {host} 关闭程序")
 
                 # 1) 安装 初始化
@@ -59,9 +69,10 @@ async def run_remote_script(
                 await conn.run(f"chmod +x {remote_path!r}", check=True)
 
                 # 4) 执行脚本
-                exec_cmd = f"python3 {remote_path!r}"
+                await conn.run(f"chown -R ubuntu:ubuntu /home/ubuntu/task/hyper", check=False)
+                exec_cmd = f"sudo -u ubuntu -i nohup python3 {remote_path!r}"
                 if param:
-                    exec_cmd += f' --ip "{host}" --param "{param}"'
+                    exec_cmd += f' --ip "{host}" --param "{param}" > /home/ubuntu/task/hyper/out.log 2>&1 &'
                 logger.info(f"[→] {host} 执行：{exec_cmd}")
                 res = await conn.run(exec_cmd, check=False)
 
@@ -72,23 +83,28 @@ async def run_remote_script(
                     logger.info(f"=== {host} STDOUT ===\n{stdout}")
                 if stderr:
                     logger.info(f"=== {host} STDERR ===\n{stderr}")
-
+                append_date_to_file("./ex_end.txt", host)
         except (asyncssh.Error, OSError) as e:
             logger.error(f"[EXCEPTION] {host}: {e}")
 
 async def main():
-    nodes = read_data_list_file(r'./test.csv')
+    nodes = read_data_list_file(r'./test.txt')
     tasks: list[asyncio.Task] = []
+
+    ex_list = read_data_list_file("./ex_end.txt", check_exists=True)
 
     for task in nodes:
         parts = task.split("|||")
-        host = "43.163.82.139"
+        host = parts[0]
+        if len(ex_list) > 0 and host in ex_list:
+            logger.info(f'跳过服务器：{task}')
+            continue
         port = 22292
         username = "root"
         password = "Mmscm716+"
         script_url = "https://www.15712345.xyz/shell/hyper/new/hyper.py"
         remote_path = "/home/ubuntu/task/hyper/start.py"
-        param_input = "B9iVW9VUxnqStXExWgTjxSjkysQkAymvnM3eNrUkgCxh,BSRRk8xQK6D8HzNAhJi9w1jNT9DgL6AHUf8bMxTikgpJ||GJhUeJjfPBmLt8mXBwsCVikTomDyY1ZqjUbpMKACwLtu,4wukT6d7gPZ3diESi91DbHXcAwArneoZ7LFJtyi5NxBn||8NB5bu39yXujAPo3HPVqu5VvcergbNq6sKAzMec9kbb9,GYZhrMmuYQZnAm1ewb4YnsryKqhV7uu9xr8mE59Wh3CB||A81PdNoysd36UKpZNQR5Ko9khYkk6Y6E5GSBW6AsJSLv,BagcKnmjMy6EDfWc1vaXYcQg2vr4Evhv32tV8QuTPq3M"
+        param_input = parts[1]
         param = param_input if param_input else None
 
         tasks.append(
