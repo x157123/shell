@@ -248,15 +248,15 @@ if __name__ == '__main__':
             __login_wallet(page=page, evm_id=evm_id)
             __handle_signma_popup(page=page, count=0)
 
-            page.get('https://manifesto.beboundless.xyz/')
+            main_page = page.new_tab('https://manifesto.beboundless.xyz/')
             time.sleep(20)
 
-            if __click_ele(page, "x://button[normalize-space()='SIGN THE MANIFESTO']", loop=5):
+            if __click_ele(main_page, "x://button[normalize-space()='SIGN THE MANIFESTO']", loop=5):
                 __handle_signma_popup(page=page, count=2)
 
-            time.sleep(10)
+            time.sleep(20)
 
-            if __get_ele(page=page, xpath="x://a[normalize-space()='SHARE ON X']"):
+            if __get_ele(page=main_page, xpath="x://a[normalize-space()='SHARE ON X']"):
                 signma_log(message=evm_id, task_name="beboundless", index=evm_id, node_name=args.ip)
 
         except Exception as e:
@@ -264,6 +264,6 @@ if __name__ == '__main__':
         finally:
             if page is not None:
                 try:
-                    page.close()
+                    page.quit()
                 except Exception as e:
                     logger.info("窗口关闭错误")
