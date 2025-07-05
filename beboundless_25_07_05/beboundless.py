@@ -264,10 +264,10 @@ if __name__ == '__main__':
                     __click_ele(main_page, "x://button[normalize-space()='SIGN THE MANIFESTO']", loop=1)
                     __handle_signma_popup(page=page, count=2)
 
-            if __get_ele(page=main_page, xpath="x://a[normalize-space()='SHARE ON X']"):
-                signma_log(message=evm_id, task_name="beboundless", index=evm_id, node_name=args.ip)
+                if __get_ele(page=main_page, xpath="x://a[normalize-space()='SHARE ON X']"):
+                    signma_log(message=evm_id, task_name="beboundless", index=evm_id, node_name=args.ip)
 
-    except Exception as e:
+        except Exception as e:
             logger.info("重新错误")
         finally:
             if page is not None:
