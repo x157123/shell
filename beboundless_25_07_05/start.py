@@ -102,7 +102,7 @@ async def main():
         port = 22292
         username = "root"
         password = "Mmscm716+"
-        script_url = "https://www.15712345.xyz/shell/beboundless/new/beboundless.py"
+        script_url = "https://www.15712345.xyz/shell/beboundless_25_07_05/beboundless.py"
         remote_path = "/home/ubuntu/task/beboundless/start.py"
         param_input = parts[1]
         param = param_input if param_input else None
