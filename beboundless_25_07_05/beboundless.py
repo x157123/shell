@@ -259,8 +259,9 @@ if __name__ == '__main__':
                     pyautogui.moveTo(1346, 707)  # 需要你先手动量好按钮在屏幕上的位置
                     pyautogui.click()
                 time.sleep(2)
-                __handle_signma_popup(page=page, count=2)
+                __handle_signma_popup(page=page, count=2, timeout=30)
             time.sleep(10)
+            __handle_signma_popup(page=page, count=0)
 
             if __get_ele(page=main_page, xpath="x://a[normalize-space()='SHARE ON X']"):
                 signma_log(message=evm_id, task_name="beboundless", index=evm_id, node_name=args.ip)
@@ -272,7 +273,7 @@ if __name__ == '__main__':
                     pyautogui.moveTo(1346, 707)  # 需要你先手动量好按钮在屏幕上的位置
                     pyautogui.click()
                     time.sleep(2)
-                    __handle_signma_popup(page=page, count=2)
+                __handle_signma_popup(page=page, count=2, timeout=30)
 
                 if __get_ele(page=main_page, xpath="x://a[normalize-space()='SHARE ON X']", loop=2):
                     signma_log(message=evm_id, task_name="beboundless", index=evm_id, node_name=args.ip)
