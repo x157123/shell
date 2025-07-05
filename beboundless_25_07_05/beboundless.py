@@ -15,7 +15,7 @@ def __click_ele(_page, xpath: str = '', loop: int = 5, must: bool = False,
                 index: int = -1) -> bool:
     loop_count = 1
     while True:
-        # logger.info(f'查找元素{xpath}:{loop_count}')
+        logger.info(f'查找元素{xpath}:{loop_count}')
         try:
             if not find_all:
                 _page.ele(locator=xpath).click()
