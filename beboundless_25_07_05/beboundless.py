@@ -39,7 +39,7 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
               index: int = -1):
     loop_count = 1
     while True:
-        # logger.info(f'查找元素{xpath}:{loop_count}')
+        logger.info(f'查找元素{xpath}:{loop_count}')
         try:
             if not find_all:
                 # logger.info(f'查找元素{xpath}:{loop_count}')
@@ -242,8 +242,8 @@ if __name__ == '__main__':
                 options.set_user_data_path(r"f:\tmp\rari\0" + evm_id)
                 options.add_extension(r"F:\signma")
             options.set_local_port(port)
-
             page = ChromiumPage(options)
+            page.set.window.max()
 
             __login_wallet(page=page, evm_id=evm_id)
             __handle_signma_popup(page=page, count=0)
