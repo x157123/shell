@@ -249,9 +249,9 @@ if __name__ == '__main__':
             __handle_signma_popup(page=page, count=0)
 
             page.get('https://manifesto.beboundless.xyz/')
-            time.sleep(10)
+            time.sleep(20)
 
-            if __click_ele(page, "x://button[normalize-space()='SIGN THE MANIFESTO']", loop=3):
+            if __click_ele(page, "x://button[normalize-space()='SIGN THE MANIFESTO']", loop=5):
                 __handle_signma_popup(page=page, count=2)
 
             time.sleep(10)
