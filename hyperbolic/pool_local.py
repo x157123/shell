@@ -341,6 +341,8 @@ def __do_task(account, retry: int = 0):
                 logger.info('开始转账')
                 # random_number = random.randint(11, 20)
                 random_number = __get_base_balance(wallet_addr)
+                if float(random_number) > 1.5:
+                    random_number = 1.1
                 logger.info(f"转账金额{str(random_number)}")
                 # send_get_request(index, "0.000000000000" + str(random_number))
                 # 验证是否绑定成功
@@ -365,7 +367,7 @@ def __do_task(account, retry: int = 0):
 
                         __transfer.write(wallet_addr + '\r')
                         __transfer.flush()
-                        time.sleep(5)
+                        time.sleep(25)
                         # hyperbolic_page.refresh()
                         # time.sleep(5)
                 else:

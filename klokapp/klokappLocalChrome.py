@@ -339,9 +339,10 @@ def __do_task(acc, retry: int = 0):
         #     url = invite_url
         hyperbolic_page = page.new_tab(url=url)
         # 关联钱包
-        if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=2):
-            __click_ele(page=hyperbolic_page, xpath='x://button//span[contains(text(), "Signma")]', loop=5)
-            __handle_signma_popup(page=page, count=1, timeout=15)
+        if __click_ele(page=hyperbolic_page, xpath='x://button[span[text()="More sign-in options"]]', loop=2):
+            if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=2):
+                __click_ele(page=hyperbolic_page, xpath='x://button//span[contains(text(), "Signma")]', loop=5)
+                __handle_signma_popup(page=page, count=1, timeout=15)
         if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Sign in"]', loop=2):
             __handle_signma_popup(page=page, count=1, timeout=15)
         __click_ele(page=hyperbolic_page, xpath='x://button[@aria-label="Close modal"]', loop=2)
