@@ -249,7 +249,7 @@ if __name__ == '__main__':
             __handle_signma_popup(page=page, count=0)
 
             main_page = page.new_tab('https://manifesto.beboundless.xyz/')
-            time.sleep(20)
+            time.sleep(30)
 
             if __click_ele(main_page, "x://button[normalize-space()='SIGN THE MANIFESTO']", loop=5):
                 __handle_signma_popup(page=page, count=2)
