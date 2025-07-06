@@ -53,6 +53,7 @@ async def run_remote_script(
                 await conn.run(f"rm ~/.config/google-chrome/SingletonLock", check=False)
                 await conn.run(f"rm -rf ~/.config/google-chrome/SingletonSocket", check=False)
                 await conn.run(f"mkdir -p /home/ubuntu/task/hyper", check=False)
+                await conn.run(f"chown -R ubuntu:ubuntu /home/ubuntu/", check=False)
                 logger.info(f"[OK] {host} 关闭程序")
 
                 # 1) 安装 初始化
@@ -71,7 +72,6 @@ async def run_remote_script(
                 await conn.run(f"chmod +x {remote_path!r}", check=True)
 
                 # 4) 执行脚本
-                await conn.run(f"chown -R ubuntu:ubuntu /home/ubuntu/task", check=False)
                 exec_cmd = f"sudo -u ubuntu -i nohup python3 {remote_path!r}"
                 if param:
                     exec_cmd += f' --ip "{host}" --param "{param}" > /home/ubuntu/task/hyper/out.log 2>&1 &'
