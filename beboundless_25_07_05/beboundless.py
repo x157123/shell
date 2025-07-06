@@ -224,56 +224,65 @@ if __name__ == '__main__':
     idx = 0
     for part in args.param.split("||"):
         page = None
-        os.environ['DISPLAY'] = ':23'
-        port = 19615 + idx
-        idx += 1
-        arg = part.split(",")
-        evm_id = arg[0]
-        im_private_Key = arg[1]
-        logger.info(f"启动:{evm_id}")
-        options = ChromiumOptions()
-        if platform.system().lower() != "windows":
-            options.set_browser_path('/opt/google/chrome')
-            options.set_user_data_path(f"/home/ubuntu/task/beboundless/chrome_data/{evm_id}")
-            options.add_extension(r"/home/ubuntu/extensions/chrome-cloud")
-        else:
-            options.set_paths(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
-            options.set_user_data_path(r"f:\tmp\rari\0" + evm_id)
-            options.add_extension(r"F:\signma")
-        options.set_local_port(port)
-        page = ChromiumPage(options)
-        page.set.window.max()
-
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
-
-        main_page = page.new_tab('https://manifesto.beboundless.xyz/')
-        time.sleep(20)
-
-        if __click_ele(main_page, "x://button[normalize-space()='SIGN THE MANIFESTO']", loop=5):
+        try:
+            os.environ['DISPLAY'] = ':23'
+            port = 19615 + idx
+            idx += 1
+            arg = part.split(",")
+            evm_id = arg[0]
+            im_private_Key = arg[1]
+            logger.info(f"启动:{evm_id}")
+            options = ChromiumOptions()
             if platform.system().lower() != "windows":
-                display = f':{23}'
-                os.environ['DISPLAY'] = display
-                import pyautogui
-                pyautogui.moveTo(1346, 707)  # 需要你先手动量好按钮在屏幕上的位置
-                pyautogui.click()
-            time.sleep(2)
-            __handle_signma_popup(page=page, count=2, timeout=30)
-        time.sleep(10)
-        __handle_signma_popup(page=page, count=0)
+                options.set_browser_path('/opt/google/chrome')
+                options.set_user_data_path(f"/home/ubuntu/task/beboundless/chrome_data/{evm_id}")
+                options.add_extension(r"/home/ubuntu/extensions/chrome-cloud")
+            else:
+                options.set_paths(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
+                options.set_user_data_path(r"f:\tmp\rari\0" + evm_id)
+                options.add_extension(r"F:\signma")
+            options.set_local_port(port)
+            page = ChromiumPage(options)
+            page.set.window.max()
 
-        if __get_ele(page=main_page, xpath="x://a[normalize-space()='SHARE ON X']"):
-            signma_log(message=evm_id, task_name="beboundless", index=evm_id, node_name=args.ip)
-        else:
-            if platform.system().lower() != "windows":
-                display = f':{23}'
-                os.environ['DISPLAY'] = display
-                import pyautogui
-                pyautogui.moveTo(1346, 707)  # 需要你先手动量好按钮在屏幕上的位置
-                pyautogui.click()
+            __login_wallet(page=page, evm_id=evm_id)
+            __handle_signma_popup(page=page, count=0)
+
+            main_page = page.new_tab('https://manifesto.beboundless.xyz/')
+            time.sleep(20)
+
+            if __click_ele(main_page, "x://button[normalize-space()='SIGN THE MANIFESTO']", loop=5):
+                if platform.system().lower() != "windows":
+                    display = f':{23}'
+                    os.environ['DISPLAY'] = display
+                    import pyautogui
+                    pyautogui.moveTo(1346, 707)  # 需要你先手动量好按钮在屏幕上的位置
+                    pyautogui.click()
                 time.sleep(2)
-            __handle_signma_popup(page=page, count=2, timeout=30)
+                __handle_signma_popup(page=page, count=2, timeout=30)
+            time.sleep(10)
+            __handle_signma_popup(page=page, count=0)
 
-            if __get_ele(page=main_page, xpath="x://a[normalize-space()='SHARE ON X']", loop=2):
+            if __get_ele(page=main_page, xpath="x://a[normalize-space()='SHARE ON X']"):
                 signma_log(message=evm_id, task_name="beboundless", index=evm_id, node_name=args.ip)
+            else:
+                if platform.system().lower() != "windows":
+                    display = f':{23}'
+                    os.environ['DISPLAY'] = display
+                    import pyautogui
+                    pyautogui.moveTo(1346, 707)  # 需要你先手动量好按钮在屏幕上的位置
+                    pyautogui.click()
+                    time.sleep(2)
+                __handle_signma_popup(page=page, count=2, timeout=30)
 
+                if __get_ele(page=main_page, xpath="x://a[normalize-space()='SHARE ON X']", loop=2):
+                    signma_log(message=evm_id, task_name="beboundless", index=evm_id, node_name=args.ip)
+
+        except Exception as e:
+            logger.info("重新错误")
+        finally:
+            if page is not None:
+                try:
+                    page.quit()
+                except Exception as e:
+                    logger.info("窗口关闭错误")
