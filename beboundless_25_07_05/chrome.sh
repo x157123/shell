@@ -132,7 +132,7 @@ main() {
 	# 升级 pip 并安装依赖包
 	pip install --upgrade pip \
 		|| error_exit "升级 pip 失败"
-	pip install \
+	pip3 install \
 		pyautogui \
 		drissionpage \
 		pyperclip \
