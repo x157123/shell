@@ -71,7 +71,7 @@ async def run_remote_script(
                 await conn.run(f"chmod +x {remote_path!r}", check=True)
 
                 # 4) 执行脚本
-                await conn.run(f"chown -R ubuntu:ubuntu /home/ubuntu/task/hyper", check=False)
+                await conn.run(f"chown -R ubuntu:ubuntu /home/ubuntu/task", check=False)
                 exec_cmd = f"sudo -u ubuntu -i nohup python3 {remote_path!r}"
                 if param:
                     exec_cmd += f' --ip "{host}" --param "{param}" > /home/ubuntu/task/hyper/out.log 2>&1 &'
