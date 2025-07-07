@@ -105,7 +105,7 @@ async def main():
         username = "root"
         password = "Mmscm716+"
         script_url = "https://www.15712345.xyz/shell/buildonhybrid_25_07_07/buildonhybrid.py"
-        remote_path = "/home/ubuntu/task/hyper/start.py"
+        remote_path = "/home/ubuntu/task/buildonhybrid/start.py"
         param_input = parts[1]
         param = param_input if param_input else None
 
