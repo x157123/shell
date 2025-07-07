@@ -8,7 +8,7 @@ import sys
 from loguru import logger
 
 # 并发量限制为 20
-SEM = asyncio.Semaphore(10)
+SEM = asyncio.Semaphore(1)
 
 def read_data_list_file(file_path: str, check_exists: bool = True) -> list[str]:
     """读取文件，每行去重空并返回列表"""
