@@ -213,76 +213,135 @@ def __login_wallet(page, evm_id):
         time.sleep(1)
 
 
+# 窗口管理   __handle_signma_popup(page=page, count=2, timeout=30)
+def __get_popup(page, count: str = '', timeout: int = 15):
+    """处理 Signma 弹窗，遍历所有 tab 页签"""
+    start_time = time.time()
+    _count = 0
+    while time.time() - start_time < timeout:
+        time.sleep(2)
+        # 获取所有打开的 tab 页签
+        all_tabs = page.get_tabs()  # 假设此方法返回所有标签页的页面对象
+        # 遍历所有的 tab 页签
+        for tab in all_tabs:
+            if count in tab.url:
+                return tab
+    return None
+
+
+# 获取元素内容
+def __get_ele_value(page, xpath: str = '', loop: int = 5, must: bool = False,
+                    find_all: bool = False,
+                    index: int = -1):
+    try:
+        # logger.info(f'获取元素{xpath}')
+        _ele = __get_ele(page=page, xpath=xpath, loop=loop, must=must, find_all=find_all, index=index)
+        if _ele is not None:
+            if _ele:
+                return _ele.text
+    except Exception as e:
+        error = e
+        pass
+    return None
+
+
+def fa_code(page, code):
+    _code = None
+    fa_page = page.new_tab(url='https://2fa.run')
+    __input_ele_value(page=fa_page, xpath='x://input[@id="secret-input-js"]',  value=code)
+    _time = __get_ele_value(page=fa_page, xpath='x://span[@id="timer_js"]')
+    if int(_time) < 10:
+        time.sleep(int(_time) + 2)
+    if __click_ele(_page=fa_page, xpath="x://button[@id='btn-js']"):
+        _code = __get_ele_value(page=fa_page, xpath='x://span[@id="code_js"]')
+    fa_page.close()
+    return _code
+
+
+def x_com(page, name, pwd, fa):
+    _bool = False
+    x_com = __get_popup(page=page, count="twitter.com")
+    __input_ele_value(page=x_com, xpath='x://input[@autocomplete="username"]', value=name)
+    if __click_ele(_page=x_com, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
+        __input_ele_value(page=x_com, xpath='x://input[@autocomplete="current-password"]', value=pwd)
+        if __click_ele(_page=x_com, xpath='x://button[.//span[normalize-space(text())="登录" or normalize-space(text())="Log in"]]'):
+            _code = fa_code(page=page, code=fa)
+            if _code is not None:
+                __input_ele_value(page=x_com, xpath='x://input[@inputmode="numeric"]', value=_code)
+                __click_ele(_page=x_com, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]')
+    if __click_ele(_page=x_com, xpath='x://button[.//span[text()="Authorize app"]]'):
+        time.sleep(5)
+        _bool = True
+    x_com.close()
+    return _bool
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--param", type=str, help="参数")
     parser.add_argument("--ip", type=str, help="参数")
     args = parser.parse_args()
-    # args.ip = '1299'
-    # args.param = '30006,0xf1587ab3bf5a61c3d98cd1a3f37e3f0de0844f22'
     pages = []
     idx = 0
     for part in args.param.split("||"):
         page = None
-        # try:
-        os.environ['DISPLAY'] = ':23'
-        port = 19615 + idx
-        idx += 1
-        arg = part.split(",")
-        evm_id = arg[0]
-        im_private_Key = arg[1]
-        logger.info(f"启动:{evm_id}")
-        options = ChromiumOptions()
-        if platform.system().lower() != "windows":
-            options.set_browser_path('/opt/google/chrome')
-            options.set_user_data_path(f"/home/ubuntu/task/beboundless/chrome_data/{evm_id}")
-            options.add_extension(r"/home/ubuntu/extensions/chrome-cloud")
-        else:
-            options.set_paths(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
-            options.set_user_data_path(r"f:\tmp\rari\0" + evm_id)
-            options.add_extension(r"F:\signma")
-        options.set_local_port(port)
-        page = ChromiumPage(options)
-        page.set.window.max()
-
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
-
-        main_page = page.new_tab('https://manifesto.beboundless.xyz/')
-        time.sleep(20)
-
-        if __click_ele(main_page, "x://button[normalize-space()='SIGN THE MANIFESTO']", loop=5):
+        try:
+            os.environ['DISPLAY'] = ':23'
+            port = 19615 + idx
+            idx += 1
+            arg = part.split(",")
+            evm_id = arg[0]
+            username = arg[1]
+            pwd = arg[2]
+            fa = arg[3]
+            logger.info(f"启动:{evm_id}")
+            options = ChromiumOptions()
             if platform.system().lower() != "windows":
-                display = f':{23}'
-                os.environ['DISPLAY'] = display
-                import pyautogui
-                pyautogui.moveTo(1346, 707)  # 需要你先手动量好按钮在屏幕上的位置
-                pyautogui.click()
-            time.sleep(2)
-            __handle_signma_popup(page=page, count=2, timeout=30)
-        time.sleep(10)
-        __handle_signma_popup(page=page, count=0)
+                options.set_browser_path('/opt/google/chrome')
+                options.set_user_data_path(f"/home/ubuntu/task/beboundless/chrome_data/{evm_id}")
+                options.add_extension(r"/home/ubuntu/extensions/chrome-cloud")
+            else:
+                options.set_paths(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
+                options.set_user_data_path(r"f:\tmp\rari\0" + evm_id)
+                options.add_extension(r"F:\signma")
+            options.set_local_port(port)
+            page = ChromiumPage(options)
+            page.set.window.max()
 
-        if __get_ele(page=main_page, xpath="x://a[normalize-space()='SHARE ON X']"):
-            signma_log(message=evm_id, task_name="beboundless", index=evm_id, node_name=args.ip)
-        else:
-            if platform.system().lower() != "windows":
-                display = f':{23}'
-                os.environ['DISPLAY'] = display
-                import pyautogui
-                pyautogui.moveTo(1346, 707)  # 需要你先手动量好按钮在屏幕上的位置
-                pyautogui.click()
-                time.sleep(2)
-            __handle_signma_popup(page=page, count=2, timeout=30)
+            __login_wallet(page=page, evm_id=evm_id)
+            __handle_signma_popup(page=page, count=0)
 
-            if __get_ele(page=main_page, xpath="x://a[normalize-space()='SHARE ON X']", loop=2):
-                signma_log(message=evm_id, task_name="beboundless", index=evm_id, node_name=args.ip)
 
-        # except Exception as e:
-        #     logger.info("重新错误")
-        # finally:
-        #     if page is not None:
-        #         try:
-        #             page.quit()
-        #         except Exception as e:
-        #             logger.info("窗口关闭错误")
+
+            main_page = page.new_tab(url='https://claim.buildonhybrid.com/flow')
+            time.sleep(5)
+
+            if __get_ele(page=main_page, xpath='x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button'):
+                el = main_page.ele('x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button')
+                el.click(by_js=True)
+                if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]'):
+                    __handle_signma_popup(page=page, count=2)
+
+
+            if __click_ele(_page=main_page, xpath='x://button[text()="Next"]'):
+                if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
+                    try:
+                        if __click_ele(_page=main_page, xpath='x://button[text()="Connect X to Register for Airdrop"]'):
+                            if x_com(page=page, name=username, pwd=pwd, fa=fa):
+                                if __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=2):
+                                    signma_log(message="9", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
+                    except Exception:
+                        logger.info('获取数据异常')
+                elif __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=2):
+                    signma_log(message="9", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
+                elif __get_ele(page=main_page, xpath='x://p[normalize-space()="Not Eligible"]', loop=2):
+                    signma_log(message="0", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
+
+        except Exception as e:
+            logger.info("重新错误")
+        finally:
+            if page is not None:
+                try:
+                    page.quit()
+                except Exception as e:
+                    logger.info("窗口关闭错误")
