@@ -345,7 +345,6 @@ if __name__ == '__main__':
                     signma_log(message="9", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
                 elif __get_ele(page=main_page, xpath='x://p[normalize-space()="Not Eligible"]', loop=2):
                     signma_log(message="0", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
-
         except Exception as e:
             logger.info("重新错误")
         finally:

@@ -335,7 +335,7 @@ if __name__ == '__main__':
                     signma_log(message="0", task_name="buildonhybrid_v", index=evm_id, node_name=args.ip)
                 elif __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=1):
                     signma_log(message="9", task_name="buildonhybrid_v", index=evm_id, node_name=args.ip)
-
+            time.sleep(10)
         except Exception as e:
             logger.info("重新错误")
         finally:
