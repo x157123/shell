@@ -51,6 +51,7 @@ async def run_remote_script(
                 time.sleep(2)
                 await conn.run(f"pkill -9 chrome", check=False)
                 await conn.run(f"rm ~/.config/google-chrome/SingletonLock", check=False)
+                await conn.run(f"rm /home/ubuntu/task/buildonhybrid", check=False)
                 await conn.run(f"rm -rf ~/.config/google-chrome/SingletonSocket", check=False)
                 await conn.run(f"mkdir -p /home/ubuntu/task/buildonhybrid/", check=False)
                 await conn.run(f"chown -R ubuntu:ubuntu /home/ubuntu/", check=False)
