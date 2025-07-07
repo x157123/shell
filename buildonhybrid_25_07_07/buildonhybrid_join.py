@@ -300,6 +300,9 @@ if __name__ == '__main__':
             idx += 1
             arg = part.split(",")
             evm_id = arg[0]
+            username = arg[1]
+            pwd = arg[2]
+            fa = arg[3]
             logger.info(f"启动:{evm_id}")
             options = ChromiumOptions()
             if platform.system().lower() != "windows":
@@ -330,11 +333,18 @@ if __name__ == '__main__':
 
             if __click_ele(_page=main_page, xpath='x://button[text()="Next"]'):
                 if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
-                    signma_log(message="1", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
-                elif __get_ele(page=main_page, xpath='x://p[normalize-space()="Not Eligible"]', loop=2):
-                    signma_log(message="0", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
+                    try:
+                        if __click_ele(_page=main_page, xpath='x://button[text()="Connect X to Register for Airdrop"]'):
+                            x_com(page=page, name=username, pwd=pwd, fa=fa)
+                            logger.info('验证认证是否成功')
+                            if __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=2):
+                                signma_log(message="9", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
+                    except Exception:
+                        logger.info('获取数据异常')
                 elif __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=2):
                     signma_log(message="9", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
+                elif __get_ele(page=main_page, xpath='x://p[normalize-space()="Not Eligible"]', loop=2):
+                    signma_log(message="0", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
 
         except Exception as e:
             logger.info("重新错误")
