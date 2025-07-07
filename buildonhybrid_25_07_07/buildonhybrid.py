@@ -311,8 +311,6 @@ if __name__ == '__main__':
             __login_wallet(page=page, evm_id=evm_id)
             __handle_signma_popup(page=page, count=0)
 
-
-
             main_page = page.new_tab(url='https://claim.buildonhybrid.com/flow')
             time.sleep(5)
 
@@ -321,7 +319,6 @@ if __name__ == '__main__':
                 el.click(by_js=True)
                 if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]'):
                     __handle_signma_popup(page=page, count=2)
-
 
             if __click_ele(_page=main_page, xpath='x://button[text()="Next"]'):
                 if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
