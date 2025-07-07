@@ -320,13 +320,15 @@ if __name__ == '__main__':
                 if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]'):
                     __handle_signma_popup(page=page, count=2)
 
+                __handle_signma_popup(page=page, count=0)
+
             if __click_ele(_page=main_page, xpath='x://button[text()="Next"]'):
                 if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
                     try:
                         if __click_ele(_page=main_page, xpath='x://button[text()="Connect X to Register for Airdrop"]'):
-                            if x_com(page=page, name=username, pwd=pwd, fa=fa):
-                                if __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=2):
-                                    signma_log(message="9", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
+                            x_com(page=page, name=username, pwd=pwd, fa=fa)
+                            if __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=2):
+                                signma_log(message="9", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
                     except Exception:
                         logger.info('获取数据异常')
                 elif __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=2):
