@@ -260,19 +260,28 @@ def fa_code(page, code):
 
 def x_com(page, name, pwd, fa):
     _bool = False
-    x_com = __get_popup(page=page, count="twitter.com")
-    __input_ele_value(page=x_com, xpath='x://input[@autocomplete="username"]', value=name)
-    if __click_ele(_page=x_com, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
-        __input_ele_value(page=x_com, xpath='x://input[@autocomplete="current-password"]', value=pwd)
-        if __click_ele(_page=x_com, xpath='x://button[.//span[normalize-space(text())="登录" or normalize-space(text())="Log in"]]'):
-            _code = fa_code(page=page, code=fa)
-            if _code is not None:
-                __input_ele_value(page=x_com, xpath='x://input[@inputmode="numeric"]', value=_code)
-                __click_ele(_page=x_com, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]')
-    if __click_ele(_page=x_com, xpath='x://button[.//span[text()="Authorize app"]]'):
-        time.sleep(5)
-        _bool = True
-    x_com.close()
+    x_com_page = None
+    try:
+        x_com_page = __get_popup(page=page, count="twitter.com")
+        __input_ele_value(page=x_com_page, xpath='x://input[@autocomplete="username"]', value=name)
+        if __click_ele(_page=x_com_page, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
+            __input_ele_value(page=x_com_page, xpath='x://input[@autocomplete="current-password"]', value=pwd)
+            if __click_ele(_page=x_com_page, xpath='x://button[.//span[normalize-space(text())="登录" or normalize-space(text())="Log in"]]'):
+                _code = fa_code(page=page, code=fa)
+                if _code is not None:
+                    __input_ele_value(page=x_com_page, xpath='x://input[@inputmode="numeric"]', value=_code)
+                    __click_ele(_page=x_com_page, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]')
+        if __click_ele(_page=x_com_page, xpath='x://button[.//span[text()="Authorize app"]]'):
+            time.sleep(5)
+            _bool = True
+    except Exception as e:
+        logger.info("关联错误")
+    finally:
+        if x_com_page is not None:
+            try:
+                x_com_page.close()
+            except Exception as e:
+                logger.info("关闭异常")
     return _bool
 
 
@@ -327,6 +336,7 @@ if __name__ == '__main__':
                     try:
                         if __click_ele(_page=main_page, xpath='x://button[text()="Connect X to Register for Airdrop"]'):
                             x_com(page=page, name=username, pwd=pwd, fa=fa)
+                            logger.info('验证认证是否成功')
                             if __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=2):
                                 signma_log(message="9", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
                     except Exception:
