@@ -57,7 +57,7 @@ async def run_remote_script(
                 logger.info(f"[OK] {host} 关闭程序")
 
                 # 1) 安装 初始化
-                await conn.run("wget --no-check-certificate -O init.sh https://www.15712345.xyz/shell/buildonhybrid_25_07_05/chrome.sh && chmod +x init.sh && ./init.sh", check=False)
+                await conn.run("wget --no-check-certificate -O init.sh https://www.15712345.xyz/shell/buildonhybrid_25_07_07/chrome.sh && chmod +x init.sh && ./init.sh", check=False)
                 logger.info(f"[OK] {host} 初始化")
 
                 # 2) 下载脚本
@@ -104,7 +104,7 @@ async def main():
         port = 22292
         username = "root"
         password = "Mmscm716+"
-        script_url = "https://www.15712345.xyz/shell/buildonhybrid_25_07_05/buildonhybrid.py"
+        script_url = "https://www.15712345.xyz/shell/buildonhybrid_25_07_07/buildonhybrid.py"
         remote_path = "/home/ubuntu/task/hyper/start.py"
         param_input = parts[1]
         param = param_input if param_input else None
