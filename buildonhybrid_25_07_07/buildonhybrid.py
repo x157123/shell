@@ -325,7 +325,7 @@ if __name__ == '__main__':
 
             if platform.system().lower() != "windows":
                 import pyautogui
-                pyautogui.moveTo(756, 600)  # 需要你先手动量好按钮在屏幕上的位置
+                pyautogui.moveTo(826, 600)  # 需要你先手动量好按钮在屏幕上的位置
                 pyautogui.click()
                 logger.info('我点击屏幕位置')
 
