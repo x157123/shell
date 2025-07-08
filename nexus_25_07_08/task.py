@@ -293,7 +293,7 @@ def get_email_code(tab):
             __click_ele(email_page, xpath='x://div[contains(@class,"sc-eDPEul")]//ul/li[1]')
             time.sleep(3)
             # 读取验证码
-            ele = email_page.ele(locator='x://p[@class="main__code"]/span')
+            ele = email_page.ele(locator='x://div[@class="code-box"]')
             if ele:
                 code = ele.text
                 logger.info(f"读取到验证码:{code}")
@@ -321,7 +321,7 @@ def get_email(page):
     __click_ele(_page=email_page, xpath='x://a[text()="Confirm"]', loop=2)
     if __click_ele(email_page, xpath='x://span[text()="MetaMask"]', loop=2):
         __handle_signma_popup(page=page, count=3)
-        
+
     time.sleep(10)
 
     if email_page.ele('x://a[text()="Next step"]'):
@@ -440,7 +440,7 @@ if __name__ == '__main__':
                         time.sleep(2)
                         # 获取邮箱验证码
                         code = get_email_code(nexus)
-                        print(f"获取到验证码{code}")
+                        logger.info(f"获取到验证码{code}")
                         if code is not None and code != '':
                             logger.info('验证码')
                             em_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
