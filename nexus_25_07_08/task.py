@@ -412,6 +412,7 @@ if __name__ == '__main__':
                             else:
                                 logger.info("没有找到 'Continue with a wallet' 元素。")
 
+            __handle_signma_popup(page=page, count=0)
             # 定位到包含 shadow DOM 的元素
             net_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
             if net_shadow_host:
@@ -424,6 +425,7 @@ if __name__ == '__main__':
                         time.sleep(5)
                         __handle_signma_popup(page=page, count=2)
 
+            __handle_signma_popup(page=page, count=0)
             # 判断是否需要验证邮箱
             email_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
             if email_shadow_host:
