@@ -371,6 +371,8 @@ if __name__ == '__main__':
             __login_wallet(page=page, evm_id=evm_id)
             __handle_signma_popup(page=page, count=0)
 
+            em = get_email(page)
+
             nexus = page.new_tab(url='https://app.nexus.xyz')
             time.sleep(10)
 
@@ -432,7 +434,6 @@ if __name__ == '__main__':
                 email_shadow_root = email_shadow_host.shadow_root
                 email = email_shadow_root.ele('x://input[@id="email"]')
                 if email:
-                    em = get_email(page)
                     email.input(em, clear=True)
                     time.sleep(2)
                     email_work = email_shadow_root.ele('x://button[.//span[text()="Continue"]]')
