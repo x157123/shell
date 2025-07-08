@@ -325,13 +325,14 @@ if __name__ == '__main__':
 
             if platform.system().lower() != "windows":
                 import pyautogui
+                os.environ['DISPLAY'] = ':23'
                 pyautogui.moveTo(826, 600)  # 需要你先手动量好按钮在屏幕上的位置
                 pyautogui.click()
                 logger.info('我点击屏幕位置')
 
-            # if __get_ele(page=main_page, xpath='x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button'):
-            #     el = main_page.ele('x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button')
-            #     el.click(by_js=True)
+            if __get_ele(page=main_page, xpath='x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button'):
+                el = main_page.ele('x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button')
+                el.click(by_js=True)
                 if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]', loop=2):
                     __handle_signma_popup(page=page, count=2)
 
