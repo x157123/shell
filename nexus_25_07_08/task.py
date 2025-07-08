@@ -473,7 +473,7 @@ if __name__ == '__main__':
         x_com(page, username, pwd, fa)
 
         # 绑定账号
-        if __click_ele(_page=nexus, xpath='x://button[span[text()="Wallet"]]'):
+        if __click_ele(_page=nexus, xpath='x://button[.//span[normalize-space(text())="Wallet"]]'):
             time.sleep(5)
             pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
             if pop_shadow_host[1]:
