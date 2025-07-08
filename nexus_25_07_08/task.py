@@ -318,14 +318,17 @@ def get_email(page):
     email_url = 'https://mail.dmail.ai/inbox'
     email_page = page.new_tab(url=email_url)
     email = None
+    __click_ele(_page=email_page, xpath='x://a[text()="Confirm"]', loop=2)
+    if __click_ele(email_page, xpath='x://span[text()="MetaMask"]', loop=2):
+        __handle_signma_popup(page=page, count=3)
+        
+    time.sleep(10)
+
     if email_page.ele('x://a[text()="Next step"]'):
         __click_ele(_page=email_page, xpath='x://a[text()="Next step"]')
         __click_ele(_page=email_page, xpath='x://a[text()="Next step"]')
         __click_ele(_page=email_page, xpath='x://a[text()="Launch"]')
 
-    __click_ele(_page=email_page, xpath='x://a[text()="Confirm"]', loop=2)
-    if __click_ele(email_page, xpath='x://span[text()="MetaMask"]', loop=2):
-        __handle_signma_popup(page=page, count=3)
     if __click_ele(email_page, xpath='x://div[@data-title="Setting"]'):
         email = __get_ele_value(page=email_page, xpath='x://p[contains(., "Default Address")]/span[1]')
     email_page.close()
@@ -456,7 +459,7 @@ if __name__ == '__main__':
             else:
                 print("Battery saver 未勾选，开始点击勾上")
                 checkbox.click(by_js=True)
-                
+
             x_com(page, username, pwd, fa)
 
             # 绑定账号
