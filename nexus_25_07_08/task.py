@@ -322,7 +322,9 @@ def get_email(page):
     if platform.system().lower() != "windows":
         os.environ['DISPLAY'] = ':23'
         import pyautogui
-        pyautogui.moveTo(1870, 147)  # 需要你先手动量好按钮在屏幕上的位置
+        pyautogui.moveTo(570, 547)  # 需要你先手动量好按钮在屏幕上的位置
+        pyautogui.click()
+        time.sleep(1)
         pyautogui.click()
 
     if __click_ele(email_page, xpath='x://span[text()="MetaMask"]', loop=2):
