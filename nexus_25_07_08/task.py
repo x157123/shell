@@ -389,7 +389,6 @@ if __name__ == '__main__':
             shadow_root = shadow_host.shadow_root
             if shadow_root:
                 continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
-                logger.info(continue_button.html)
                 if continue_button:
                     if platform.system().lower() != "windows":
                         os.environ['DISPLAY'] = ':23'
