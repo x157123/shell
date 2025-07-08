@@ -465,9 +465,9 @@ if __name__ == '__main__':
 
         checkbox = __get_ele(page=nexus, xpath="x://input[@type='checkbox']")
         if checkbox.attr('checked') is not None:
-            print("Battery saver 已经勾选，无需操作")
+            logger.info("Battery saver 已经勾选，无需操作")
         else:
-            print("Battery saver 未勾选，开始点击勾上")
+            logger.info("Battery saver 未勾选，开始点击勾上")
             checkbox.click(by_js=True)
 
         x_com(page, username, pwd, fa)
