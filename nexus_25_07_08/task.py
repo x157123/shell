@@ -370,12 +370,12 @@ if __name__ == '__main__':
 
             nexus = page.new_tab(url='https://app.nexus.xyz')
             time.sleep(4)
-            checkbox = __get_ele(page=nexus, xpath="x://input[@type='checkbox']")
-            if checkbox.attr('checked') is not None:
-                print("Battery saver 已经勾选，无需操作")
-            else:
-                print("Battery saver 未勾选，开始点击勾上")
-                checkbox.click(by_js=True)
+            # checkbox = __get_ele(page=nexus, xpath="x://input[@type='checkbox']")
+            # if checkbox.attr('checked') is not None:
+            #     print("Battery saver 已经勾选，无需操作")
+            # else:
+            #     print("Battery saver 未勾选，开始点击勾上")
+            #     checkbox.click(by_js=True)
 
             shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
             if shadow_host:
