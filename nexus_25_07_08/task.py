@@ -421,13 +421,6 @@ if __name__ == '__main__':
                         time.sleep(5)
                         __handle_signma_popup(page=page, count=2)
 
-            checkbox = __get_ele(page=nexus, xpath="x://input[@type='checkbox']")
-            if checkbox.attr('checked') is not None:
-                print("Battery saver 已经勾选，无需操作")
-            else:
-                print("Battery saver 未勾选，开始点击勾上")
-                checkbox.click(by_js=True)
-
             # 判断是否需要验证邮箱
             email_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
             if email_shadow_host:
@@ -457,6 +450,13 @@ if __name__ == '__main__':
                                     input_box.input(digit)  # 输入单个数字
                                     time.sleep(0.2)  # 可选：稍微延迟，防止输入过快
 
+            checkbox = __get_ele(page=nexus, xpath="x://input[@type='checkbox']")
+            if checkbox.attr('checked') is not None:
+                print("Battery saver 已经勾选，无需操作")
+            else:
+                print("Battery saver 未勾选，开始点击勾上")
+                checkbox.click(by_js=True)
+                
             x_com(page, username, pwd, fa)
 
             # 绑定账号
