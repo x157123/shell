@@ -329,8 +329,7 @@ if __name__ == '__main__':
                 if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]'):
                     __handle_signma_popup(page=page, count=2)
 
-                __handle_signma_popup(page=page, count=0)
-
+            __handle_signma_popup(page=page, count=0)
             if __click_ele(_page=main_page, xpath='x://button[text()="Next"]'):
                 if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
                     try:
