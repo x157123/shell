@@ -477,17 +477,17 @@ if __name__ == '__main__':
                 import pyautogui
                 pyautogui.moveTo(780, 960)  # 需要你先手动量好按钮在屏幕上的位置
                 pyautogui.click()
-
                 time.sleep(5)
-                pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
-                if pop_shadow_host[1]:
-                    profile_shadow_root = pop_shadow_host[1].shadow_root
-                    profile = profile_shadow_root.ele('x://div[contains(@class,"footer-options-switcher__tab") and .//p[normalize-space(text())="Profile"]]', timeout=10)
-                    if profile:
-                        profile.click()
-                        if __click_ele(_page=profile_shadow_root, xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]', loop=2):
-                            if __click_ele(_page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
-                                time.sleep(5)
+
+            pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
+            if pop_shadow_host[1]:
+                profile_shadow_root = pop_shadow_host[1].shadow_root
+                profile = profile_shadow_root.ele('x://div[contains(@class,"footer-options-switcher__tab") and .//p[normalize-space(text())="Profile"]]', timeout=10)
+                if profile:
+                    profile.click()
+                    if __click_ele(_page=profile_shadow_root, xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]', loop=2):
+                        if __click_ele(_page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
+                            time.sleep(5)
 
                 pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
                 if pop_shadow_host[1]:
