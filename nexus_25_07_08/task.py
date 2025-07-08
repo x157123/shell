@@ -404,14 +404,6 @@ if __name__ == '__main__':
                                             time.sleep(2)
                                             __handle_signma_popup(page=page, count=2)
                                             time.sleep(5)
-
-                                            checkbox = __get_ele(page=nexus, xpath="x://input[@type='checkbox']")
-                                            if checkbox.attr('checked') is not None:
-                                                print("Battery saver 已经勾选，无需操作")
-                                            else:
-                                                print("Battery saver 未勾选，开始点击勾上")
-                                                checkbox.click(by_js=True)
-
                                     else:
                                         logger.info("没有找到 'Signma' 元素。")
                             else:
@@ -428,6 +420,13 @@ if __name__ == '__main__':
                         newt_work.click(by_js=True)
                         time.sleep(5)
                         __handle_signma_popup(page=page, count=2)
+
+            checkbox = __get_ele(page=nexus, xpath="x://input[@type='checkbox']")
+            if checkbox.attr('checked') is not None:
+                print("Battery saver 已经勾选，无需操作")
+            else:
+                print("Battery saver 未勾选，开始点击勾上")
+                checkbox.click(by_js=True)
 
             # 判断是否需要验证邮箱
             email_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
