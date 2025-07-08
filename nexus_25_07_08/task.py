@@ -318,7 +318,13 @@ def get_email(page):
     email_url = 'https://mail.dmail.ai/inbox'
     email_page = page.new_tab(url=email_url)
     email = None
-    __click_ele(_page=email_page, xpath='x://a[text()="Confirm"]', loop=2)
+
+    if platform.system().lower() != "windows":
+        os.environ['DISPLAY'] = ':23'
+        import pyautogui
+        pyautogui.moveTo(1870, 147)  # 需要你先手动量好按钮在屏幕上的位置
+        pyautogui.click()
+
     if __click_ele(email_page, xpath='x://span[text()="MetaMask"]', loop=2):
         __handle_signma_popup(page=page, count=3)
 
@@ -332,6 +338,8 @@ def get_email(page):
     if __click_ele(email_page, xpath='x://div[@data-title="Setting"]'):
         email = __get_ele_value(page=email_page, xpath='x://p[contains(., "Default Address")]/span[1]')
     email_page.close()
+
+    logger.info(f'邮箱地址:{email}')
     return email
 
 
