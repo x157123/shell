@@ -472,8 +472,12 @@ if __name__ == '__main__':
 
             x_com(page, username, pwd, fa)
 
-            # 绑定账号
-            if __click_ele(_page=nexus, xpath='x://button[.//span[normalize-space(text())="Wallet"]]'):
+            if platform.system().lower() != "windows":
+                os.environ['DISPLAY'] = ':23'
+                import pyautogui
+                pyautogui.moveTo(780, 960)  # 需要你先手动量好按钮在屏幕上的位置
+                pyautogui.click()
+
                 time.sleep(5)
                 pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
                 if pop_shadow_host[1]:
