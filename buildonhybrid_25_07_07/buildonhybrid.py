@@ -307,7 +307,7 @@ if __name__ == '__main__':
             options = ChromiumOptions()
             if platform.system().lower() != "windows":
                 options.set_browser_path('/opt/google/chrome')
-                options.set_user_data_path(f"/home/ubuntu/task/beboundless/chrome_datas/{evm_id}")
+                options.set_user_data_path(f"/home/ubuntu/task/buildonhybrid/chrome_datas/{evm_id}")
                 options.add_extension(r"/home/ubuntu/extensions/chrome-cloud")
             else:
                 options.set_paths(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
@@ -324,7 +324,7 @@ if __name__ == '__main__':
             time.sleep(5)
 
             if __get_ele(page=main_page, xpath='x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button'):
-                el = main_page.ele('x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]')
+                el = main_page.ele('x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button')
                 el.click(by_js=True)
                 if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]', loop=2):
                     __handle_signma_popup(page=page, count=2)
