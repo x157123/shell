@@ -87,7 +87,6 @@ async def run_remote_script(
                 if stderr:
                     logger.info(f"=== {host} STDERR ===\n{stderr}")
                 append_date_to_file("./ex_end.txt", host)
-                time.sleep(10)
         except (asyncssh.Error, OSError) as e:
             logger.error(f"[EXCEPTION] {host}: {e}")
 
