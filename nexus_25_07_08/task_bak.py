@@ -364,6 +364,9 @@ if __name__ == '__main__':
                 evm_id = arg[0]
                 if evm_id in _index:
                     continue
+                username = arg[1]
+                pwd = arg[2]
+                fa = arg[3]
                 logger.info(f"启动:{evm_id}")
                 options = ChromiumOptions()
                 if platform.system().lower() != "windows":
@@ -387,6 +390,7 @@ if __name__ == '__main__':
                 em = get_email(page)
 
                 logger.info('登录x')
+                x_com(page, username, pwd, fa)
 
                 nexus = page.new_tab(url='https://app.nexus.xyz')
                 time.sleep(10)
@@ -477,6 +481,7 @@ if __name__ == '__main__':
                     logger.info("Battery saver 未勾选，开始点击勾上")
                     checkbox.click(by_js=True)
 
+
                 if platform.system().lower() != "windows":
                     os.environ['DISPLAY'] = ':23'
                     import pyautogui
@@ -489,8 +494,21 @@ if __name__ == '__main__':
                     profile_shadow_root = pop_shadow_host[1].shadow_root
                     profile = profile_shadow_root.ele('x://div[contains(@class,"footer-options-switcher__tab") and .//p[normalize-space(text())="Profile"]]', timeout=10)
                     if profile:
-                        signma_log(message="1", task_name="nexus", index=evm_id, node_name=args.ip)
-                        _index.append(evm_id)
+                        profile.click()
+                        if __click_ele(_page=profile_shadow_root, xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]', loop=2):
+                            if __click_ele(_page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
+                                time.sleep(5)
+                    time.sleep(10)
+                    pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
+                    if pop_shadow_host[1]:
+                        profile_shadow_root = pop_shadow_host[1].shadow_root
+                        profile = profile_shadow_root.ele('x://div[contains(@class,"footer-options-switcher__tab") and .//p[normalize-space(text())="Profile"]]')
+                        if profile:
+                            profile.click()
+                            _x = __get_ele(page=profile_shadow_root, xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]', loop=2)
+                            if _x is None:
+                                signma_log(message="1", task_name="nexus", index=evm_id, node_name=args.ip)
+                                _index.append(evm_id)
 
             except Exception as e:
                 logger.info("重新错误")
