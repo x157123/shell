@@ -378,10 +378,16 @@ if __name__ == '__main__':
             page = ChromiumPage(options)
             page.set.window.max()
 
+            logger.info('登录钱包')
             __login_wallet(page=page, evm_id=evm_id)
+
             __handle_signma_popup(page=page, count=0)
 
+            logger.info('获取邮箱地址')
             em = get_email(page)
+
+            logger.info('登录x')
+            x_com(page, username, pwd, fa)
 
             nexus = page.new_tab(url='https://app.nexus.xyz')
             time.sleep(10)
@@ -472,7 +478,6 @@ if __name__ == '__main__':
                 logger.info("Battery saver 未勾选，开始点击勾上")
                 checkbox.click(by_js=True)
 
-            x_com(page, username, pwd, fa)
 
             if platform.system().lower() != "windows":
                 os.environ['DISPLAY'] = ':23'
