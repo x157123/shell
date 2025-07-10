@@ -300,11 +300,14 @@ if __name__ == '__main__':
             idx += 1
             arg = part.split(",")
             evm_id = arg[0]
+            username = arg[1]
+            pwd = arg[2]
+            fa = arg[3]
             logger.info(f"启动:{evm_id}")
             options = ChromiumOptions()
             if platform.system().lower() != "windows":
                 options.set_browser_path('/opt/google/chrome')
-                options.set_user_data_path(f"/home/ubuntu/task/beboundless/chrome_data/{evm_id}")
+                options.set_user_data_path(f"/home/ubuntu/task/buildonhybrid/chrome_datas/{evm_id}")
                 options.add_extension(r"/home/ubuntu/extensions/chrome-cloud")
             else:
                 options.set_paths(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
@@ -331,15 +334,23 @@ if __name__ == '__main__':
                     if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]', loop=2):
                         __handle_signma_popup(page=page, count=2)
             __handle_signma_popup(page=page, count=0)
-
             if __click_ele(_page=main_page, xpath='x://button[text()="Next"]'):
-                if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=1):
-                    signma_log(message="1", task_name="buildonhybrid_v", index=evm_id, node_name=args.ip)
-                elif __get_ele(page=main_page, xpath='x://p[normalize-space()="Not Eligible"]', loop=1):
-                    signma_log(message="0", task_name="buildonhybrid_v", index=evm_id, node_name=args.ip)
-                elif __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=1):
-                    signma_log(message="9", task_name="buildonhybrid_v", index=evm_id, node_name=args.ip)
-            time.sleep(10)
+                if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
+                    try:
+                        if __click_ele(_page=main_page, xpath='x://button[text()="Connect X to Register for Airdrop"]'):
+                            x_com(page=page, name=username, pwd=pwd, fa=fa)
+                            logger.info('验证认证是否成功')
+                            if __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=2):
+                                signma_log(message="9", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
+                    except Exception:
+                        logger.info('获取数据异常')
+                elif __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=2):
+                    signma_log(message="9", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
+                elif __get_ele(page=main_page, xpath='x://p[normalize-space()="Not Eligible"]', loop=2):
+                    signma_log(message="0", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
+            if __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=2):
+                signma_log(message="9", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
+
         except Exception as e:
             logger.info("重新错误")
         finally:
