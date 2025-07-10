@@ -368,7 +368,7 @@ if __name__ == '__main__':
                 options = ChromiumOptions()
                 if platform.system().lower() != "windows":
                     options.set_browser_path('/opt/google/chrome')
-                    options.set_user_data_path(f"/home/ubuntu/task/nexus/chrome_datas/{evm_id}")
+                    options.set_user_data_path(f"/home/ubuntu/task/nexus/chrome_dataa/{evm_id}")
                     options.add_extension(r"/home/ubuntu/extensions/chrome-cloud")
                 else:
                     options.set_paths(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
