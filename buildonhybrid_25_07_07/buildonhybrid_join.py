@@ -307,7 +307,7 @@ if __name__ == '__main__':
             options = ChromiumOptions()
             if platform.system().lower() != "windows":
                 options.set_browser_path('/opt/google/chrome')
-                options.set_user_data_path(f"/home/ubuntu/task/beboundless/chrome_datas/{evm_id}")
+                options.set_user_data_path(f"/home/ubuntu/task/buildonhybrid/chrome_datas/{evm_id}")
                 options.add_extension(r"/home/ubuntu/extensions/chrome-cloud")
             else:
                 options.set_paths(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
@@ -326,9 +326,13 @@ if __name__ == '__main__':
             if __get_ele(page=main_page, xpath='x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button'):
                 el = main_page.ele('x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button')
                 el.click(by_js=True)
-                if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]'):
+                if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]', loop=2):
                     __handle_signma_popup(page=page, count=2)
-
+                else:
+                    el = main_page.ele('x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button')
+                    el.click(by_js=True)
+                    if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]', loop=2):
+                        __handle_signma_popup(page=page, count=2)
             __handle_signma_popup(page=page, count=0)
             if __click_ele(_page=main_page, xpath='x://button[text()="Next"]'):
                 if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
@@ -344,6 +348,9 @@ if __name__ == '__main__':
                     signma_log(message="9", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
                 elif __get_ele(page=main_page, xpath='x://p[normalize-space()="Not Eligible"]', loop=2):
                     signma_log(message="0", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
+            if __get_ele(page=main_page, xpath='x://p[normalize-space()="You’ve successfully registered for the airdrop!"]', loop=2):
+                signma_log(message="9", task_name="buildonhybrid", index=evm_id, node_name=args.ip)
+
         except Exception as e:
             logger.info("重新错误")
         finally:
