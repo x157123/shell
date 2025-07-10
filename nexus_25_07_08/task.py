@@ -386,6 +386,10 @@ if __name__ == '__main__':
                 logger.info('获取邮箱地址')
                 em = get_email(page)
 
+                if em is None:
+                    signma_log(message="0", task_name="nexus_error", index=evm_id, node_name=args.ip)
+                    continue
+
                 logger.info('登录x')
 
                 nexus = page.new_tab(url='https://app.nexus.xyz')
@@ -402,7 +406,7 @@ if __name__ == '__main__':
                                 import pyautogui
                                 pyautogui.moveTo(1870, 147)  # 需要你先手动量好按钮在屏幕上的位置
                                 pyautogui.click()
-                            if __click_ele(_page=shadow_root, xpath="x://button[@data-testid='ConnectButton']"):
+                            if __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']"):
                                 # 定位到包含 shadow DOM 的元素
                                 shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
                                 time.sleep(5)

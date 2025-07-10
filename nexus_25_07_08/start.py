@@ -55,10 +55,10 @@ async def run_remote_script(
                 await conn.run(f"rm -rf ~/.config/google-chrome/SingletonSocket", check=False)
                 await conn.run(f"mkdir -p /home/ubuntu/task/nexus/", check=False)
                 await conn.run(f"chown -R ubuntu:ubuntu /home/ubuntu/", check=False)
-
-                await conn.run(f"rm -rf /home/ubuntu/extensions/chrome-cloud", check=False)
-                await conn.run(f"curl -fsSL https://github.com/x157123/ACL4SSR/releases/download/v.1.0.7/chrome-cloud.zip -o /home/ubuntu/extensions/chrome-cloud.zip", check=False)
-                await conn.run(f"unzip /home/ubuntu/extensions/chrome-cloud.zip -d /home/ubuntu/extensions", check=False)
+                #
+                # await conn.run(f"rm -rf /home/ubuntu/extensions/chrome-cloud", check=False)
+                # await conn.run(f"curl -fsSL https://github.com/x157123/ACL4SSR/releases/download/v.1.0.7/chrome-cloud.zip -o /home/ubuntu/extensions/chrome-cloud.zip", check=False)
+                # await conn.run(f"unzip /home/ubuntu/extensions/chrome-cloud.zip -d /home/ubuntu/extensions", check=False)
 
                 logger.info(f"[OK] {host} 关闭程序")
 
