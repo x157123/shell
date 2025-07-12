@@ -356,6 +356,7 @@ if __name__ == '__main__':
     for i in range(5):
         for part in args.param.split("||"):
             page = None
+            _bool = True
             try:
                 os.environ['DISPLAY'] = ':23'
                 port = 19815 + idx
@@ -458,43 +459,48 @@ if __name__ == '__main__':
                         if email_work:
                             logger.info("连接。")
                             email_work.click(by_js=True)
-                            time.sleep(2)
-                            # 获取邮箱验证码
-                            code = get_email_code(nexus)
-                            logger.info(f"获取到验证码{code}")
-                            if code is not None and code != '':
-                                logger.info('验证码')
-                                em_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-                                em_shadow_root = em_shadow_host.shadow_root
-                                for index, digit in enumerate(code):
-                                    input_box = em_shadow_root.ele(f'x://input[@data-testid="{index}"]')  # 选择对应输入框
-                                    if input_box:
-                                        logger.info(f'开始输入验证码{digit}')
-                                        input_box.click()  # 点击输入框
-                                        input_box.input(digit)  # 输入单个数字
-                                        time.sleep(0.2)  # 可选：稍微延迟，防止输入过快
+                            time.sleep(5)
+                            if __get_ele(page=email_shadow_root, xpath='x://p[starts-with(normalize-space(.),"Email already exists")]', loop=1):
+                                signma_log(message="0", task_name="nexus", index=evm_id, node_name=args.ip)
+                                _bool = False
+                            else:
+                                # 获取邮箱验证码
+                                code = get_email_code(nexus)
+                                logger.info(f"获取到验证码{code}")
+                                if code is not None and code != '':
+                                    logger.info('验证码')
+                                    em_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+                                    em_shadow_root = em_shadow_host.shadow_root
+                                    for index, digit in enumerate(code):
+                                        input_box = em_shadow_root.ele(f'x://input[@data-testid="{index}"]')  # 选择对应输入框
+                                        if input_box:
+                                            logger.info(f'开始输入验证码{digit}')
+                                            input_box.click()  # 点击输入框
+                                            input_box.input(digit)  # 输入单个数字
+                                            time.sleep(0.2)  # 可选：稍微延迟，防止输入过快
 
-                checkbox = __get_ele(page=nexus, xpath="x://input[@type='checkbox']")
-                if checkbox.attr('checked') is not None:
-                    logger.info("Battery saver 已经勾选，无需操作")
-                else:
-                    logger.info("Battery saver 未勾选，开始点击勾上")
-                    checkbox.click(by_js=True)
+                if _bool:
+                    checkbox = __get_ele(page=nexus, xpath="x://input[@type='checkbox']")
+                    if checkbox.attr('checked') is not None:
+                        logger.info("Battery saver 已经勾选，无需操作")
+                    else:
+                        logger.info("Battery saver 未勾选，开始点击勾上")
+                        checkbox.click(by_js=True)
 
-                if platform.system().lower() != "windows":
-                    os.environ['DISPLAY'] = ':23'
-                    import pyautogui
-                    pyautogui.moveTo(780, 960)  # 需要你先手动量好按钮在屏幕上的位置
-                    pyautogui.click()
-                    time.sleep(5)
+                    if platform.system().lower() != "windows":
+                        os.environ['DISPLAY'] = ':23'
+                        import pyautogui
+                        pyautogui.moveTo(780, 960)  # 需要你先手动量好按钮在屏幕上的位置
+                        pyautogui.click()
+                        time.sleep(5)
 
-                pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
-                if pop_shadow_host[1]:
-                    profile_shadow_root = pop_shadow_host[1].shadow_root
-                    profile = profile_shadow_root.ele('x://div[contains(@class,"footer-options-switcher__tab") and .//p[normalize-space(text())="Profile"]]', timeout=10)
-                    if profile:
-                        signma_log(message="1", task_name="nexus", index=evm_id, node_name=args.ip)
-                        _index.append(evm_id)
+                    pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
+                    if pop_shadow_host[1]:
+                        profile_shadow_root = pop_shadow_host[1].shadow_root
+                        profile = profile_shadow_root.ele('x://div[contains(@class,"footer-options-switcher__tab") and .//p[normalize-space(text())="Profile"]]', timeout=10)
+                        if profile:
+                            signma_log(message="1", task_name="nexus", index=evm_id, node_name=args.ip)
+                            _index.append(evm_id)
 
             except Exception as e:
                 logger.info("重新错误")
