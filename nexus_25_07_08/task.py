@@ -363,6 +363,9 @@ if __name__ == '__main__':
                 idx += 1
                 arg = part.split(",")
                 evm_id = arg[0]
+                name = arg[1]
+                pwd = arg[2]
+                fa = arg[3]
                 if evm_id in _index:
                     continue
                 logger.info(f"启动:{evm_id}")
@@ -384,13 +387,14 @@ if __name__ == '__main__':
 
                 __handle_signma_popup(page=page, count=0)
 
-                logger.info('获取邮箱地址')
-                em = get_email(page)
-
-                if em is None:
-                    signma_log(message="0", task_name="nexus_error", index=evm_id, node_name=args.ip)
-                    continue
-
+                # logger.info('获取邮箱地址')
+                em = ''
+                # 
+                # if em is None:
+                #     signma_log(message="0", task_name="nexus_error", index=evm_id, node_name=args.ip)
+                #     continue
+                
+                x_com(page, name, pwd, fa)
                 logger.info('登录x')
 
                 nexus = page.new_tab(url='https://app.nexus.xyz')
@@ -479,20 +483,41 @@ if __name__ == '__main__':
                                             input_box.input(digit)  # 输入单个数字
                                             time.sleep(0.2)  # 可选：稍微延迟，防止输入过快
 
-                if _bool:
-                    checkbox = __get_ele(page=nexus, xpath="x://input[@type='checkbox']")
-                    if checkbox.attr('checked') is not None:
-                        logger.info("Battery saver 已经勾选，无需操作")
-                    else:
-                        logger.info("Battery saver 未勾选，开始点击勾上")
-                        checkbox.click(by_js=True)
+                checkbox = __get_ele(page=nexus, xpath="x://input[@type='checkbox']")
+                if checkbox.attr('checked') is not None:
+                    logger.info("Battery saver 已经勾选，无需操作")
+                else:
+                    logger.info("Battery saver 未勾选，开始点击勾上")
+                    checkbox.click(by_js=True)
 
-                    if platform.system().lower() != "windows":
-                        os.environ['DISPLAY'] = ':23'
-                        import pyautogui
-                        pyautogui.moveTo(780, 960)  # 需要你先手动量好按钮在屏幕上的位置
-                        pyautogui.click()
-                        time.sleep(5)
+                if platform.system().lower() != "windows":
+                    os.environ['DISPLAY'] = ':23'
+                    import pyautogui
+                    pyautogui.moveTo(780, 960)  # 需要你先手动量好按钮在屏幕上的位置
+                    pyautogui.click()
+                    time.sleep(5)
+
+
+                pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
+                if pop_shadow_host[1]:
+                    profile_shadow_root = pop_shadow_host[1].shadow_root
+                    profile = profile_shadow_root.ele('x://div[contains(@class,"footer-options-switcher__tab") and .//p[normalize-space(text())="Profile"]]', timeout=10)
+                    if profile:
+                        profile.click()
+                        if __click_ele(_page=profile_shadow_root, xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]', loop=2):
+                            if __click_ele(_page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
+                                time.sleep(5)
+                    time.sleep(10)
+                    pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
+                    if pop_shadow_host[1]:
+                        profile_shadow_root = pop_shadow_host[1].shadow_root
+                        profile = profile_shadow_root.ele('x://div[contains(@class,"footer-options-switcher__tab") and .//p[normalize-space(text())="Profile"]]')
+                        if profile:
+                            profile.click()
+                            _x = __get_ele(page=profile_shadow_root, xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]', loop=2)
+                            if _x is None:
+                                signma_log(message="1", task_name="nexus", index=evm_id, node_name=args.ip)
+                                _index.append(evm_id)
 
                     pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
                     if pop_shadow_host[1]:
