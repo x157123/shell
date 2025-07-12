@@ -269,7 +269,17 @@ def x_com(page, name, pwd, fa):
                 __input_ele_value(page=x_com_page, xpath='x://input[@inputmode="numeric"]', value=_code)
                 if __click_ele(_page=x_com_page, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
                     logger.info('登录')
-                    time.sleep(10)
+                    time.sleep(5)
+                    for i in range(5):
+                        if __get_ele(page=nexus, xpath='x://p[starts-with(normalize-space(.),"Verify you are human by completing")]', loop=1):
+                            time.sleep(5)
+                            os.environ['DISPLAY'] = ':23'
+                            import pyautogui
+                            pyautogui.moveTo(525 + random.randint(1, 6), 395 + random.randint(1, 6))  # 需要你先手动量好按钮在屏幕上的位置
+                            pyautogui.click()
+                            time.sleep(5)
+                        else:
+                            break
     x_com_page.close()
 
 
@@ -505,6 +515,17 @@ if __name__ == '__main__':
                     if profile:
                         profile.click()
                         if __click_ele(_page=profile_shadow_root, xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]', loop=2):
+                            for i in range(5):
+                                if __get_ele(page=nexus, xpath='x://p[starts-with(normalize-space(.),"Verify you are human by completing")]', loop=1):
+                                    time.sleep(5)
+                                    os.environ['DISPLAY'] = ':23'
+                                    import pyautogui
+                                    pyautogui.moveTo(525 + random.randint(1, 6), 395 + random.randint(1, 6))  # 需要你先手动量好按钮在屏幕上的位置
+                                    pyautogui.click()
+                                    time.sleep(5)
+                                else:
+                                    break
+
                             if __click_ele(_page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
                                 time.sleep(5)
                     time.sleep(10)
