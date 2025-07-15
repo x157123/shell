@@ -304,7 +304,6 @@ def buildonhybrid(page):
                     pyautogui.moveTo(1226, 852)
                     for i in range(400):
                         pyautogui.click()
-                time.sleep(2000000)
                 __click_ele(_page=main_page, xpath='x://button[contains(text(), "Accept")]')
                 __handle_signma_popup(page=page, count=3)
                 __handle_signma_popup(page=page, count=0)
