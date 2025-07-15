@@ -295,14 +295,22 @@ def buildonhybrid(page):
             logger.info('提取成功')
         else:
             __click_ele(_page=main_page, xpath='x://button[contains(text(), "Claim")]')
-            time.sleep(2000000)
             # 需要点击滚动条
-            if __click_ele(_page=main_page, xpath='x://button[contains(text(), "Accept")]'):
+            if __get_ele(page=main_page, xpath='x://button[contains(text(), "Accept")]'):
+                if platform.system().lower() != "windows":
+                    os.environ['DISPLAY'] = ':23'
+                    import pyautogui
+                    pyautogui.moveTo(1226, 852)
+                    pyautogui.moveTo(1226, 852)
+                    for i in range(400):
+                        pyautogui.click()
+                time.sleep(2000000)
+                __click_ele(_page=main_page, xpath='x://button[contains(text(), "Accept")]')
                 __handle_signma_popup(page=page, count=3)
-            __handle_signma_popup(page=page, count=0)
-            if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
-                time.sleep(2)
-                logger.info('提取成功')
+                __handle_signma_popup(page=page, count=0)
+                if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
+                    time.sleep(2)
+                    logger.info('提取成功')
 
     except Exception as e:
         logger.exception("充值异常")
