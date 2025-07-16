@@ -272,7 +272,7 @@ def __get_ele_value(page, xpath: str = '', loop: int = 5, must: bool = False,
     return None
 
 
-def buildonhybrid(page):
+def buildonhybrid(page, evm_id, server_ip):
     main_page = None
     __bool = True
     try:
@@ -290,30 +290,12 @@ def buildonhybrid(page):
                 if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]', loop=2):
                     __handle_signma_popup(page=page, count=2)
 
-            __click_ele(_page=main_page, xpath='x://button[contains(text(), "Next")]')
-            if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
-                time.sleep(2)
-                logger.info('提取成功')
-            else:
-                __click_ele(_page=main_page, xpath='x://button[contains(text(), "Claim")]')
-                # 需要点击滚动条
-                if __get_ele(page=main_page, xpath='x://button[contains(text(), "Accept")]'):
-                    if platform.system().lower() != "windows":
-                        os.environ['DISPLAY'] = ':23'
-                        import pyautogui
-                        pyautogui.moveTo(1226, 852)
-                        pyautogui.moveTo(1226, 852)
-                        for i in range(400):
-                            pyautogui.click()
-                    __click_ele(_page=main_page, xpath='x://button[contains(text(), "Accept")]')
-                    __handle_signma_popup(page=page, count=3)
-                    __handle_signma_popup(page=page, count=0)
-                    if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
-                        time.sleep(2)
-                        logger.info('提取成功')
-                        break
-                    else:
-                        main_page.refresh()
+            if __click_ele(_page=main_page, xpath='x://button[contains(text(), "Next")]'):
+                _num = __get_ele_value(page=main_page, xpath='xpath://p[text()="$HYB"]/following-sibling::p')
+                if _num:
+                    logger.info(f'提取成功 {_num}')
+                    if int(_num) > 0:
+                        signma_log(message=_num, task_name="buildonhybrid_wallet", index=evm_id, node_name=server_ip)
 
     except Exception as e:
         logger.exception("充值异常")
@@ -407,11 +389,11 @@ if __name__ == '__main__':
             __login_wallet(page=page, evm_id=evm_id)
             __handle_signma_popup(page=page, count=0)
 
-            __add_net_work(page=page, coin_name='arb')
+            # __add_net_work(page=page, coin_name='arb')
 
-            buildonhybrid(page=page)
+            buildonhybrid(page=page, evm_id=evm_id, server_ip=args.ip)
 
-            swp_squidrouter(page=page, evm_id=evm_id, server_ip=args.ip)
+            # swp_squidrouter(page=page, evm_id=evm_id, server_ip=args.ip)
 
         except Exception as e:
             logger.info("重新错误")

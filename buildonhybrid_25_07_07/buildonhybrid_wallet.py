@@ -277,32 +277,43 @@ def buildonhybrid(page):
     __bool = True
     try:
         main_page = page.new_tab(url="https://claim.buildonhybrid.com/")
-        __click_ele(_page=main_page, xpath='x://a[contains(text(), "Enter")]', loop=2)
-        if __get_ele(page=main_page, xpath='x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button', loop=2):
-            el = main_page.ele('x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button')
-            el.click(by_js=True)
-        if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]', loop=2):
-            __handle_signma_popup(page=page, count=2)
-        else:
-            el = main_page.ele('x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button')
-            el.click(by_js=True)
+        for i in range(3):
+            __click_ele(_page=main_page, xpath='x://a[contains(text(), "Enter")]', loop=2)
+            if __get_ele(page=main_page, xpath='x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button', loop=2):
+                el = main_page.ele('x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button')
+                el.click(by_js=True)
             if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]', loop=2):
                 __handle_signma_popup(page=page, count=2)
+            else:
+                el = main_page.ele('x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"justify-end")]//button')
+                el.click(by_js=True)
+                if __click_ele(_page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]', loop=2):
+                    __handle_signma_popup(page=page, count=2)
 
-        __click_ele(_page=main_page, xpath='x://button[contains(text(), "Next")]')
-        if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
-            time.sleep(2)
-            logger.info('提取成功')
-        else:
-            __click_ele(_page=main_page, xpath='x://button[contains(text(), "Claim")]')
-            time.sleep(2000000)
-            # 需要点击滚动条
-            if __click_ele(_page=main_page, xpath='x://button[contains(text(), "Accept")]'):
-                __handle_signma_popup(page=page, count=3)
-            __handle_signma_popup(page=page, count=0)
+            __click_ele(_page=main_page, xpath='x://button[contains(text(), "Next")]')
             if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
                 time.sleep(2)
                 logger.info('提取成功')
+            else:
+                __click_ele(_page=main_page, xpath='x://button[contains(text(), "Claim")]')
+                # 需要点击滚动条
+                if __get_ele(page=main_page, xpath='x://button[contains(text(), "Accept")]'):
+                    if platform.system().lower() != "windows":
+                        os.environ['DISPLAY'] = ':23'
+                        import pyautogui
+                        pyautogui.moveTo(1226, 852)
+                        pyautogui.moveTo(1226, 852)
+                        for i in range(400):
+                            pyautogui.click()
+                    __click_ele(_page=main_page, xpath='x://button[contains(text(), "Accept")]')
+                    __handle_signma_popup(page=page, count=3)
+                    __handle_signma_popup(page=page, count=0)
+                    if __get_ele(page=main_page, xpath='x://p[normalize-space()="Congratulations!"]', loop=2):
+                        time.sleep(2)
+                        logger.info('提取成功')
+                        break
+                    else:
+                        main_page.refresh()
 
     except Exception as e:
         logger.exception("充值异常")
