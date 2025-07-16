@@ -291,11 +291,12 @@ def buildonhybrid(page, evm_id, server_ip):
                     __handle_signma_popup(page=page, count=2)
 
             if __click_ele(_page=main_page, xpath='x://button[contains(text(), "Next")]'):
-                _num = __get_ele_value(page=main_page, xpath='xpath://p[text()="$HYB"]/following-sibling::p')
+                _num = __get_ele_value(page=main_page, xpath='x://p[text()="$HYB"]/following-sibling::p')
                 if _num:
                     logger.info(f'提取成功 {_num}')
                     if float(_num) > 0:
                         signma_log(message=_num, task_name="buildonhybrid_wallet", index=evm_id, node_name=server_ip)
+                        break
 
     except Exception as e:
         logger.exception("充值异常")
