@@ -294,7 +294,7 @@ def buildonhybrid(page, evm_id, server_ip):
                 _num = __get_ele_value(page=main_page, xpath='xpath://p[text()="$HYB"]/following-sibling::p')
                 if _num:
                     logger.info(f'提取成功 {_num}')
-                    if int(_num) > 0:
+                    if float(_num) > 0:
                         signma_log(message=_num, task_name="buildonhybrid_wallet", index=evm_id, node_name=server_ip)
 
     except Exception as e:
