@@ -297,6 +297,7 @@ def buildonhybrid(page, evm_id, server_ip):
                     if float(_num) > 0:
                         signma_log(message=_num, task_name="buildonhybrid_wallet", index=evm_id, node_name=server_ip)
                         break
+            main_page.refresh()
 
     except Exception as e:
         logger.exception("充值异常")
