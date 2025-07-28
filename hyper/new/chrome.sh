@@ -4,6 +4,8 @@
 USER="ubuntu"
 PASSWORD="Mmscm716+"
 
+readonly CHROME_URL_OLD="https://github.com/x157123/ACL4SSR/releases/download/chro/google-chrome-stable_120.0.6099.224-1_amd64.deb"
+
 # 错误处理函数
 error_exit() {
     echo "ERROR: $1" >&2
@@ -28,8 +30,26 @@ check_port() {
     fi
 }
 
+install_chrome_120(){
+    if ! dpkg-query -W google-chrome-stable >/dev/null 2>&1; then
+        log_info "安装 Google Chrome..."
+        if ! curl -sSL "$CHROME_URL_OLD" -o "$CHROME_DEB"; then
+            log_info "URL 下载失败..."
+        fi
+        sudo dpkg -i "$CHROME_DEB" || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
+        rm -f "$CHROME_DEB"
+        sudo apt-mark hold google-chrome-stable
+        log_info "Google Chrome 安装完成"
+    else
+        log_info "Google Chrome 已安装，跳过"
+    fi
+}
+
 # 检查并安装 VNC
 setup_vnc() {
+
+  install_chrome_120
+
     if ! command -v tightvncserver >/dev/null 2>&1; then
         log_info "tightvncserver 未安装，开始安装 VNC 及其依赖..."
         sudo apt-get install -y xfce4 xfce4-goodies tightvncserver xrdp expect sudo || error_exit "VNC 相关组件安装失败"
