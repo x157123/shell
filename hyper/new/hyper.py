@@ -109,7 +109,7 @@ def monitor_switch(pages):
                                 __click_ele(tab, 'x://button[.//span[text()="Close"]]')
                                 if points is not None and points != "":
                                     logger.info("appInfo", args.ip + ',采集积分,' + str(points))
-                                    signma_log(message=str(points), task_name="hyper", index=tab.page_id, node_name=args.ip)
+                                    # signma_log(message=str(points), task_name="hyper", index=tab.page_id, node_name=args.ip)
                                     logger.info(f"推送积分:{points}")
                 else:
                     logger.info("刷新页面")
