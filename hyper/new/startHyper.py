@@ -43,30 +43,35 @@ async def run_remote_script(
                     port=port,
                     username=username,
                     password=password,
-                    known_hosts=None               # 自动信任未知主机密钥
+                    known_hosts=None,              # 自动信任未知主机密钥
+                    keepalive_interval=30,         # 保持连接活跃
+                    connect_timeout=10,            # 连接超时
+                    compression_algs=['none'],     # 禁用压缩加速
+                    encryption_algs=['aes128-ctr'] # 使用更快的加密算法
             ) as conn:
-                await conn.run(f"pkill -f {remote_path}", check=False)
-                time.sleep(2)
-                await conn.run(f"pkill -9 chrome", check=False)
-                await conn.run(f"rm ~/.config/google-chrome/SingletonLock", check=False)
-                await conn.run(f"rm -rf ~/.config/google-chrome/SingletonSocket", check=False)
-                await conn.run(f"mkdir -p /home/ubuntu/task/hyper", check=False)
-                logger.info(f"[OK] {host} 关闭程序")
+                # 批量执行清理命令
+                cleanup_cmd = f"""
+pkill -f {remote_path} || true
+sleep 2
+pkill -9 chrome || true
+rm -f ~/.config/google-chrome/SingletonLock
+rm -rf ~/.config/google-chrome/SingletonSocket
+mkdir -p /home/ubuntu/task/hyper
+"""
+                await conn.run(cleanup_cmd, check=False)
+                logger.info(f"[OK] {host} 清理完成")
 
-                # 1) 安装 初始化
-                await conn.run("wget --no-check-certificate -O init.sh https://www.15712345.xyz/shell/hyper/new/chrome.sh && chmod +x init.sh && ./init.sh", check=False)
-                logger.info(f"[OK] {host} 初始化")
-
-                # 2) 下载脚本
-                curl_cmd = f"curl -fsSL {script_url!r} -o {remote_path!r}"
-                res = await conn.run(curl_cmd, check=False)
-                if res.stderr:
-                    logger.error(f"[ERROR] {host} 脚本下载失败:\n{res.stderr}")
+                # 批量执行初始化和下载命令
+                init_cmd = f"""
+wget --no-check-certificate -O init.sh https://www.15712345.xyz/shell/hyper/new/chrome.sh && chmod +x init.sh && ./init.sh
+curl -fsSL {script_url!r} -o {remote_path!r}
+chmod +x {remote_path!r}
+"""
+                res = await conn.run(init_cmd, check=False)
+                if res.stderr and ("curl" in res.stderr.lower() or "wget" in res.stderr.lower()):
+                    logger.error(f"[ERROR] {host} 初始化或下载失败:\n{res.stderr}")
                     return
-                logger.info(f"[OK] {host} 脚本下载到 {remote_path}")
-
-                # 3) 授权执行
-                await conn.run(f"chmod +x {remote_path!r}", check=True)
+                logger.info(f"[OK] {host} 初始化和脚本下载完成")
 
                 # 4) 执行脚本
                 await conn.run(f"chown -R ubuntu:ubuntu /home/ubuntu/task/hyper", check=False)
