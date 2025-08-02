@@ -442,8 +442,8 @@ if __name__ == '__main__':
                                 __handle_signma_popup(page=page, count=1, timeout=15)
                 if __get_ele(page=nexus, xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]', loop=2):
                     __click_ele(_page=nexus, xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]')
-                    __click_ele(_page=nexus, xpath='x://button[contains(normalize-space(.),"Done")]')
                     time.sleep(10)
+                    nexus.get('https://app.nexus.xyz/rewards')
 
                 ele = nexus.ele('x://span[contains(normalize-space(.), "NEX")]')
                 if ele:
