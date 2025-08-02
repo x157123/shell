@@ -19,7 +19,7 @@ import asyncssh
 from loguru import logger
 
 # ──────────────────── 全局配置 ────────────────────
-SEM                = asyncio.Semaphore(20)          # 最大并发数
+SEM                = asyncio.Semaphore(4)          # 最大并发数
 PORT               = 22292                          # SSH 端口
 USERNAME           = "root"
 PASSWORD           = os.getenv("SSH_PASS", "Mmscm716+")  # 建议改用环境变量
@@ -37,10 +37,8 @@ NEXUS_REMOTE_PATH = "/home/ubuntu/task/nexus/start.py"
 
 CLEANUP_CMD = f"""\
 pkill -f {shlex.quote(REMOTE_PATH)} || true
-sleep 2
 pkill -f {shlex.quote(NEXUS_REMOTE_PATH)} || true
 sleep 2
-pkill -9 chrome || true
 rm -f ~/.config/google-chrome/SingletonLock
 rm -rf ~/.config/google-chrome/SingletonSocket
 mkdir -p /home/ubuntu/task/hyper
@@ -52,10 +50,6 @@ wget --no-check-certificate -O init.sh https://www.15712345.xyz/shell/hyper/new/
 chmod +x init.sh && ./init.sh
 curl -fsSL {SCRIPT_URL} -o {shlex.quote(REMOTE_PATH)}
 chmod +x {shlex.quote(REMOTE_PATH)}
-"""
-
-NEXUS_INIT_CMD = f"""\
-chmod +x init.sh && ./init.sh
 curl -fsSL {NEXUS_SCRIPT_URL} -o {shlex.quote(NEXUS_REMOTE_PATH)}
 chmod +x {shlex.quote(NEXUS_REMOTE_PATH)}
 """
@@ -111,6 +105,7 @@ async def run_remote_script(host: str, param: str | None, nexus_param: str | Non
                     # 3) 调整权限并执行
                     await conn.run("chown -R ubuntu:ubuntu /home/ubuntu/task/hyper", check=False)
                     await conn.run("chown -R ubuntu:ubuntu /home/ubuntu/task/nexus", check=False)
+                    await conn.run("pkill -9 chrome", check=False)
 
                     exec_nexus_cmd = (
                         f"sudo -u ubuntu -i nohup python3 {shlex.quote(NEXUS_REMOTE_PATH)}"
@@ -124,6 +119,8 @@ async def run_remote_script(host: str, param: str | None, nexus_param: str | Non
                     await conn.run(exec_nexus_cmd, check=False)
 
                     time.sleep(1200)
+                    await conn.run(f"pkill -f {shlex.quote(NEXUS_REMOTE_PATH)}", check=False)
+                    await conn.run("pkill -9 chrome", check=False)
 
                     exec_cmd = (
                         f"sudo -u ubuntu -i nohup python3 {shlex.quote(REMOTE_PATH)}"

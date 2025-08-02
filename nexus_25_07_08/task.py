@@ -357,15 +357,15 @@ def get_email(page):
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser(description="获取应用信息")
-    # parser.add_argument("--param", type=str, help="参数")
-    # parser.add_argument("--ip", type=str, help="参数")
-    # args = parser.parse_args()
-    str = '80587'
+    parser = argparse.ArgumentParser(description="获取应用信息")
+    parser.add_argument("--param", type=str, help="参数")
+    parser.add_argument("--ip", type=str, help="参数")
+    args = parser.parse_args()
+    # str = '80587'
     _index = []
     idx = 0
     for i in range(5):
-        for part in str.split("||"):
+        for part in args.param.split("||"):
             page = None
             _bool = True
             try:
@@ -453,6 +453,7 @@ if __name__ == '__main__':
                     amount = (m.group(1).replace(',', '')) if m else '0'
                     signma_log(message=amount, task_name='nexus_nex', index=evm_id)
                     time.sleep(3)
+                    _index.append(evm_id)
 
             except Exception as e:
                 logger.info("重新错误")
