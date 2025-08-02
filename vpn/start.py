@@ -85,13 +85,13 @@ async def main():
 
     for task in nodes:
         parts = task.split(",")
-        host = parts[3].strip()
+        host = parts[2].strip()
         port = 22292
         username = "root"
         password = "Mmscm716+"
         script_url = "https://www.15712345.xyz/shell/vpn/ubuntu_vm_ws_tls_py.py"
         remote_path = "/tmp/remote_script.py"
-        param_input = parts[5].strip()
+        param_input = parts[4].strip()
         param = param_input if param_input else None
 
         tasks.append(

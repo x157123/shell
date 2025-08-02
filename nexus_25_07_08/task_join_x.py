@@ -61,11 +61,11 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
         loop_count += 1
 
 
-def signma_log(message: str, task_name: str, index: str) -> bool:
+def signma_log(message: str, task_name: str, index: str, node_name: str, total: str = "N", keywords: str = "") -> bool:
     try:
-        url = "{}/service_route?type={}&&id={}&&data={}"
-        server_url = 'http://150.109.5.143:9900'
-        full_url = url.format(server_url, task_name, index, message)
+        url = "{}/service_route?service_name=signma_log&&task={}&&chain_id={}&&index={}&&msg={}&&total={}&&keywords={}"
+        server_url = 'https://signma.bll06.xyz'
+        full_url = url.format(server_url, task_name, node_name, index, message, total, keywords)
         try:
             response = requests.get(full_url, verify=False)
             if response.status_code == 200:
@@ -357,15 +357,14 @@ def get_email(page):
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser(description="获取应用信息")
-    # parser.add_argument("--param", type=str, help="参数")
-    # parser.add_argument("--ip", type=str, help="参数")
-    # args = parser.parse_args()
-    str = '80587'
+    parser = argparse.ArgumentParser(description="获取应用信息")
+    parser.add_argument("--param", type=str, help="参数")
+    parser.add_argument("--ip", type=str, help="参数")
+    args = parser.parse_args()
     _index = []
     idx = 0
     for i in range(5):
-        for part in str.split("||"):
+        for part in args.param.split("||"):
             page = None
             _bool = True
             try:
@@ -374,6 +373,9 @@ if __name__ == '__main__':
                 idx += 1
                 arg = part.split(",")
                 evm_id = arg[0]
+                name = arg[1]
+                pwd = arg[2]
+                fa = arg[3]
                 if evm_id in _index:
                     continue
                 logger.info(f"启动:{evm_id}")
@@ -383,32 +385,46 @@ if __name__ == '__main__':
                     options.set_user_data_path(f"/home/ubuntu/task/nexus/chrome_dataa/{evm_id}")
                     options.add_extension(r"/home/ubuntu/extensions/chrome-cloud")
                 else:
-                    options.set_paths(r"F:\chrome_tool\127.0.6483.0\chrome.exe")
-                    options.set_user_data_path(r"f:\tmp\rari\1" + evm_id)
+                    options.set_paths(r"C:\Program Files\Google\Chrome\Application\chrome.exe")
+                    options.set_user_data_path(r"f:\tmp\rari\0" + evm_id)
                     options.add_extension(r"F:\signma")
                 options.set_local_port(port)
                 page = ChromiumPage(options)
-                # page.set.window.max()
+                page.set.window.max()
 
                 logger.info('登录钱包')
                 __login_wallet(page=page, evm_id=evm_id)
 
                 __handle_signma_popup(page=page, count=0)
 
-                nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
+                # logger.info('获取邮箱地址')
+                em = ''
+                # 
+                # if em is None:
+                #     signma_log(message="0", task_name="nexus_error", index=evm_id, node_name=args.ip)
+                #     continue
+                
+                x_com(page, name, pwd, fa)
+                logger.info('登录x')
 
-                __get_ele(page=nexus, xpath='x://a[contains(text(), "FAQ")]', loop=10)
-                if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
-                    __click_ele(_page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1)
-                    shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
-                    if shadow_host:
-                        shadow_root = shadow_host.shadow_root
-                        if shadow_root:
-                            continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
-                            if continue_button:
-                                __click_ele(_page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
+                nexus = page.new_tab(url='https://app.nexus.xyz')
+                time.sleep(10)
+
+                shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
+                if shadow_host:
+                    shadow_root = shadow_host.shadow_root
+                    if shadow_root:
+                        continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
+                        if continue_button:
+                            if platform.system().lower() != "windows":
+                                os.environ['DISPLAY'] = ':23'
+                                import pyautogui
+                                pyautogui.moveTo(1870, 147)  # 需要你先手动量好按钮在屏幕上的位置
+                                pyautogui.click()
+                            if __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']"):
                                 # 定位到包含 shadow DOM 的元素
                                 shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+                                time.sleep(5)
                                 if shadow_host:
                                     # 进入 shadow DOM
                                     shadow_root = shadow_host.shadow_root
@@ -418,41 +434,119 @@ if __name__ == '__main__':
                                         if continue_button:
                                             # 点击目标元素
                                             continue_button.click(by_js=True)
-                                            time.sleep(1)
+                                            time.sleep(2)
                                             # 点击页面中显示 "Signma" 的元素
                                             signma_ele = shadow_root.ele('x://span[text()="Signma"]')
                                             if signma_ele:
                                                 signma_ele.click(by_js=True)
-                                                __handle_signma_popup(page=page, count=1, timeout=15)
+                                                time.sleep(2)
+                                                __handle_signma_popup(page=page, count=2)
+                                                time.sleep(5)
                                         else:
                                             logger.info("没有找到 'Signma' 元素。")
-                                    else:
-                                        logger.info("没有找到 'Continue with a wallet' 元素。")
+                                else:
+                                    logger.info("没有找到 'Continue with a wallet' 元素。")
 
-                    __handle_signma_popup(page=page, count=0)
-                    # 定位到包含 shadow DOM 的元素
-                    net_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]', timeout=3)
-                    if net_shadow_host:
-                        # 进入 shadow DOM
-                        net_shadow_root = net_shadow_host.shadow_root
-                        if net_shadow_root:
-                            newt_work = net_shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]', timeout=3)
-                            if newt_work:
-                                newt_work.click(by_js=True)
-                                __handle_signma_popup(page=page, count=1, timeout=15)
-                if __get_ele(page=nexus, xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]', loop=2):
-                    __click_ele(_page=nexus, xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]')
-                    __click_ele(_page=nexus, xpath='x://button[contains(normalize-space(.),"Done")]')
+                __handle_signma_popup(page=page, count=0)
+                # 定位到包含 shadow DOM 的元素
+                net_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+                if net_shadow_host:
+                    # 进入 shadow DOM
+                    net_shadow_root = net_shadow_host.shadow_root
+                    if net_shadow_root:
+                        newt_work = net_shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]')
+                        if newt_work:
+                            newt_work.click(by_js=True)
+                            time.sleep(5)
+                            __handle_signma_popup(page=page, count=2)
+
+                __handle_signma_popup(page=page, count=0)
+                # 判断是否需要验证邮箱
+                email_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+                if email_shadow_host:
+                    email_shadow_root = email_shadow_host.shadow_root
+                    email = email_shadow_root.ele('x://input[@id="email"]')
+                    if email:
+                        email.input(em, clear=True)
+                        time.sleep(2)
+                        email_work = email_shadow_root.ele('x://button[.//span[text()="Continue"]]')
+                        if email_work:
+                            logger.info("连接。")
+                            email_work.click(by_js=True)
+                            time.sleep(5)
+                            if __get_ele(page=email_shadow_root, xpath='x://p[starts-with(normalize-space(.),"Email already exists")]', loop=1):
+                                signma_log(message="0", task_name="nexus", index=evm_id, node_name=args.ip)
+                                _bool = False
+                            else:
+                                # 获取邮箱验证码
+                                code = get_email_code(nexus)
+                                logger.info(f"获取到验证码{code}")
+                                if code is not None and code != '':
+                                    logger.info('验证码')
+                                    em_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+                                    em_shadow_root = em_shadow_host.shadow_root
+                                    for index, digit in enumerate(code):
+                                        input_box = em_shadow_root.ele(f'x://input[@data-testid="{index}"]')  # 选择对应输入框
+                                        if input_box:
+                                            logger.info(f'开始输入验证码{digit}')
+                                            input_box.click()  # 点击输入框
+                                            input_box.input(digit)  # 输入单个数字
+                                            time.sleep(0.2)  # 可选：稍微延迟，防止输入过快
+
+                checkbox = __get_ele(page=nexus, xpath="x://input[@type='checkbox']")
+                if checkbox.attr('checked') is not None:
+                    logger.info("Battery saver 已经勾选，无需操作")
+                else:
+                    logger.info("Battery saver 未勾选，开始点击勾上")
+                    checkbox.click(by_js=True)
+
+                if platform.system().lower() != "windows":
+                    os.environ['DISPLAY'] = ':23'
+                    import pyautogui
+                    pyautogui.moveTo(780, 960)  # 需要你先手动量好按钮在屏幕上的位置
+                    pyautogui.click()
+                    time.sleep(5)
+
+
+                pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
+                if pop_shadow_host[1]:
+                    profile_shadow_root = pop_shadow_host[1].shadow_root
+                    profile = profile_shadow_root.ele('x://div[contains(@class,"footer-options-switcher__tab") and .//p[normalize-space(text())="Profile"]]', timeout=10)
+                    if profile:
+                        profile.click()
+                        if __click_ele(_page=profile_shadow_root, xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]', loop=2):
+                            for i in range(5):
+                                if __get_ele(page=nexus, xpath='x://p[starts-with(normalize-space(.),"Verify you are human by completing")]', loop=1):
+                                    time.sleep(5)
+                                    os.environ['DISPLAY'] = ':23'
+                                    import pyautogui
+                                    pyautogui.moveTo(525 + random.randint(1, 6), 395 + random.randint(1, 6))  # 需要你先手动量好按钮在屏幕上的位置
+                                    pyautogui.click()
+                                    time.sleep(5)
+                                else:
+                                    break
+
+                            if __click_ele(_page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
+                                time.sleep(5)
                     time.sleep(10)
+                    pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
+                    if pop_shadow_host[1]:
+                        profile_shadow_root = pop_shadow_host[1].shadow_root
+                        profile = profile_shadow_root.ele('x://div[contains(@class,"footer-options-switcher__tab") and .//p[normalize-space(text())="Profile"]]')
+                        if profile:
+                            profile.click()
+                            _x = __get_ele(page=profile_shadow_root, xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]', loop=2)
+                            if _x is None:
+                                signma_log(message="1", task_name="nexus", index=evm_id, node_name=args.ip)
+                                _index.append(evm_id)
 
-                ele = nexus.ele('x://span[contains(normalize-space(.), "NEX")]')
-                if ele:
-                    t = ele.text.replace('\xa0', ' ').strip()  # 处理不换行空格
-                    import re
-                    m = re.search(r'([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?)\s*NEX\b', t, re.I)
-                    amount = (m.group(1).replace(',', '')) if m else '0'
-                    signma_log(message=amount, task_name='nexus_nex', index=evm_id)
-                    time.sleep(3)
+                    pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
+                    if pop_shadow_host[1]:
+                        profile_shadow_root = pop_shadow_host[1].shadow_root
+                        profile = profile_shadow_root.ele('x://div[contains(@class,"footer-options-switcher__tab") and .//p[normalize-space(text())="Profile"]]', timeout=10)
+                        if profile:
+                            signma_log(message="1", task_name="nexus", index=evm_id, node_name=args.ip)
+                            _index.append(evm_id)
 
             except Exception as e:
                 logger.info("重新错误")

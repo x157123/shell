@@ -1,131 +1,175 @@
 #!/usr/bin/env python3
+"""
+批量连接服务器，初始化环境并启动脚本（异步版）
+
+依赖：
+    pip install asyncssh loguru
+"""
+
+from __future__ import annotations
+
 import asyncio
+import os
+import shlex
 import time
+from pathlib import Path
+from typing import List
 
 import asyncssh
-import os
-import sys
 from loguru import logger
 
-# 并发量限制为 20
-SEM = asyncio.Semaphore(40)
+# ──────────────────── 全局配置 ────────────────────
+SEM                = asyncio.Semaphore(20)          # 最大并发数
+PORT               = 22292                          # SSH 端口
+USERNAME           = "root"
+PASSWORD           = os.getenv("SSH_PASS", "Mmscm716+")  # 建议改用环境变量
+CONNECT_TIMEOUT    = 10                             # TCP 连接超时
+LOGIN_TIMEOUT      = 15                             # SSH 握手 + 认证超时
+KEEPALIVE_INTERVAL = 30                             # 保活心跳
+MAX_RETRY          = 3                              # 每台主机的最大重试次数
 
-def read_data_list_file(file_path: str, check_exists: bool = True) -> list[str]:
-    """读取文件，每行去重空并返回列表"""
-    if check_exists and not os.path.exists(file_path):
-        with open(file_path, 'w'):
-            pass
-    with open(file_path, 'r') as f:
-        return [line.strip() for line in f if line.strip()]
-
-# 文件追加
-def append_date_to_file(file_path, data_str):
-    with open(file_path, 'a') as file:
-        file.write(data_str + '\n')
+SCRIPT_URL  = "https://www.15712345.xyz/shell/hyper/new/hyper.py"
+REMOTE_PATH = "/home/ubuntu/task/hyper/start.py"
 
 
+NEXUS_SCRIPT_URL  = "https://www.15712345.xyz/shell/nexus_25_07_08/task.py"
+NEXUS_REMOTE_PATH = "/home/ubuntu/task/nexus/start.py"
+
+CLEANUP_CMD = f"""\
+pkill -f {shlex.quote(REMOTE_PATH)} || true
+sleep 2
+pkill -f {shlex.quote(NEXUS_REMOTE_PATH)} || true
+sleep 2
+pkill -9 chrome || true
+rm -f ~/.config/google-chrome/SingletonLock
+rm -rf ~/.config/google-chrome/SingletonSocket
+mkdir -p /home/ubuntu/task/hyper
+mkdir -p /home/ubuntu/task/nexus
+"""
+
+INIT_CMD = f"""\
+wget --no-check-certificate -O init.sh https://www.15712345.xyz/shell/hyper/new/chrome.sh && \
+chmod +x init.sh && ./init.sh
+curl -fsSL {SCRIPT_URL} -o {shlex.quote(REMOTE_PATH)}
+chmod +x {shlex.quote(REMOTE_PATH)}
+"""
+
+NEXUS_INIT_CMD = f"""\
+chmod +x init.sh && ./init.sh
+curl -fsSL {NEXUS_SCRIPT_URL} -o {shlex.quote(NEXUS_REMOTE_PATH)}
+chmod +x {shlex.quote(NEXUS_REMOTE_PATH)}
+"""
+
+# ──────────────────── 工具函数 ────────────────────
+def read_data_list_file(path: str | Path, *, create_if_missing: bool = True) -> List[str]:
+    """读取文件，剔除空行并返回列表。"""
+    path = Path(path)
+    if create_if_missing and not path.exists():
+        path.touch()
+    return [line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
-async def run_remote_script(
-        host: str,
-        port: int,
-        username: str,
-        password: str,
-        script_url: str,
-        remote_path: str,
-        param: str | None = None
-):
+def append_data_to_file(path: str | Path, data: str) -> None:
+    """向文件追加一行数据。"""
+    path = Path(path)
+    # 确保文件存在
+    if not path.exists():
+        path.touch()
+    with path.open("a", encoding="utf-8") as f:
+        f.write(f"{data}\n")
+
+
+# ──────────────────── 核心逻辑 ────────────────────
+async def run_remote_script(host: str, param: str | None, nexus_param: str | None) -> None:
+    """连接远端主机，完成清理、初始化、脚本启动。"""
     async with SEM:
-        try:
-            logger.info(f"[→] 连接 {host}:{port}")
-            async with asyncssh.connect(
-                    host,
-                    port=port,
-                    username=username,
-                    password=password,
-                    known_hosts=None               # 自动信任未知主机密钥
-            ) as conn:
-                #
-                await conn.run(f"pkill -f /home/ubuntu/task/hyper/start.py", check=False)
-                await conn.run(f"pkill -f {remote_path}", check=False)
-                time.sleep(2)
-                await conn.run(f"pkill -9 chrome", check=False)
-                await conn.run(f"rm ~/.config/google-chrome/SingletonLock", check=False)
-                await conn.run(f"rm /home/ubuntu/task/nexus", check=False)
-                await conn.run(f"rm -rf ~/.config/google-chrome/SingletonSocket", check=False)
-                await conn.run(f"mkdir -p /home/ubuntu/task/nexus/", check=False)
-                await conn.run(f"chown -R ubuntu:ubuntu /home/ubuntu/", check=False)
-                #
-                # await conn.run(f"rm -rf /home/ubuntu/extensions/chrome-cloud", check=False)
-                # await conn.run(f"curl -fsSL https://github.com/x157123/ACL4SSR/releases/download/v.1.0.7/chrome-cloud.zip -o /home/ubuntu/extensions/chrome-cloud.zip", check=False)
-                # await conn.run(f"unzip /home/ubuntu/extensions/chrome-cloud.zip -d /home/ubuntu/extensions", check=False)
+        for attempt in range(1, MAX_RETRY + 1):
+            try:
+                logger.info(f"[{host}] 第 {attempt}/{MAX_RETRY} 次尝试连接…")
+                async with asyncssh.connect(
+                        host,
+                        port=PORT,
+                        username=USERNAME,
+                        password=PASSWORD,
+                        known_hosts=None,                 # 生产环境请改为指纹校验
+                        connect_timeout=CONNECT_TIMEOUT,
+                        login_timeout=LOGIN_TIMEOUT,
+                        keepalive_interval=KEEPALIVE_INTERVAL,
+                        compression_algs=["none"],
+                        encryption_algs=["aes128-ctr"],
+                ) as conn:
+                    # 1) 清理环境
+                    await conn.run(CLEANUP_CMD, check=False)
+                    logger.info(f"[{host}] 环境清理完成")
 
-                logger.info(f"[OK] {host} 关闭程序")
+                    # 2) 下载并安装脚本
+                    res = await conn.run(INIT_CMD, check=False)
+                    if res.exit_status != 0:
+                        raise RuntimeError(f"初始化失败: {res.stderr.strip()}")
+                    logger.info(f"[{host}] 初始化脚本完成")
 
-                # 1) 安装 初始化
-                await conn.run("wget --no-check-certificate -O init.sh https://www.15712345.xyz/shell/nexus_25_07_08/chrome.sh && chmod +x init.sh && ./init.sh", check=False)
-                logger.info(f"[OK] {host} 初始化")
+                    # 3) 调整权限并执行
+                    await conn.run("chown -R ubuntu:ubuntu /home/ubuntu/task/hyper", check=False)
+                    await conn.run("chown -R ubuntu:ubuntu /home/ubuntu/task/nexus", check=False)
 
-                # 2) 下载脚本
-                curl_cmd = f"curl -fsSL {script_url!r} -o {remote_path!r}"
-                res = await conn.run(curl_cmd, check=False)
-                if res.stderr:
-                    logger.error(f"[ERROR] {host} 脚本下载失败:\n{res.stderr}")
-                    return
-                logger.info(f"[OK] {host} 脚本下载到 {remote_path}")
+                    exec_nexus_cmd = (
+                        f"sudo -u ubuntu -i nohup python3 {shlex.quote(NEXUS_REMOTE_PATH)}"
+                    )
 
-                # 3) 授权执行
-                await conn.run(f"chmod +x {remote_path!r}", check=True)
+                    if nexus_param:
+                        exec_nexus_cmd += (
+                            f" --ip {shlex.quote(host)} --param {shlex.quote(nexus_param)}"
+                        )
+                    exec_nexus_cmd += " > /home/ubuntu/task/nexus/out.log 2>&1 &"
+                    await conn.run(exec_nexus_cmd, check=False)
 
-                # 4) 执行脚本
-                exec_cmd = f"sudo -u ubuntu -i nohup python3 {remote_path!r}"
-                if param:
-                    exec_cmd += f' --ip "{host}" --param "{param}" > /home/ubuntu/task/nexus/out.log 2>&1 &'
-                logger.info(f"[→] {host} 执行：{exec_cmd}")
-                res = await conn.run(exec_cmd, check=False)
+                    time.sleep(1200)
 
-                # 5) 输出
-                stdout = res.stdout.strip()
-                stderr = res.stderr.strip()
-                if stdout:
-                    logger.info(f"=== {host} STDOUT ===\n{stdout}")
-                if stderr:
-                    logger.info(f"=== {host} STDERR ===\n{stderr}")
-                append_date_to_file("./ex_end.txt", host)
-        except (asyncssh.Error, OSError) as e:
-            logger.error(f"[EXCEPTION] {host}: {e}")
+                    exec_cmd = (
+                        f"sudo -u ubuntu -i nohup python3 {shlex.quote(REMOTE_PATH)}"
+                    )
 
-async def main():
-    nodes = read_data_list_file(r'./test.txt')
+                    if param:
+                        exec_cmd += (
+                            f" --ip {shlex.quote(host)} --param {shlex.quote(param)}"
+                        )
+                    exec_cmd += " > /home/ubuntu/task/hyper/out.log 2>&1 &"
+
+                    await conn.run(exec_cmd, check=False)
+                    logger.success(f"[{host}] 脚本已启动")
+                    append_data_to_file("ex_end.txt", host)
+                    break  # 成功，跳出重试循环
+
+            except asyncio.TimeoutError:
+                if attempt == MAX_RETRY:
+                    logger.error(f"[{host}] 连接超时，已重试 {MAX_RETRY} 次，放弃")
+                else:
+                    wait = 2 ** attempt
+                    logger.warning(f"[{host}] 连接超时，{wait}s 后重试")
+                    await asyncio.sleep(wait)
+
+            except (asyncssh.Error, OSError, RuntimeError) as exc:
+                logger.error(f"[{host}] 发生异常: {exc!s}")
+                break
+
+
+async def main() -> None:
+    nodes       = read_data_list_file("task.txt")
+    # finished    = set(read_data_list_file("ex_end.txt"))
     tasks: list[asyncio.Task] = []
 
-    ex_list = read_data_list_file("./ex_end.txt", check_exists=True)
-
-    for task in nodes:
-        parts = task.split("|||")
-        host = parts[0]
-        if len(ex_list) > 0 and host in ex_list:
-            logger.info(f'跳过服务器：{task}')
-            continue
-        port = 22292
-        username = "root"
-        password = "Mmscm716+"
-        script_url = "https://www.15712345.xyz/shell/nexus_25_07_08/task.py"
-        remote_path = "/home/ubuntu/task/nexus/task.py"
-        param_input = parts[1]
-        param = param_input if param_input else None
-
-        tasks.append(
-            asyncio.create_task(
-                run_remote_script(
-                    host, port, username, password,
-                    script_url, remote_path, param
-                )
-            )
-        )
+    for record in nodes:
+        host, *rest = record.split("|||")
+        # if host in finished:
+        #     logger.info(f"[{host}] 已完成，跳过")
+        #     continue
+        param = rest[0] if rest else None
+        nexus_param = rest[1] if rest else None
+        tasks.append(asyncio.create_task(run_remote_script(host, param, nexus_param)))
 
     await asyncio.gather(*tasks)
 
+
 if __name__ == "__main__":
-    # 确保安装依赖：pip install asyncssh loguru
-    asyncio.run(main())
+    while True:
+        asyncio.run(main())
