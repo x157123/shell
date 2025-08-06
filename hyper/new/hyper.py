@@ -1,7 +1,7 @@
 import requests
 from DrissionPage import ChromiumPage, ChromiumOptions
 import time
-import pyperclip
+from datetime import datetime
 import random
 from loguru import logger
 import argparse
@@ -71,11 +71,11 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
         loop_count += 1
 
 
-def signma_log(message: str, task_name: str, index: str, node_name: str, total: str = "N", keywords: str = "") -> bool:
+def signma_log(message: str, task_name: str, index: str) -> bool:
     try:
-        url = "{}/service_route?service_name=signma_log&&task={}&&chain_id={}&&index={}&&msg={}&&total={}&&keywords={}"
-        server_url = 'https://signma.bll06.xyz'
-        full_url = url.format(server_url, task_name, node_name, index, message, total, keywords)
+        url = "{}/service_route?type={}&&id={}&&data={}"
+        server_url = 'http://150.109.5.143:9900'
+        full_url = url.format(server_url, task_name, index, message)
         try:
             response = requests.get(full_url, verify=False)
             if response.status_code == 200:
@@ -89,6 +89,12 @@ def signma_log(message: str, task_name: str, index: str, node_name: str, total: 
     except Exception as e:
         raise logger.error(f"发送日志失败: {str(e)}")
 
+def get_date_as_string():
+    # 获取当前日期和时间
+    now = datetime.now()
+    # 将日期格式化为字符串 年-月-日
+    date_string = now.strftime("%Y-%m-%d")
+    return date_string
 
 def monitor_switch(pages):
     total = 70
@@ -111,6 +117,7 @@ def monitor_switch(pages):
                                     logger.info("appInfo", args.ip + ',采集积分,' + str(points))
                                     # signma_log(message=str(points), task_name="hyper", index=tab.page_id, node_name=args.ip)
                                     logger.info(f"推送积分:{points}")
+                                    signma_log(message=f"{points}", task_name=f'hyper_point_{get_date_as_string()}', index=tab.page_id)
                 else:
                     logger.info("刷新页面")
                     tab.refresh()
