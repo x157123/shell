@@ -156,7 +156,7 @@ main() {
 		pyautogui \
 		drissionpage \
 		pyperclip \
-		logger \
+		loguru \
 		|| error_exit "Python 包安装失败"
 
 
