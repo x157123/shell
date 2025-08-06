@@ -35,15 +35,6 @@ REMOTE_PATH = "/home/ubuntu/task/hyper/start.py"
 NEXUS_SCRIPT_URL  = "https://www.15712345.xyz/shell/nexus_25_07_08/task.py"
 NEXUS_REMOTE_PATH = "/home/ubuntu/task/nexus/start.py"
 
-CLEANUP_CMD = f"""\
-pkill -f {shlex.quote(REMOTE_PATH)} || true
-pkill -f {shlex.quote(NEXUS_REMOTE_PATH)} || true
-sleep 2
-rm -f ~/.config/google-chrome/SingletonLock
-rm -rf ~/.config/google-chrome/SingletonSocket
-mkdir -p /home/ubuntu/task/hyper
-mkdir -p /home/ubuntu/task/nexus
-"""
 
 INIT_CMD = f"""\
 wget --no-check-certificate -O init.sh https://www.15712345.xyz/shell/hyper/new/chrome.sh && \
@@ -93,8 +84,16 @@ async def run_remote_script(host: str, param: str | None, nexus_param: str | Non
                         encryption_algs=["aes128-ctr"],
                 ) as conn:
                     # 1) 清理环境
-                    await conn.run(CLEANUP_CMD, check=False)
+                    await conn.run(f"pkill -f {shlex.quote(REMOTE_PATH)}", check=False)
+                    await conn.run(f"pkill -f {shlex.quote(NEXUS_REMOTE_PATH)}", check=False)
+                    await conn.run("pkill -9 chrome", check=False)
+                    await conn.run(f"rm -f ~/.config/google-chrome/SingletonLock", check=False)
+                    await conn.run(f"rm -rf ~/.config/google-chrome/SingletonSocket", check=False)
+                    await conn.run(f"mkdir -p /home/ubuntu/task/nexus", check=False)
+                    await conn.run(f"mkdir -p /home/ubuntu/task/hyper", check=False)
+
                     logger.info(f"[{host}] 环境清理完成")
+
 
                     # 2) 下载并安装脚本
                     res = await conn.run(INIT_CMD, check=False)
@@ -105,7 +104,6 @@ async def run_remote_script(host: str, param: str | None, nexus_param: str | Non
                     # 3) 调整权限并执行
                     await conn.run("chown -R ubuntu:ubuntu /home/ubuntu/task/hyper", check=False)
                     await conn.run("chown -R ubuntu:ubuntu /home/ubuntu/task/nexus", check=False)
-                    await conn.run("pkill -9 chrome", check=False)
 
                     exec_nexus_cmd = (
                         f"sudo -u ubuntu -i nohup python3 {shlex.quote(NEXUS_REMOTE_PATH)}"
