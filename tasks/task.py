@@ -320,6 +320,7 @@ def __do_task_logx(page, evm_id, index):
                     if ele is not None:
                         time.sleep(1)
                         x = random.randint(1645, 1695)
+                        click_x_y(x, 540, index)
                         click_x_y(x, 580, index)
                         logger.info(f'点击倍数:{x}:{index}')
                         time.sleep(2)
