@@ -434,6 +434,7 @@ def __get_popup(page, _url: str = '', timeout: int = 15):
 
 # 登录钱包
 def __login_new_wallet(page, evm_addr):
+    time.sleep(5)
     phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa', timeout=1)
     if phantom_page is None:
         phantom_page = page.new_tab('chrome-extension://bfnaelmomeimhlpmgjnjophhpkkoljpa/popup.html')
@@ -458,11 +459,11 @@ def __login_new_wallet(page, evm_addr):
                     __click_ele(_page=phantom_page, xpath='x://input[@data-testid="onboarding-form-terms-of-service-checkbox" and @aria-checked="false"]', loop=1)
                 if __click_ele(_page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]'):
                     time.sleep(1)
-                    __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "继续")]', loop=8)
+                    __click_ele(_page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]', loop=1)
                     time.sleep(1)
-                    __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "继续")]', loop=1)
+                    __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "继续") or contains(normalize-space(.), "Continue")]', loop=1)
                     time.sleep(1)
-                    __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "开始")]', loop=8)
+                    __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "开始") or contains(normalize-space(.), "Get Started")]', loop=1)
 
     if phantom_page is not None:
         try:
@@ -472,9 +473,23 @@ def __login_new_wallet(page, evm_addr):
             pass
 
 
+def __close_popup(page, _url: str = '', timeout: int = 15):
+    """处理 Signma 弹窗，遍历所有 tab 页签"""
+    start_time = time.time()
+    _count = 0
+    while time.time() - start_time < timeout:
+        time.sleep(1)
+        # 获取所有打开的 tab 页签
+        all_tabs = page.get_tabs()  # 假设此方法返回所有标签页的页面对象
+        # 遍历所有的 tab 页签
+        for tab in all_tabs:
+            if _url in tab.url:
+                tab.close()
+
 def __do_task_prismax(page, evm_id, evm_addr, index):
     __bool = False
     try:
+
         __login_new_wallet(page=page, evm_addr=evm_addr)
         # 页面
         main_page = page.new_tab(url='https://app.prismax.ai/')
