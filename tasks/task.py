@@ -314,22 +314,20 @@ def __do_task_logx(page, evm_id, index):
 
             for attempt in range(5):
                 if __click_ele(_page=main_page, xpath='x://div[text()="MAX"]'):
+                    click_x_y(1764, 416, index)   # 1
                     # 找到元素
                     ele = __get_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]')
                     if ele is not None:
                         time.sleep(1)
-                        if random.choice([True, False]):
-                            click_x_y(1650, 580, index)   # 1
-                        else:
-                            if random.choice([True, False]):
-                                click_x_y(1668, 580, index)   # 2
-                            else:
-                                click_x_y(1689, 580, index)   # 3
+                        x = random.randint(1645, 1695)
+                        click_x_y(x, 580, index)
+                        logger.info('点击倍数')
                         time.sleep(2)
                         if random.choice([True, False]):
                             __click_ele(_page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]')
                         else:
                             __click_ele(_page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Short"]')
+                        logger.info('提交')
                     if __get_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=2):
                         break
                     else:
