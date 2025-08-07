@@ -321,7 +321,7 @@ def __do_task_logx(page, evm_id, index):
                         time.sleep(1)
                         x = random.randint(1645, 1695)
                         click_x_y(x, 580, index)
-                        logger.info('点击倍数')
+                        logger.info(f'点击倍数:{x}:{index}')
                         time.sleep(2)
                         if random.choice([True, False]):
                             __click_ele(_page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]')

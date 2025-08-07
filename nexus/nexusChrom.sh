@@ -288,6 +288,8 @@ install_wallet() {
 
   fi
 }
+
+
 # 下载image
 setup_img() {
     if [ ! -d "/home/ubuntu/img/" ]; then
