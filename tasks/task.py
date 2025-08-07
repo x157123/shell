@@ -494,7 +494,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
         # 页面
         main_page = page.new_tab(url='https://app.prismax.ai/')
         _login = True
-        __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Total hours of data contributed")]')
+        __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
         _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
         if _wallet_but:
             main_page.actions.move_to(_wallet_but).click()
@@ -515,10 +515,10 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
 
         if _login:
             time.sleep(2)
-            num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="Today\'s Prisma Points Earnings"]/following-sibling::div/span[contains(@class,"Dashboard_pointsValue__")]')
+            num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="Daily Prisma Points"]/following-sibling::div/span')
             if num_str is not None and float(num_str) > 0:
                 # 当日结束
-                sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="Overall Prisma Points Earnings"]/following-sibling::div/span[contains(@class,"Dashboard_pointsValue__")]')
+                sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
                 # append_date_to_file(lock=lock, file_path=end_filepath, data_str=evm_id)
                 # append_date_to_file(lock=lock, file_path='integral_all.txt', data_str=str(evm_id)+ "," + sum_num_str.replace(",", "") + "," + datetime.now().strftime('%Y%m%d'))
                 signma_log(message=sum_num_str.replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
