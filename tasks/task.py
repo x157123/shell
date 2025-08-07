@@ -444,9 +444,9 @@ def __login_new_wallet(page, evm_addr):
     else:
         phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa', timeout=1)
 
-    if __get_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "我已经有一个钱包")]', loop=1):
-        if __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "我已经有一个钱包")]'):
-            if __click_ele(_page=phantom_page, xpath='x://button[.//div[contains(normalize-space(.), "导入恢复短语")]]'):
+    if __get_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "我已经有一个钱包") or contains(normalize-space(.), "I already have a wallet")]', loop=1):
+        if __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "我已经有一个钱包") or contains(normalize-space(.), "I already have a wallet")]'):
+            if __click_ele(_page=phantom_page, xpath='x://button[.//div[contains(normalize-space(.), "导入恢复短语") or contains(normalize-space(.), "Import Recovery Phrase")]]'):
                 for i, word in enumerate(evm_addr.split(), 0):
                     __input_ele_value(page=phantom_page, xpath=f'x://input[@data-testid="secret-recovery-phrase-word-input-{i}"]', value=word)
                 # __input_ele_value(page=phantom_page, xpath='x://textarea[@name="privateKey"]', value=evm_addr)
