@@ -26,7 +26,7 @@ def __click_ele(_page, xpath: str = '', loop: int = 5, must: bool = False,
                 index: int = -1) -> bool:
     loop_count = 1
     while True:
-        # logger.info(f'查找元素{xpath}:{loop_count}')
+        logger.info(f'点击查找元素{xpath}:{loop_count}')
         try:
             if not find_all:
                 _page.ele(locator=xpath).click()
@@ -50,7 +50,7 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
               index: int = -1):
     loop_count = 1
     while True:
-        # logger.info(f'查找元素{xpath}:{loop_count}')
+        logger.info(f'查找元素{xpath}:{loop_count}')
         try:
             if not find_all:
                 # logger.info(f'查找元素{xpath}:{loop_count}')
@@ -463,6 +463,8 @@ def __login_new_wallet(page, evm_addr):
                 time.sleep(1)
                 __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "继续") or contains(normalize-space(.), "Continue")]', loop=1)
                 time.sleep(1)
+                __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "继续") or contains(normalize-space(.), "Continue")]', loop=1)
+                time.sleep(1)
                 __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "开始") or contains(normalize-space(.), "Get Started")]', loop=1)
 
     if phantom_page is not None:
@@ -576,7 +578,7 @@ if __name__ == '__main__':
             arg = part.split(",")
             _type = arg[0]
             _id = arg[1]
-            logger.info(f"启动:{type}")
+            logger.info(f"启动:{_type}")
             options = ChromiumOptions()
             options.set_browser_path('/opt/google/chrome')
             if _type == 'prismax':
