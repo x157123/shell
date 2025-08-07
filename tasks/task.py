@@ -283,6 +283,10 @@ def __login_wallet(page, evm_id):
 def __do_task_logx(page, evm_id, index):
     __bool = False
     try:
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+        logger.info('已登录钱包')
+
         main_page = page.new_tab(url="https://app.logx.network/portfolio")
 
         _amount = wait_for_positive_amount(page=main_page, xpath='x://div[contains(normalize-space(.),"Buying Power")]/following-sibling::div[1]//span[starts-with(normalize-space(.),"$")]')
