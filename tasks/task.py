@@ -7,8 +7,6 @@ from loguru import logger
 import argparse
 import os
 
-from seleniumwire.thirdparty.mitmproxy.utils.sliding_window import window
-
 evm_ext_id = "ohgmkpjifodfiomblclfpdhehohinlnn"
 
 def get_points(tab):
