@@ -457,13 +457,13 @@ def __login_new_wallet(page, evm_addr):
                 __input_ele_value(page=phantom_page, xpath='x://input[@data-testid="onboarding-form-confirm-password-input"]', value='sdfasfd#dfff312')
                 if __get_ele(page=phantom_page, xpath='x://input[@data-testid="onboarding-form-terms-of-service-checkbox" and @aria-checked="false"]', loop=1):
                     __click_ele(_page=phantom_page, xpath='x://input[@data-testid="onboarding-form-terms-of-service-checkbox" and @aria-checked="false"]', loop=1)
-                if __click_ele(_page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]'):
-                    time.sleep(1)
-                    __click_ele(_page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]', loop=1)
-                    time.sleep(1)
-                    __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "继续") or contains(normalize-space(.), "Continue")]', loop=1)
-                    time.sleep(1)
-                    __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "开始") or contains(normalize-space(.), "Get Started")]', loop=1)
+                __click_ele(_page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]', loop=1)
+                time.sleep(1)
+                __click_ele(_page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]', loop=1)
+                time.sleep(1)
+                __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "继续") or contains(normalize-space(.), "Continue")]', loop=1)
+                time.sleep(1)
+                __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "开始") or contains(normalize-space(.), "Get Started")]', loop=1)
 
     if phantom_page is not None:
         try:
