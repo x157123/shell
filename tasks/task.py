@@ -566,7 +566,7 @@ if __name__ == '__main__':
             else:
                 options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
 
-            options.set_user_data_path(f"/home/ubuntu/task/{_type}/chrome_data/{_id}")
+            options.set_user_data_path(f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}")
             options.set_user_agent(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
             options.set_local_port(port)
             page = ChromiumPage(options)
