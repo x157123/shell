@@ -176,16 +176,6 @@ stop_services(){
         kill -9 "$PIDS"
         sleep 1
     fi
-
-    # 查找运行中的 去除python进程
-    pids=$(pgrep -f "$PYTHON_SCRIPT_DIR$FILE_NAME")
-    if [ -n "$pids" ]; then
-        echo "检测到正在运行的实例: $pids，准备终止..."
-        for pid in $pids; do
-            kill -9 "$pid"
-            echo "已终止 PID: $pid"
-        done
-    fi
 }
 
 
@@ -195,6 +185,12 @@ main() {
 	if [ "$(id -u)" -ne 0 ]; then
 		error_exit "此脚本需要以 root 权限运行，请使用 sudo 或以 root 用户执行"
 	fi
+
+  # 停止服务
+	stop_services
+
+  # 安装钱包
+  install_wallet
 
 	# 更新软件源并安装 Python 运行时及虚拟环境支持
 	apt-get update \
@@ -223,8 +219,8 @@ main() {
       VNC_DISPLAY="$display" VNC_PORT="$port" setup_vnc
   done
 
-    # 配置并启动 XRDP（所有会话共用）
-    setup_xrdp
+  # 配置并启动 XRDP（所有会话共用）
+  setup_xrdp
 }
 
 main "$@"
