@@ -582,7 +582,7 @@ if __name__ == '__main__':
     end_tasks = read_data_list_file("./end_tasks.txt")
 
     parser = argparse.ArgumentParser(description="获取应用信息")
-    parser.add_argument("--ip", type=str, help="ip参数", default="")
+    parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
     parser.add_argument("--display", type=str, help="X11 DISPLAY", default=":24")
     parser.add_argument("--base-port", type=int, help="本地调试端口", default=29541)
     args = parser.parse_args()
