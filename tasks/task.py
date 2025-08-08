@@ -55,17 +55,17 @@ def click_x_y(x, y, window):
     pyautogui.click()
 
 # 稳定点击
-def __click_ele(_page, xpath: str, loop: int = 5, must: bool = False,
+def __click_ele(page, xpath: str, loop: int = 5, must: bool = False,
                 find_all: bool = False, index: int = 0) -> bool:
     for i in range(1, loop + 1):
         try:
             if not find_all:
-                ele = _page.ele(locator=xpath, timeout=1)
+                ele = page.ele(locator=xpath, timeout=1)
                 if ele:
                     ele.click()
                     return True
             else:
-                eles = _page.eles(locator=xpath, timeout=1)
+                eles = page.eles(locator=xpath, timeout=1)
                 if eles and 0 <= index < len(eles):
                     eles[index].click()
                     return True
@@ -109,7 +109,7 @@ def __get_ele_value(page, xpath: str = '', loop: int = 5, must: bool = False,
 
 def get_points(tab):
     """修复：拼写可能为 'Accumulated points'，并加判空"""
-    if __click_ele(tab, "x://button[.//span[text()='Points']]"):
+    if __click_ele(page=tab, xpath="x://button[.//span[text()='Points']]"):
         # 建议换成等待具体元素出现而不是固定 sleep
         for _ in range(15):
             target_div = tab.ele("x://div[text()='Accumulated points']/following-sibling::div")
@@ -148,72 +148,72 @@ def __handle_signma_popup(page, count: int = 1, timeout: int = 15, must: bool = 
             try:
                 if '/popup.html?page=%2Fdapp-permission' in tab.url:
                     if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
-                        __click_ele(_page=tab, xpath='x://*[@id="close"]')
+                        __click_ele(page=tab, xpath='x://*[@id="close"]')
                         time.sleep(1)
-                    if __click_ele(_page=tab, xpath='x://button[@id="grantPermission"]'):
+                    if __click_ele(page=tab, xpath='x://button[@id="grantPermission"]'):
                         time.sleep(2)
                         _count += 1
                         processed_any = True
 
                 elif '/notification.html#connect' in tab.url:
-                    if __click_ele(_page=tab, xpath='x://*[@data-testid="page-container-footer-next"]'):
-                        __click_ele(_page=tab, xpath='x://*[@data-testid="page-container-footer-next"]')
+                    if __click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]'):
+                        __click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]')
                         time.sleep(2)
                         _count += 1
                         processed_any = True
 
                 elif '/notification.html#confirmation' in tab.url:
-                    if __click_ele(_page=tab, xpath='x://*[@data-testid="confirmation-submit-button"]'):
+                    if __click_ele(page=tab, xpath='x://*[@data-testid="confirmation-submit-button"]'):
                         time.sleep(2)
-                        __click_ele(_page=tab, xpath='x://*[@data-testid="confirmation-submit-button"]')
+                        __click_ele(page=tab, xpath='x://*[@data-testid="confirmation-submit-button"]')
                         time.sleep(2)
                         _count += 1
                         processed_any = True
 
                 elif '/notification.html#confirm-transaction' in tab.url:
-                    if __click_ele(_page=tab, xpath='x://*[@data-testid="page-container-footer-next"]'):
+                    if __click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]'):
                         time.sleep(2)
                         _count += 1
                         processed_any = True
 
                 elif '/popup.html?page=%2Fsign-transaction' in tab.url:
                     if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
-                        __click_ele(_page=tab, xpath='x://*[@id="close"]')
+                        __click_ele(page=tab, xpath='x://*[@id="close"]')
                         time.sleep(1)
-                    if __click_ele(_page=tab, xpath='x://button[@id="sign"]'):
+                    if __click_ele(page=tab, xpath='x://button[@id="sign"]'):
                         time.sleep(2)
                         _count += 1
                         processed_any = True
 
                 elif '/popup.html?page=%2Fsign-data' in tab.url:
                     if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
-                        __click_ele(_page=tab, xpath='x://*[@id="close"]')
+                        __click_ele(page=tab, xpath='x://*[@id="close"]')
                         time.sleep(1)
-                    if __click_ele(_page=tab, xpath='x://button[@id="sign"]'):
+                    if __click_ele(page=tab, xpath='x://button[@id="sign"]'):
                         time.sleep(2)
                         _count += 1
                         processed_any = True
 
                 elif 'popup.html?page=%2Fpersonal-sign' in tab.url:
                     if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
-                        __click_ele(_page=tab, xpath='x://*[@id="close"]')
+                        __click_ele(page=tab, xpath='x://*[@id="close"]')
                         time.sleep(1)
-                    if __click_ele(_page=tab, xpath='x://button[@id="sign"]'):
+                    if __click_ele(page=tab, xpath='x://button[@id="sign"]'):
                         time.sleep(2)
                         _count += 1
                         processed_any = True
 
                 elif ('&tab=%2Fadd-evm-chain' in tab.url) or ('/popup.html?requestId=' in tab.url):
                     if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
-                        __click_ele(_page=tab, xpath='x://*[@id="close"]')
+                        __click_ele(page=tab, xpath='x://*[@id="close"]')
                         time.sleep(1)
-                    if __click_ele(_page=tab, xpath='x://button[@id="addNewChain"]'):
+                    if __click_ele(page=tab, xpath='x://button[@id="addNewChain"]'):
                         time.sleep(2)
                         _count += 1
                         processed_any = True
 
                 elif 'popout.html?windowId=backpack' in tab.url:
-                    if __click_ele(_page=tab, xpath='x://div/span[text()="确认"]'):
+                    if __click_ele(page=tab, xpath='x://div/span[text()="确认"]'):
                         time.sleep(2)
                         _count += 1
                         processed_any = True
@@ -299,11 +299,11 @@ def __login_wallet(page, evm_id):
             if pop_tab.url == wallet_url:
                 if __input_ele_value(page=pop_tab, xpath=xpath, value=evm_id):
                     time.sleep(1)
-                    __click_ele(_page=pop_tab, xpath="tag:button@@id=existingWallet")
+                    __click_ele(page=pop_tab, xpath="tag:button@@id=existingWallet")
     else:
         wallet_tab = page.new_tab(url=wallet_url)
         __input_ele_value(page=wallet_tab, xpath=xpath, value=evm_id)
-        __click_ele(_page=wallet_tab, xpath="tag:button@@id=existingWallet")
+        __click_ele(page=wallet_tab, xpath="tag:button@@id=existingWallet")
         time.sleep(1)
 
 def __do_task_logx(page, evm_id, index):
@@ -321,14 +321,14 @@ def __do_task_logx(page, evm_id, index):
         )
 
         if _amount <= 0:
-            if __click_ele(_page=main_page, xpath='x://span[text()="Connect wallet"]', loop=1):
-                if __click_ele(_page=main_page, xpath='x://div[contains(@class,"sc-dcJtft iIBsYu btn marg") and .//*[contains(@d,"M21.4379 21.7337")]]', loop=3):
+            if __click_ele(page=main_page, xpath='x://span[text()="Connect wallet"]', loop=1):
+                if __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-dcJtft iIBsYu btn marg") and .//*[contains(@d,"M21.4379 21.7337")]]', loop=3):
                     __handle_signma_popup(page=page, count=2)
-            if __click_ele(_page=main_page, xpath='x://span[text()="Establish Connection"]', loop=1):
-                if __click_ele(_page=main_page, xpath='x://div[div[div[text()="Establish Connection"]] and contains(@class,"sc-dcJtft iIBsYu sc-NxrBK idZGaa") ]', loop=1):
+            if __click_ele(page=main_page, xpath='x://span[text()="Establish Connection"]', loop=1):
+                if __click_ele(page=main_page, xpath='x://div[div[div[text()="Establish Connection"]] and contains(@class,"sc-dcJtft iIBsYu sc-NxrBK idZGaa") ]', loop=1):
                     __handle_signma_popup(page=page, count=1)
 
-            __click_ele(_page=main_page, xpath='x://div[contains(@class, "sc-djTQOc bLFUQW")]', loop=1)
+            __click_ele(page=main_page, xpath='x://div[contains(@class, "sc-djTQOc bLFUQW")]', loop=1)
 
             _amount = wait_for_positive_amount(
                 page=main_page,
@@ -344,10 +344,10 @@ def __do_task_logx(page, evm_id, index):
 
         if _amount > 0:
             main_page.get('https://app.logx.network/trade/BTC')
-            __click_ele(_page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=1)
+            __click_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=1)
 
             for attempt in range(5):
-                if __click_ele(_page=main_page, xpath='x://div[text()="MAX"]'):
+                if __click_ele(page=main_page, xpath='x://div[text()="MAX"]'):
                     click_x_y(1764, 416, index)   # 坐标点击：尽量保证分辨率一致
                     ele = __get_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]')
                     if ele is not None:
@@ -358,9 +358,9 @@ def __do_task_logx(page, evm_id, index):
                         logger.info(f'点击倍数:{x}:{index}')
                         time.sleep(2)
                         if random.choice([True, False]):
-                            __click_ele(_page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]')
+                            __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]')
                         else:
-                            __click_ele(_page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Short"]')
+                            __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Short"]')
                         logger.info('提交')
                     if __get_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=2):
                         break
@@ -369,7 +369,7 @@ def __do_task_logx(page, evm_id, index):
             time.sleep(random.randint(3, 5))
 
             for attempt in range(8):
-                if __click_ele(_page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=2):
+                if __click_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=2):
                     __bool = True
                     time.sleep(3)
                 else:
@@ -390,14 +390,14 @@ def __do_task_nexus(page, evm_id, index):
         nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
         __get_ele(page=nexus, xpath='x://a[contains(text(), "FAQ")]', loop=10)
         if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
-            __click_ele(_page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1)
+            __click_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1)
             shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
             if shadow_host:
                 shadow_root = shadow_host.shadow_root
                 if shadow_root:
                     continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
                     if continue_button:
-                        __click_ele(_page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
+                        __click_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
                         shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
                         if shadow_host:
                             shadow_root = shadow_host.shadow_root
@@ -422,7 +422,7 @@ def __do_task_nexus(page, evm_id, index):
                         __handle_signma_popup(page=page, count=1, timeout=45)
 
         if __get_ele(page=nexus, xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]', loop=2):
-            __click_ele(_page=nexus, xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]')
+            __click_ele(page=nexus, xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]')
             time.sleep(65)
             nexus.get('https://app.nexus.xyz/rewards')
 
@@ -448,30 +448,30 @@ def __login_new_wallet(page, evm_addr):
 
     if __get_ele(page=phantom_page, xpath='x://button[@data-testid="unlock-form-submit-button"]', loop=2):
         __input_ele_value(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]', value='sdfasfd#dfff312')
-        __click_ele(_page=phantom_page, xpath='x://button[@data-testid="unlock-form-submit-button"]')
+        __click_ele(page=phantom_page, xpath='x://button[@data-testid="unlock-form-submit-button"]')
     else:
         phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa', timeout=1)
 
     if __get_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "我已经有一个钱包") or contains(normalize-space(.), "I already have a wallet")]', loop=1):
-        if __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "我已经有一个钱包") or contains(normalize-space(.), "I already have a wallet")]'):
-            if __click_ele(_page=phantom_page, xpath='x://button[.//div[contains(normalize-space(.), "导入恢复短语") or contains(normalize-space(.), "Import Recovery Phrase")]]'):
+        if __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "我已经有一个钱包") or contains(normalize-space(.), "I already have a wallet")]'):
+            if __click_ele(page=phantom_page, xpath='x://button[.//div[contains(normalize-space(.), "导入恢复短语") or contains(normalize-space(.), "Import Recovery Phrase")]]'):
                 for i, word in enumerate(evm_addr.split(), 0):
                     __input_ele_value(page=phantom_page, xpath=f'x://input[@data-testid="secret-recovery-phrase-word-input-{i}"]', value=word)
-            if __click_ele(_page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]'):
-                __click_ele(_page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]')
+            if __click_ele(page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]'):
+                __click_ele(page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]')
                 __input_ele_value(page=phantom_page, xpath='x://input[@data-testid="onboarding-form-password-input"]', value='sdfasfd#dfff312')
                 __input_ele_value(page=phantom_page, xpath='x://input[@data-testid="onboarding-form-confirm-password-input"]', value='sdfasfd#dfff312')
                 if __get_ele(page=phantom_page, xpath='x://input[@data-testid="onboarding-form-terms-of-service-checkbox" and @aria-checked="false"]', loop=1):
-                    __click_ele(_page=phantom_page, xpath='x://input[@data-testid="onboarding-form-terms-of-service-checkbox" and @aria-checked="false"]', loop=1)
-                __click_ele(_page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]', loop=1)
+                    __click_ele(page=phantom_page, xpath='x://input[@data-testid="onboarding-form-terms-of-service-checkbox" and @aria-checked="false"]', loop=1)
+                __click_ele(page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]', loop=1)
                 time.sleep(1)
-                __click_ele(_page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]', loop=1)
+                __click_ele(page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]', loop=1)
                 time.sleep(1)
-                __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "继续") or contains(normalize-space(.), "Continue")]', loop=1)
+                __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "继续") or contains(normalize-space(.), "Continue")]', loop=1)
                 time.sleep(1)
-                __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "继续") or contains(normalize-space(.), "Continue")]', loop=1)
+                __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "继续") or contains(normalize-space(.), "Continue")]', loop=1)
                 time.sleep(1)
-                __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "开始") or contains(normalize-space(.), "Get Started")]', loop=1)
+                __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "开始") or contains(normalize-space(.), "Get Started")]', loop=1)
 
     if phantom_page is not None:
         try:
@@ -491,17 +491,17 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
         if _wallet_but:
             main_page.actions.move_to(_wallet_but).click()
             time.sleep(4)
-            if __click_ele(_page=main_page, xpath='x://div[contains(@class,"ConnectWalletHeader_connectOption") and .//p[normalize-space()="Phantom Wallet"]]'):
+            if __click_ele(page=main_page, xpath='x://div[contains(@class,"ConnectWalletHeader_connectOption") and .//p[normalize-space()="Phantom Wallet"]]'):
                 phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/notification.html', timeout=3)
                 if phantom_page is not None:
                     if __get_ele(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]', loop=1):
                         __input_ele_value(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]', value='sdfasfd#dfff312')
-                        if __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "解锁")]'):
+                        if __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "解锁")]'):
                             logger.info('解锁账号')
-                    __click_ele(_page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+                    __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
                 phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/popup.html', timeout=3)
                 if phantom_page is not None:
-                    __click_ele(_page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+                    __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
             time.sleep(5)
 
         _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
@@ -512,17 +512,17 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
             _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
             main_page.actions.move_to(_wallet_but).click()
             time.sleep(4)
-            if __click_ele(_page=main_page, xpath='x://div[contains(@class,"ConnectWalletHeader_connectOption") and .//p[normalize-space()="Phantom Wallet"]]'):
+            if __click_ele(page=main_page, xpath='x://div[contains(@class,"ConnectWalletHeader_connectOption") and .//p[normalize-space()="Phantom Wallet"]]'):
                 phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/notification.html', timeout=3)
                 if phantom_page is not None:
                     if __get_ele(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]', loop=1):
                         __input_ele_value(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]', value='sdfasfd#dfff312')
-                        if __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "解锁")]'):
+                        if __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "解锁")]'):
                             logger.info('解锁账号')
-                    __click_ele(_page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+                    __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
                 phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/popup.html', timeout=3)
                 if phantom_page is not None:
-                    __click_ele(_page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+                    __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
             time.sleep(5)
 
             if __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1):
@@ -542,13 +542,13 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
 
             # 尝试问答获取积分
             main_page.get('https://app.prismax.ai/whitepaper')
-            if __click_ele(_page=main_page, xpath='x://button[contains(normalize-space(.), "Review answers")]', loop=1):
+            if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Review answers")]', loop=1):
                 logger.info('答题积分完成')
             elif __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
                 for i in range(2):
                     if __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
-                        __click_ele(_page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
-                        if __click_ele(_page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]', loop=2):
+                        __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
+                        if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]', loop=2):
                             for offset in range(5):
                                 time.sleep(random.uniform(1, 5))
                                 _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
