@@ -75,7 +75,7 @@ def signma_log(message: str, task_name: str, index: str) -> bool:
     try:
         url = "{}/service_route?ip={}&&type={}&&id={}&&data={}"
         server_url = 'http://150.109.5.143:9900'
-        full_url = url.format(args.ip, server_url, task_name, index, message)
+        full_url = url.format(server_url, args.ip, task_name, index, message)
         try:
             response = requests.get(full_url, verify=False)
             if response.status_code == 200:
