@@ -500,6 +500,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
         _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
         if _wallet_but:
             main_page.actions.move_to(_wallet_but).click()
+            time.sleep(4)
             if __click_ele(_page=main_page, xpath='x://div[contains(@class,"ConnectWalletHeader_connectOption") and .//p[normalize-space()="Phantom Wallet"]]'):
                 phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/notification.html', timeout=3)
                 if phantom_page is not None:
@@ -512,6 +513,28 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 if phantom_page is not None:
                     __click_ele(_page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
             time.sleep(5)
+
+        _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
+        if _wallet_but:
+            main_page.get(url='https://app.prismax.ai/')
+            __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
+            time.sleep(10)
+            _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
+            main_page.actions.move_to(_wallet_but).click()
+            time.sleep(4)
+            if __click_ele(_page=main_page, xpath='x://div[contains(@class,"ConnectWalletHeader_connectOption") and .//p[normalize-space()="Phantom Wallet"]]'):
+                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/notification.html', timeout=3)
+                if phantom_page is not None:
+                    if __get_ele(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]', loop=1):
+                        __input_ele_value(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]', value='sdfasfd#dfff312')
+                        if __click_ele(_page=phantom_page, xpath='x://button[contains(normalize-space(.), "解锁")]'):
+                            logger.info('解锁账号')
+                    __click_ele(_page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/popup.html', timeout=3)
+                if phantom_page is not None:
+                    __click_ele(_page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+            time.sleep(5)
+
             if __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1):
                 _login = False
 
