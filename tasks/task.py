@@ -74,9 +74,9 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
 
 def signma_log(message: str, task_name: str, index: str) -> bool:
     try:
-        url = "{}/service_route?type={}&&id={}&&data={}"
+        url = "{}/service_route?ip={}&&type={}&&id={}&&data={}"
         server_url = 'http://150.109.5.143:9900'
-        full_url = url.format(server_url, task_name, index, message)
+        full_url = url.format(args.ip, server_url, task_name, index, message)
         try:
             response = requests.get(full_url, verify=False)
             if response.status_code == 200:
@@ -566,8 +566,8 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
-    parser.add_argument("--param", type=str, help="参数")
-    parser.add_argument("--ip", type=str, help="参数")
+    parser.add_argument("--param", type=str, help="数据参数")
+    parser.add_argument("--ip", type=str, help="ip参数")
     args = parser.parse_args()
     _window = '24'
     for part in args.param.split("||"):
