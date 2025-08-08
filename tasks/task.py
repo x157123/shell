@@ -351,9 +351,9 @@ def __do_task_nexus(page, evm_id, index):
     __bool = False
     try:
         logger.info('登录钱包')
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
         time.sleep(3)
+        __handle_signma_popup(page=page, count=0)
+        __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
         nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
         __get_ele(page=nexus, xpath='x://a[contains(text(), "FAQ")]', loop=10)
