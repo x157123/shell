@@ -534,22 +534,22 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 for i in range(2):
                     if __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
                         __click_ele(_page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
-                        __click_ele(_page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]')
-                        for offset in  range(5):
-                            time.sleep(random.uniform(1, 5))       # 页面提交错误，延迟看是否能解决
-                            _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
-                            main_page.actions.move_to(_select_t).click()
-                            time.sleep(3)
-                            _select = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover") or starts-with(normalize-space(.),"Network-owned data is community-controlled") or starts-with(normalize-space(.),"Current AI models lack sufficient") or starts-with(normalize-space(.),"Achievement of high robot autonomy") or starts-with(normalize-space(.),"More robots generate valuable datasets")]]')
-                            logger.info(_select.html)
-                            main_page.actions.move_to(_select).click()
-                            time.sleep(4)
-                            _next = __get_ele(page=main_page, xpath='x://button[(@class="QuizModal_navButton__Zy2TN" and contains(normalize-space(.), "Next →")) or (@class="QuizModal_goldButton__SjXdA" and contains(normalize-space(.), "Finish Quiz →"))]')
-                            if _next:
-                                time.sleep(1)
-                                logger.info(_next.html)
-                                main_page.actions.move_to(_next).click()
-                        time.sleep(5)
+                        if __click_ele(_page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]', loop=2):
+                            for offset in  range(5):
+                                time.sleep(random.uniform(1, 5))       # 页面提交错误，延迟看是否能解决
+                                _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
+                                main_page.actions.move_to(_select_t).click()
+                                time.sleep(3)
+                                _select = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover") or starts-with(normalize-space(.),"Network-owned data is community-controlled") or starts-with(normalize-space(.),"Current AI models lack sufficient") or starts-with(normalize-space(.),"Achievement of high robot autonomy") or starts-with(normalize-space(.),"More robots generate valuable datasets")]]')
+                                logger.info(_select.html)
+                                main_page.actions.move_to(_select).click()
+                                time.sleep(4)
+                                _next = __get_ele(page=main_page, xpath='x://button[(@class="QuizModal_navButton__Zy2TN" and contains(normalize-space(.), "Next →")) or (@class="QuizModal_goldButton__SjXdA" and contains(normalize-space(.), "Finish Quiz →"))]')
+                                if _next:
+                                    time.sleep(1)
+                                    logger.info(_next.html)
+                                    main_page.actions.move_to(_next).click()
+                            time.sleep(5)
                         main_page.get('https://app.prismax.ai/whitepaper')
                         time.sleep(2)
                     else:
