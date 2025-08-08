@@ -73,7 +73,7 @@ def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
 
 def signma_log(message: str, task_name: str, index: str) -> bool:
     try:
-        url = "{}/service_route?ip={}&&type={}&&id={}&&data={}"
+        url = "{}?ip={}&&type={}&&id={}&&data={}"
         server_url = 'http://150.109.5.143:9900'
         full_url = url.format(server_url, args.ip, task_name, index, message)
         try:
