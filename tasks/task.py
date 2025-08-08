@@ -353,6 +353,8 @@ def __do_task_nexus(page, evm_id, index):
         logger.info('登录钱包')
         __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
+        time.sleep(3)
+        __handle_signma_popup(page=page, count=0)
         nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
         __get_ele(page=nexus, xpath='x://a[contains(text(), "FAQ")]', loop=10)
         if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
@@ -380,7 +382,7 @@ def __do_task_nexus(page, evm_id, index):
                                     signma_ele = shadow_root.ele('x://span[text()="Signma"]')
                                     if signma_ele:
                                         signma_ele.click(by_js=True)
-                                        __handle_signma_popup(page=page, count=1, timeout=15)
+                                        __handle_signma_popup(page=page, count=1, timeout=45)
                                 else:
                                     logger.info("没有找到 'Signma' 元素。")
                             else:
@@ -396,7 +398,7 @@ def __do_task_nexus(page, evm_id, index):
                     newt_work = net_shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]', timeout=3)
                     if newt_work:
                         newt_work.click(by_js=True)
-                        __handle_signma_popup(page=page, count=1, timeout=15)
+                        __handle_signma_popup(page=page, count=1, timeout=45)
 
         if __get_ele(page=nexus, xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]', loop=2):
             __click_ele(_page=nexus, xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]')
