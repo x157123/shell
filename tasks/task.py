@@ -9,6 +9,25 @@ import os
 
 evm_ext_id = "ohgmkpjifodfiomblclfpdhehohinlnn"
 
+
+# 读取txt文件
+def read_data_list_file(file_path, check_exists=True):
+    # 如果需要检查文件是否存在，且文件不存在，则创建文件
+    if check_exists and not os.path.exists(file_path):
+        with open(file_path, 'w'):  # 创建文件并关闭
+            pass  # 创建空文件
+    with open(file_path, "r") as file:
+        questions = file.readlines()
+    # 过滤掉空白行并去除每行末尾的换行符
+    return [question.strip() for question in questions if question.strip()]
+
+
+# 文件追加
+def append_date_to_file(file_path, data_str):
+    with open(file_path, 'a') as file:
+        file.write(data_str + '\n')
+
+
 def get_points(tab):
     # 获取积分：点击按钮后从剪贴板读取
     if __click_ele(tab, "x://button[.//span[text()='Points']]"):
@@ -587,20 +606,37 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 page.quit()
             except Exception as e:
                 logger.exception("退出错误")
-
+    return __bool
 
 if __name__ == '__main__':
+    today = datetime.today().date()
+    tasks = read_data_list_file("./tasks.txt")
+    end_tasks = read_data_list_file("./end_tasks.txt")
     parser = argparse.ArgumentParser(description="获取应用信息")
-    parser.add_argument("--param", type=str, help="数据参数")
     parser.add_argument("--ip", type=str, help="ip参数")
     args = parser.parse_args()
     _window = '24'
-    for part in args.param.split("||"):
+
+    filtered = []
+    for line in tasks:
+        parts = line.split("||")
+        date_str = parts[2]  # 第三个字段是日期
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+        if parts[0] == '0' or (date_obj <= today and parts[0] not in end_tasks):  # 保留大于今天的,并且是已完成数据
+            filtered.append(line)
+
+    for part in filtered:
         page = None
+        _end = False
+        _task_id = ''
+        _task_type = ''
         try:
             os.environ['DISPLAY'] = f':{_window}'
             port = 29541
-            arg = part.split(",")
+            parts = part.split("||")
+            _task_id = parts[0]
+            _task_type = parts[1]
+            arg = parts[3].split(",")
             _type = arg[0]
             _id = arg[1]
             logger.info(f"启动:{_type}")
@@ -616,13 +652,12 @@ if __name__ == '__main__':
             options.set_local_port(port)
             page = ChromiumPage(options)
             page.set.window.max()
-
             if _type == 'logx':
-                __do_task_logx(page=page,index=_window, evm_id=_id)
+                _end = __do_task_logx(page=page,index=_window, evm_id=_id)
             elif _type == 'nexus':
-                __do_task_nexus(page=page,index=_window, evm_id=_id)
+                _end = __do_task_nexus(page=page,index=_window, evm_id=_id)
             elif _type == 'prismax':
-                __do_task_prismax(page=page, index=_window, evm_id=_id, evm_addr=arg[2])
+                _end = __do_task_prismax(page=page, index=_window, evm_id=_id, evm_addr=arg[2])
 
         except Exception as e:
             logger.info(f"任务异常: {e}")
@@ -632,3 +667,5 @@ if __name__ == '__main__':
                     page.quit()
                 except Exception as e:
                     logger.exception("退出错误")
+            if _end and _task_type != '0' and _task_id != '':
+                append_date_to_file( file_path="./end_tasks.txt", data_str=_task_id)
