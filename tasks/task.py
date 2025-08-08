@@ -574,12 +574,162 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
         logger.info(f"窗口{index}处理任务异常: {e}")
     return __bool
 
+# 添加网络
+def __add_net_work(page, coin_name='base'):
+    obj = {
+        'arb': 42161,
+        'base': 8453,
+        'opt': 10,
+        'hemi': 43111,
+        'arbitrum': 42161,
+        'rari': 1380012617,
+    }
+    number = obj[coin_name]
+    chain_page = page.new_tab(f'https://chainlist.org/?search={number}&testnets=false')
+    try:
+        if __click_ele(page=chain_page, xpath='x://button[text()="Connect Wallet"]', loop=1):
+            __handle_signma_popup(page=page, count=1)
+        __click_ele(page=chain_page,
+                    xpath=f'x://td[contains(text(), "{number} ")]/../../../following-sibling::button[1]')
+        __handle_signma_popup(page=page, count=1, timeout=5)
+    except Exception as e:
+        error = e
+        pass
+    finally:
+        chain_page.close()
+    return True
+
+
+def __select_net(page, net_name, net_name_t: str = None, add_net: str = None):
+    if net_name_t is None:
+        net_name_t = net_name
+    wallet_page = page.new_tab(f'chrome-extension://{evm_ext_id}/popup.html')
+    if __click_ele(page=wallet_page, xpath='x://button[@data-testid="top_menu_network_switcher"]', loop=2):
+        if __click_ele(page=wallet_page, xpath=f'x://li[div[div[contains(text(), "{net_name}") or contains(text(), "{net_name_t}")]]]', loop=5):
+            time.sleep(5)
+        else:
+            if add_net is not None:
+                __add_net_work(page=page, coin_name=add_net)
+    wallet_page.close()
+
+
+def __do_task_nft(page, evm_id, english_names, image_files, image_descriptions):
+    try:
+        __add_net_work(page=page, coin_name='rari')
+        __select_net(page=page, net_name='Rari Chain', net_name_t='RARI Chain')
+
+        hyperbolic_page = page.new_tab(url='https://rarible.com/create/start')
+        # 等待页面加载完成
+
+        if __get_ele(page=hyperbolic_page, xpath="x://a[contains(text(), 'Create')]", loop=5):
+            time.sleep(0.1)
+        else:
+            hyperbolic_page.refresh()
+            time.sleep(2)
+            if __get_ele(page=hyperbolic_page, xpath="x://a[contains(text(), 'Create')]", loop=5):
+                time.sleep(0.1)
+            else:
+                hyperbolic_page.refresh()
+        if __get_ele(page=hyperbolic_page, xpath="x://a[contains(text(), 'Create')]", loop=5):
+            __click_ele(page=hyperbolic_page, xpath="x://button[.//span[contains(text(), 'RARI Chain')]]", loop=1)
+            if __click_ele(page=hyperbolic_page, xpath="x://span[contains(text(), 'MetaMask')]", loop=1):
+                # 确定钱包  初次钱包确认4次， 通过之后只有两次
+                __handle_signma_popup(page=page, count=4, timeout=20)
+            # create-single
+            # 判断是否需要注册
+            if __click_ele(page=hyperbolic_page, xpath='x://input[@placeholder="Display name"]', loop=1):
+                # 随机一个英文名
+                __input_ele_value(page=hyperbolic_page, xpath='x://input[@placeholder="Display name"]',
+                                  value=random.choice(english_names))
+                __click_ele(page=hyperbolic_page,
+                            xpath="x://button[.//span[contains(text(), 'I have read and accept the')]]", loop=2)
+                __click_ele(page=hyperbolic_page,
+                            xpath="x://button[.//span[contains(text(), 'I want to receive announcements and news')]]",
+                            loop=2)
+                __click_ele(page=hyperbolic_page, xpath="x://button[.//span[contains(text(), 'Finish sign-up')]]", loop=2)
+
+            __click_ele(page=hyperbolic_page, xpath='x://button[@id="create-single"]', loop=2)
+
+            # 随机设置要上传的文件路径
+            hyperbolic_page.set.upload_files(random.choice(image_files))
+            # 点击触发文件选择框按钮
+            div_element = hyperbolic_page.ele('x://button[span[span[span[text()="Choose File"]]]]')
+            if div_element:
+                div_element.click()
+                # 等待路径填入
+                hyperbolic_page.wait.upload_paths_inputted()
+
+            # 随机定价
+            __input_ele_value(page=hyperbolic_page, xpath='x://input[@placeholder="Enter price"]',
+                              value=str("{:.5f}".format(random.uniform(0.00051, 0.00070))))
+            if __click_ele(page=hyperbolic_page, xpath='x://div[@data-marker ="create-item-expiration"]', loop=2):
+                # 随机
+                if random.randint(1, 3) > 1:
+                    __click_ele(page=hyperbolic_page, xpath='x://span[text() ="3 Months"]', loop=2)
+                else:
+                    __click_ele(page=hyperbolic_page, xpath='x://span[text() ="1 Month"]', loop=2)
+            __input_ele_value(page=hyperbolic_page, xpath='x://input[@data-marker="create-token-name"]',
+                              value=random.choice(image_descriptions))
+            __click_ele(page=hyperbolic_page, xpath='x://button[@data-marker="create-token-submit-btn"]', loop=2)
+
+            # 钱包两次确定
+            __handle_signma_popup(page=page, count=2, timeout=90)
+            time.sleep(2)
+            __handle_signma_popup(page=page, count=0)
+            # 获取成功按钮 <button type="button" data-marker="mint-receipt-view-btn" class="sc-aXZVg sc-eBMEME sc-dCFHLb sc-jxOSlx sc-tagGq dAopwH ctYaUb ciBRVx iANODE"><span class="sc-cfxfcM hpAeLf"><span class="sc-gFAWRd eNTBLN">View NFT</span></span></button>
+            if __get_ele(page=hyperbolic_page, xpath='x://button[span[span[text()="View NFT"]]]', loop=10):
+                time.sleep(3)
+                logger.info(f'{evm_id},nft 交易成功')
+                return True
+            else:
+                logger.info(f'{evm_id},nft 交易未提示成功')
+    except Exception as e:
+        logger.info(f"未知异常 {evm_id} ：{e}")
+    return False
+
+
+
+def __do_swap_rari_arb_eth(page, evm_id):
+    try:
+        __add_net_work(page=page, coin_name='rari')
+        __select_net(page=page, net_name='Rari Chain', net_name_t='RARI Chain')
+        hyperbolic_page = page.new_tab(url='https://rari.bridge.caldera.xyz')
+        time.sleep(2)
+        if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=2):
+            __click_ele(page=hyperbolic_page, xpath='x://button/div/div/div/div[text()="Signma"]', loop=1)
+            __handle_signma_popup(page=page, count=1)
+        if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=1):
+            if __click_ele(page=hyperbolic_page, xpath='x://button/div/div/div/div[text()="Signma"]', loop=1):
+                __handle_signma_popup(page=page, count=1)
+
+        from_s = __get_ele_value(page=hyperbolic_page, xpath='x://span[text()="From"]/following-sibling::span[@class="whitespace-nowrap font-medium"]')
+        if from_s == 'Arbitrum One':
+            __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Swap")]')
+
+        value = __get_ele_value(page=hyperbolic_page, xpath='x://span[contains(@class, "truncate whitespace-nowrap")]', find_all=True, index=0)
+        if float(value) > 0.000401:
+            amount = "{:.6f}".format(random.uniform(0.0000201, 0.0000301))
+            __input_ele_value(page=hyperbolic_page, xpath='x://input[@placeholder="Amount"]', value=amount)
+            time.sleep(2)
+            if __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Transfer Tokens") and not(@disabled)]', loop=3):
+                if __handle_signma_popup(page=page, count=1):
+                    time.sleep(5)
+    except Exception as e:
+        logger.info(f"未知异常 {evm_id} ：{e}")
+    return True
+
+
+
+
+
+
+
 # ========== 主流程 ==========
 
 if __name__ == '__main__':
     today = datetime.today().date()
-    tasks = read_data_list_file("./tasks.txt")
-    end_tasks = read_data_list_file("./end_tasks.txt")
+    tasks = read_data_list_file("/home/ubuntu/task/tasks/tasks.txt")
+    end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_tasks.txt")
 
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
@@ -589,12 +739,15 @@ if __name__ == '__main__':
     ARGS_IP = args.ip or ""
     _window = args.display.lstrip(':')
 
+
+    logger.info(f'开始执行{ARGS_IP}:{_window}:{args.display}:{len(tasks)}')
     # 统一设置 DISPLAY
     os.environ['DISPLAY'] = f':{_window}'
 
     # 过滤：保留“今天及以前”的数据；并排除已完成（end_tasks）之外的行
     filtered = []
     for line in tasks:
+        logger.info(f'开始执行:{line}')
         parts = line.split("||")
         if len(parts) < 3:
             logger.warning(f"任务行格式不正确，跳过：{line!r}")
@@ -606,7 +759,7 @@ if __name__ == '__main__':
             logger.warning(f"日期解析失败，跳过：{date_str!r} in {line!r}")
             continue
         # 需求：获取今天之前（含今天）的数据，且未完成；另外 parts[0]=='0' 也保留
-        if parts[0] == '0' or (date_obj <= today and parts[0] not in end_tasks):
+        if parts[1] == '0' or (date_obj <= today and parts[0] not in end_tasks):
             filtered.append(line)
 
     for part in filtered:
@@ -664,6 +817,10 @@ if __name__ == '__main__':
 
             if _type == 'logx':
                 _end = __do_task_logx(page=page, index=_window, evm_id=_id)
+            elif _type == 'nft':
+                _end = __do_task_nft(page=page, index=_window, evm_id=_id)
+            elif _type == 'rari_arb':
+                _end = __do_swap_rari_arb_eth(page=page, index=_window, evm_id=_id)
             elif _type == 'nexus':
                 _end = __do_task_nexus(page=page, index=_window, evm_id=_id)
             elif _type == 'prismax':
