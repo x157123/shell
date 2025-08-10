@@ -1,0 +1,843 @@
+import requests
+from DrissionPage import ChromiumPage, ChromiumOptions
+import time
+from datetime import datetime
+import random
+from loguru import logger
+import argparse
+import os
+
+# ========== 全局配置 ==========
+evm_ext_id = "ohgmkpjifodfiomblclfpdhehohinlnn"
+ARGS_IP = ""  # 在 main 里赋值
+
+# ========== 文件读写 ==========
+
+# 读取txt文件（显式 UTF-8，确保创建文件）
+def read_data_list_file(file_path, check_exists=True):
+    if check_exists and not os.path.exists(file_path):
+        with open(file_path, 'w', encoding='utf-8'):
+            pass
+    with open(file_path, "r", encoding='utf-8') as file:
+        questions = file.readlines()
+    return [question.strip() for question in questions if question.strip()]
+
+# 文件追加（显式 UTF-8）
+def append_date_to_file(file_path, data_str):
+    with open(file_path, 'a', encoding='utf-8') as file:
+        file.write(data_str + '\n')
+
+# ========== 工具函数 ==========
+
+def signma_log(message: str, task_name: str, index: str) -> bool:
+    """修复：使用 params 自动 URL 编码；不再使用 raise logger.error；加超时"""
+    try:
+        server_url = 'http://150.109.5.143:9900'
+        params = {"ip": ARGS_IP, "type": task_name, "id": index, "data": message}
+        r = requests.get(server_url, params=params, timeout=5)
+        if r.status_code == 200:
+            logger.info("积分提交成功")
+        else:
+            logger.warning(f"日志上报返回码：{r.status_code}")
+        return True
+    except requests.RequestException as e:
+        logger.error(f"Request failed: {e}")
+        return False
+
+def get_date_as_string():
+    return datetime.now().strftime("%Y-%m-%d")
+
+def click_x_y(x, y, window):
+    """尽量避免使用坐标点击；如必须，请确保 DISPLAY 在主流程里统一设置"""
+    import pyautogui
+    pyautogui.FAILSAFE = False
+    pyautogui.moveTo(x, y)
+    pyautogui.click()
+
+# 稳定点击
+def __click_ele(page, xpath: str, loop: int = 5, must: bool = False,
+                find_all: bool = False, index: int = 0) -> bool:
+    for i in range(1, loop + 1):
+        try:
+            if not find_all:
+                ele = page.ele(locator=xpath, timeout=1)
+                if ele:
+                    ele.click()
+                    return True
+            else:
+                eles = page.eles(locator=xpath, timeout=1)
+                if eles and 0 <= index < len(eles):
+                    eles[index].click()
+                    return True
+        except Exception as e:
+            logger.debug(f'点击失败({i}/{loop}) {xpath}: {e}')
+        time.sleep(0.5)
+    if must:
+        raise Exception(f'未找到元素:{xpath}')
+    return False
+
+# 稳定获取元素
+def __get_ele(page, xpath: str, loop: int = 5, must: bool = False,
+              find_all: bool = False, index: int = 0):
+    for i in range(1, loop + 1):
+        try:
+            if not find_all:
+                ele = page.ele(locator=xpath, timeout=1)
+                if ele:
+                    return ele
+            else:
+                eles = page.eles(locator=xpath, timeout=1)
+                if eles and 0 <= index < len(eles):
+                    return eles[index]
+        except Exception as e:
+            logger.debug(f'查找失败({i}/{loop}) {xpath}: {e}')
+        time.sleep(0.5)
+    if must:
+        raise Exception(f'未找到元素:{xpath}')
+    return None
+
+# 获取元素文本
+def __get_ele_value(page, xpath: str = '', loop: int = 5, must: bool = False,
+                    find_all: bool = False, index: int = 0):
+    try:
+        _ele = __get_ele(page=page, xpath=xpath, loop=loop, must=must, find_all=find_all, index=index)
+        if _ele:
+            return _ele.text
+    except Exception as e:
+        logger.debug(f'获取文本失败 {xpath}: {e}')
+    return None
+
+def get_points(tab):
+    """修复：拼写可能为 'Accumulated points'，并加判空"""
+    if __click_ele(page=tab, xpath="x://button[.//span[text()='Points']]"):
+        # 建议换成等待具体元素出现而不是固定 sleep
+        for _ in range(15):
+            target_div = tab.ele("x://div[text()='Accumulated points']/following-sibling::div")
+            if target_div:
+                return target_div.text
+            time.sleep(1)
+    return None
+
+def wait_for_positive_amount(page, xpath, max_attempts=8, interval=1):
+    """循环尝试获取 >0 的金额，默认尝试 8 次"""
+    for attempt in range(max_attempts):
+        raw = __get_ele_value(page=page, xpath=xpath)
+        if raw:
+            clean = raw.strip().lstrip('$').replace(',', '')
+            try:
+                value = float(clean)
+                if value > 0:
+                    return value
+            except ValueError:
+                pass
+        time.sleep(interval)
+    return 0.0
+
+def __handle_signma_popup(page, count: int = 1, timeout: int = 15, must: bool = False):
+    """
+    处理 Signma 弹窗，遍历所有 tab。
+    修复：当 count=0 时，表示“尽力清弹窗”，整轮扫描后返回是否处理过。
+    """
+    start_time = time.time()
+    _count = 0
+    processed_any = False
+    while time.time() - start_time < timeout:
+        time.sleep(2)
+        all_tabs = page.get_tabs()
+        for tab in all_tabs:
+            try:
+                if '/popup.html?page=%2Fdapp-permission' in tab.url:
+                    if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                        __click_ele(page=tab, xpath='x://*[@id="close"]')
+                        time.sleep(1)
+                    if __click_ele(page=tab, xpath='x://button[@id="grantPermission"]'):
+                        time.sleep(2)
+                        _count += 1
+                        processed_any = True
+
+                elif '/notification.html#connect' in tab.url:
+                    if __click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]'):
+                        __click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]')
+                        time.sleep(2)
+                        _count += 1
+                        processed_any = True
+
+                elif '/notification.html#confirmation' in tab.url:
+                    if __click_ele(page=tab, xpath='x://*[@data-testid="confirmation-submit-button"]'):
+                        time.sleep(2)
+                        __click_ele(page=tab, xpath='x://*[@data-testid="confirmation-submit-button"]')
+                        time.sleep(2)
+                        _count += 1
+                        processed_any = True
+
+                elif '/notification.html#confirm-transaction' in tab.url:
+                    if __click_ele(page=tab, xpath='x://*[@data-testid="page-container-footer-next"]'):
+                        time.sleep(2)
+                        _count += 1
+                        processed_any = True
+
+                elif '/popup.html?page=%2Fsign-transaction' in tab.url:
+                    if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                        __click_ele(page=tab, xpath='x://*[@id="close"]')
+                        time.sleep(1)
+                    if __click_ele(page=tab, xpath='x://button[@id="sign"]'):
+                        time.sleep(2)
+                        _count += 1
+                        processed_any = True
+
+                elif '/popup.html?page=%2Fsign-data' in tab.url:
+                    if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                        __click_ele(page=tab, xpath='x://*[@id="close"]')
+                        time.sleep(1)
+                    if __click_ele(page=tab, xpath='x://button[@id="sign"]'):
+                        time.sleep(2)
+                        _count += 1
+                        processed_any = True
+
+                elif 'popup.html?page=%2Fpersonal-sign' in tab.url:
+                    if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                        __click_ele(page=tab, xpath='x://*[@id="close"]')
+                        time.sleep(1)
+                    if __click_ele(page=tab, xpath='x://button[@id="sign"]'):
+                        time.sleep(2)
+                        _count += 1
+                        processed_any = True
+
+                elif ('&tab=%2Fadd-evm-chain' in tab.url) or ('/popup.html?requestId=' in tab.url):
+                    if tab.wait.ele_displayed(loc_or_ele='x://*[@id="close"]', timeout=1):
+                        __click_ele(page=tab, xpath='x://*[@id="close"]')
+                        time.sleep(1)
+                    if __click_ele(page=tab, xpath='x://button[@id="addNewChain"]'):
+                        time.sleep(2)
+                        _count += 1
+                        processed_any = True
+
+                elif 'popout.html?windowId=backpack' in tab.url:
+                    if __click_ele(page=tab, xpath='x://div/span[text()="确认"]'):
+                        time.sleep(2)
+                        _count += 1
+                        processed_any = True
+
+                elif 'ohgmkpjifodfiomblclfpdhehohinlnn' in tab.url:
+                    try:
+                        tab.close()
+                    except Exception as e:
+                        logger.debug(f"关闭扩展 tab 失败：{e}")
+
+            except Exception as e:
+                logger.debug(f"处理弹窗异常：{e}")
+
+            # 原逻辑：处理足够数量即返回
+            if count > 0 and _count >= count:
+                return True
+
+        # count==0：整轮扫描后再返回
+        if count == 0:
+            return processed_any
+
+    if _count < count and must:
+        raise Exception('未处理指定数量的窗口')
+    return _count >= count if count > 0 else processed_any
+
+def __get_popup(page, _url: str = '', timeout: int = 15):
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        time.sleep(1)
+        all_tabs = page.get_tabs()
+        for tab in all_tabs:
+            if _url in tab.url:
+                return tab
+    return None
+
+def __close_popup(page, _url: str = '', timeout: int = 15):
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        time.sleep(1)
+        for tab in page.get_tabs():
+            if _url in tab.url:
+                try:
+                    tab.close()
+                except Exception as e:
+                    logger.debug(f"关闭弹窗失败：{e}")
+
+# ========== 业务函数 ==========
+
+# 输入值
+def __input_ele_value(page, xpath: str = '', value: str = '', loop: int = 5, must: bool = False,
+                      find_all: bool = False, index: int = 0) -> bool:
+    for i in range(1, loop + 1):
+        try:
+            if not find_all:
+                ele = page.ele(locator=xpath, timeout=1)
+                if ele:
+                    ele.clear()
+                    time.sleep(0.2)
+                    ele.input(value, clear=True)
+                    return True
+            else:
+                eles = page.eles(locator=xpath, timeout=1)
+                if eles and 0 <= index < len(eles):
+                    eles[index].clear()
+                    time.sleep(0.2)
+                    eles[index].input(value, clear=True)
+                    return True
+        except Exception as e:
+            logger.debug(f'输入失败({i}/{loop}) {xpath}: {e}')
+        time.sleep(0.5)
+    if must:
+        raise Exception(f'未找到元素:{xpath}')
+    return False
+
+# 登录钱包（Signma）
+def __login_wallet(page, evm_id):
+    time.sleep(3)
+    wallet_url = f"chrome-extension://{evm_ext_id}/tab.html#/onboarding"
+    xpath = "x://html/body/div/div[1]/div[4]/section/div/section/div/div/input"
+    if len(page.get_tabs(title="Signma")) > 0 and page.tabs_count >= 2:
+        time.sleep(3)
+        for pop_tab in page.get_tabs():
+            if pop_tab.url == wallet_url:
+                if __input_ele_value(page=pop_tab, xpath=xpath, value=evm_id):
+                    time.sleep(1)
+                    __click_ele(page=pop_tab, xpath="tag:button@@id=existingWallet")
+    else:
+        wallet_tab = page.new_tab(url=wallet_url)
+        __input_ele_value(page=wallet_tab, xpath=xpath, value=evm_id)
+        __click_ele(page=wallet_tab, xpath="tag:button@@id=existingWallet")
+        time.sleep(1)
+
+def __do_task_logx(page, evm_id, index):
+    __bool = False
+    try:
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+        logger.info('已登录钱包')
+
+        main_page = page.new_tab(url="https://app.logx.network/portfolio")
+
+        _amount = wait_for_positive_amount(
+            page=main_page,
+            xpath='x://div[contains(normalize-space(.),"Buying Power")]/following-sibling::div[1]//span[starts-with(normalize-space(.),"$")]'
+        )
+
+        if _amount <= 0:
+            if __click_ele(page=main_page, xpath='x://span[text()="Connect wallet"]', loop=1):
+                if __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-dcJtft iIBsYu btn marg") and .//*[contains(@d,"M21.4379 21.7337")]]', loop=3):
+                    __handle_signma_popup(page=page, count=2)
+            if __click_ele(page=main_page, xpath='x://span[text()="Establish Connection"]', loop=1):
+                if __click_ele(page=main_page, xpath='x://div[div[div[text()="Establish Connection"]] and contains(@class,"sc-dcJtft iIBsYu sc-NxrBK idZGaa") ]', loop=1):
+                    __handle_signma_popup(page=page, count=1)
+
+            __click_ele(page=main_page, xpath='x://div[contains(@class, "sc-djTQOc bLFUQW")]', loop=1)
+
+            _amount = wait_for_positive_amount(
+                page=main_page,
+                xpath='x://div[contains(normalize-space(.),"Buying Power")]/following-sibling::div[1]//span[starts-with(normalize-space(.),"$")]'
+            )
+
+        _amount_total = wait_for_positive_amount(
+            page=main_page,
+            xpath='x://div[contains(normalize-space(.),"Total Volume")]/following-sibling::div//span'
+        )
+
+        signma_log(message=f"{_amount},{_amount_total}", task_name=f'logx_point_{get_date_as_string()}', index=evm_id)
+
+        if _amount > 0:
+            main_page.get('https://app.logx.network/trade/BTC')
+            __click_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=1)
+
+            for attempt in range(5):
+                if __click_ele(page=main_page, xpath='x://div[text()="MAX"]'):
+                    click_x_y(1764, 416, index)   # 坐标点击：尽量保证分辨率一致
+                    ele = __get_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]')
+                    if ele is not None:
+                        time.sleep(1)
+                        x = random.randint(1645, 1695)
+                        click_x_y(x, 540, index)
+                        click_x_y(x, 580, index)
+                        logger.info(f'点击倍数:{x}:{index}')
+                        time.sleep(2)
+                        if random.choice([True, False]):
+                            __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]')
+                        else:
+                            __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Short"]')
+                        logger.info('提交')
+                    if __get_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=2):
+                        break
+                    else:
+                        main_page.refresh()
+            time.sleep(random.randint(3, 5))
+
+            for attempt in range(8):
+                if __click_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=2):
+                    __bool = True
+                    time.sleep(3)
+                else:
+                    break
+    except Exception as e:
+        logger.info(f"窗口{index}: 处理任务异常: {e}")
+    return __bool
+
+def __do_task_nexus(page, evm_id, index):
+    __bool = False
+    try:
+        logger.info('登录钱包')
+        time.sleep(3)
+        __handle_signma_popup(page=page, count=0)
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+
+        nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
+        __get_ele(page=nexus, xpath='x://a[contains(text(), "FAQ")]', loop=10)
+        if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
+            __click_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1)
+            shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
+            if shadow_host:
+                shadow_root = shadow_host.shadow_root
+                if shadow_root:
+                    continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
+                    if continue_button:
+                        __click_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
+                        shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+                        if shadow_host:
+                            shadow_root = shadow_host.shadow_root
+                            if shadow_root:
+                                continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+                                if continue_button:
+                                    continue_button.click(by_js=True)
+                                    time.sleep(1)
+                                    signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+                                    if signma_ele:
+                                        signma_ele.click(by_js=True)
+                                        __handle_signma_popup(page=page, count=1, timeout=45)
+
+            __handle_signma_popup(page=page, count=0)
+            net_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]', timeout=3)
+            if net_shadow_host:
+                net_shadow_root = net_shadow_host.shadow_root
+                if net_shadow_root:
+                    newt_work = net_shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]', timeout=3)
+                    if newt_work:
+                        newt_work.click(by_js=True)
+                        __handle_signma_popup(page=page, count=1, timeout=45)
+
+        if __get_ele(page=nexus, xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]', loop=2):
+            __click_ele(page=nexus, xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]')
+            time.sleep(65)
+            nexus.get('https://app.nexus.xyz/rewards')
+
+        ele = nexus.ele('x://span[contains(normalize-space(.), "NEX")]')
+        if ele:
+            t = ele.text.replace('\xa0', ' ').strip()
+            import re
+            m = re.search(r'([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?)\s*NEX\b', t, re.I)
+            amount = (m.group(1).replace(',', '')) if m else '0'
+            signma_log(message=amount, task_name=f'nexus_point_{get_date_as_string()}', index=evm_id)
+            time.sleep(3)
+            __bool = True
+    except Exception as e:
+        logger.info(f"窗口{index}: 处理任务异常: {e}")
+    return __bool
+
+# 登录 Phantom（新钱包）
+def __login_new_wallet(page, evm_addr):
+    time.sleep(5)
+    phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa', timeout=1)
+    if phantom_page is None:
+        phantom_page = page.new_tab('chrome-extension://bfnaelmomeimhlpmgjnjophhpkkoljpa/popup.html')
+
+    if __get_ele(page=phantom_page, xpath='x://button[@data-testid="unlock-form-submit-button"]', loop=2):
+        __input_ele_value(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]', value='sdfasfd#dfff312')
+        __click_ele(page=phantom_page, xpath='x://button[@data-testid="unlock-form-submit-button"]')
+    else:
+        phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa', timeout=1)
+
+    if __get_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "我已经有一个钱包") or contains(normalize-space(.), "I already have a wallet")]', loop=1):
+        if __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "我已经有一个钱包") or contains(normalize-space(.), "I already have a wallet")]'):
+            if __click_ele(page=phantom_page, xpath='x://button[.//div[contains(normalize-space(.), "导入恢复短语") or contains(normalize-space(.), "Import Recovery Phrase")]]'):
+                for i, word in enumerate(evm_addr.split(), 0):
+                    __input_ele_value(page=phantom_page, xpath=f'x://input[@data-testid="secret-recovery-phrase-word-input-{i}"]', value=word)
+            if __click_ele(page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]'):
+                __click_ele(page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]')
+                __input_ele_value(page=phantom_page, xpath='x://input[@data-testid="onboarding-form-password-input"]', value='sdfasfd#dfff312')
+                __input_ele_value(page=phantom_page, xpath='x://input[@data-testid="onboarding-form-confirm-password-input"]', value='sdfasfd#dfff312')
+                if __get_ele(page=phantom_page, xpath='x://input[@data-testid="onboarding-form-terms-of-service-checkbox" and @aria-checked="false"]', loop=1):
+                    __click_ele(page=phantom_page, xpath='x://input[@data-testid="onboarding-form-terms-of-service-checkbox" and @aria-checked="false"]', loop=1)
+                __click_ele(page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]', loop=1)
+                time.sleep(1)
+                __click_ele(page=phantom_page, xpath='x://button[@data-testid="onboarding-form-submit-button"]', loop=1)
+                time.sleep(1)
+                __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "继续") or contains(normalize-space(.), "Continue")]', loop=1)
+                time.sleep(1)
+                __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "继续") or contains(normalize-space(.), "Continue")]', loop=1)
+                time.sleep(1)
+                __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "开始") or contains(normalize-space(.), "Get Started")]', loop=1)
+
+    if phantom_page is not None:
+        try:
+            phantom_page.close()
+        except Exception as e:
+            logger.debug(f"关闭 Phantom 页面失败：{e}")
+
+def __do_task_prismax(page, evm_id, evm_addr, index):
+    __bool = False
+    try:
+        __login_new_wallet(page=page, evm_addr=evm_addr)
+
+        main_page = page.new_tab(url='https://app.prismax.ai/')
+        _login = True
+        __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
+        _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
+        if _wallet_but:
+            main_page.actions.move_to(_wallet_but).click()
+            time.sleep(4)
+            if __click_ele(page=main_page, xpath='x://div[contains(@class,"ConnectWalletHeader_connectOption") and .//p[normalize-space()="Phantom Wallet"]]'):
+                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/notification.html', timeout=3)
+                if phantom_page is not None:
+                    if __get_ele(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]', loop=1):
+                        __input_ele_value(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]', value='sdfasfd#dfff312')
+                        if __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "解锁")]'):
+                            logger.info('解锁账号')
+                    __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/popup.html', timeout=3)
+                if phantom_page is not None:
+                    __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+            time.sleep(5)
+
+        _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
+        if _wallet_but:
+            main_page.get(url='https://app.prismax.ai/')
+            __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
+            time.sleep(10)
+            _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
+            main_page.actions.move_to(_wallet_but).click()
+            time.sleep(4)
+            if __click_ele(page=main_page, xpath='x://div[contains(@class,"ConnectWalletHeader_connectOption") and .//p[normalize-space()="Phantom Wallet"]]'):
+                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/notification.html', timeout=3)
+                if phantom_page is not None:
+                    if __get_ele(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]', loop=1):
+                        __input_ele_value(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]', value='sdfasfd#dfff312')
+                        if __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "解锁")]'):
+                            logger.info('解锁账号')
+                    __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/popup.html', timeout=3)
+                if phantom_page is not None:
+                    __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+            time.sleep(5)
+
+            if __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1):
+                _login = False
+
+        if _login:
+            time.sleep(2)
+            num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="Daily Prisma Points"]/following-sibling::div/span')
+            if num_str is not None:
+                try:
+                    if float(num_str.replace(',', '')) > 0:
+                        sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
+                        signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
+                        __bool = True
+                except ValueError:
+                    logger.debug(f"Daily Prisma Points 解析失败：{num_str}")
+
+            # 尝试问答获取积分
+            main_page.get('https://app.prismax.ai/whitepaper')
+            if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Review answers")]', loop=1):
+                logger.info('答题积分完成')
+            elif __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
+                for i in range(2):
+                    if __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
+                        __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
+                        if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]', loop=2):
+                            for offset in range(5):
+                                time.sleep(random.uniform(1, 5))
+                                _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
+                                if _select_t:
+                                    main_page.actions.move_to(_select_t).click()
+                                time.sleep(3)
+                                _select = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover") or starts-with(normalize-space(.),"Network-owned data is community-controlled") or starts-with(normalize-space(.),"Current AI models lack sufficient") or starts-with(normalize-space(.),"Achievement of high robot autonomy") or starts-with(normalize-space(.),"More robots generate valuable datasets")]]')
+                                if _select:
+                                    logger.debug(_select.html)
+                                    main_page.actions.move_to(_select).click()
+                                time.sleep(4)
+                                _next = __get_ele(page=main_page, xpath='x://button[(@class="QuizModal_navButton__Zy2TN" and contains(normalize-space(.), "Next →")) or (@class="QuizModal_goldButton__SjXdA" and contains(normalize-space(.), "Finish Quiz →"))]')
+                                if _next:
+                                    time.sleep(1)
+                                    logger.debug(_next.html)
+                                    main_page.actions.move_to(_next).click()
+                            time.sleep(5)
+                        main_page.get('https://app.prismax.ai/whitepaper')
+                        time.sleep(2)
+                    else:
+                        break
+    except Exception as e:
+        logger.info(f"窗口{index}处理任务异常: {e}")
+    return __bool
+
+# 添加网络
+def __add_net_work(page, coin_name='base'):
+    obj = {
+        'arb': 42161,
+        'base': 8453,
+        'opt': 10,
+        'hemi': 43111,
+        'arbitrum': 42161,
+        'rari': 1380012617,
+    }
+    number = obj[coin_name]
+    chain_page = page.new_tab(f'https://chainlist.org/?search={number}&testnets=false')
+    try:
+        if __click_ele(page=chain_page, xpath='x://button[text()="Connect Wallet"]', loop=1):
+            __handle_signma_popup(page=page, count=1)
+        __click_ele(page=chain_page,
+                    xpath=f'x://td[contains(text(), "{number} ")]/../../../following-sibling::button[1]')
+        __handle_signma_popup(page=page, count=1, timeout=5)
+    except Exception as e:
+        error = e
+        pass
+    finally:
+        chain_page.close()
+    return True
+
+
+def __select_net(page, net_name, net_name_t: str = None, add_net: str = None):
+    if net_name_t is None:
+        net_name_t = net_name
+    wallet_page = page.new_tab(f'chrome-extension://{evm_ext_id}/popup.html')
+    if __click_ele(page=wallet_page, xpath='x://button[@data-testid="top_menu_network_switcher"]', loop=2):
+        if __click_ele(page=wallet_page, xpath=f'x://li[div[div[contains(text(), "{net_name}") or contains(text(), "{net_name_t}")]]]', loop=5):
+            time.sleep(5)
+        else:
+            if add_net is not None:
+                __add_net_work(page=page, coin_name=add_net)
+    wallet_page.close()
+
+
+def __do_task_nft(page, evm_id, english_names, image_files, image_descriptions):
+    try:
+        __add_net_work(page=page, coin_name='rari')
+        __select_net(page=page, net_name='Rari Chain', net_name_t='RARI Chain')
+
+        hyperbolic_page = page.new_tab(url='https://rarible.com/create/start')
+        # 等待页面加载完成
+
+        if __get_ele(page=hyperbolic_page, xpath="x://a[contains(text(), 'Create')]", loop=5):
+            time.sleep(0.1)
+        else:
+            hyperbolic_page.refresh()
+            time.sleep(2)
+            if __get_ele(page=hyperbolic_page, xpath="x://a[contains(text(), 'Create')]", loop=5):
+                time.sleep(0.1)
+            else:
+                hyperbolic_page.refresh()
+        if __get_ele(page=hyperbolic_page, xpath="x://a[contains(text(), 'Create')]", loop=5):
+            __click_ele(page=hyperbolic_page, xpath="x://button[.//span[contains(text(), 'RARI Chain')]]", loop=1)
+            if __click_ele(page=hyperbolic_page, xpath="x://span[contains(text(), 'MetaMask')]", loop=1):
+                # 确定钱包  初次钱包确认4次， 通过之后只有两次
+                __handle_signma_popup(page=page, count=4, timeout=20)
+            # create-single
+            # 判断是否需要注册
+            if __click_ele(page=hyperbolic_page, xpath='x://input[@placeholder="Display name"]', loop=1):
+                # 随机一个英文名
+                __input_ele_value(page=hyperbolic_page, xpath='x://input[@placeholder="Display name"]',
+                                  value=random.choice(english_names))
+                __click_ele(page=hyperbolic_page,
+                            xpath="x://button[.//span[contains(text(), 'I have read and accept the')]]", loop=2)
+                __click_ele(page=hyperbolic_page,
+                            xpath="x://button[.//span[contains(text(), 'I want to receive announcements and news')]]",
+                            loop=2)
+                __click_ele(page=hyperbolic_page, xpath="x://button[.//span[contains(text(), 'Finish sign-up')]]", loop=2)
+
+            __click_ele(page=hyperbolic_page, xpath='x://button[@id="create-single"]', loop=2)
+
+            # 随机设置要上传的文件路径
+            hyperbolic_page.set.upload_files(random.choice(image_files))
+            # 点击触发文件选择框按钮
+            div_element = hyperbolic_page.ele('x://button[span[span[span[text()="Choose File"]]]]')
+            if div_element:
+                div_element.click()
+                # 等待路径填入
+                hyperbolic_page.wait.upload_paths_inputted()
+
+            # 随机定价
+            __input_ele_value(page=hyperbolic_page, xpath='x://input[@placeholder="Enter price"]',
+                              value=str("{:.5f}".format(random.uniform(0.00051, 0.00070))))
+            if __click_ele(page=hyperbolic_page, xpath='x://div[@data-marker ="create-item-expiration"]', loop=2):
+                # 随机
+                if random.randint(1, 3) > 1:
+                    __click_ele(page=hyperbolic_page, xpath='x://span[text() ="3 Months"]', loop=2)
+                else:
+                    __click_ele(page=hyperbolic_page, xpath='x://span[text() ="1 Month"]', loop=2)
+            __input_ele_value(page=hyperbolic_page, xpath='x://input[@data-marker="create-token-name"]',
+                              value=random.choice(image_descriptions))
+            __click_ele(page=hyperbolic_page, xpath='x://button[@data-marker="create-token-submit-btn"]', loop=2)
+
+            # 钱包两次确定
+            __handle_signma_popup(page=page, count=2, timeout=90)
+            time.sleep(2)
+            __handle_signma_popup(page=page, count=0)
+            # 获取成功按钮 <button type="button" data-marker="mint-receipt-view-btn" class="sc-aXZVg sc-eBMEME sc-dCFHLb sc-jxOSlx sc-tagGq dAopwH ctYaUb ciBRVx iANODE"><span class="sc-cfxfcM hpAeLf"><span class="sc-gFAWRd eNTBLN">View NFT</span></span></button>
+            if __get_ele(page=hyperbolic_page, xpath='x://button[span[span[text()="View NFT"]]]', loop=10):
+                time.sleep(3)
+                logger.info(f'{evm_id},nft 交易成功')
+                return True
+            else:
+                logger.info(f'{evm_id},nft 交易未提示成功')
+    except Exception as e:
+        logger.info(f"未知异常 {evm_id} ：{e}")
+    return False
+
+
+
+def __do_swap_rari_arb_eth(page, evm_id):
+    try:
+        __add_net_work(page=page, coin_name='rari')
+        __select_net(page=page, net_name='Rari Chain', net_name_t='RARI Chain')
+        hyperbolic_page = page.new_tab(url='https://rari.bridge.caldera.xyz')
+        time.sleep(2)
+        if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=2):
+            __click_ele(page=hyperbolic_page, xpath='x://button/div/div/div/div[text()="Signma"]', loop=1)
+            __handle_signma_popup(page=page, count=1)
+        if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=1):
+            if __click_ele(page=hyperbolic_page, xpath='x://button/div/div/div/div[text()="Signma"]', loop=1):
+                __handle_signma_popup(page=page, count=1)
+
+        from_s = __get_ele_value(page=hyperbolic_page, xpath='x://span[text()="From"]/following-sibling::span[@class="whitespace-nowrap font-medium"]')
+        if from_s == 'Arbitrum One':
+            __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Swap")]')
+
+        value = __get_ele_value(page=hyperbolic_page, xpath='x://span[contains(@class, "truncate whitespace-nowrap")]', find_all=True, index=0)
+        if float(value) > 0.000401:
+            amount = "{:.6f}".format(random.uniform(0.0000201, 0.0000301))
+            __input_ele_value(page=hyperbolic_page, xpath='x://input[@placeholder="Amount"]', value=amount)
+            time.sleep(2)
+            if __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Transfer Tokens") and not(@disabled)]', loop=3):
+                if __handle_signma_popup(page=page, count=1):
+                    time.sleep(5)
+    except Exception as e:
+        logger.info(f"未知异常 {evm_id} ：{e}")
+    return True
+
+
+
+
+
+
+
+# ========== 主流程 ==========
+
+if __name__ == '__main__':
+    today = datetime.today().date()
+    tasks = read_data_list_file("/home/ubuntu/task/tasks/tasks.txt")
+    end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_tasks.txt")
+
+    parser = argparse.ArgumentParser(description="获取应用信息")
+    parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
+    parser.add_argument("--display", type=str, help="X11 DISPLAY", default=":24")
+    parser.add_argument("--base-port", type=int, help="本地调试端口", default=29541)
+    args = parser.parse_args()
+    ARGS_IP = args.ip or ""
+    _window = args.display.lstrip(':')
+
+
+    logger.info(f'开始执行{ARGS_IP}:{_window}:{args.display}:{len(tasks)}')
+    # 统一设置 DISPLAY
+    os.environ['DISPLAY'] = f':{_window}'
+
+    # 过滤：保留“今天及以前”的数据；并排除已完成（end_tasks）之外的行
+    filtered = []
+    for line in tasks:
+        logger.info(f'开始执行:{line}')
+        parts = line.split("||")
+        if len(parts) < 3:
+            logger.warning(f"任务行格式不正确，跳过：{line!r}")
+            continue
+        date_str = parts[2]
+        try:
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            logger.warning(f"日期解析失败，跳过：{date_str!r} in {line!r}")
+            continue
+        # 需求：获取今天之前（含今天）的数据，且未完成；另外 parts[0]=='0' 也保留
+        if parts[1] == '0' or (date_obj <= today and parts[0] not in end_tasks):
+            filtered.append(line)
+
+    for part in filtered:
+        page = None
+        _end = False
+        _task_id = ''
+        _task_type = ''
+        try:
+            parts = part.split("||")
+            if len(parts) < 4:
+                logger.warning(f"任务参数不足，跳过：{part!r}")
+                continue
+
+            port = args.base_port
+            _task_id = parts[0]
+            _task_type = parts[1]
+            arg = parts[3].split(",")
+
+            if len(arg) < 2:
+                logger.warning(f"任务 arg 参数不足，跳过：{parts[3]!r}")
+                continue
+
+            _type = arg[0]
+            _id = arg[1]
+
+            logger.info(f"启动类型: {_type}")
+            options = ChromiumOptions()
+            options.set_browser_path('/opt/google/chrome')
+
+            if _type == 'prismax':
+                options.add_extension(f"/home/ubuntu/extensions/phantom")
+            else:
+                options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
+
+            # 用户数据目录
+            options.set_user_data_path(f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}")
+            options.set_user_agent(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
+
+            # 端口可能被占用，尝试几次
+            for offset in range(3):
+                try:
+                    options.set_local_port(port + offset)
+                    page = ChromiumPage(options)
+                    break
+                except Exception as e:
+                    logger.warning(f"端口 {port+offset} 启动失败，重试：{e}")
+                    time.sleep(1)
+                    page = None
+
+            if page is None:
+                logger.error("浏览器启动失败，跳过该任务")
+                continue
+
+            page.set.window.max()
+
+            if _type == 'logx':
+                _end = __do_task_logx(page=page, index=_window, evm_id=_id)
+            elif _type == 'nft':
+                _end = __do_task_nft(page=page, index=_window, evm_id=_id)
+            elif _type == 'rari_arb':
+                _end = __do_swap_rari_arb_eth(page=page, index=_window, evm_id=_id)
+            elif _type == 'nexus':
+                _end = __do_task_nexus(page=page, index=_window, evm_id=_id)
+            elif _type == 'prismax':
+                if len(arg) < 3:
+                    logger.warning("prismax 需要助记词/私钥参数，已跳过")
+                else:
+                    _end = __do_task_prismax(page=page, index=_window, evm_id=_id, evm_addr=arg[2])
+            else:
+                logger.warning(f"未知任务类型：{_type}")
+
+        except Exception as e:
+            logger.info(f"任务异常: {e}")
+        finally:
+            if page is not None:
+                try:
+                    page.quit()
+                except Exception:
+                    logger.exception("退出错误")
+            if _end and _task_type != '0' and _task_id:
+                append_date_to_file(file_path="./end_tasks.txt", data_str=_task_id)
