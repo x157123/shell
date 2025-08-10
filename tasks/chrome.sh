@@ -227,7 +227,7 @@ main() {
 	stop_services
 
   # 安装钱包
-  install_wallet_dog
+#  install_wallet_dog
 
 	# 更新软件源并安装 Python 运行时及虚拟环境支持
 	apt-get update \
