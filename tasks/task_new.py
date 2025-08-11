@@ -850,12 +850,12 @@ def __do_task_molten(page, evm_id, index):
                         _mon_from_tmp = f"{_dt:.3f}"
                     __input_ele_value(page=main_page, xpath='x://input[@placeholder="Amount"]', value=_mon_from_tmp)
                     if __click_ele(page=main_page, xpath='x://button[contains(text(), "Transfer Tokens") and not(@disabled)]'):
-                        if __handle_signma_popup(page=page, count=2, timeout=60):
-                            time.sleep(2)
-                            _mon_new_from = __get_ele_value(page=main_page, xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
-                            if float(_mon_from) > float(_mon_new_from):
-                                __end = True
-                                time.sleep(10)
+                        __handle_signma_popup(page=page, count=2, timeout=60)
+                        time.sleep(2)
+                        _mon_new_from = __get_ele_value(page=main_page, xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
+                        if float(_mon_from) > float(_mon_new_from):
+                            __end = True
+                            time.sleep(10)
                 elif float(_mon_to) > 0:
                     __end = True
     except Exception as e:
