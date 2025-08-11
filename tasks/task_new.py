@@ -742,9 +742,13 @@ def __do_swap_rari_arb_eth(page, evm_id):
                 if __handle_signma_popup(page=page, count=1):
                     time.sleep(5)
 
+
+        __add_net_work(page=page, coin_name='arbitrum')
+        __select_net(page=page, net_name='Arbitrum One', net_name_t='Arbitrum One', add_net='arbitrum')
+        hyperbolic_page.get(url='https://rari.bridge.caldera.xyz')
         if __click_ele(page=hyperbolic_page, xpath='x://button[contains(normalize-space(.), "Transactions")]', loop=1):
             time.sleep(10)
-            for i in range(5):
+            for i in range(8):
                 _buttons = hyperbolic_page.eles(locator='x://button[.//div[contains(@class,"absolute") and contains(@class,"right-0") and contains(@class,"top-0") and contains(@class,"bg-red-500")]]')
                 for btn in _buttons:
                     try:
