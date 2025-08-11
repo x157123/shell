@@ -982,5 +982,6 @@ if __name__ == '__main__':
                     _page.quit()
                 except Exception:
                     logger.exception("退出错误")
+            logger.info(f'数据{_end}:{_task_type}:{_task_id}')
             if _end and _task_type != '0' and _task_id:
                 append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
