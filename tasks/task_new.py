@@ -741,6 +741,27 @@ def __do_swap_rari_arb_eth(page, evm_id):
             if __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Transfer Tokens") and not(@disabled)]', loop=3):
                 if __handle_signma_popup(page=page, count=1):
                     time.sleep(5)
+
+        if __click_ele(page=hyperbolic_page, xpath='x://button[contains(normalize-space(.), "Transactions")]', loop=1):
+            time.sleep(10)
+            for i in range(5):
+                _buttons = hyperbolic_page.eles(locator='x://button[.//div[contains(@class,"absolute") and contains(@class,"right-0") and contains(@class,"top-0") and contains(@class,"bg-red-500")]]')
+                for btn in _buttons:
+                    try:
+                        btn.click()
+                        # 如果点击后页面有变化，适当等待
+                        time.sleep(0.5)
+                        if __click_ele(page=hyperbolic_page, xpath="x://div[@role='menuitem' and contains(normalize-space(.), 'Finalize withdrawal')]"):
+                            time.sleep(5)
+                            __handle_signma_popup(page=page, count=1, timeout=30)
+                            time.sleep(5)
+                    except Exception as e:
+                        print(f"点击按钮时出错：{e}")
+                if __click_ele(page=hyperbolic_page, xpath='x://button[contains(normalize-space(.), "Next")  and not(@disabled)]', loop=1):
+                    logger.info('下一页数据')
+                else:
+                    break
+
     except Exception as e:
         logger.info(f"未知异常 {evm_id} ：{e}")
     return True
