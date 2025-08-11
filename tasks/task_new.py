@@ -552,29 +552,27 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
             if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Review answers")]', loop=1):
                 logger.info('答题积分完成')
             elif __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
-                for i in range(2):
-                    if __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
-                        __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
-                        if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]', loop=2):
-                            for offset in range(5):
-                                time.sleep(random.uniform(2, 5))
-                                # _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
-                                # if _select_t:
-                                #     main_page.actions.move_to(_select_t).click()
-                                # time.sleep(random.uniform(2, 4))
-                                _select = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover") or starts-with(normalize-space(.),"Network-owned data is community-controlled") or starts-with(normalize-space(.),"Current AI models lack sufficient") or starts-with(normalize-space(.),"Achievement of high robot autonomy") or starts-with(normalize-space(.),"More robots generate valuable datasets")]]')
-                                if _select:
-                                    main_page.actions.move_to(_select).click()
+                # for i in range(2):
+                if __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
+                    __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
+                    if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]', loop=2):
+                        for offset in range(5):
+                            time.sleep(random.uniform(2, 5))
+                            # _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
+                            # if _select_t:
+                            #     main_page.actions.move_to(_select_t).click()
+                            # time.sleep(random.uniform(2, 4))
+                            _select = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover") or starts-with(normalize-space(.),"Network-owned data is community-controlled") or starts-with(normalize-space(.),"Current AI models lack sufficient") or starts-with(normalize-space(.),"Achievement of high robot autonomy") or starts-with(normalize-space(.),"More robots generate valuable datasets")]]')
+                            if _select:
+                                main_page.actions.move_to(_select).click()
+                            time.sleep(random.uniform(2, 4))
+                            _next = __get_ele(page=main_page, xpath='x://button[(@class="QuizModal_navButton__Zy2TN" and contains(normalize-space(.), "Next →")) or (@class="QuizModal_goldButton__SjXdA" and contains(normalize-space(.), "Finish Quiz →"))]')
+                            if _next:
                                 time.sleep(random.uniform(2, 4))
-                                _next = __get_ele(page=main_page, xpath='x://button[(@class="QuizModal_navButton__Zy2TN" and contains(normalize-space(.), "Next →")) or (@class="QuizModal_goldButton__SjXdA" and contains(normalize-space(.), "Finish Quiz →"))]')
-                                if _next:
-                                    time.sleep(random.uniform(2, 4))
-                                    main_page.actions.move_to(_next).click()
-                            time.sleep(5)
-                        main_page.get('https://app.prismax.ai/whitepaper')
-                        time.sleep(2)
-                    else:
-                        break
+                                main_page.actions.move_to(_next).click()
+                        time.sleep(5)
+                    main_page.get('https://app.prismax.ai/whitepaper')
+                    time.sleep(2)
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
     return __bool
