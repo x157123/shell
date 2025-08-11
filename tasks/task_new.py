@@ -718,29 +718,29 @@ def __do_swap_rari_arb_eth(page, evm_id):
         __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
         logger.info('已登录钱包')
-        __add_net_work(page=page, coin_name='rari')
-        __select_net(page=page, net_name='Rari Chain', net_name_t='RARI Chain')
-        hyperbolic_page = page.new_tab(url='https://rari.bridge.caldera.xyz')
-        time.sleep(2)
-        if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=2):
-            __click_ele(page=hyperbolic_page, xpath='x://button/div/div/div/div[text()="Signma"]', loop=1)
-            __handle_signma_popup(page=page, count=1)
-        if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=1):
-            if __click_ele(page=hyperbolic_page, xpath='x://button/div/div/div/div[text()="Signma"]', loop=1):
-                __handle_signma_popup(page=page, count=1)
-
-        from_s = __get_ele_value(page=hyperbolic_page, xpath='x://span[text()="From"]/following-sibling::span[@class="whitespace-nowrap font-medium"]')
-        if from_s == 'Arbitrum One':
-            __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Swap")]')
-
-        value = __get_ele_value(page=hyperbolic_page, xpath='x://span[contains(@class, "truncate whitespace-nowrap")]', find_all=True, index=0)
-        if float(value) > 0.000401:
-            amount = "{:.6f}".format(random.uniform(0.0000201, 0.0000301))
-            __input_ele_value(page=hyperbolic_page, xpath='x://input[@placeholder="Amount"]', value=amount)
-            time.sleep(2)
-            if __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Transfer Tokens") and not(@disabled)]', loop=3):
-                if __handle_signma_popup(page=page, count=1):
-                    time.sleep(5)
+        # __add_net_work(page=page, coin_name='rari')
+        # __select_net(page=page, net_name='Rari Chain', net_name_t='RARI Chain')
+        # hyperbolic_page = page.new_tab(url='https://rari.bridge.caldera.xyz')
+        # time.sleep(2)
+        # if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=2):
+        #     __click_ele(page=hyperbolic_page, xpath='x://button/div/div/div/div[text()="Signma"]', loop=1)
+        #     __handle_signma_popup(page=page, count=1)
+        # if __click_ele(page=hyperbolic_page, xpath='x://button[text()="Connect Wallet"]', loop=1):
+        #     if __click_ele(page=hyperbolic_page, xpath='x://button/div/div/div/div[text()="Signma"]', loop=1):
+        #         __handle_signma_popup(page=page, count=1)
+        #
+        # from_s = __get_ele_value(page=hyperbolic_page, xpath='x://span[text()="From"]/following-sibling::span[@class="whitespace-nowrap font-medium"]')
+        # if from_s == 'Arbitrum One':
+        #     __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Swap")]')
+        #
+        # value = __get_ele_value(page=hyperbolic_page, xpath='x://span[contains(@class, "truncate whitespace-nowrap")]', find_all=True, index=0)
+        # if float(value) > 0.000401:
+        #     amount = "{:.6f}".format(random.uniform(0.0000201, 0.0000301))
+        #     __input_ele_value(page=hyperbolic_page, xpath='x://input[@placeholder="Amount"]', value=amount)
+        #     time.sleep(2)
+        #     if __click_ele(page=hyperbolic_page, xpath='x://button[contains(text(), "Transfer Tokens") and not(@disabled)]', loop=3):
+        #         if __handle_signma_popup(page=page, count=1):
+        #             time.sleep(5)
 
 
         __add_net_work(page=page, coin_name='arbitrum')
