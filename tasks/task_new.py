@@ -6,6 +6,8 @@ import random
 from loguru import logger
 import argparse
 import os
+import platform
+import re
 
 # ========== 全局配置 ==========
 evm_ext_id = "ohgmkpjifodfiomblclfpdhehohinlnn"
@@ -60,18 +62,19 @@ def __click_ele(page, xpath: str, loop: int = 5, must: bool = False,
     for i in range(1, loop + 1):
         try:
             if not find_all:
-                ele = page.ele(locator=xpath, timeout=1)
+                logger.info(f'点击按钮:{xpath}')
+                ele = page.ele(locator=xpath, timeout=2)
                 if ele:
                     ele.click()
                     return True
             else:
-                eles = page.eles(locator=xpath, timeout=1)
+                eles = page.eles(locator=xpath, timeout=2)
                 if eles and 0 <= index < len(eles):
                     eles[index].click()
                     return True
         except Exception as e:
             logger.debug(f'点击失败({i}/{loop}) {xpath}: {e}')
-        time.sleep(0.5)
+        time.sleep(1)
     if must:
         raise Exception(f'未找到元素:{xpath}')
     return False
@@ -80,18 +83,19 @@ def __click_ele(page, xpath: str, loop: int = 5, must: bool = False,
 def __get_ele(page, xpath: str, loop: int = 5, must: bool = False,
               find_all: bool = False, index: int = 0):
     for i in range(1, loop + 1):
+        logger.info(f'获取按钮:{xpath}')
         try:
             if not find_all:
-                ele = page.ele(locator=xpath, timeout=1)
+                ele = page.ele(locator=xpath, timeout=2)
                 if ele:
                     return ele
             else:
-                eles = page.eles(locator=xpath, timeout=1)
+                eles = page.eles(locator=xpath, timeout=2)
                 if eles and 0 <= index < len(eles):
                     return eles[index]
         except Exception as e:
             logger.debug(f'查找失败({i}/{loop}) {xpath}: {e}')
-        time.sleep(0.5)
+        time.sleep(1)
     if must:
         raise Exception(f'未找到元素:{xpath}')
     return None
@@ -344,28 +348,31 @@ def __do_task_logx(page, evm_id, index):
 
         if _amount > 0:
             main_page.get('https://app.logx.network/trade/BTC')
-            __click_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=1)
 
             for attempt in range(5):
-                if __click_ele(page=main_page, xpath='x://div[text()="MAX"]'):
-                    click_x_y(1764, 416, index)   # 坐标点击：尽量保证分辨率一致
-                    ele = __get_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]')
-                    if ele is not None:
-                        time.sleep(1)
-                        x = random.randint(1645, 1695)
-                        click_x_y(x, 540, index)
-                        click_x_y(x, 580, index)
-                        logger.info(f'点击倍数:{x}:{index}')
-                        time.sleep(2)
-                        if random.choice([True, False]):
-                            __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]')
-                        else:
-                            __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Short"]')
-                        logger.info('提交')
-                    if __get_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=2):
-                        break
-                    else:
-                        main_page.refresh()
+                time.sleep(5)
+                click_x_y(1764, 416, index)   # 坐标点击：尽量保证分辨率一致
+                time.sleep(1)
+                click_x_y(1764, 416, index)   # 坐标点击：尽量保证分辨率一致
+                time.sleep(1)
+                x = random.randint(1690, 1725)
+                click_x_y(x, 540, index)
+                time.sleep(1)
+                click_x_y(x, 580, index)
+                logger.info(f'点击倍数:{x}:{index}')
+                time.sleep(2)
+                if random.choice([True, False]):
+                    click_x_y(1610, 720, index)
+                    __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]')
+                else:
+                    click_x_y(1770, 720, index)
+                    __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Short"]')
+                logger.info('提交')
+                time.sleep(15)
+                if __get_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=2):
+                    break
+                else:
+                    main_page.refresh()
             time.sleep(random.randint(3, 5))
 
             for attempt in range(8):
@@ -550,20 +557,18 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                         __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
                         if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]', loop=2):
                             for offset in range(5):
-                                time.sleep(random.uniform(1, 5))
-                                _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
-                                if _select_t:
-                                    main_page.actions.move_to(_select_t).click()
-                                time.sleep(3)
+                                time.sleep(random.uniform(2, 5))
+                                # _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
+                                # if _select_t:
+                                #     main_page.actions.move_to(_select_t).click()
+                                # time.sleep(random.uniform(2, 4))
                                 _select = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover") or starts-with(normalize-space(.),"Network-owned data is community-controlled") or starts-with(normalize-space(.),"Current AI models lack sufficient") or starts-with(normalize-space(.),"Achievement of high robot autonomy") or starts-with(normalize-space(.),"More robots generate valuable datasets")]]')
                                 if _select:
-                                    logger.debug(_select.html)
                                     main_page.actions.move_to(_select).click()
-                                time.sleep(4)
+                                time.sleep(random.uniform(2, 4))
                                 _next = __get_ele(page=main_page, xpath='x://button[(@class="QuizModal_navButton__Zy2TN" and contains(normalize-space(.), "Next →")) or (@class="QuizModal_goldButton__SjXdA" and contains(normalize-space(.), "Finish Quiz →"))]')
                                 if _next:
-                                    time.sleep(1)
-                                    logger.debug(_next.html)
+                                    time.sleep(random.uniform(2, 4))
                                     main_page.actions.move_to(_next).click()
                             time.sleep(5)
                         main_page.get('https://app.prismax.ai/whitepaper')
@@ -691,6 +696,9 @@ def __do_task_nft(page, evm_id, english_names, image_files, image_descriptions):
 
 def __do_swap_rari_arb_eth(page, evm_id):
     try:
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+        logger.info('已登录钱包')
         __add_net_work(page=page, coin_name='rari')
         __select_net(page=page, net_name='Rari Chain', net_name_t='RARI Chain')
         hyperbolic_page = page.new_tab(url='https://rari.bridge.caldera.xyz')
@@ -720,6 +728,142 @@ def __do_swap_rari_arb_eth(page, evm_id):
 
 
 
+def __do_task_molten(page, evm_id, index):
+    __end = False
+    __bool = True
+    try:
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+        logger.info('已登录钱包')
+        __add_net_work(page=page, coin_name='arb')
+        main_page = None
+        # if molten_list and evm_id in molten_list:
+        #     __bool = True
+        #     logger.info('已成功')
+        # else:
+        #     main_page = page.new_tab(url="https://app.unidex.exchange/?chain=arbitrum&from=0x0000000000000000000000000000000000000000&to=0x66e535e8d2ebf13f49f3d49e5c50395a97c137b1")
+        #
+        #     if __get_ele(page=main_page, xpath='x://button[contains(text(), "Connect Wallet") and not(@disabled)]', loop=3):
+        #         if __click_ele(page=main_page, xpath='x://button[contains(text(), "Connect Wallet") and not(@disabled)]'):
+        #             if __click_ele(main_page, xpath='x://button[@data-testid="rk-wallet-option-injected" or @data-testid="rk-wallet-option-metaMask"]'):
+        #                 __handle_signma_popup(page=page, count=1)
+        #
+        #     if __get_ele(page=main_page, xpath='x://div[contains(text(), "Select a route")]'):
+        #         # rari_eth = __get_arb_balance(evm_addr=evm_addr)
+        #         rari_eth = '0'
+        #         _no_end = True
+        #         for x in range(5):
+        #             _val_end = __get_ele_value(page=main_page, xpath='x://p[contains(@class,"chakra-text") and contains(normalize-space(.),"Balance:")]', loop=2)
+        #             if _val_end is None:
+        #                 _val_end = "0"
+        #             _m = re.search(r'Balance:\s*([\d\.]+)', _val_end)
+        #             if _m:
+        #                 amount = _m.group(1) if _m else '0'
+        #                 if float(amount) > 0.1:
+        #                     _no_end = False
+        #                     __bool = True
+        #                     molten_list.append(evm_id)
+        #                     break
+        #             if _no_end :
+        #                 _val = __get_ele_value(page=main_page, xpath='x://button[contains(@class,"chakra-button") and contains(normalize-space(.),"Balance:")]')
+        #                 if _val is None:
+        #                     _val = "0"
+        #                 m = re.search(r'Balance:\s*([\d\.]+)', _val)
+        #                 if m:
+        #                     amount = m.group(1) if m else '0'
+        #                     rari_eth = amount
+        #                     if float(amount) > 0.00012:
+        #                         inp = main_page.ele('x://input[contains(@class,"chakra-input") and contains(@class,"css-1o2m894")]')
+        #                         inp.clear()
+        #                         if float(amount) < 0.00012:
+        #                             amount_val = random.uniform(0.00008, 0.00011)
+        #                         elif float(amount) < 0.00015:
+        #                             amount_val = random.uniform(0.000111, 0.000151)
+        #                         else:
+        #                             amount_val = random.uniform(0.000151, 0.000181)
+        #                         if platform.system().lower() != "windows":
+        #                             import pyautogui
+        #                             pyautogui.moveTo(593, 370)
+        #                             time.sleep(0.5)
+        #                             pyautogui.click()
+        #                             time.sleep(0.5)
+        #                             logger.info('点击删除按钮')
+        #                             pyautogui.press('backspace')
+        #                             time.sleep(0.5)
+        #                         inp.input(f"{amount_val:.6f}",clear=True)
+        #                         time.sleep(3)
+        #                         if __click_ele(page=main_page, xpath='x://div[@data-theme="dark" and contains(@class,"RouteWrapper")]',find_all=True, index=0):
+        #                             if __click_ele(page=main_page, xpath='x://button[.//div[normalize-space(text())="SWAP USING"]]'):
+        #                                 if __get_ele(page=main_page, xpath='x://div[contains(text(), "Swap Failed")]', loop=1):
+        #                                     logger.info('购买异常')
+        #                                     if __click_ele(page=main_page, xpath='x://div[@data-theme="dark" and contains(@class,"RouteWrapper")]', find_all=True, index=0):
+        #                                         __click_ele(page=main_page, xpath='x://button[.//div[normalize-space(text())="SWAP USING"]]')
+        #                                 else:
+        #                                     __handle_signma_popup(page=page, count=1, timeout=60)
+        #                                     time.sleep(5)
+        #                                     # rari_eth_end = __get_arb_balance(evm_addr=evm_addr)
+        #                                     rari_eth_end = '99'
+        #                                     _val_end = __get_ele_value(page=main_page, xpath='x://button[contains(@class,"chakra-button") and contains(normalize-space(.),"Balance:")]')
+        #                                     if _val_end is not None:
+        #                                         m = re.search(r'Balance:\s*([\d\.]+)', _val_end)
+        #                                         if m:
+        #                                             rari_eth_end = m.group(1) if m else '99'
+        #
+        #                                     if float(rari_eth) > float(rari_eth_end) :
+        #                                         _no_end = False
+        #                                         __bool = True
+        #                                         molten_list.append(evm_id)
+        #                                         break
+        #                                 main_page.get(url="https://app.unidex.exchange/?chain=arbitrum&from=0x0000000000000000000000000000000000000000&to=0x66e535e8d2ebf13f49f3d49e5c50395a97c137b1")
+        #                                 time.sleep(3)
+        if __bool:
+            if main_page is None:
+                main_page = page.new_tab("https://molten.bridge.caldera.xyz/")
+            else:
+                main_page.get("https://molten.bridge.caldera.xyz/")
+            if __get_ele_value(page=main_page, xpath='x://span[normalize-space(text())="Arbitrum One"]', loop=5):
+                if __get_ele(page=main_page, xpath='x://button[contains(text(), "Connect Wallet") and not(@disabled)]', loop=1):
+                    if __click_ele(page=main_page, xpath='x://button[contains(text(), "Connect Wallet") and not(@disabled)]'):
+                        if __click_ele(main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma" or @data-testid="rk-wallet-option-metaMask"]'):
+                            __handle_signma_popup(page=page, count=1)
+                time.sleep(5)
+                _mon_from = __get_ele_value(page=main_page, xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
+                if float(_mon_from) <= 0:
+                    time.sleep(3)
+                    _mon_from = __get_ele_value(page=main_page, xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
+                _mon_to = __get_ele_value(page=main_page, xpath='x://span[normalize-space(text())="To"]/parent::div/parent::div/parent::div/div[2]/span[2]')
+
+                if float(_mon_from) < 0.3 and float(_mon_to) > 0.3:
+                    __click_ele(page=main_page, xpath='x://button[contains(text(), "Swap")]')
+                    time.sleep(3)
+                    _mon_from = __get_ele_value(page=main_page, xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
+                    _mon_to = __get_ele_value(page=main_page, xpath='x://span[normalize-space(text())="To"]/parent::div/parent::div/parent::div/div[2]/span[2]')
+
+                if float(_mon_from) > 0.3:
+                    _mon_from_tmp = _mon_from
+                    # if float(_mon_from) > 1:
+                    #     # percentages = [0.30, 0.35, 0.40]
+                    #     # pct = random.choice(percentages)
+                    #     # _dt = float(_mon_from_tmp) * pct
+                    _dt = random.uniform(1.011, 1.542)
+                    if _dt > float(_mon_from):
+                        _mon_from_tmp = f"{float(_mon_from):.3f}"
+                    else:
+                        _mon_from_tmp = f"{_dt:.3f}"
+                    __input_ele_value(page=main_page, xpath='x://input[@placeholder="Amount"]', value=_mon_from_tmp)
+                    if __click_ele(page=main_page, xpath='x://button[contains(text(), "Transfer Tokens") and not(@disabled)]'):
+                        if __handle_signma_popup(page=page, count=2, timeout=60):
+                            time.sleep(2)
+                            _mon_new_from = __get_ele_value(page=main_page, xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
+                            if float(_mon_from) > float(_mon_new_from):
+                                __end = True
+                                time.sleep(10)
+                elif float(_mon_to) > 0:
+                    __end = True
+    except Exception as e:
+        logger.info(f"窗口{index}:处理任务: 异常: {e}")
+
+    return __end
 
 
 
@@ -763,7 +907,7 @@ if __name__ == '__main__':
             filtered.append(line)
 
     for part in filtered:
-        page = None
+        _page = None
         _end = False
         _task_id = ''
         _task_type = ''
@@ -802,41 +946,42 @@ if __name__ == '__main__':
             for offset in range(3):
                 try:
                     options.set_local_port(port + offset)
-                    page = ChromiumPage(options)
+                    _page = ChromiumPage(options)
                     break
                 except Exception as e:
                     logger.warning(f"端口 {port+offset} 启动失败，重试：{e}")
                     time.sleep(1)
-                    page = None
+                    _page = None
 
-            if page is None:
+            if _page is None:
                 logger.error("浏览器启动失败，跳过该任务")
                 continue
 
-            page.set.window.max()
-
+            _page.set.window.max()
             if _type == 'logx':
-                _end = __do_task_logx(page=page, index=_window, evm_id=_id)
-            elif _type == 'nft':
-                _end = __do_task_nft(page=page, index=_window, evm_id=_id)
+                _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
+            # elif _type == 'nft':
+            #     _end = __do_task_nft(page=page, index=_window, evm_id=_id)
+            elif _type == 'molten':
+                _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
             elif _type == 'rari_arb':
-                _end = __do_swap_rari_arb_eth(page=page, index=_window, evm_id=_id)
+                _end = __do_swap_rari_arb_eth(page=_page, evm_id=_id)
             elif _type == 'nexus':
-                _end = __do_task_nexus(page=page, index=_window, evm_id=_id)
+                _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
             elif _type == 'prismax':
                 if len(arg) < 3:
                     logger.warning("prismax 需要助记词/私钥参数，已跳过")
                 else:
-                    _end = __do_task_prismax(page=page, index=_window, evm_id=_id, evm_addr=arg[2])
+                    _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
             else:
                 logger.warning(f"未知任务类型：{_type}")
 
         except Exception as e:
             logger.info(f"任务异常: {e}")
         finally:
-            if page is not None:
+            if _page is not None:
                 try:
-                    page.quit()
+                    _page.quit()
                 except Exception:
                     logger.exception("退出错误")
             if _end and _task_type != '0' and _task_id:
