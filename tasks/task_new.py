@@ -676,7 +676,7 @@ def __do_task_nft(page, index, evm_id):
             __click_ele(page=hyperbolic_page, xpath='x://button[@id="create-single"]', loop=2)
 
             # 随机设置要上传的文件路径
-            hyperbolic_page.set.upload_files(random.choice(image_files))
+            hyperbolic_page.set.upload_files(image_files)
             # 点击触发文件选择框按钮
             div_element = hyperbolic_page.ele('x://button[span[span[span[text()="Choose File"]]]]')
             if div_element:
