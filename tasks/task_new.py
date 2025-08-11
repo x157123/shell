@@ -745,7 +745,7 @@ def __do_swap_rari_arb_eth(page, evm_id):
 
         __add_net_work(page=page, coin_name='arbitrum')
         __select_net(page=page, net_name='Arbitrum One', net_name_t='Arbitrum One', add_net='arbitrum')
-        hyperbolic_page.get(url='https://rari.bridge.caldera.xyz')
+        hyperbolic_page = page.new_tab(url='https://rari.bridge.caldera.xyz')
         if __click_ele(page=hyperbolic_page, xpath='x://button[contains(normalize-space(.), "Transactions")]', loop=1):
             time.sleep(10)
             for i in range(8):
