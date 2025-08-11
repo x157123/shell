@@ -837,7 +837,7 @@ def __do_task_molten(page, evm_id, index):
                     time.sleep(3)
                     _mon_from = __get_ele_value(page=main_page, xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
                     _mon_to = __get_ele_value(page=main_page, xpath='x://span[normalize-space(text())="To"]/parent::div/parent::div/parent::div/div[2]/span[2]')
-
+                    time.sleep(100000)
                 if float(_mon_from) > 0.3:
                     _mon_from_tmp = _mon_from
                     # if float(_mon_from) > 1:
