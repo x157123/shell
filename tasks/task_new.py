@@ -635,7 +635,7 @@ def __do_task_nft(page, index, evm_id):
         n = random.randint(1, 22264)
         image_files = f"/home/ubuntu/task/tasks/img/img{n:05d}.png"
         __down_file(f"https://vmxjp.15712345.xyz/img/img{n:05d}.png", image_files)
-
+        image_descriptions = read_data_list_file("/home/ubuntu/task/tasks/image_descriptions.txt", check_exists=True)
         __handle_signma_popup(page=page, count=0)
         __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
