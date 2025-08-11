@@ -983,4 +983,4 @@ if __name__ == '__main__':
                 except Exception:
                     logger.exception("退出错误")
             if _end and _task_type != '0' and _task_id:
-                append_date_to_file(file_path="./end_tasks.txt", data_str=_task_id)
+                append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
