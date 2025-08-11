@@ -617,8 +617,29 @@ def __select_net(page, net_name, net_name_t: str = None, add_net: str = None):
     wallet_page.close()
 
 
-def __do_task_nft(page, evm_id, english_names, image_files, image_descriptions):
+def __down_file(url, out_file):
+    headers = {"User-Agent": "Mozilla/5.0"}
     try:
+        with requests.get(url, headers=headers, timeout=20, stream=True) as r:
+            r.raise_for_status()
+            with open(out_file, "wb") as f:
+                for chunk in r.iter_content(65536):
+                    if chunk:
+                        f.write(chunk)
+        print(f"下载成功：{out_file}  ←  {url}")
+    except requests.RequestException as e:
+        print(f"下载失败：{e}")
+
+def __do_task_nft(page, index, evm_id):
+    try:
+        n = random.randint(1, 22264)
+        image_files = f"/home/ubuntu/task/tasks/img/img{n:05d}.png"
+        __down_file(f"https://vmxjp.15712345.xyz/img/img{n:05d}.png", image_files)
+
+        __handle_signma_popup(page=page, count=0)
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+
         __add_net_work(page=page, coin_name='rari')
         __select_net(page=page, net_name='Rari Chain', net_name_t='RARI Chain')
 
@@ -641,16 +662,16 @@ def __do_task_nft(page, evm_id, english_names, image_files, image_descriptions):
                 __handle_signma_popup(page=page, count=4, timeout=20)
             # create-single
             # 判断是否需要注册
-            if __click_ele(page=hyperbolic_page, xpath='x://input[@placeholder="Display name"]', loop=1):
-                # 随机一个英文名
-                __input_ele_value(page=hyperbolic_page, xpath='x://input[@placeholder="Display name"]',
-                                  value=random.choice(english_names))
-                __click_ele(page=hyperbolic_page,
-                            xpath="x://button[.//span[contains(text(), 'I have read and accept the')]]", loop=2)
-                __click_ele(page=hyperbolic_page,
-                            xpath="x://button[.//span[contains(text(), 'I want to receive announcements and news')]]",
-                            loop=2)
-                __click_ele(page=hyperbolic_page, xpath="x://button[.//span[contains(text(), 'Finish sign-up')]]", loop=2)
+            # if __click_ele(page=hyperbolic_page, xpath='x://input[@placeholder="Display name"]', loop=1):
+            #     # 随机一个英文名
+            #     __input_ele_value(page=hyperbolic_page, xpath='x://input[@placeholder="Display name"]',
+            #                       value=random.choice(english_names))
+            #     __click_ele(page=hyperbolic_page,
+            #                 xpath="x://button[.//span[contains(text(), 'I have read and accept the')]]", loop=2)
+            #     __click_ele(page=hyperbolic_page,
+            #                 xpath="x://button[.//span[contains(text(), 'I want to receive announcements and news')]]",
+            #                 loop=2)
+            #     __click_ele(page=hyperbolic_page, xpath="x://button[.//span[contains(text(), 'Finish sign-up')]]", loop=2)
 
             __click_ele(page=hyperbolic_page, xpath='x://button[@id="create-single"]', loop=2)
 
@@ -672,8 +693,7 @@ def __do_task_nft(page, evm_id, english_names, image_files, image_descriptions):
                     __click_ele(page=hyperbolic_page, xpath='x://span[text() ="3 Months"]', loop=2)
                 else:
                     __click_ele(page=hyperbolic_page, xpath='x://span[text() ="1 Month"]', loop=2)
-            __input_ele_value(page=hyperbolic_page, xpath='x://input[@data-marker="create-token-name"]',
-                              value=random.choice(image_descriptions))
+            __input_ele_value(page=hyperbolic_page, xpath='x://input[@data-marker="create-token-name"]', value=random.choice(image_descriptions))
             __click_ele(page=hyperbolic_page, xpath='x://button[@data-marker="create-token-submit-btn"]', loop=2)
 
             # 钱包两次确定
@@ -837,7 +857,6 @@ def __do_task_molten(page, evm_id, index):
                     time.sleep(3)
                     _mon_from = __get_ele_value(page=main_page, xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
                     _mon_to = __get_ele_value(page=main_page, xpath='x://span[normalize-space(text())="To"]/parent::div/parent::div/parent::div/div[2]/span[2]')
-                    time.sleep(100000)
                 if float(_mon_from) > 0.3:
                     _mon_from_tmp = _mon_from
                     # if float(_mon_from) > 1:
@@ -960,8 +979,8 @@ if __name__ == '__main__':
             _page.set.window.max()
             if _type == 'logx':
                 _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
-            # elif _type == 'nft':
-            #     _end = __do_task_nft(page=page, index=_window, evm_id=_id)
+            elif _type == 'nft':
+                _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
             elif _type == 'molten':
                 _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
             elif _type == 'rari_arb':

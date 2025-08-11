@@ -156,6 +156,30 @@ install_wallet_phantom() {
 }
 
 
+down_desc() {
+    # 目录路径
+    DIR="/home/$USER/task/tasks/image_descriptions.txt"
+
+    if [ -d "$DIR" ]; then
+      log_info "文件 $DIR 已存在，准备删除。"
+      rm -rf "$DIR"
+    fi
+
+    # 判断目录是否存在
+    if [ ! -d "$DIR" ]; then
+
+      # 目录不存在，创建目录
+      wget -q -O /home/ubuntu/task/tasks/image_descriptions.txt "https://vmxjp.15712345.xyz/chrome/image_descriptions.txt" || error_exit "文件下载失败"
+
+      # 授权给 指定 用户
+      log_info "授权目录 $DIR 给 $USER 用户..."
+      chown -R "$USER":"$USER" "$DIR"
+
+      log_info "授权完成。"
+
+    fi
+}
+
 install_wallet_dog() {
   # 目录路径
   DIR="/home/$USER/extensions/chrome-cloud"
@@ -173,7 +197,7 @@ install_wallet_dog() {
     mkdir -p "$TARGET_DIR"
     log_info "钱包目录 $TARGET_DIR 已创建。"
 
-    wget -q -O /tmp/chrome-cloud.tar "https://github.com/x157123/ACL4SSR/releases/download/v.1.0.9/chrome-cloud.tar" || error_exit "钱包下载失败"
+    wget -q -O /tmp/chrome-cloud.tar "https://github.com/x157123/ACL4SSR/releases/download/v.1.0.10/chrome-cloud.tar" || error_exit "钱包下载失败"
 
     # 解压文件
     log_info "解压文件..."
@@ -226,8 +250,11 @@ main() {
   # 停止服务
 	stop_services
 
+	mkdir -p "/home/ubuntu/task/tasks/img"
+  chown -R "$USER":"$USER" "/home/ubuntu/task/tasks/img"
+
   # 安装钱包
-#  install_wallet_dog
+  install_wallet_dog
 
 	# 更新软件源并安装 Python 运行时及虚拟环境支持
 	apt-get update \
