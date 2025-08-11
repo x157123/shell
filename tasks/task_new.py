@@ -6,6 +6,7 @@ import random
 from loguru import logger
 import argparse
 import os
+from decimal import Decimal, ROUND_DOWN
 import platform
 import re
 
@@ -843,9 +844,10 @@ def __do_task_molten(page, evm_id, index):
                     #     # percentages = [0.30, 0.35, 0.40]
                     #     # pct = random.choice(percentages)
                     #     # _dt = float(_mon_from_tmp) * pct
-                    _dt = random.uniform(1.011, 1.542)
+                    _dt = random.uniform(1.001, 1.502)
                     if _dt > float(_mon_from):
-                        _mon_from_tmp = f"{float(_mon_from):.3f}"
+                        # _mon_from_tmp = f"{float(_mon_from):.3f}"
+                        _mon_from_tmp = f"{Decimal(str(_mon_from)).quantize(Decimal('0.00'), rounding=ROUND_DOWN)}"
                     else:
                         _mon_from_tmp = f"{_dt:.3f}"
                     __input_ele_value(page=main_page, xpath='x://input[@placeholder="Amount"]', value=_mon_from_tmp)
