@@ -1035,11 +1035,11 @@ if __name__ == '__main__':
                 if random.choice([True, False]):
                     _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                 _end = True
-            elif _type == 'prismax':
-                if len(arg) < 3:
-                    logger.warning("prismax 需要助记词/私钥参数，已跳过")
-                else:
-                    _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+            # elif _type == 'prismax':
+            #     if len(arg) < 3:
+            #         logger.warning("prismax 需要助记词/私钥参数，已跳过")
+            #     else:
+            #         _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
             else:
                 logger.warning(f"未知任务类型：{_type}")
 
@@ -1054,4 +1054,4 @@ if __name__ == '__main__':
             logger.info(f'数据{_end}:{_task_type}:{_task_id}')
             if _end and _task_type != '0' and _task_id:
                 append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
-        time.sleep(3600)
+        # time.sleep(3600)
