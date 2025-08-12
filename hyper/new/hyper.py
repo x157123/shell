@@ -6,35 +6,37 @@ import random
 from loguru import logger
 import argparse
 import os
+import subprocess
 
+# ========= 可调参数 =========
+RESTART_INTERVAL_SEC = 60 * 60 * 24 * 2    # 每隔两天(48小时)重启
+BASE_PORT = 9515                            # 起始远程调试端口
+DISPLAY_VAL = ':23'                         # 你的 X 显示
+CHROME_BIN = '/opt/google/chrome'           # Chrome 路径
+USER_DATA_ROOT = '/home/ubuntu/task/hyper/chrome_data'  # 用户数据根目录
+TARGET_URL = 'https://node.hyper.space/'
+# ==========================
 
 def get_points(tab):
     # 获取积分：点击按钮后从剪贴板读取
     if __click_ele(tab, "x://button[.//span[text()='Points']]"):
         time.sleep(15)  # 确保剪贴板内容更新
-        # 定位到指定的 div 元素并获取其文本内容
-        target_div = tab.ele("x://div[text()='Accumlated points']/following-sibling::div")
-        # 获取该 div 中的文本
-        text = target_div.text
-        # logger.info(f"Text from the div: {text}")
-        return text
-
+        # “Accumlated points” 可能有拼写差异，这里用 contains 提高容错
+        target_div = tab.ele("x://div[contains(normalize-space(.),'Accum') and contains(normalize-space(.),'points')]/following-sibling::div")
+        return target_div.text if target_div else None
 
 def __click_ele(_page, xpath: str = '', loop: int = 5, must: bool = False,
                 find_all: bool = False,
                 index: int = -1) -> bool:
     loop_count = 1
     while True:
-        # logger.info(f'查找元素{xpath}:{loop_count}')
         try:
             if not find_all:
                 _page.ele(locator=xpath).click()
             else:
                 _page.eles(locator=xpath)[index].click()
-            # logger.info(f'点击按钮{xpath}:{loop_count}')
             return True
-        except Exception as e:
-            error = e
+        except Exception:
             pass
         if loop_count >= loop:
             if must:
@@ -42,34 +44,27 @@ def __click_ele(_page, xpath: str = '', loop: int = 5, must: bool = False,
             return False
         loop_count += 1
 
-
-# 获取元素
 def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
               find_all: bool = False,
               index: int = -1):
     loop_count = 1
     while True:
-        # logger.info(f'查找元素{xpath}:{loop_count}')
         try:
             if not find_all:
-                # logger.info(f'查找元素{xpath}:{loop_count}')
                 txt = page.ele(locator=xpath)
                 if txt:
                     return txt
             else:
-                # logger.info(f'查找元素{xpath}:{loop_count}:{find_all}:{index}')
                 txt = page.eles(locator=xpath)[index]
                 if txt:
                     return txt
-        except Exception as e:
-            error = e
+        except Exception:
             pass
         if loop_count >= loop:
             if must:
                 raise Exception(f'未找到元素:{xpath}')
             return None
         loop_count += 1
-
 
 def signma_log(message: str, task_name: str, index: str) -> bool:
     try:
@@ -89,90 +84,154 @@ def signma_log(message: str, task_name: str, index: str) -> bool:
     except Exception as e:
         raise logger.error(f"发送日志失败: {str(e)}")
 
-
 def get_date_as_string():
-    # 获取当前日期和时间
-    now = datetime.now()
-    # 将日期格式化为字符串 年-月-日
-    date_string = now.strftime("%Y-%m-%d")
-    return date_string
+    return datetime.now().strftime("%Y-%m-%d")
 
-def monitor_switch(pages):
+# ============== 新增：进程与页面管理 ==============
+
+def build_profiles(param: str):
+    """把 --param 解析为 profile 列表，含公钥、私钥、端口、user-data 路径。"""
+    profiles = []
+    for idx, part in enumerate(param.split("||")):
+        im_public_key, im_private_Key = part.split(",", 1)
+        profiles.append({
+            "public": im_public_key.strip(),
+            "private": im_private_Key.strip(),
+            "port": BASE_PORT + idx,
+            "user_data": f"{USER_DATA_ROOT}/{im_public_key.strip()}",
+        })
+    return profiles
+
+def launch_page(profile: dict) -> ChromiumPage:
+    """启动或连接到指定 profile 的 Chrome，并打开页面，必要时导入私钥。"""
+    os.environ['DISPLAY'] = DISPLAY_VAL
+    options = ChromiumOptions()
+    options.set_browser_path(CHROME_BIN)
+    options.set_user_data_path(profile["user_data"])
+    options.set_local_port(profile["port"])
+
+    page = ChromiumPage(options)
+    page.page_id = profile["public"]
+    # 自定义记录端口/路径，便于重启时兜底关闭
+    page._dp_port = profile["port"]
+    page._user_data = profile["user_data"]
+
+    page.get(TARGET_URL)
+    time.sleep(10)
+
+    # 如首次使用该 profile，导入私钥（存在则按钮一般可点击到输入框）
+    if __click_ele(page, "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
+        if __click_ele(page, "x://div[contains(@class, 'cursor-text')]"):
+            logger.info("write key")
+            page.actions.type(profile["private"])
+            time.sleep(1)
+            __click_ele(page, "x://button[normalize-space()='IMPORT KEY']")
+            time.sleep(5)
+            page.refresh()
+            time.sleep(3)
+
+    # 关闭私钥弹窗（如果存在）
+    __click_ele(_page=page, xpath='x://button[.//span[text()="Close"]]', loop=2)
+    return page
+
+def launch_all_profiles(profiles):
+    pages = []
+    for i, pf in enumerate(profiles, start=1):
+        logger.info(f"启动:{pf['public']}")
+        page = launch_page(pf)
+        pages.append(page)
+        time.sleep(60)  # 你原来的节流
+    return pages
+
+def graceful_close(page: ChromiumPage):
+    """尽量优雅关闭；不行再按端口 kill 兜底。"""
+    port = getattr(page, '_dp_port', None)
+    # 1) 优雅关闭
+    for closer in ('quit', 'close'):
+        try:
+            fn = getattr(page, closer, None)
+            if callable(fn):
+                fn()
+                return
+        except Exception:
+            pass
+    # 2) 尝试关闭 browser 对象
+    try:
+        if hasattr(page, 'browser') and hasattr(page.browser, 'quit'):
+            page.browser.quit()
+            return
+    except Exception:
+        pass
+    # 3) 兜底：按端口杀掉该实例
+    if port:
+        try:
+            subprocess.run(['pkill', '-f', f'--remote-debugging-port={port}'], check=False)
+        except Exception:
+            pass
+
+def restart_browsers(pages: list, profiles: list) -> list:
+    logger.warning("开始重启 Chrome 实例（两天周期）...")
+    # 先关
+    for p in pages:
+        graceful_close(p)
+    time.sleep(3)
+    # 再拉起
+    new_pages = launch_all_profiles(profiles)
+    logger.warning("Chrome 实例已全部重启。")
+    return new_pages
+
+# ============== 你的监控循环 + 重启触发 ==============
+
+def monitor_switch(pages, profiles):
     total = 70
+    last_restart = time.monotonic()  # 用单调时钟计时更稳
     while True:
         try:
             time.sleep(random.randint(60, 80))
             for idx, tab in enumerate(pages, start=1):
                 if __get_ele(page=tab, xpath='x://button[@role="switch"]', loop=2):
                     if __click_ele(_page=tab, xpath='x://button[@role="switch" and @aria-checked="false"]', loop=2):
-                        logger.info(f"未链接网络")
+                        logger.info("未链接网络")
                     else:
                         logger.info(f"已链接网络:{total}")
                         if __get_ele(page=tab, xpath='x://span[text()="Connected"]', loop=1):
                             if total > 60:
-                                # 获取积分 每循环60次检测 获取一次积分
+                                # 每 60 次检测一次积分
                                 points = get_points(tab)
-                                # 关闭积分弹窗（如果存在）
                                 __click_ele(tab, 'x://button[.//span[text()="Close"]]')
-                                if points is not None and points != "":
+                                if points:
                                     logger.info("appInfo", args.ip + ',采集积分,' + str(points))
-                                    # signma_log(message=str(points), task_name="hyper", index=tab.page_id, node_name=args.ip)
                                     logger.info(f"推送积分:{points}")
-                                    signma_log(message=f"{points}", task_name=f'hyper_point_{get_date_as_string()}', index=tab.page_id)
+                                    signma_log(message=f"{points}",
+                                               task_name=f'hyper_point_{get_date_as_string()}',
+                                               index=tab.page_id)
                 else:
                     logger.info("刷新页面")
                     tab.refresh()
+
             if total > 60:
                 total = 0
             total += 1
+
+            # —— 检查是否到达两天，触发重启 ——
+            if time.monotonic() - last_restart >= RESTART_INTERVAL_SEC:
+                pages[:] = restart_browsers(pages, profiles)  # 原地替换列表内容
+                last_restart = time.monotonic()
+
         except Exception as e:
             logger.info("appInfo", args.ip + ',检查过程中出现异常: ' + str(e))
 
+# ============== 入口 ==============
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--param", type=str, help="参数")
     parser.add_argument("--ip", type=str, help="参数")
     args = parser.parse_args()
-    pages = []
-    idx = 0
-    for part in args.param.split("||"):
-        os.environ['DISPLAY'] = ':23'
-        port = 9515 + idx
-        idx += 1
-        arg = part.split(",")
-        im_public_key = arg[0]
-        im_private_Key = arg[1]
-        logger.info(f"启动:{im_public_key}")
-        options = ChromiumOptions()
-        options.set_browser_path('/opt/google/chrome')
-        options.set_user_data_path(f"/home/ubuntu/task/hyper/chrome_data/{im_public_key}")
-        options.set_local_port(port)
 
-        # ...............
-        page = ChromiumPage(options)
-        page.get('https://node.hyper.space/')
-        page.page_id = im_public_key
-        time.sleep(10)
-        # if __click_ele(page, "x://p[text()='Public Key:']/following-sibling::div//button"):
-            # public_key = pyperclip.paste().strip()
-            # print(public_key)
-            # if public_key is not None and public_key != im_public_key:
-        if __click_ele(page, "x://div[contains(@class, 'justify-between') and .//p[contains(text(), 'Public Key:')]]/button"):
-            if __click_ele(page, "x://div[contains(@class, 'cursor-text')]"):
-                print(f"write key")
-                page.actions.type(im_private_Key)
-                time.sleep(1)
-                # 确认导入
-                __click_ele(page, "x://button[normalize-space()='IMPORT KEY']")
-                time.sleep(5)
-                page.refresh()
-                time.sleep(3)
-        # 关闭私钥弹窗（如果存在）
-        __click_ele(_page=page, xpath='x://button[.//span[text()="Close"]]', loop=2)
-        pages.append(page)
-        # time.sleep(60 * idx)
-        time.sleep(60)
+    # 解析账号 -> 启动所有实例
+    profiles = build_profiles(args.param)
+    pages = launch_all_profiles(profiles)
 
-    # 进入循环，持续监控切换按钮状态
-    monitor_switch(pages=pages)
+    # 进入循环，持续监控切换按钮状态，并按两天周期重启
+    monitor_switch(pages=pages, profiles=profiles)
