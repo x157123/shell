@@ -1052,4 +1052,7 @@ if __name__ == '__main__':
             logger.info(f'数据{_end}:{_task_type}:{_task_id}')
             if _end and _task_type != '0' and _task_id:
                 append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
-        time.sleep(3600)
+        if len(filtered) > 12:
+            time.sleep(1800)
+        else:
+            time.sleep(3600)
