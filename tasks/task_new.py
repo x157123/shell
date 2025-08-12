@@ -558,7 +558,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                     __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
                     if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]', loop=2):
                         for offset in range(5):
-                            time.sleep(random.uniform(2, 5))
+                            time.sleep(random.uniform(10, 15))
                             # _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
                             # if _select_t:
                             #     main_page.actions.move_to(_select_t).click()
@@ -566,12 +566,11 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                             _select = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover") or starts-with(normalize-space(.),"Network-owned data is community-controlled") or starts-with(normalize-space(.),"Current AI models lack sufficient") or starts-with(normalize-space(.),"Achievement of high robot autonomy") or starts-with(normalize-space(.),"More robots generate valuable datasets")]]')
                             if _select:
                                 main_page.actions.move_to(_select).click()
-                            time.sleep(random.uniform(2, 4))
                             _next = __get_ele(page=main_page, xpath='x://button[(@class="QuizModal_navButton__Zy2TN" and contains(normalize-space(.), "Next →")) or (@class="QuizModal_goldButton__SjXdA" and contains(normalize-space(.), "Finish Quiz →"))]')
                             if _next:
-                                time.sleep(random.uniform(2, 4))
+                                time.sleep(random.uniform(5, 8))
                                 main_page.actions.move_to(_next).click()
-                        time.sleep(5)
+                        time.sleep(10)
                     main_page.get('https://app.prismax.ai/whitepaper')
                     time.sleep(2)
     except Exception as e:
@@ -933,9 +932,6 @@ def __do_task_molten(page, evm_id, index):
 # ========== 主流程 ==========
 
 if __name__ == '__main__':
-    today = datetime.today().date()
-    tasks = read_data_list_file("/home/ubuntu/task/tasks/tasks.txt")
-    end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_tasks.txt")
 
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
@@ -945,6 +941,9 @@ if __name__ == '__main__':
     ARGS_IP = args.ip or ""
     _window = args.display.lstrip(':')
 
+    today = datetime.today().date()
+    tasks = read_data_list_file("/home/ubuntu/task/tasks/tasks.txt")
+    end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_tasks.txt")
 
     logger.info(f'开始执行{ARGS_IP}:{_window}:{args.display}:{len(tasks)}')
     # 统一设置 DISPLAY
@@ -1003,7 +1002,6 @@ if __name__ == '__main__':
 
             # 用户数据目录
             options.set_user_data_path(f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}")
-            options.set_user_agent(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
 
             # 端口可能被占用，尝试几次
             for offset in range(3):
@@ -1035,11 +1033,11 @@ if __name__ == '__main__':
                 if random.choice([True, False]):
                     _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                 _end = True
-            # elif _type == 'prismax':
-            #     if len(arg) < 3:
-            #         logger.warning("prismax 需要助记词/私钥参数，已跳过")
-            #     else:
-            #         _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+            elif _type == 'prismax':
+                if len(arg) < 3:
+                    logger.warning("prismax 需要助记词/私钥参数，已跳过")
+                else:
+                    _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
             else:
                 logger.warning(f"未知任务类型：{_type}")
 
@@ -1054,4 +1052,4 @@ if __name__ == '__main__':
             logger.info(f'数据{_end}:{_task_type}:{_task_id}')
             if _end and _task_type != '0' and _task_id:
                 append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
-        # time.sleep(3600)
+        time.sleep(3600)
