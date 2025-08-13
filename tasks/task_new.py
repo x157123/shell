@@ -320,8 +320,8 @@ def __do_task_portal(page, evm_id, index):
         logger.info('已登录钱包')
 
         main_page = page.new_tab(url="https://portal.abs.xyz/")
-
-        if __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Login with Wallet"]]', loop=2):
+        time.sleep(5)
+        if __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Login with Wallet"]]', loop=4):
             if __click_ele(page=main_page, xpath='x://div[normalize-space(.)="Other wallets"]/ancestor::button[1]', loop=1):
                 __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Signma"]]', loop=2)
                 __handle_signma_popup(page=page, count=2)
