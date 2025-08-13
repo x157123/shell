@@ -322,11 +322,11 @@ def __do_task_portal(page, evm_id, index):
         logger.info('已登录钱包')
 
         main_page = page.new_tab(url="https://portal.abs.xyz/")
-        time.sleep(5)
+        time.sleep(12)
         if __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Login with Wallet"]]', loop=4):
-            if __click_ele(page=main_page, xpath='x://div[normalize-space(.)="Other wallets"]/ancestor::button[1]', loop=1):
-                __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Signma"]]', loop=2)
-                __handle_signma_popup(page=page, count=2)
+            if __click_ele(page=main_page, xpath='x://div[normalize-space(.)="Other wallets"]/ancestor::button[1]', loop=20):
+                __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Signma"]]', loop=10)
+                __handle_signma_popup(page=page, count=2, timeout=60)
                 time.sleep(20)
 
         __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Skip"]', loop=5)
@@ -1136,7 +1136,7 @@ if __name__ == '__main__':
                 logger.error("浏览器启动失败，跳过该任务")
                 continue
 
-            _page.set.window.max()
+            # _page.set.window.max()
 
             if _type == 'gift':
                 _end = __do_task_gift(page=_page, index=_window, evm_id=_id)
