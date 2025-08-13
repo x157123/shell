@@ -315,6 +315,8 @@ def __login_wallet(page, evm_id):
 def __do_task_portal(page, evm_id, index):
     __bool = False
     try:
+        __handle_signma_popup(page=page, count=0)
+        time.sleep(3)
         __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
         logger.info('已登录钱包')
