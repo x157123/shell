@@ -323,14 +323,17 @@ def __do_task_portal(page, evm_id, index):
 
         main_page = page.new_tab(url="https://portal.abs.xyz/")
         time.sleep(12)
-        if __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Login with Wallet"]]', loop=4):
+        if __get_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Login with Wallet"]]', loop=4):
             time.sleep(5)
-            if __click_ele(page=main_page, xpath='x://div[normalize-space(.)="Other wallets"]/ancestor::button[1]', loop=20):
+            click_x_y(363, 755, index)
+            if __get_ele(page=main_page, xpath='x://div[normalize-space(.)="Other wallets"]/ancestor::button[1]', loop=20):
                 time.sleep(5)
-                __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Signma"]]', loop=10)
-                time.sleep(5)
-                __handle_signma_popup(page=page, count=2, timeout=60)
-                time.sleep(20)
+                click_x_y(437, 740, index)
+                if __get_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Signma"]]', loop=10):
+                    time.sleep(5)
+                    click_x_y(414, 524, index)
+                    __handle_signma_popup(page=page, count=2, timeout=60)
+                    time.sleep(20)
 
         __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Skip"]', loop=5)
 
