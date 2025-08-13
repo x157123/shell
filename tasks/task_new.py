@@ -311,6 +311,107 @@ def __login_wallet(page, evm_id):
         __click_ele(page=wallet_tab, xpath="tag:button@@id=existingWallet")
         time.sleep(1)
 
+
+def __do_task_portal(page, evm_id, index):
+    __bool = False
+    try:
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+        logger.info('已登录钱包')
+
+        main_page = page.new_tab(url="https://portal.abs.xyz/")
+
+        if __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Login with Wallet"]]', loop=2):
+            if __click_ele(page=main_page, xpath='x://div[normalize-space(.)="Other wallets"]/ancestor::button[1]', loop=1):
+                __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Signma"]]', loop=2)
+                __handle_signma_popup(page=page, count=2)
+                time.sleep(20)
+
+        __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Skip"]', loop=5)
+
+        main_page.get("https://portal.abs.xyz/profile")
+        __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Send"]]', loop=5)
+
+        if 88111 <= int(evm_id) <= 89110:
+            __input_ele_value(page=main_page, xpath='x://input[@placeholder="Address, domain or identity"]', value='0xc0c828e71C462971F3105454592DbeFBd21D2BDb')
+        else:
+            __input_ele_value(page=main_page, xpath='x://input[@placeholder="Address, domain or identity"]', value='0xf5eEE81fCD4b07CB6EcD3357d618312102230256')
+
+
+        __click_ele(page=main_page, xpath='x://article[.//p[starts-with(normalize-space(.),"Balance:")]]/button', loop=1)
+
+        __click_ele(page=main_page, xpath='x://button[contains(@class,"styles_switchButton__") and contains(@class,"styles_token__")]', loop=1)
+
+        time.sleep(5)
+
+        lis = main_page.eles(
+            'x://ul[contains(@class,"styles_container__")]/li['
+            'number(translate((.//h4[starts-with(normalize-space(.), "$")])[1], "$,", "")) > 0]'
+        )
+
+        data = []
+        for li in lis:
+            name = (li.ele('x:.//p[contains(@class,"styles_description__")]') or
+                    li.ele('x:.//h4[not(starts-with(normalize-space(.), "$"))]')).text
+            usd = li.ele('x:.//h4[starts-with(normalize-space(.), "$")]').text  # 如 "$2.1412"
+
+            signma_log(message=f"{name},{usd}", task_name=f'portal_point_{get_date_as_string()}', index=evm_id)
+            __bool = True
+        time.sleep(5)
+        # __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="25%"]]', loop=1)
+        # time.sleep(5)
+        # __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="75%"]]', loop=1)
+        # time.sleep(5)
+        # __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Review Tokens" and not(@disabled)]', loop=1)
+        # time.sleep(2)
+        # __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Send"]]', loop=1)
+        #
+        # time.sleep(5)
+        # # PENGU         ABSTER
+        # time.sleep(3000)
+
+
+
+    except Exception as e:
+        logger.info(f"窗口{index}: 处理任务异常: {e}")
+    return __bool
+
+
+
+def __do_task_gift(page, evm_id, index):
+    __bool = False
+    try:
+        time.sleep(1)
+        __handle_signma_popup(page=page, count=0)
+        time.sleep(2)
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+        logger.info('已登录钱包')
+
+        main_page = page.new_tab(url="https://gift.xyz/")
+
+
+        if __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Sign in"]]', loop=2):
+            if __click_ele(page=main_page, xpath='x://span[normalize-space(.)="Sign in with Wallet"]/ancestor::button[1]', loop=1):
+                __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Signma"]]', loop=2)
+                __handle_signma_popup(page=page, count=2)
+
+
+        collect = main_page.eles("x://button[contains(normalize-space(.),'Collect')]")
+        random.choice(collect).click()
+
+        __input_ele_value(page=main_page, xpath='x://input[@placeholder="Add message (optional)"]', value='test')
+        if __click_ele(page=main_page, xpath='x://button[.//p[normalize-space(.)="Collect"]]', loop=2):
+            __handle_signma_popup(page=page, count=2)
+            time.sleep(3000)
+            time.sleep(3000)
+
+    except Exception as e:
+        logger.info(f"窗口{index}: 处理任务异常: {e}")
+    return __bool
+
+
+
 def __do_task_logx(page, evm_id, index):
     __bool = False
     try:
@@ -942,9 +1043,12 @@ if __name__ == '__main__':
     _window = args.display.lstrip(':')
 
     today = datetime.today().date()
-    tasks = read_data_list_file("/home/ubuntu/task/tasks/tasks.txt")
-    end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_tasks.txt")
-
+    if platform.system().lower() == "windows":
+        tasks = read_data_list_file("./tasks.txt")
+        end_tasks = read_data_list_file("./end_tasks.txt")
+    else:
+        tasks = read_data_list_file("/home/ubuntu/task/tasks/tasks.txt")
+        end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_tasks.txt")
     logger.info(f'开始执行{ARGS_IP}:{_window}:{args.display}:{len(tasks)}')
     # 统一设置 DISPLAY
     os.environ['DISPLAY'] = f':{_window}'
@@ -993,16 +1097,27 @@ if __name__ == '__main__':
 
             logger.info(f"启动类型: {_type}")
             options = ChromiumOptions()
-            options.set_browser_path('/opt/google/chrome')
+            if platform.system().lower() == "windows":
+                options.set_browser_path(r"F:\chrome_tool\127.0.6483.0\chrome.exe")
+            else:
+                options.set_browser_path('/opt/google/chrome')
+
 
             if _type == 'prismax':
-                options.add_extension(f"/home/ubuntu/extensions/phantom")
+                if platform.system().lower() == "windows":
+                    options.add_extension(f"F:/chrome_tool/phantom")
+                else:
+                    options.add_extension(f"/home/ubuntu/extensions/phantom")
             else:
-                options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
-
+                if platform.system().lower() == "windows":
+                    options.add_extension(f"F:/chrome_tool/signma")
+                else:
+                    options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
             # 用户数据目录
-            options.set_user_data_path(f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}")
-
+            if platform.system().lower() == "windows":
+                options.set_user_data_path(f"F:/tmp/chrome_data/{_type}/{_id}")
+            else:
+                options.set_user_data_path(f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}")
             # 端口可能被占用，尝试几次
             for offset in range(3):
                 try:
@@ -1019,7 +1134,12 @@ if __name__ == '__main__':
                 continue
 
             _page.set.window.max()
-            if _type == 'logx':
+
+            if _type == 'gift':
+                _end = __do_task_gift(page=_page, index=_window, evm_id=_id)
+            elif _type == 'portal':
+                _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
+            elif _type == 'logx':
                 _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
             elif _type == 'nft':
                 _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
@@ -1051,8 +1171,9 @@ if __name__ == '__main__':
                     logger.exception("退出错误")
             logger.info(f'数据{_end}:{_task_type}:{_task_id}')
             if _end and _task_type != '0' and _task_id:
-                append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
-        if len(filtered) > 12:
-            time.sleep(1800)
-        else:
-            time.sleep(3600)
+                if platform.system().lower() != "windows":
+                    append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
+        # if len(filtered) > 12:
+        #     time.sleep(1800)
+        # else:
+        #     time.sleep(3600)
