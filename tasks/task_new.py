@@ -353,7 +353,7 @@ def __do_task_portal(page, evm_id, index):
 
         __click_ele(page=main_page, xpath='x://article[.//p[starts-with(normalize-space(.),"Balance:")]]/button', loop=1)
 
-        __click_ele(page=main_page, xpath='x://button[contains(@class,"styles_switchButton__") and contains(@class,"styles_token__")]', loop=1)
+        # __click_ele(page=main_page, xpath='x://button[contains(@class,"styles_switchButton__") and contains(@class,"styles_token__")]', loop=1)
 
         time.sleep(5)
 
