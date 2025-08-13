@@ -9,7 +9,7 @@ import os
 import subprocess
 
 # ========= 可调参数 =========
-RESTART_INTERVAL_SEC = 60 * 60 * 24 * 2    # 每隔两天(48小时)重启
+RESTART_INTERVAL_SEC = 60 * 60 * 24 * 4    # 每隔两天(48小时)重启
 BASE_PORT = 9515                            # 起始远程调试端口
 DISPLAY_VAL = ':23'                         # 你的 X 显示
 CHROME_BIN = '/opt/google/chrome'           # Chrome 路径
