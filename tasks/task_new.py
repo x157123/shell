@@ -80,26 +80,34 @@ def __click_ele(page, xpath: str, loop: int = 5, must: bool = False,
         raise Exception(f'未找到元素:{xpath}')
     return False
 
-# 稳定获取元素
-def __get_ele(page, xpath: str, loop: int = 5, must: bool = False,
-              find_all: bool = False, index: int = 0):
+# 获取元素
+def __get_ele(page, xpath: str = '', loop: int = 5, must: bool = False,
+              find_all: bool = False,
+              index: int = -1):
+    loop_count = 1
     for i in range(1, loop + 1):
-        logger.info(f'获取按钮:{xpath}')
+        logger.info(f'查找元素{xpath}:{loop_count}')
         try:
             if not find_all:
-                ele = page.ele(locator=xpath, timeout=2)
-                if ele:
-                    return ele
+                # logger.info(f'查找元素{xpath}:{loop_count}')
+                txt = page.ele(locator=xpath)
+                if txt:
+                    return txt
             else:
-                eles = page.eles(locator=xpath, timeout=2)
-                if eles and 0 <= index < len(eles):
-                    return eles[index]
+                # logger.info(f'查找元素{xpath}:{loop_count}:{find_all}:{index}')
+                txt = page.eles(locator=xpath)[index]
+                if txt:
+                    return txt
         except Exception as e:
-            logger.debug(f'查找失败({i}/{loop}) {xpath}: {e}')
-        time.sleep(1)
-    if must:
-        raise Exception(f'未找到元素:{xpath}')
-    return None
+            error = e
+            pass
+        if loop_count >= loop:
+            if must:
+                raise Exception(f'未找到元素:{xpath}')
+            return None
+        loop_count += 1
+
+
 
 # 获取元素文本
 def __get_ele_value(page, xpath: str = '', loop: int = 5, must: bool = False,
@@ -527,6 +535,10 @@ def __do_task_logx(page, evm_id, index):
                     time.sleep(3)
                 else:
                     break
+
+                time.sleep(1)
+                click_x_y(1430, 934, index)
+
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
