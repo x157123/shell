@@ -504,7 +504,7 @@ def __do_task_logx(page, evm_id, index):
 
             for attempt in range(2):
                 time.sleep(5)
-                __click_ele(page=main_page, xpath='x://div[text()="MAX"]')
+                __click_ele(page=main_page, xpath='x://div[text()="MAX"]', loop=2)
                 click_x_y(1764, 416, index)   # 坐标点击：尽量保证分辨率一致
                 time.sleep(1)
                 click_x_y(1764, 416, index)   # 坐标点击：尽量保证分辨率一致
@@ -516,10 +516,10 @@ def __do_task_logx(page, evm_id, index):
                 logger.info(f'点击倍数:{x}:{index}')
                 time.sleep(2)
                 if random.choice([True, False]):
-                    __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]')
+                    __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]', loop=2)
                     click_x_y(1610, 720, index)
                 else:
-                    __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Short"]')
+                    __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Short"]', loop=2)
                     click_x_y(1770, 720, index)
                 logger.info('提交')
                 time.sleep(15)
