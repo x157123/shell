@@ -855,6 +855,8 @@ def __do_task_nft(page, index, evm_id):
 
             # 钱包两次确定
             __handle_signma_popup(page=page, count=2, timeout=90)
+            time.sleep(10)
+            __handle_signma_popup(page=page, count=0)
             time.sleep(2)
             __handle_signma_popup(page=page, count=0)
             # 获取成功按钮 <button type="button" data-marker="mint-receipt-view-btn" class="sc-aXZVg sc-eBMEME sc-dCFHLb sc-jxOSlx sc-tagGq dAopwH ctYaUb ciBRVx iANODE"><span class="sc-cfxfcM hpAeLf"><span class="sc-gFAWRd eNTBLN">View NFT</span></span></button>
