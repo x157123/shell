@@ -160,24 +160,17 @@ down_desc() {
     # 目录路径
     DIR="/home/$USER/task/tasks/image_descriptions.txt"
 
-    if [ -d "$DIR" ]; then
-      log_info "文件 $DIR 已存在，准备删除。"
-      rm -rf "$DIR"
-    fi
+    rm -rf "$DIR"
 
-    # 判断目录是否存在
-    if [ ! -d "$DIR" ]; then
+    # 目录不存在，创建目录
+    wget -q -O /home/ubuntu/task/tasks/image_descriptions.txt "https://github.com/x157123/ACL4SSR/releases/download/v.1.0.11/image_descriptions.txt" || error_exit "文件下载失败"
 
-      # 目录不存在，创建目录
-      wget -q -O /home/ubuntu/task/tasks/image_descriptions.txt "https://github.com/x157123/ACL4SSR/releases/download/v.1.0.11/image_descriptions.txt" || error_exit "文件下载失败"
+    # 授权给 指定 用户
+    log_info "授权目录 $DIR 给 $USER 用户..."
+    chown -R "$USER":"$USER" "$DIR"
 
-      # 授权给 指定 用户
-      log_info "授权目录 $DIR 给 $USER 用户..."
-      chown -R "$USER":"$USER" "$DIR"
+    log_info "授权完成。"
 
-      log_info "授权完成。"
-
-    fi
 }
 
 install_wallet_dog() {
