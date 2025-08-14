@@ -496,6 +496,7 @@ def __do_task_logx(page, evm_id, index):
 
             for attempt in range(5):
                 time.sleep(5)
+                __click_ele(page=main_page, xpath='x://div[text()="MAX"]')
                 click_x_y(1764, 416, index)   # 坐标点击：尽量保证分辨率一致
                 time.sleep(1)
                 click_x_y(1764, 416, index)   # 坐标点击：尽量保证分辨率一致
