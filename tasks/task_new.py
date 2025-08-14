@@ -494,7 +494,7 @@ def __do_task_logx(page, evm_id, index):
         if _amount > 0:
             main_page.get('https://app.logx.network/trade/BTC')
 
-            for attempt in range(5):
+            for attempt in range(2):
                 time.sleep(5)
                 __click_ele(page=main_page, xpath='x://div[text()="MAX"]')
                 click_x_y(1764, 416, index)   # 坐标点击：尽量保证分辨率一致
