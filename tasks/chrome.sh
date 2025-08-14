@@ -246,6 +246,7 @@ main() {
 	mkdir -p "/home/ubuntu/task/tasks/img"
   chown -R "$USER":"$USER" "/home/ubuntu/task/tasks/img"
 
+  down_desc
   # 安装钱包
 #  install_wallet_dog
 
