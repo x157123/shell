@@ -30,18 +30,23 @@ check_port() {
     fi
 }
 
-install_chrome_120(){
-    if ! dpkg-query -W google-chrome-stable >/dev/null 2>&1; then
-        log_info "安装 Google Chrome..."
-        if ! curl -sSL "$CHROME_URL_OLD" -o "$CHROME_DEB"; then
+install_edge() {
+    # 定义变量
+    EDGE_DEB="microsoft-edge-stable.deb"
+    # 检查是否已安装 Microsoft Edge
+    if ! dpkg-query -W microsoft-edge-stable >/dev/null 2>&1; then
+        log_info "安装 Microsoft Edge..."
+        # 尝试从主 URL 下载
+        if ! curl -sSL "https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_133.0.3065.82-1_amd64.deb?brand=M102" -o "$EDGE_DEB"; then
             log_info "URL 下载失败..."
         fi
-        sudo dpkg -i "$CHROME_DEB" || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
-        rm -f "$CHROME_DEB"
-        sudo apt-mark hold google-chrome-stable
-        log_info "Google Chrome 安装完成"
+        # 安装 .deb 文件，若失败则尝试修复依赖
+        sudo dpkg -i "$EDGE_DEB" || sudo apt-get install -f -y || error_exit "Microsoft Edge 安装失败"
+        # 清理临时文件
+        rm -f "$EDGE_DEB"
+        log_info "Microsoft Edge 安装完成"
     else
-        log_info "Google Chrome 已安装，跳过"
+        log_info "Microsoft Edge 已安装，跳过"
     fi
 }
 
@@ -247,37 +252,13 @@ main() {
 		error_exit "此脚本需要以 root 权限运行，请使用 sudo 或以 root 用户执行"
 	fi
 
-  # 停止服务
-	stop_services
-
-	mkdir -p "/home/ubuntu/task/tasks/img"
-  chown -R "$USER":"$USER" "/home/ubuntu/task/tasks/img"
 
   # 安装钱包
-#  install_wallet_dog
-
-	# 更新软件源并安装 Python 运行时及虚拟环境支持
-	apt-get update \
-		&& apt-get install -y \
-			python3-pip \
-			python3-venv \
-			python3-tk \
-			python3-dev \
-		|| error_exit "Python 组件安装失败"
-
-	# 升级 pip 并安装依赖包
-	pip install --upgrade pip \
-		|| error_exit "升级 pip 失败"
-	pip install \
-		pyautogui \
-		drissionpage \
-		pyperclip \
-		loguru \
-		|| error_exit "Python 包安装失败"
+  install_edge
 
 
   # 循环创建 :23 到 :27 的 VNC 会话
-  for display in {24..24}; do
+  for display in {23..25}; do
       port=$((5900 + display))
       log_info "=== 启动 VNC 会话 :$display (端口 $port) ==="
       VNC_DISPLAY="$display" VNC_PORT="$port" setup_vnc
