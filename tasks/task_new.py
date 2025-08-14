@@ -533,9 +533,7 @@ def __do_task_logx(page, evm_id, index):
                 if __click_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=2):
                     __bool = True
                     time.sleep(3)
-                else:
-                    break
-
+                    
                 time.sleep(1)
                 click_x_y(1430, 934, index)
 
