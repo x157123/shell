@@ -1241,9 +1241,11 @@ if __name__ == '__main__':
                         append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
                     else:
                         _end_day_task.append(_task_id)
-            # if len(filtered) > 24:
-            #     time.sleep(900)
-            # elif len(filtered) > 12:
-            #     time.sleep(1800)
-            # else:
-            #     time.sleep(3600)
+            if len(filtered) > 24:
+                time.sleep(900)
+            elif len(filtered) > 12:
+                time.sleep(1800)
+            else:
+                time.sleep(3600)
+   
+        time.sleep(1800)
