@@ -312,6 +312,36 @@ def __login_wallet(page, evm_id):
         time.sleep(1)
 
 
+def __do_task_linea(page, evm_id, index):
+    __bool = False
+    try:
+        __handle_signma_popup(page=page, count=0)
+        time.sleep(3)
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+
+        __add_net_work(page=page, coin_name='linea')
+
+        logger.info('已登录钱包')
+
+        main_page = page.new_tab(url="https://linea.build/hub/rewards")
+
+
+        shadow_host = main_page.eles('x://div[@id="dynamic-widget"]')
+        if shadow_host:
+            shadow_root = shadow_host[1].shadow_root
+            if shadow_root:
+                continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
+                if continue_button:
+                    continue_button.click(by_js=False)
+
+
+    except Exception as e:
+        logger.info(f"窗口{index}: 处理任务异常: {e}")
+    return __bool
+
+
+
 def __do_task_portal(page, evm_id, index):
     __bool = False
     try:
@@ -699,6 +729,7 @@ def __add_net_work(page, coin_name='base'):
         'opt': 10,
         'hemi': 43111,
         'arbitrum': 42161,
+        'linea': 59144,
         'rari': 1380012617,
     }
     number = obj[coin_name]
@@ -1081,8 +1112,8 @@ if __name__ == '__main__':
             logger.warning(f"日期解析失败，跳过：{date_str!r} in {line!r}")
             continue
         # 需求：获取今天之前（含今天）的数据，且未完成；另外 parts[0]=='0' 也保留
-        # if parts[1] == '0' or (date_obj <= today and parts[0] not in end_tasks):
-        if parts[1] == '0' or (parts[0] not in end_tasks):
+        if parts[1] == '0' or (date_obj <= today and parts[0] not in end_tasks):
+        # if parts[1] == '0' or (parts[0] not in end_tasks):
             filtered.append(line)
     # if len(filtered) <= 0:
     #     break
@@ -1152,6 +1183,8 @@ if __name__ == '__main__':
 
             if _type == 'gift':
                 _end = __do_task_gift(page=_page, index=_window, evm_id=_id)
+            elif _type == 'linea':
+                _end = __do_task_linea(page=_page, index=_window, evm_id=_id)
             elif _type == 'portal':
                 _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
             elif _type == 'logx':
