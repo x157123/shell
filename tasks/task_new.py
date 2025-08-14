@@ -1054,141 +1054,141 @@ if __name__ == '__main__':
     args = parser.parse_args()
     ARGS_IP = args.ip or ""
     _window = args.display.lstrip(':')
-    while True:
-        today = datetime.today().date()
-        if platform.system().lower() == "windows":
-            tasks = read_data_list_file("./tasks.txt")
-            end_tasks = read_data_list_file("./end_tasks.txt")
-        else:
-            tasks = read_data_list_file("/home/ubuntu/task/tasks/tasks.txt")
-            end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_tasks.txt")
-        logger.info(f'开始执行{ARGS_IP}:{_window}:{args.display}:{len(tasks)}')
-        # 统一设置 DISPLAY
-        os.environ['DISPLAY'] = f':{_window}'
+    # while True:
+    today = datetime.today().date()
+    if platform.system().lower() == "windows":
+        tasks = read_data_list_file("./tasks.txt")
+        end_tasks = read_data_list_file("./end_tasks.txt")
+    else:
+        tasks = read_data_list_file("/home/ubuntu/task/tasks/tasks.txt")
+        end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_tasks.txt")
+    logger.info(f'开始执行{ARGS_IP}:{_window}:{args.display}:{len(tasks)}')
+    # 统一设置 DISPLAY
+    os.environ['DISPLAY'] = f':{_window}'
 
-        # 过滤：保留“今天及以前”的数据；并排除已完成（end_tasks）之外的行
-        filtered = []
-        for line in tasks:
-            logger.info(f'开始执行:{line}')
-            parts = line.split("||")
-            if len(parts) < 3:
-                logger.warning(f"任务行格式不正确，跳过：{line!r}")
+    # 过滤：保留“今天及以前”的数据；并排除已完成（end_tasks）之外的行
+    filtered = []
+    for line in tasks:
+        logger.info(f'开始执行:{line}')
+        parts = line.split("||")
+        if len(parts) < 3:
+            logger.warning(f"任务行格式不正确，跳过：{line!r}")
+            continue
+        date_str = parts[2]
+        try:
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            logger.warning(f"日期解析失败，跳过：{date_str!r} in {line!r}")
+            continue
+        # 需求：获取今天之前（含今天）的数据，且未完成；另外 parts[0]=='0' 也保留
+        # if parts[1] == '0' or (date_obj <= today and parts[0] not in end_tasks):
+        if parts[1] == '0' or (parts[0] not in end_tasks):
+            filtered.append(line)
+    # if len(filtered) <= 0:
+    #     break
+    random.shuffle(filtered)
+    for part in filtered:
+        _page = None
+        _end = False
+        _task_id = ''
+        _task_type = ''
+        try:
+            parts = part.split("||")
+            if len(parts) < 4:
+                logger.warning(f"任务参数不足，跳过：{part!r}")
                 continue
-            date_str = parts[2]
-            try:
-                date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
-            except ValueError:
-                logger.warning(f"日期解析失败，跳过：{date_str!r} in {line!r}")
+
+            port = args.base_port
+            _task_id = parts[0]
+            _task_type = parts[1]
+            arg = parts[3].split(",")
+
+            if len(arg) < 2:
+                logger.warning(f"任务 arg 参数不足，跳过：{parts[3]!r}")
                 continue
-            # 需求：获取今天之前（含今天）的数据，且未完成；另外 parts[0]=='0' 也保留
-            # if parts[1] == '0' or (date_obj <= today and parts[0] not in end_tasks):
-            if parts[1] == '0' or (parts[0] not in end_tasks):
-                filtered.append(line)
-        if len(filtered) <= 0:
-            break
-        random.shuffle(filtered)
-        for part in filtered:
-            _page = None
-            _end = False
-            _task_id = ''
-            _task_type = ''
-            try:
-                parts = part.split("||")
-                if len(parts) < 4:
-                    logger.warning(f"任务参数不足，跳过：{part!r}")
-                    continue
 
-                port = args.base_port
-                _task_id = parts[0]
-                _task_type = parts[1]
-                arg = parts[3].split(",")
+            _type = arg[0]
+            _id = arg[1]
 
-                if len(arg) < 2:
-                    logger.warning(f"任务 arg 参数不足，跳过：{parts[3]!r}")
-                    continue
+            logger.info(f"启动类型: {_type}")
+            options = ChromiumOptions()
+            if platform.system().lower() == "windows":
+                options.set_browser_path(r"F:\chrome_tool\127.0.6483.0\chrome.exe")
+            else:
+                options.set_browser_path('/opt/google/chrome')
 
-                _type = arg[0]
-                _id = arg[1]
 
-                logger.info(f"启动类型: {_type}")
-                options = ChromiumOptions()
+            if _type == 'prismax':
                 if platform.system().lower() == "windows":
-                    options.set_browser_path(r"F:\chrome_tool\127.0.6483.0\chrome.exe")
+                    options.add_extension(f"F:/chrome_tool/phantom")
                 else:
-                    options.set_browser_path('/opt/google/chrome')
-
-
-                if _type == 'prismax':
-                    if platform.system().lower() == "windows":
-                        options.add_extension(f"F:/chrome_tool/phantom")
-                    else:
-                        options.add_extension(f"/home/ubuntu/extensions/phantom")
-                else:
-                    if platform.system().lower() == "windows":
-                        options.add_extension(f"F:/chrome_tool/signma")
-                    else:
-                        options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
-                # 用户数据目录
+                    options.add_extension(f"/home/ubuntu/extensions/phantom")
+            else:
                 if platform.system().lower() == "windows":
-                    options.set_user_data_path(f"F:/tmp/chrome_data/{_type}/{_id}")
+                    options.add_extension(f"F:/chrome_tool/signma")
                 else:
-                    options.set_user_data_path(f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}")
-                # 端口可能被占用，尝试几次
-                for offset in range(3):
-                    try:
-                        options.set_local_port(port + offset)
-                        _page = ChromiumPage(options)
-                        break
-                    except Exception as e:
-                        logger.warning(f"端口 {port+offset} 启动失败，重试：{e}")
-                        time.sleep(1)
-                        _page = None
+                    options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
+            # 用户数据目录
+            if platform.system().lower() == "windows":
+                options.set_user_data_path(f"F:/tmp/chrome_data/{_type}/{_id}")
+            else:
+                options.set_user_data_path(f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}")
+            # 端口可能被占用，尝试几次
+            for offset in range(3):
+                try:
+                    options.set_local_port(port + offset)
+                    _page = ChromiumPage(options)
+                    break
+                except Exception as e:
+                    logger.warning(f"端口 {port+offset} 启动失败，重试：{e}")
+                    time.sleep(1)
+                    _page = None
 
-                if _page is None:
-                    logger.error("浏览器启动失败，跳过该任务")
-                    continue
+            if _page is None:
+                logger.error("浏览器启动失败，跳过该任务")
+                continue
 
-                # _page.set.window.max()
+            # _page.set.window.max()
 
-                if _type == 'gift':
-                    _end = __do_task_gift(page=_page, index=_window, evm_id=_id)
-                elif _type == 'portal':
-                    _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
-                elif _type == 'logx':
-                    _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
-                elif _type == 'nft':
-                    _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
-                elif _type == 'molten':
-                    _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
-                elif _type == 'rari_arb':
-                    _end = __do_swap_rari_arb_eth(page=_page, evm_id=_id)
-                elif _type == 'rari_arb_end':
-                    _end = __do_swap_rari_arb_eth_end(page=_page, evm_id=_id)
-                elif _type == 'nexus':
-                    if random.choice([True, False]):
-                        _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
-                    _end = True
-                elif _type == 'prismax':
-                    if len(arg) < 3:
-                        logger.warning("prismax 需要助记词/私钥参数，已跳过")
-                    else:
-                        _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+            if _type == 'gift':
+                _end = __do_task_gift(page=_page, index=_window, evm_id=_id)
+            elif _type == 'portal':
+                _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
+            elif _type == 'logx':
+                _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
+            elif _type == 'nft':
+                _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
+            elif _type == 'molten':
+                _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
+            elif _type == 'rari_arb':
+                _end = __do_swap_rari_arb_eth(page=_page, evm_id=_id)
+            elif _type == 'rari_arb_end':
+                _end = __do_swap_rari_arb_eth_end(page=_page, evm_id=_id)
+            elif _type == 'nexus':
+                if random.choice([True, False]):
+                    _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
+                _end = True
+            elif _type == 'prismax':
+                if len(arg) < 3:
+                    logger.warning("prismax 需要助记词/私钥参数，已跳过")
                 else:
-                    logger.warning(f"未知任务类型：{_type}")
+                    _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+            else:
+                logger.warning(f"未知任务类型：{_type}")
 
-            except Exception as e:
-                logger.info(f"任务异常: {e}")
-            finally:
-                if _page is not None:
-                    try:
-                        _page.quit()
-                    except Exception:
-                        logger.exception("退出错误")
-                logger.info(f'数据{_end}:{_task_type}:{_task_id}')
-                if _end and _task_type != '0' and _task_id:
-                    if platform.system().lower() != "windows":
-                        append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
-            # if len(filtered) > 12:
-            #     time.sleep(1800)
-            # else:
-            #     time.sleep(3600)
+        except Exception as e:
+            logger.info(f"任务异常: {e}")
+        finally:
+            if _page is not None:
+                try:
+                    _page.quit()
+                except Exception:
+                    logger.exception("退出错误")
+            logger.info(f'数据{_end}:{_task_type}:{_task_id}')
+            if _end and _task_type != '0' and _task_id:
+                if platform.system().lower() != "windows":
+                    append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
+        # if len(filtered) > 12:
+        #     time.sleep(1800)
+        # else:
+        #     time.sleep(3600)
