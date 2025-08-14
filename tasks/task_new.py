@@ -1184,7 +1184,7 @@ if __name__ == '__main__':
                     logger.error("浏览器启动失败，跳过该任务")
                     continue
 
-                # _page.set.window.max()
+                _page.set.window.max()
 
                 if _type == 'gift':
                     _end = __do_task_gift(page=_page, index=_window, evm_id=_id)
