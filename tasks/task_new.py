@@ -508,11 +508,11 @@ def __do_task_logx(page, evm_id, index):
                 logger.info(f'点击倍数:{x}:{index}')
                 time.sleep(2)
                 if random.choice([True, False]):
-                    click_x_y(1610, 720, index)
                     __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]')
+                    click_x_y(1610, 720, index)
                 else:
-                    click_x_y(1770, 720, index)
                     __click_ele(page=main_page, xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Short"]')
+                    click_x_y(1770, 720, index)
                 logger.info('提交')
                 time.sleep(15)
                 if __get_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=2):
