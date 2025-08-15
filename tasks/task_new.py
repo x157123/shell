@@ -911,7 +911,7 @@ def __do_task_towns(page, index, evm_id, evm_addr):
                         xpath="x://button[contains(text(), 'Continue with Email')]", loop=2, must=True)
             __input_ele_value(page=towns_page, xpath='x://input[@id="email-input"]',
                               value=(evm_addr.lower() + "@dmail.ai"))
-
+            time.sleep(2)
             __click_ele(page=towns_page,
                         xpath="x://button[span[contains(text(), 'Submit')] and not(@disabled)]", loop=2, must=True)
             code = __get_email_code(page=towns_page.browser,_main_page=towns_page,
