@@ -252,6 +252,11 @@ main() {
 		error_exit "此脚本需要以 root 权限运行，请使用 sudo 或以 root 用户执行"
 	fi
 
+  sudo apt install -y fonts-noto-cjk fonts-noto-color-emoji
+
+  sudo apt install -y fonts-wqy-zenhei fonts-wqy-microhei
+
+  sudo fc-cache -f -v
 
   # 安装钱包
   install_edge
