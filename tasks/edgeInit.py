@@ -401,6 +401,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     ARGS_IP = args.ip or ""
     _window = args.display.lstrip(':')
+    os.environ['DISPLAY'] = f':{_window}'
 
     __get_page()
 
