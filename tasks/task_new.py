@@ -852,13 +852,14 @@ def __down_file(url, out_file):
 
 
 # 获取邮箱 验证码code
-def __get_email_code(page, _main_page, xpath, evm_addr):
+def __get_email_code(page, _main_page, xpath, evm_addr, index):
     email_page = page.new_tab(url='https://mail.dmail.ai/inbox')
     # 通过小狐狸钱包打开狗头钱包
     code = None
     if __get_ele(email_page, xpath=f"x://div[@title='{evm_addr}']", loop=2):
         logger.info('已登录邮箱')
     else:
+        click_x_y(1764, 416, index)  # 坐标点击：尽量保证分辨率一致
         if __click_ele(page=email_page, xpath='x://span[text()="MetaMask"]', loop=10):
             __handle_signma_popup(page=page, count=2, timeout=15)
     # 首次进入邮箱
@@ -915,7 +916,7 @@ def __do_task_towns(page, index, evm_id, evm_addr):
                         xpath="x://button[span[contains(text(), 'Submit')] and not(@disabled)]", loop=2, must=True)
             code = __get_email_code(page=towns_page.browser,_main_page=towns_page,
                                     xpath='x://table[@data-id="react-email-section"]//p[@data-id="react-email-text"]',
-                                    evm_addr=evm_addr.lower())
+                                    evm_addr=evm_addr.lower(), index=index)
             if code is not None:
                 # 查找所有 input 元素，定位到 div 下的所有 text 类型的 input
                 inputs = towns_page.eles('x://div//input[@type="text"]')
