@@ -605,13 +605,14 @@ def __do_task_nexus(page, evm_id, index):
                         newt_work.click(by_js=True)
                         __handle_signma_popup(page=page, count=1, timeout=45)
 
-        if __get_ele(page=nexus,
-                     xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]',
-                     loop=2):
-            __click_ele(page=nexus,
-                        xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]')
-            time.sleep(65)
-            nexus.get('https://app.nexus.xyz/rewards')
+        if random.choice([True, False]):
+            if __get_ele(page=nexus,
+                         xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]',
+                         loop=2):
+                __click_ele(page=nexus,
+                            xpath='x://button[contains(normalize-space(.),"Claim") and contains(normalize-space(.),"Testnet NEX")]')
+                time.sleep(65)
+                nexus.get('https://app.nexus.xyz/rewards')
 
         ele = nexus.ele('x://span[contains(normalize-space(.), "NEX")]')
         if ele:
@@ -1406,26 +1407,32 @@ if __name__ == '__main__':
 
                 if _type == 'gift':
                     _end = __do_task_gift(page=_page, index=_window, evm_id=_id)
+                    _end = True
                 elif _type == 'linea':
                     _end = __do_task_linea(page=_page, index=_window, evm_id=_id)
+                    _end = True
                 elif _type == 'portal':
                     _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
+                    _end = True
                 # elif _type == 'logx':
                 # _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
                 elif _type == 'nft':
                     _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
+                    _end = True
                 elif _type == 'towns':
                     _end = __do_task_towns(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                    _end = True
                 elif _type == 'molten':
                     _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
+                    _end = True
                 elif _type == 'rari_arb':
                     _end = __do_swap_rari_arb_eth(page=_page, evm_id=_id)
+                    _end = True
                 elif _type == 'rari_arb_end':
                     _end = __do_swap_rari_arb_eth_end(page=_page, evm_id=_id)
-                elif _type == 'nexus':
-                    if random.choice([True, False]):
-                        _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                     _end = True
+                elif _type == 'nexus':
+                    _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                 elif _type == 'prismax':
                     if len(arg) < 3:
                         logger.warning("prismax 需要助记词/私钥参数，已跳过")
@@ -1433,7 +1440,6 @@ if __name__ == '__main__':
                         _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                 else:
                     logger.warning(f"未知任务类型：{_type}")
-                _end = True
             except Exception as e:
                 logger.info(f"任务异常: {e}")
             finally:
@@ -1448,11 +1454,11 @@ if __name__ == '__main__':
                         append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
                     else:
                         _end_day_task.append(_task_id)
-            # if len(filtered) > 24:
-            #     time.sleep(900)
-            # elif len(filtered) > 12:
-            #     time.sleep(1800)
-            # else:
-            #     time.sleep(3600)
+            if len(filtered) > 24:
+                time.sleep(900)
+            elif len(filtered) > 12:
+                time.sleep(1800)
+            else:
+                time.sleep(3600)
 
-        time.sleep(60)
+        time.sleep(600)

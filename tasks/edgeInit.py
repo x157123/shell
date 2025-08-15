@@ -9,6 +9,7 @@ import os
 from decimal import Decimal, ROUND_DOWN
 import platform
 import re
+import pyautogui
 
 # ========== 全局配置 ==========
 evm_ext_id = "ohgmkpjifodfiomblclfpdhehohinlnn"
@@ -57,7 +58,6 @@ def get_date_as_string():
 
 def click_x_y(x, y, window):
     """尽量避免使用坐标点击；如必须，请确保 DISPLAY 在主流程里统一设置"""
-    import pyautogui
     pyautogui.FAILSAFE = False
     pyautogui.moveTo(x, y)
     pyautogui.click()
@@ -378,13 +378,84 @@ def __select_net(page, net_name, net_name_t: str = None, add_net: str = None):
     wallet_page.close()
 
 
+def init_wallet(page: ChromiumPage, password: str):
+    wallet_page = None
+    _bool = False
+    try:
+        time.sleep(5)
+        wallet_page = page.new_tab(url='chrome-extension://ejbalbakoplchlghecdalmeeeajnimhm/home.html#onboarding/welcome')
+        # 1. 点击“导入钱包”按钮
+        if __click_ele(page=wallet_page,xpath='x://button[@data-testid="onboarding-get-started-button"]', loop=1):
+            __click_ele(page=wallet_page,xpath='x://button[@data-testid="terms-of-use-scroll-button"]')
+            time.sleep(2)
+            _ele = __get_ele(page=wallet_page,xpath='x://label[@data-testid="terms-of-use-checkbox"]')
+            _ele.click(by_js=True)
+            __click_ele(page=wallet_page,xpath='x://button[@data-testid="terms-of-use-agree-button" and not(@disabled)]')
+
+        if __get_ele(page=wallet_page, xpath='x://input[@data-testid="unlock-password"]', loop=1):
+            __input_ele_value(page=wallet_page, xpath='x://input[@data-testid="unlock-password"]', value=password)
+            __click_ele(page=wallet_page, xpath='x://button[@data-testid="unlock-submit"]')
+
+            time.sleep(2)
+            if __get_ele(page=wallet_page, xpath='x://input[@data-testid="unlock-password"]', loop=1):
+                __input_ele_value(page=wallet_page, xpath='x://input[@data-testid="unlock-password"]', value=password)
+                __click_ele(page=wallet_page, xpath='x://button[@data-testid="unlock-submit"]')
+        elif __get_ele(page=wallet_page, xpath='x://button[@data-testid="onboarding-create-wallet"]', loop=1):
+
+            _ele = __get_ele(page=wallet_page,xpath='x://input[@data-testid="onboarding-terms-checkbox"]')
+            if _ele:
+                _ele.click(by_js=True)
+
+            __click_ele(page=wallet_page, xpath='x://button[@data-testid="onboarding-create-wallet"]')
+
+            __click_ele(page=wallet_page, xpath='x://button[@data-testid="metametrics-no-thanks"]')
+
+
+            # 设置密码
+            __input_ele_value(page=wallet_page, xpath='x://input[@data-testid="create-password-new"]', value=password)
+            time.sleep(1)
+            __input_ele_value(page=wallet_page, xpath='x://input[@data-testid="create-password-confirm"]', value=password)
+
+            __click_ele(page=wallet_page, xpath='x://input[@data-testid="create-password-terms"]')
+            __click_ele(page=wallet_page, xpath='x://button[@data-testid="create-password-wallet"]')
+
+            # 稍后验证
+            time.sleep(5)
+            __click_ele(page=wallet_page, xpath='x://button[@data-testid="secure-wallet-later"]')
+
+            time.sleep(2)
+            # 跳过
+            __click_ele(page=wallet_page, xpath='x://p[contains(@class, "skip-srp-backup-popover__details")]')
+            __click_ele(page=wallet_page, xpath='x://button[@data-testid="skip-srp-backup"]')
+
+            # 完成
+            __click_ele(page=wallet_page, xpath='x://button[@data-testid="onboarding-complete-done"]')
+            __click_ele(page=wallet_page, xpath='x://button[@data-testid="pin-extension-next"]')
+            __click_ele(page=wallet_page, xpath='x://button[@data-testid="pin-extension-done"]')
+
+            time.sleep(5)
+
+            # 不同意
+            __click_ele(page=wallet_page, xpath='x://button[@data-testid="not-now-button"]', loop=1)
+
+
+        time.sleep(5)
+
+
+    except Exception as e:
+        logger.error(f'error ==> {e}')
+    finally:
+        if wallet_page is not None:
+            try:
+                wallet_page.close()
+            except Exception as e:
+                logger.error(f'error ==> {e}')
+    return _bool
 
 def __get_page():
     page = ChromiumPage(
         addr_or_opts=ChromiumOptions()
-            .set_browser_path(path=r"/usr/bin/microsoft-edge")
-            .auto_port()
-            .headless(on_off=False))
+        .set_browser_path(path=r"/usr/bin/microsoft-edge"))
     page.wait.doc_loaded(timeout=30)
     page.set.window.max()
     return page
@@ -392,17 +463,43 @@ def __get_page():
 # ========== 主流程 ==========
 
 if __name__ == '__main__':
-    _this_day = ''
-    _end_day_task = []
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--index", type=str, help="index参数", default="0")
     parser.add_argument("--display", type=str, help="X11 DISPLAY", default=":24")
     parser.add_argument("--base-port", type=int, help="本地调试端口", default=29541)
     args = parser.parse_args()
-    ARGS_IP = args.ip or ""
     _window = args.display.lstrip(':')
     os.environ['DISPLAY'] = f':{_window}'
 
-    __get_page()
+    co = (ChromiumOptions()
+          .set_browser_path("/usr/bin/microsoft-edge")
+          .set_user_data_path(os.path.expanduser("~/.config/microsoft-edge"))  # 如与你机器不符，用 edge://version > Profile Path 的路径替换
+          .set_argument('--profile-directory', 'Default')
+          .set_argument('--no-first-run', True)
+          .set_argument('--no-default-browser-check', True))
+
+    page = ChromiumPage(addr_or_opts=co)
+    page.wait.doc_loaded(30)
+    # page.set.window.max()
+
+    meta = page.new_tab("https://microsoftedge.microsoft.com/addons/detail/metamask/ejbalbakoplchlghecdalmeeeajnimhm?hl=zh-CN")
+
+    click_x_y(32, 315, _window)
+
+    if __get_ele(page=meta, xpath='x://button[div[normalize-space(.)="获取"]]'):
+        time.sleep(5)
+        click_x_y(32, 315, _window)
+        __click_ele(page=meta, xpath='x://button[div[normalize-space(.)="获取"]]')
+        time.sleep(5)
+        pyautogui.press('tab')
+        logger.info('tab')
+        time.sleep(2)
+        pyautogui.press('enter')
+        logger.info('回车')
+        time.sleep(10)
+    elif __get_ele(page=meta, xpath='x://button[div[normalize-space(.)="删除"]]'):
+        meta.close()
+
+    init_wallet(page=page, password='sdkfjlskjdeeee')
 
     time.sleep(20)
