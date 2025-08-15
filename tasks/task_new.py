@@ -973,6 +973,7 @@ def __do_task_towns(page, index, evm_id, evm_addr):
                     if __get_ele(page=towns_page, xpath="x://span[contains(text(), 'ETH was sent to 0xbcd...5ec')]", loop=8):
                         signma_log(message=f"{val}", task_name=f'towns_{get_date_as_string()}', index=evm_id)
                         time.sleep(5)
+
     except Exception as e:
         logger.info(f"未知异常 {evm_id} ：{e}")
     return True
