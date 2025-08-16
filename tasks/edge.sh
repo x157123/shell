@@ -53,8 +53,6 @@ install_edge() {
 # 检查并安装 VNC
 setup_vnc() {
 
-  install_chrome_120
-
     if ! command -v tightvncserver >/dev/null 2>&1; then
         log_info "tightvncserver 未安装，开始安装 VNC 及其依赖..."
         sudo apt-get install -y xfce4 xfce4-goodies tightvncserver xrdp expect sudo || error_exit "VNC 相关组件安装失败"
