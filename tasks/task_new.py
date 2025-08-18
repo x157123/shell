@@ -1414,8 +1414,9 @@ if __name__ == '__main__':
                 elif _type == 'portal':
                     _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
                     _end = True
-                # elif _type == 'logx':
-                # _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
+                elif _type == 'logx':
+                    # _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
+                    _end = True
                 elif _type == 'nft':
                     _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
                     _end = True
