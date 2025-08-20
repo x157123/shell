@@ -8,11 +8,54 @@ import argparse
 import os
 from decimal import Decimal, ROUND_DOWN
 import platform
-import re
+import json
+import string
+
 
 # ========== 全局配置 ==========
 evm_ext_id = "ohgmkpjifodfiomblclfpdhehohinlnn"
 ARGS_IP = ""  # 在 main 里赋值
+
+
+def __get_page(_type, _id, _port):
+    logger.info(f"启动类型: {_type}")
+    options = ChromiumOptions()
+    if platform.system().lower() == "windows":
+        options.set_browser_path(r"F:\chrome_tool\127.0.6483.0\chrome.exe")
+    else:
+        options.set_browser_path('/opt/google/chrome')
+
+    if _type == 'prismax':
+        if platform.system().lower() == "windows":
+            options.add_extension(f"F:/chrome_tool/phantom")
+        else:
+            options.add_extension(f"/home/ubuntu/extensions/phantom")
+    else:
+        if platform.system().lower() == "windows":
+            options.add_extension(f"F:/chrome_tool/signma")
+        else:
+            options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
+    # 用户数据目录
+    if platform.system().lower() == "windows":
+        options.set_user_data_path(f"F:/tmp/chrome_data/{_type}/{_id}")
+    else:
+        options.set_user_data_path(f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}")
+    # 端口可能被占用，尝试几次
+    for offset in range(3):
+        try:
+            if _port is not None:
+                options.set_local_port(_port)
+            else:
+                options.set_local_port(port + offset)
+
+            _page = ChromiumPage(options)
+            break
+        except Exception as e:
+            logger.warning(f"端口 {port + offset} 启动失败，重试：{e}")
+            time.sleep(1)
+            _page = None
+
+    return _page
 
 
 # ========== 文件读写 ==========
@@ -436,40 +479,209 @@ def __do_task_portal(page, evm_id, index):
         # # PENGU         ABSTER
         # time.sleep(3000)
 
-
-
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
 
 
-def __do_task_gift(page, evm_id, index):
-    __bool = False
+# 钱包转账
+def __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_fee, end_amount):
+    _bool = False
+    w_page = wallet_page.new_tab(url=_url)
+    if __click_ele(page=w_page, xpath='x://button[text()="Connect Wallet"]', loop=1):
+        els = __get_ele(page=w_page, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
+        if els and els.shadow_root:
+            if __click_ele(page=els.shadow_root, xpath='x://button/div/span[text()="Signma"]', loop=1):
+                __handle_signma_popup(page=wallet_page, count=1)
+            else:
+                __click_ele(page=els.shadow_root, xpath='x://button[@data-testid="close-button"]', loop=1)
+            time.sleep(2)
+    if send_evm_addr is not None:
+        if __click_ele(page=w_page, xpath="x://div[contains(text(), 'Buy')]/following-sibling::button[@aria-label='Multi wallet dropdown']", loop=2):
+            if __click_ele(page=w_page, xpath='x://div[text()="Paste wallet address"]'):
+                __input_ele_value(page=w_page, xpath='x://input[@placeholder="Address or ENS"]', value=send_evm_addr)
+                if __click_ele(page=w_page, xpath='x://button[text()="Save" and not(@disabled)]'):
+                    time.sleep(2)
+    if amount == 'Max':
+        balance_value = (
+            w_page.ele('x://button[text()="MAX"]')
+            .parent(3)
+            .ele('x://div[contains(text(), "Balance:")]')
+            .text.replace("Balance:", "")
+            .strip()
+        )
+        amount = "{:.5f}".format(float(balance_value) - end_amount)
+    if amount is not None:
+        __input_ele_value(page=w_page, xpath='x://input[@inputmode="decimal"]', value=amount)
+
+    time.sleep(4)
+    send_amount = __get_ele_value(page=w_page,
+                                  xpath='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
+                                  find_all=True, index=0)
+    receive_amount = __get_ele_value(page=w_page,
+                                     xpath='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
+                                     find_all=True, index=1)
+    send_amount = send_amount.strip().replace('$', '')
+    receive_amount = receive_amount.strip().replace('$', '')
+    gas_fee = round(float(send_amount) - float(receive_amount), 3)
+    if float(gas_fee) > max_gas_fee:
+        # logger.error(f'{gas_fee} gas too high to {send_evm_addr}')
+        signma_log(message=f"gas_fee,{amount},{gas_fee},{_url}", task_name=f'wallet_gift_{get_date_as_string()}', index=evm_id)
+
+    elif __click_ele(page=w_page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
+        __handle_signma_popup(page=wallet_page, count=3)
+        __handle_signma_popup(page=wallet_page, count=0)
+        if __get_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
+            if __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1):
+                if __click_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
+                    time.sleep(2)
+                    signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_gift_{get_date_as_string()}', index=evm_id)
+                    _bool = True
+            else:
+                if __click_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
+                    if __click_ele(page=w_page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
+                        __handle_signma_popup(page=wallet_page, count=3)
+                        __handle_signma_popup(page=wallet_page, count=0)
+                        if __get_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
+                            __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1)
+                            time.sleep(2)
+                            signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_gift_{get_date_as_string()}', index=evm_id)
+                            _bool = True
+    if w_page is not None:
+        w_page.close()
+    return _bool
+
+def __do_send_wallet(evm_id, send_evm_addr, amount):
+    _bool = False
+    wallet_page = None
     try:
-        time.sleep(1)
-        __handle_signma_popup(page=page, count=0)
-        time.sleep(2)
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
-        logger.info('已登录钱包')
+        wallet_page = __get_page('wallet', evm_id, '34533')
+        __login_wallet(page=wallet_page, evm_id=evm_id)
+        __add_net_work(page=wallet_page, coin_name='base')
+        urls = ["https://relay.link/bridge/rari?fromChainId=8453", "https://relay.link/bridge/appchain?fromChainId=8453", "https://relay.link/bridge/arbitrum?fromChainId=8453"]
+        _url = random.choice(urls)
+        _bool = __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, 0.03, 0)
+    except Exception as e:
+        logger.info(f"钱包转账异常{send_evm_addr}：{e}")
+    finally:
+        if wallet_page is not None:
+            wallet_page.quit()
+    return _bool
 
-        main_page = page.new_tab(url="https://gift.xyz/")
 
-        if __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Sign in"]]', loop=2):
-            if __click_ele(page=main_page,
-                           xpath='x://span[normalize-space(.)="Sign in with Wallet"]/ancestor::button[1]', loop=1):
-                __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Signma"]]', loop=2)
-                __handle_signma_popup(page=page, count=2)
 
-        collect = main_page.eles("x://button[contains(normalize-space(.),'Collect')]")
-        random.choice(collect).click()
+def eth_get_balance_once(url: str, address: str) -> Decimal:
+    SESSION = requests.Session()
+    HEADERS = {"Content-Type": "application/json"}
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "eth_getBalance",
+        "params": [address, "latest"],
+        "id": 1
+    }
+    r = SESSION.post(
+        url,
+        headers=HEADERS,
+        data=json.dumps(payload),
+        timeout=12,
+        verify=True,
+        proxies=None,
+    )
+    r.raise_for_status()
+    data = r.json()
+    if "result" in data and isinstance(data["result"], str):
+        wei = int(data["result"], 16)
+        return Decimal(wei) / Decimal(10**18)
+    raise RuntimeError(str(data.get("error", "unknown error")))
 
-        __input_ele_value(page=main_page, xpath='x://input[@placeholder="Add message (optional)"]', value='test')
-        if __click_ele(page=main_page, xpath='x://button[.//p[normalize-space(.)="Collect"]]', loop=2):
-            __handle_signma_popup(page=page, count=2)
-            time.sleep(3000)
-            time.sleep(3000)
 
+def get_eth_balance(chain: str, address: str) -> str:
+    RPC_URLS = {
+        "base": ["https://mainnet.base.org"],
+        "op": ["https://mainnet.optimism.io"],
+        "arb": ["https://arb1.arbitrum.io/rpc"],
+        "rari": [
+            os.getenv("RARI_RPC") or "https://mainnet.rpc.rarichain.org/http",
+            "https://1380012617.rpc.thirdweb.com",
+            "https://rari.calderachain.xyz/http",
+            ],
+    }
+    errors = []
+    for url in RPC_URLS[chain]:
+        for attempt in range(1, 6):
+            try:
+                eth = eth_get_balance_once(url, address)
+                return f"{eth:.18f}"
+            except Exception as e:
+                errors.append(f"{url}#{attempt}: {e}")
+                time.sleep(1.0)
+    recent = " | ".join(errors[-3:]) if errors else "unknown"
+    return "查询失败: " + recent
+
+
+def __do_task_gift(page, evm_id, index, evm_addr, amount):
+    __bool = False
+    _bool = True
+    try:
+        # 判断需要转账
+        if amount is not None and float(amount) > 0:
+            end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_gift_wallet.txt")
+            if evm_id not in end_tasks:
+                _bool = False
+                if __do_send_wallet('88102', evm_addr, amount):
+                    append_date_to_file(file_path="/home/ubuntu/task/tasks/end_gift_wallet.txt", data_str=evm_id)
+                    _bool = True
+
+        if _bool:
+            _bool = False
+            time.sleep(1)
+            __handle_signma_popup(page=page, count=0)
+            time.sleep(2)
+            __login_wallet(page=page, evm_id=evm_id)
+            __handle_signma_popup(page=page, count=0)
+            logger.info('已登录钱包')
+
+            arb = get_eth_balance("arb", evm_addr)
+            rari = get_eth_balance("rari", evm_addr)
+            if float(arb) > 0.00005 and float(rari) > 0.00005:
+                urls = ["https://relay.link/bridge/appchain?fromChainId=1380012617", "https://relay.link/bridge/appchain?fromChainId=42161"]
+                _url = random.choice(urls)
+                if _url == 'https://relay.link/bridge/appchain?fromChainId=1380012617':
+                    _bool = __send_wallet(page, evm_id, None, 'Max', _url, 0.03, 0.00003)
+                elif _url == 'https://relay.link/bridge/appchain?fromChainId=42161':
+                    _bool = __send_wallet(page, evm_id, None, 'Max', _url, 0.03, 0.00001)
+            elif float(arb) > 0.00005 > float(rari):
+                _bool = __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/appchain?fromChainId=42161", 0.03, 0.00001)
+            elif float(arb) < 0.00005 < float(rari):
+                _bool = __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/appchain?fromChainId=1380012617", 0.03, 0.00003)
+
+            if _bool:
+                num = random.randint(1, 5)
+                __select_net(page=page, net_name='AppChain', net_name_t='Appchain', add_net='appChain')
+                if num <= 1:
+                    main_page = page.new_tab(url="https://gift.xyz/1m-transactions-on-appchain")
+                else:
+                    main_page = page.new_tab(url="https://gift.xyz/")
+
+                if __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Sign in"]]', loop=2):
+                    if __click_ele(page=main_page, xpath='x://span[normalize-space(.)="Sign in with Wallet"]/ancestor::button[1]', loop=5):
+                        __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Signma"]]', loop=5)
+                        __handle_signma_popup(page=page, count=2)
+
+                collect = main_page.eles("x://button[contains(normalize-space(.),'Collect')]")
+                random.choice(collect).click()
+                result = ''.join(random.choices(string.ascii_lowercase, k=(random.randint(5, 8))))
+                __input_ele_value(page=main_page, xpath='x://input[@placeholder="Add message (optional)"]', value=result)
+                if __click_ele(page=main_page, xpath='x://button[.//p[normalize-space(.)="Collect"]]', loop=2):
+                    __handle_signma_popup(page=page, count=2)
+                    if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Collected Successfully!')]", loop=4):
+                        signma_log(message=f"gift_nft", task_name=f'task_{get_date_as_string()}', index=evm_id)
+
+                if main_page is not None:
+                    main_page.close()
+
+            if __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/rari?fromChainId=466", 0.05, 0.00001):
+                __bool = True
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
@@ -805,6 +1017,7 @@ def __add_net_work(page, coin_name='base'):
         'hemi': 43111,
         'arbitrum': 42161,
         'linea': 59144,
+        'appChain': 466,
         'rari': 1380012617,
     }
     number = obj[coin_name]
@@ -1056,7 +1269,8 @@ def __do_task_nft(page, index, evm_id):
             # 获取成功按钮 <button type="button" data-marker="mint-receipt-view-btn" class="sc-aXZVg sc-eBMEME sc-dCFHLb sc-jxOSlx sc-tagGq dAopwH ctYaUb ciBRVx iANODE"><span class="sc-cfxfcM hpAeLf"><span class="sc-gFAWRd eNTBLN">View NFT</span></span></button>
             if __get_ele(page=hyperbolic_page, xpath='x://button[span[span[text()="View NFT"]]]', loop=10):
                 time.sleep(3)
-                logger.info(f'{evm_id},nft 交易成功')
+                # logger.info(f'{evm_id},nft 交易成功')
+                signma_log(message=f"ntf", task_name=f'task_{get_date_as_string()}', index=evm_id)
                 return True
             else:
                 logger.info(f'{evm_id},nft 交易未提示成功')
@@ -1095,6 +1309,7 @@ def __do_swap_rari_arb_eth(page, evm_id):
             if __click_ele(page=hyperbolic_page,
                            xpath='x://button[contains(text(), "Transfer Tokens") and not(@disabled)]', loop=3):
                 if __handle_signma_popup(page=page, count=1):
+                    signma_log(message=f"rari_arb", task_name=f'task_{get_date_as_string()}', index=evm_id)
                     time.sleep(5)
     except Exception as e:
         logger.info(f"未知异常 {evm_id} ：{e}")
@@ -1286,7 +1501,8 @@ def __do_task_molten(page, evm_id, index):
                                                         xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
                         if float(_mon_from) > float(_mon_new_from):
                             __end = True
-                            time.sleep(10)
+                            signma_log(message=f"molten", task_name=f'task_{get_date_as_string()}', index=evm_id)
+                            time.sleep(5)
                 elif float(_mon_to) > 0:
                     __end = True
     except Exception as e:
@@ -1365,39 +1581,7 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-
-                logger.info(f"启动类型: {_type}")
-                options = ChromiumOptions()
-                if platform.system().lower() == "windows":
-                    options.set_browser_path(r"F:\chrome_tool\127.0.6483.0\chrome.exe")
-                else:
-                    options.set_browser_path('/opt/google/chrome')
-
-                if _type == 'prismax':
-                    if platform.system().lower() == "windows":
-                        options.add_extension(f"F:/chrome_tool/phantom")
-                    else:
-                        options.add_extension(f"/home/ubuntu/extensions/phantom")
-                else:
-                    if platform.system().lower() == "windows":
-                        options.add_extension(f"F:/chrome_tool/signma")
-                    else:
-                        options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
-                # 用户数据目录
-                if platform.system().lower() == "windows":
-                    options.set_user_data_path(f"F:/tmp/chrome_data/{_type}/{_id}")
-                else:
-                    options.set_user_data_path(f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}")
-                # 端口可能被占用，尝试几次
-                for offset in range(3):
-                    try:
-                        options.set_local_port(port + offset)
-                        _page = ChromiumPage(options)
-                        break
-                    except Exception as e:
-                        logger.warning(f"端口 {port + offset} 启动失败，重试：{e}")
-                        time.sleep(1)
-                        _page = None
+                _page = __get_page(_type, _id, None)
 
                 if _page is None:
                     logger.error("浏览器启动失败，跳过该任务")
@@ -1406,22 +1590,20 @@ if __name__ == '__main__':
                 _page.set.window.max()
 
                 if _type == 'gift':
-                    _end = __do_task_gift(page=_page, index=_window, evm_id=_id)
-                    _end = True
-                elif _type == 'linea':
-                    _end = __do_task_linea(page=_page, index=_window, evm_id=_id)
-                    _end = True
-                elif _type == 'portal':
-                    _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
-                    _end = True
+                    _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=arg[3])
+                # elif _type == 'linea':
+                #     _end = __do_task_linea(page=_page, index=_window, evm_id=_id)
+                #     _end = True
+                # elif _type == 'portal':
+                #     _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
+                #     _end = True
+                # elif _type == 'towns':
+                #     _end = __do_task_towns(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                 elif _type == 'logx':
                     # _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
                     _end = True
                 elif _type == 'nft':
                     _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
-                    _end = True
-                elif _type == 'towns':
-                    _end = __do_task_towns(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     _end = True
                 elif _type == 'molten':
                     _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
