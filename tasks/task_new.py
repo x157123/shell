@@ -649,9 +649,9 @@ def __do_task_gift(page, evm_id, index, evm_addr, amount):
             elif float(arb) < 0.00005 < float(rari):
                 _bool = __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/appchain?fromChainId=1380012617", 0.05, 0.00003)
 
+            __select_net(page=page, net_name='AppChain', net_name_t='Appchain', add_net='appChain')
             if _bool:
                 num = random.randint(1, 5)
-                __select_net(page=page, net_name='AppChain', net_name_t='Appchain', add_net='appChain')
                 if num <= 1:
                     main_page = page.new_tab(url="https://gift.xyz/1m-transactions-on-appchain")
                 else:
