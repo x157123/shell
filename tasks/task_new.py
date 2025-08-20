@@ -490,7 +490,7 @@ def __do_task_portal(page, evm_id, index):
 def __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_fee, end_amount):
     _bool = False
     w_page = wallet_page.new_tab(url=_url)
-    if __click_ele(page=w_page, xpath='x://button[text()="Connect Wallet"]', loop=1):
+    if __click_ele(page=w_page, xpath='x://button[text()="Connect Wallet"]', loop=3):
         els = __get_ele(page=w_page, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
         if els and els.shadow_root:
             if __click_ele(page=els.shadow_root, xpath='x://button/div/span[text()="Signma"]', loop=1):
@@ -498,6 +498,7 @@ def __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_fee,
             else:
                 __click_ele(page=els.shadow_root, xpath='x://button[@data-testid="close-button"]', loop=1)
             time.sleep(2)
+
     if send_evm_addr is not None:
         if __click_ele(page=w_page, xpath="x://div[contains(text(), 'Buy')]/following-sibling::button[@aria-label='Multi wallet dropdown']", loop=2):
             if __click_ele(page=w_page, xpath='x://div[text()="Paste wallet address"]'):
