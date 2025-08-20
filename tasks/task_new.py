@@ -641,13 +641,13 @@ def __do_task_gift(page, evm_id, index, evm_addr, amount):
                 urls = ["https://relay.link/bridge/appchain?fromChainId=1380012617", "https://relay.link/bridge/appchain?fromChainId=42161"]
                 _url = random.choice(urls)
                 if _url == 'https://relay.link/bridge/appchain?fromChainId=1380012617':
-                    _bool = __send_wallet(page, evm_id, None, 'Max', _url, 0.03, 0.00003)
+                    _bool = __send_wallet(page, evm_id, None, 'Max', _url, 0.05, 0.00003)
                 elif _url == 'https://relay.link/bridge/appchain?fromChainId=42161':
-                    _bool = __send_wallet(page, evm_id, None, 'Max', _url, 0.03, 0.00001)
+                    _bool = __send_wallet(page, evm_id, None, 'Max', _url, 0.05, 0.00001)
             elif float(arb) > 0.00005 > float(rari):
-                _bool = __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/appchain?fromChainId=42161", 0.03, 0.00001)
+                _bool = __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/appchain?fromChainId=42161", 0.05, 0.00001)
             elif float(arb) < 0.00005 < float(rari):
-                _bool = __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/appchain?fromChainId=1380012617", 0.03, 0.00003)
+                _bool = __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/appchain?fromChainId=1380012617", 0.05, 0.00003)
 
             if _bool:
                 num = random.randint(1, 5)
