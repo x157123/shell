@@ -661,6 +661,9 @@ def __do_task_gift(page, evm_id, index, evm_addr, amount):
                     if __click_ele(page=main_page, xpath='x://span[normalize-space(.)="Sign in with Wallet"]/ancestor::button[1]', loop=5):
                         __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Signma"]]', loop=5)
                         __handle_signma_popup(page=page, count=2)
+                        time.sleep(5)
+                        __handle_signma_popup(page=page, count=0)
+
 
                 collect = main_page.eles("x://button[contains(normalize-space(.),'Collect')]")
                 random.choice(collect).click()
