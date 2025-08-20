@@ -18,6 +18,7 @@ ARGS_IP = ""  # 在 main 里赋值
 
 
 def __get_page(_type, _id, _port):
+    _pages = None
     logger.info(f"启动类型: {_type}")
     options = ChromiumOptions()
     if platform.system().lower() == "windows":
@@ -48,14 +49,15 @@ def __get_page(_type, _id, _port):
             else:
                 options.set_local_port(port + offset)
 
-            _page = ChromiumPage(options)
+            _pages = ChromiumPage(options)
             break
         except Exception as e:
             logger.warning(f"端口 {port + offset} 启动失败，重试：{e}")
             time.sleep(1)
-            _page = None
-
-    return _page
+            _pages = None
+    if _pages is not None:
+        _pages.set.window.max()
+    return _pages
 
 
 # ========== 文件读写 ==========
@@ -623,15 +625,6 @@ def __do_task_gift(page, evm_id, index, evm_addr, amount):
     __bool = False
     _bool = True
     try:
-        # 判断需要转账
-        if amount is not None and float(amount) > 0:
-            end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_gift_wallet.txt")
-            if evm_id not in end_tasks:
-                _bool = False
-                if __do_send_wallet('88102', evm_addr, amount):
-                    append_date_to_file(file_path="/home/ubuntu/task/tasks/end_gift_wallet.txt", data_str=evm_id)
-                    _bool = True
-
         if _bool:
             _bool = False
             time.sleep(1)
@@ -1581,48 +1574,64 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-                _page = __get_page(_type, _id, None)
-
-                if _page is None:
-                    logger.error("浏览器启动失败，跳过该任务")
-                    continue
-
-                _page.set.window.max()
 
                 if _type == 'gift':
-                    _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=arg[3])
-                # elif _type == 'linea':
-                #     _end = __do_task_linea(page=_page, index=_window, evm_id=_id)
-                #     _end = True
-                # elif _type == 'portal':
-                #     _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
-                #     _end = True
-                # elif _type == 'towns':
-                #     _end = __do_task_towns(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                elif _type == 'logx':
-                    # _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
-                    _end = True
-                elif _type == 'nft':
-                    _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
-                    _end = True
-                elif _type == 'molten':
-                    _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
-                    _end = True
-                elif _type == 'rari_arb':
-                    _end = __do_swap_rari_arb_eth(page=_page, evm_id=_id)
-                    _end = True
-                elif _type == 'rari_arb_end':
-                    _end = __do_swap_rari_arb_eth_end(page=_page, evm_id=_id)
-                    _end = True
-                elif _type == 'nexus':
-                    _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
-                elif _type == 'prismax':
-                    if len(arg) < 3:
-                        logger.warning("prismax 需要助记词/私钥参数，已跳过")
-                    else:
-                        _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                    evm_id = _id
+                    evm_addr = arg[2]
+                    amount = arg[3]
+                    _bool = True
+                    # 判断需要转账
+                    if amount is not None and float(amount) > 0:
+                        end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_gift_wallet.txt")
+                        if evm_id not in end_tasks:
+                            _bool = False
+                            if __do_send_wallet('88102', evm_addr, amount):
+                                append_date_to_file(file_path="/home/ubuntu/task/tasks/end_gift_wallet.txt", data_str=evm_id)
+                                _bool = True
+
+                    if _bool:
+                        _page = __get_page(_type, _id, None)
+                        if _page is None:
+                            logger.error("浏览器启动失败，跳过该任务")
+                            continue
+                        _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=arg[3])
                 else:
-                    logger.warning(f"未知任务类型：{_type}")
+                    _page = __get_page(_type, _id, None)
+                    if _page is None:
+                        logger.error("浏览器启动失败，跳过该任务")
+                        continue
+                    # elif _type == 'linea':
+                    #     _end = __do_task_linea(page=_page, index=_window, evm_id=_id)
+                    #     _end = True
+                    # elif _type == 'portal':
+                    #     _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
+                    #     _end = True
+                    # elif _type == 'towns':
+                    #     _end = __do_task_towns(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                    elif _type == 'logx':
+                        # _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
+                        _end = True
+                    elif _type == 'nft':
+                        _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
+                        _end = True
+                    elif _type == 'molten':
+                        _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
+                        _end = True
+                    elif _type == 'rari_arb':
+                        _end = __do_swap_rari_arb_eth(page=_page, evm_id=_id)
+                        _end = True
+                    elif _type == 'rari_arb_end':
+                        _end = __do_swap_rari_arb_eth_end(page=_page, evm_id=_id)
+                        _end = True
+                    elif _type == 'nexus':
+                        _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
+                    elif _type == 'prismax':
+                        if len(arg) < 3:
+                            logger.warning("prismax 需要助记词/私钥参数，已跳过")
+                        else:
+                            _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                    else:
+                        logger.warning(f"未知任务类型：{_type}")
             except Exception as e:
                 logger.info(f"任务异常: {e}")
             finally:
