@@ -4,8 +4,6 @@
 USER="ubuntu"
 PASSWORD="Mmscm716+"
 
-readonly CHROME_URL_OLD="https://github.com/x157123/ACL4SSR/releases/download/chro/google-chrome-stable_120.0.6099.224-1_amd64.deb"
-
 # 错误处理函数
 error_exit() {
     echo "ERROR: $1" >&2
@@ -17,18 +15,6 @@ log_info() {
     echo "[INFO] $1"
 }
 
-
-# 检查端口是否在监听，返回 0 表示已监听，1 表示未监听
-check_port() {
-    local port=$1
-    if lsof -i:$port -sTCP:LISTEN -t >/dev/null 2>&1; then
-        log_info "端口 $port 已在监听"
-        return 0
-    else
-        log_info "端口 $port 未监听"
-        return 1
-    fi
-}
 
 install_edge() {
     # 定义变量
@@ -123,102 +109,6 @@ INNEREOF
     fi
 }
 
-install_wallet_phantom() {
-  # 目录路径
-  DIR="/home/$USER/extensions/phantom"
-  # 文件下载地址
-  TARGET_DIR="/home/$USER/extensions/"
-
-#  if [ -d "$DIR" ]; then
-#    log_info "钱包目录 $DIR 已存在，准备删除。"
-#    rm -rf "$DIR"
-#  fi
-
-  # 判断目录是否存在
-  if [ ! -d "$DIR" ]; then
-    # 目录不存在，创建目录
-    mkdir -p "$TARGET_DIR"
-    log_info "钱包目录 $TARGET_DIR 已创建。"
-
-    wget -q -O /tmp/phantom.tar "https://github.com/x157123/ACL4SSR/releases/download/v.1.0.8/phantom.tar" || error_exit "钱包下载失败"
-
-    # 解压文件
-    log_info "解压文件..."
-    tar -xvf /tmp/phantom.tar -C "$TARGET_DIR"
-
-    # 删除下载的 tar 文件
-    rm /tmp/phantom.tar
-
-    # 授权给 指定 用户
-    log_info "授权目录 $DIR 给 $USER 用户..."
-    chown -R "$USER":"$USER" "$DIR"
-
-    log_info "授权完成。"
-
-  fi
-}
-
-
-down_desc() {
-    # 目录路径
-    DIR="/home/$USER/task/tasks/image_descriptions.txt"
-
-    if [ -d "$DIR" ]; then
-      log_info "文件 $DIR 已存在，准备删除。"
-      rm -rf "$DIR"
-    fi
-
-    # 判断目录是否存在
-    if [ ! -d "$DIR" ]; then
-
-      # 目录不存在，创建目录
-      wget -q -O /home/ubuntu/task/tasks/image_descriptions.txt "https://vmxjp.15712345.xyz/chrome/image_descriptions.txt" || error_exit "文件下载失败"
-
-      # 授权给 指定 用户
-      log_info "授权目录 $DIR 给 $USER 用户..."
-      chown -R "$USER":"$USER" "$DIR"
-
-      log_info "授权完成。"
-
-    fi
-}
-
-install_wallet_dog() {
-  # 目录路径
-  DIR="/home/$USER/extensions/chrome-cloud"
-  # 文件下载地址
-  TARGET_DIR="/home/$USER/extensions/"
-
-  if [ -d "$DIR" ]; then
-    log_info "钱包目录 $DIR 已存在，准备删除。"
-    rm -rf "$DIR"
-  fi
-
-  # 判断目录是否存在
-  if [ ! -d "$DIR" ]; then
-    # 目录不存在，创建目录
-    mkdir -p "$TARGET_DIR"
-    log_info "钱包目录 $TARGET_DIR 已创建。"
-
-    wget -q -O /tmp/chrome-cloud.tar "https://github.com/x157123/ACL4SSR/releases/download/v.1.0.10/chrome-cloud.tar" || error_exit "钱包下载失败"
-
-    # 解压文件
-    log_info "解压文件..."
-    tar -xvf /tmp/chrome-cloud.tar -C "$TARGET_DIR"
-
-    # 删除下载的 tar 文件
-    rm /tmp/chrome-cloud.tar
-
-    # 授权给 指定 用户
-    log_info "授权目录 $DIR 给 $USER 用户..."
-    chown -R "$USER":"$USER" "$DIR"
-
-    log_info "授权完成。"
-
-  fi
-}
-
-
 
 # 配置 XRDP
 setup_xrdp() {
@@ -230,16 +120,6 @@ setup_xrdp() {
         service xrdp start || error_exit "XRDP 启动失败"
     fi
     log_info "XRDP 配置完成"
-}
-
-stop_services(){
-    # 检查并清理特定 Chrome 调试端口
-    PIDS=$(lsof -t -i:29541 -sTCP:LISTEN)
-    if [ -n "$PIDS" ]; then
-        log_info "29541 端口已被占用，终止占用该端口的进程：$PIDS"
-        kill -9 "$PIDS"
-        sleep 1
-    fi
 }
 
 
@@ -259,9 +139,8 @@ main() {
   # 安装钱包
   install_edge
 
-
   # 循环创建 :23 到 :27 的 VNC 会话
-  for display in {23..25}; do
+  for display in {24..24}; do
       port=$((5900 + display))
       log_info "=== 启动 VNC 会话 :$display (端口 $port) ==="
       VNC_DISPLAY="$display" VNC_PORT="$port" setup_vnc
