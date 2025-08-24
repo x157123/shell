@@ -563,7 +563,7 @@ def __do_send_wallet(evm_id, send_evm_addr, amount):
         __add_net_work(page=wallet_page, coin_name='base')
         urls = ["https://relay.link/bridge/rari?fromChainId=8453", "https://relay.link/bridge/appchain?fromChainId=8453", "https://relay.link/bridge/arbitrum?fromChainId=8453"]
         _url = random.choice(urls)
-        _bool = __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, 0.1, 0)
+        _bool = __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, 0.05, 0)
     except Exception as e:
         logger.info(f"钱包转账异常{send_evm_addr}：{e}")
     finally:
@@ -677,7 +677,7 @@ def __do_task_gift(page, evm_id, index, evm_addr, amount):
                 if main_page is not None:
                     main_page.close()
 
-            if __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/rari?fromChainId=466", 0.05, 0.00001):
+            if __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/rari?fromChainId=466", 0.1, 0.000005):
                 __bool = True
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
