@@ -563,7 +563,7 @@ def __do_send_wallet(evm_id, send_evm_addr, amount):
         __add_net_work(page=wallet_page, coin_name='base')
         urls = ["https://relay.link/bridge/rari?fromChainId=8453", "https://relay.link/bridge/appchain?fromChainId=8453", "https://relay.link/bridge/arbitrum?fromChainId=8453"]
         _url = random.choice(urls)
-        _bool = __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, 0.05, 0)
+        _bool = __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, 0.1, 0)
     except Exception as e:
         logger.info(f"钱包转账异常{send_evm_addr}：{e}")
     finally:
