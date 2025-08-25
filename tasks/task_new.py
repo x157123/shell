@@ -860,7 +860,7 @@ def __do_end_eth(page, evm_id, index, _type):
                                 _end_bool = __send_end_wallet(page, evm_id, '0xb3d4984fa477e5d4ce4158cf0f9365561657b1c1', 'Max', "https://relay.link/bridge/optimism?fromChainId=8453", 0.1, 0, 'op')
                         else:
                             # https://relay.link/bridge/arbitrum?fromChainId=1380012617  rari 转 arb     4
-                            _bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/appchain?fromChainId=1", 0.1,  _end_mon, 'arb')
+                            _bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/arbitrum?fromChainId=1380012617", 0.1,  _end_mon, 'arb')
                             if _bool:
                                 _end_bool = __send_end_wallet(page, evm_id, '0xb3d4984fa477e5d4ce4158cf0f9365561657b1c1', 'Max', "https://relay.link/bridge/optimism?fromChainId=42161", 0.1, 0, 'op')
 
