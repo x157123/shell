@@ -847,7 +847,9 @@ def __do_end_eth(page, evm_id, index, _type):
                     logger.info(f"余额: {result['balance']}")
                     _end_mon = 0
                     if float(result['balance']) > 0.0015:
-                        _end_mon = 0.0006
+                        _end_mon = random.uniform(0.00061, 0.00072)
+                    else:
+                        _end_mon = float(result['balance'])
                     # https://relay.link/bridge/rari?fromChainId=1          eth 转 rari      3\4
                     _bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/rari?fromChainId=1", 0.1, 0, 'rari')
                     if _bool:
@@ -868,7 +870,9 @@ def __do_end_eth(page, evm_id, index, _type):
                     logger.info(f"余额: {result['balance']}")
                     _end_mon = 0
                     if float(result['balance']) > 0.0015:
-                        _end_mon = 0.0006
+                        _end_mon = random.uniform(0.00061, 0.00072)
+                    else:
+                        _end_mon = float(result['balance'])
                     # https://relay.link/bridge/appchain?fromChainId=1      eth 转 appchain  5\6
                     _bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/appchain?fromChainId=1", 0.1, 0, 'appchain')
                     if _bool:
