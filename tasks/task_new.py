@@ -607,33 +607,33 @@ def __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_
         send_amount = send_amount.strip().replace('$', '')
         receive_amount = receive_amount.strip().replace('$', '')
 
-        if float(send_amount) <= 0.2:
-            return True
+        if 0 <= float(send_amount) <= 0.2:
+            _bool = True
+        else:
+            gas_fee = round(float(send_amount) - float(receive_amount), 3)
+            if float(gas_fee) > max_gas_fee:
+                # logger.error(f'{gas_fee} gas too high to {send_evm_addr}')
+                signma_log(message=f"gas_fee,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
 
-        gas_fee = round(float(send_amount) - float(receive_amount), 3)
-        if float(gas_fee) > max_gas_fee:
-            # logger.error(f'{gas_fee} gas too high to {send_evm_addr}')
-            signma_log(message=f"gas_fee,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
-
-        elif __click_ele(page=w_page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
-            __handle_signma_popup(page=wallet_page, count=3)
-            __handle_signma_popup(page=wallet_page, count=0)
-            if __get_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
-                if __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1):
-                    if __click_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
-                        time.sleep(2)
-                        signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
-                        _bool = True
-                else:
-                    if __click_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
-                        if __click_ele(page=w_page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
-                            __handle_signma_popup(page=wallet_page, count=3)
-                            __handle_signma_popup(page=wallet_page, count=0)
-                            if __get_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
-                                __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1)
-                                time.sleep(2)
-                                signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
-                                _bool = True
+            elif __click_ele(page=w_page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
+                __handle_signma_popup(page=wallet_page, count=3)
+                __handle_signma_popup(page=wallet_page, count=0)
+                if __get_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
+                    if __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1):
+                        if __click_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
+                            time.sleep(2)
+                            signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
+                            _bool = True
+                    else:
+                        if __click_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
+                            if __click_ele(page=w_page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
+                                __handle_signma_popup(page=wallet_page, count=3)
+                                __handle_signma_popup(page=wallet_page, count=0)
+                                if __get_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
+                                    __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1)
+                                    time.sleep(2)
+                                    signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
+                                    _bool = True
     except Exception as e:
         logger.info(f"{evm_id}: 处理任务异常: {e}")
     if w_page is not None:
@@ -828,7 +828,7 @@ def __do_end_eth(page, evm_id, index, _type):
     if _gas is not None:
         _low_gas = _gas.get('SafeGasPrice', '99')
         if _low_gas is not None and float(_low_gas) < 0.8:
-            logger.info('获取gas成功')
+            logger.info(f'获取gas成功:{_low_gas}')
             __handle_signma_popup(page=page, count=0)
             __login_wallet(page=page, evm_id=evm_id)
             __handle_signma_popup(page=page, count=0)
