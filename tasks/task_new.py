@@ -591,6 +591,7 @@ def __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_
                 amount = "{:.5f}".format(float(balance_value) - end_amount)
             else:
                 __click_ele(page=w_page, xpath='x://div[@aria-label="Max"]', loop=1)
+                time.sleep(20)
         if amount is not None:
             __input_ele_value(page=w_page, xpath='x://input[@inputmode="decimal"]', value=amount)
 
