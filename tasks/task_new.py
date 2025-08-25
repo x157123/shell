@@ -559,74 +559,78 @@ def __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_fee,
 
 def __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_fee, end_amount, _type):
     _bool = False
-    w_page = wallet_page.new_tab(url=_url)
-    if __click_ele(page=w_page, xpath='x://button[text()="Connect Wallet"]', loop=3):
-        els = __get_ele(page=w_page, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
-        if els and els.shadow_root:
-            if __click_ele(page=els.shadow_root, xpath='x://button/div/span[text()="Signma"]', loop=1):
-                __handle_signma_popup(page=wallet_page, count=1)
-            else:
-                __click_ele(page=els.shadow_root, xpath='x://button[@data-testid="close-button"]', loop=1)
-            time.sleep(2)
+    w_page = None
+    try:
+        w_page = wallet_page.new_tab(url=_url)
+        if __click_ele(page=w_page, xpath='x://button[text()="Connect Wallet"]', loop=3):
+            els = __get_ele(page=w_page, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
+            if els and els.shadow_root:
+                if __click_ele(page=els.shadow_root, xpath='x://button/div/span[text()="Signma"]', loop=1):
+                    __handle_signma_popup(page=wallet_page, count=1)
+                else:
+                    __click_ele(page=els.shadow_root, xpath='x://button[@data-testid="close-button"]', loop=1)
+                time.sleep(2)
 
-    if send_evm_addr is not None:
-        if __click_ele(page=w_page, xpath="x://div[contains(text(), 'Buy')]/following-sibling::button[@aria-label='Multi wallet dropdown']", loop=2):
-            if __click_ele(page=w_page, xpath='x://div[text()="Paste wallet address"]'):
-                __input_ele_value(page=w_page, xpath='x://input[@placeholder="Address or ENS"]', value=send_evm_addr)
-                if __click_ele(page=w_page, xpath='x://button[text()="Save" and not(@disabled)]'):
-                    time.sleep(2)
+        if send_evm_addr is not None:
+            if __click_ele(page=w_page, xpath="x://div[contains(text(), 'Buy')]/following-sibling::button[@aria-label='Multi wallet dropdown']", loop=2):
+                if __click_ele(page=w_page, xpath='x://div[text()="Paste wallet address"]'):
+                    __input_ele_value(page=w_page, xpath='x://input[@placeholder="Address or ENS"]', value=send_evm_addr)
+                    if __click_ele(page=w_page, xpath='x://button[text()="Save" and not(@disabled)]'):
+                        time.sleep(2)
 
-    balance_value = (
-        w_page.ele('x://button[text()="MAX"]')
-        .parent(3)
-        .ele('x://div[contains(text(), "Balance:")]')
-        .text.replace("Balance:", "")
-        .strip()
-    )
+        balance_value = (
+            w_page.ele('x://button[text()="MAX"]')
+            .parent(3)
+            .ele('x://div[contains(text(), "Balance:")]')
+            .text.replace("Balance:", "")
+            .strip()
+        )
 
-    if amount == 'Max':
-        __click_ele(page=w_page, xpath='x://div[@aria-label="Max"]', loop=1)
-        # amount = "{:.5f}".format(float(balance_value) - end_amount)
-    if amount is not None:
-        __input_ele_value(page=w_page, xpath='x://input[@inputmode="decimal"]', value=amount)
+        if amount == 'Max':
+            __click_ele(page=w_page, xpath='x://div[@aria-label="Max"]', loop=1)
+            # amount = "{:.5f}".format(float(balance_value) - end_amount)
+        if amount is not None:
+            __input_ele_value(page=w_page, xpath='x://input[@inputmode="decimal"]', value=amount)
 
-    time.sleep(4)
-    send_amount = __get_ele_value(page=w_page,
-                                  xpath='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
-                                  find_all=True, index=0)
-    receive_amount = __get_ele_value(page=w_page,
-                                     xpath='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
-                                     find_all=True, index=1)
-    send_amount = send_amount.strip().replace('$', '')
-    receive_amount = receive_amount.strip().replace('$', '')
+        time.sleep(4)
+        send_amount = __get_ele_value(page=w_page,
+                                      xpath='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
+                                      find_all=True, index=0)
+        receive_amount = __get_ele_value(page=w_page,
+                                         xpath='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
+                                         find_all=True, index=1)
+        send_amount = send_amount.strip().replace('$', '')
+        receive_amount = receive_amount.strip().replace('$', '')
 
-    if float(send_amount) <= 0.2:
-        return True
+        if float(send_amount) <= 0.2:
+            return True
 
-    gas_fee = round(float(send_amount) - float(receive_amount), 3)
-    if float(gas_fee) > max_gas_fee:
-        # logger.error(f'{gas_fee} gas too high to {send_evm_addr}')
-        signma_log(message=f"gas_fee,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
+        gas_fee = round(float(send_amount) - float(receive_amount), 3)
+        if float(gas_fee) > max_gas_fee:
+            # logger.error(f'{gas_fee} gas too high to {send_evm_addr}')
+            signma_log(message=f"gas_fee,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
 
-    elif __click_ele(page=w_page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
-        __handle_signma_popup(page=wallet_page, count=3)
-        __handle_signma_popup(page=wallet_page, count=0)
-        if __get_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
-            if __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1):
-                if __click_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
-                    time.sleep(2)
-                    signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
-                    _bool = True
-            else:
-                if __click_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
-                    if __click_ele(page=w_page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
-                        __handle_signma_popup(page=wallet_page, count=3)
-                        __handle_signma_popup(page=wallet_page, count=0)
-                        if __get_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
-                            __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1)
-                            time.sleep(2)
-                            signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
-                            _bool = True
+        elif __click_ele(page=w_page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
+            __handle_signma_popup(page=wallet_page, count=3)
+            __handle_signma_popup(page=wallet_page, count=0)
+            if __get_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
+                if __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1):
+                    if __click_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
+                        time.sleep(2)
+                        signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
+                        _bool = True
+                else:
+                    if __click_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
+                        if __click_ele(page=w_page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
+                            __handle_signma_popup(page=wallet_page, count=3)
+                            __handle_signma_popup(page=wallet_page, count=0)
+                            if __get_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
+                                __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1)
+                                time.sleep(2)
+                                signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
+                                _bool = True
+    except Exception as e:
+        logger.info(f"{evm_id}: 处理任务异常: {e}")
     if w_page is not None:
         w_page.close()
     return _bool
