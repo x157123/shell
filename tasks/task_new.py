@@ -821,25 +821,25 @@ def __do_end_eth(page, evm_id, index, _type):
             logger.info('获取gas成功')
 
             # 查询eth金额
-            if _type == 1:
+            if _type == '1':
                 # https://relay.link/bridge/base?fromChainId=1          eth 转 base  1
                 _bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/base?fromChainId=1", 0.1, 0, 'base')
                 if _bool:
                     _end_bool = __send_end_wallet(page, evm_id, '0xb3d4984fa477e5d4ce4158cf0f9365561657b1c1', 'Max', "https://relay.link/bridge/optimism?fromChainId=8453", 0.1, 0, 'op')
-            elif _type == 2:
+            elif _type == '2':
                 # https://relay.link/bridge/arbitrum?fromChainId=1      eth 转 arb   2
                 _bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/arbitrum?fromChainId=1", 0.1, 0, 'arb')
                 if _bool:
                     _end_bool = __send_end_wallet(page, evm_id, '0xb3d4984fa477e5d4ce4158cf0f9365561657b1c1', 'Max', "https://relay.link/bridge/optimism?fromChainId=42161", 0.1, 0, 'op')
 
-            elif _type == 3 or _type == 4:
+            elif _type == '3' or _type == '4':
                 result = get_balance("https://mainnet.rpc.rarichain.org/http", "0x02E7c0e44dCC8377Eb3A4f32687426F6A1F664c8", 'ether')
                 if result.get("success"):
                     logger.info(f"余额: {result['balance']}")
                     # https://relay.link/bridge/rari?fromChainId=1          eth 转 rari      3\4
                     _bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/rari?fromChainId=1", 0.1, 0, 'rari')
                     if _bool:
-                        if _type == 3:
+                        if _type == '3':
                             # https://relay.link/bridge/base?fromChainId=1380012617  rari 转 base        3
                             _bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/base?fromChainId=1380012617", 0.1,  float(result['balance']), 'base')
                             if _bool:
@@ -850,14 +850,14 @@ def __do_end_eth(page, evm_id, index, _type):
                             if _bool:
                                 _end_bool = __send_end_wallet(page, evm_id, '0xb3d4984fa477e5d4ce4158cf0f9365561657b1c1', 'Max', "https://relay.link/bridge/optimism?fromChainId=42161", 0.1, 0, 'op')
 
-            elif _type == 5 or _type == 6:
+            elif _type == '5' or _type == '6':
                 result = get_balance("https://rpc.appchain.xyz/http", "0x02E7c0e44dCC8377Eb3A4f32687426F6A1F664c0", 'ether')
                 if result.get("success"):
                     logger.info(f"余额: {result['balance']}")
                     # https://relay.link/bridge/appchain?fromChainId=1      eth 转 appchain  5\6
                     _bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/appchain?fromChainId=1", 0.1, 0, 'appchain')
                     if _bool:
-                        if _type == 5:
+                        if _type == '5':
                             # https://relay.link/bridge/base?fromChainId=466  appchain 转 base           5
                             _bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/base?fromChainId=466", 0.1, float(result['balance']), 'base')
                             if _bool:
