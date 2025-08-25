@@ -819,7 +819,9 @@ def __do_end_eth(page, evm_id, index, _type):
         _low_gas = _gas.get('SafeGasPrice', '99')
         if _low_gas is not None and float(_low_gas) < 0.8:
             logger.info('获取gas成功')
-
+            __handle_signma_popup(page=page, count=0)
+            __login_wallet(page=page, evm_id=evm_id)
+            __handle_signma_popup(page=page, count=0)
             # 查询eth金额
             if _type == '1':
                 # https://relay.link/bridge/base?fromChainId=1          eth 转 base  1
