@@ -609,7 +609,7 @@ def __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_
         else:
             gas_fee = round(float(send_amount) - float(receive_amount), 3)
             if float(gas_fee) > max_gas_fee:
-                # logger.error(f'{gas_fee} gas too high to {send_evm_addr}')
+                logger.error(f'{gas_fee} 地址 {send_evm_addr}')
                 signma_log(message=f"gas_fee,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
 
             elif __click_ele(page=w_page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
