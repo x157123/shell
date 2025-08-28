@@ -842,7 +842,7 @@ def __do_end_eth(page, evm_id, evm_addr, _type, _amount):
                     if float(result['balance']) >= 0.00002:
                         _bool = True
                     else:
-                        _amount = random.uniform(0.000611, 0.000720)
+                        _amount = random.uniform(0.000411, 0.000620)
                         _bool = __send_end_wallet(page, evm_id, None, _amount, "https://relay.link/bridge/bsc?fromChainId=1", 0.2, 0, 'bnb')
                 if _bool:
                     if _type == '1' or _type == '3' or _type == '5':
