@@ -829,7 +829,7 @@ def __do_end_eth(page, evm_id, evm_addr, _type, _amount):
     _gas = __quyer_gas()
     if _gas is not None:
         _low_gas = _gas.get('SafeGasPrice', '99')
-        if _low_gas is not None and float(_low_gas) < 1.8:
+        if _low_gas is not None and float(_low_gas) < 0.8:
             logger.info(f'获取gas成功:{_low_gas}')
             __handle_signma_popup(page=page, count=0)
             __login_wallet(page=page, evm_id=evm_id)
