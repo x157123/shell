@@ -973,6 +973,16 @@ def __do_quackai(page, evm_id):
                 __click_ele(page=main_page, xpath='x://button[div[div[contains(text(), "Connect Wallet")]]]', loop=1)
                 if __click_ele(page=main_page, xpath='x://button[div[div[div[div[contains(text(), "Signma")]]]]]', loop=2):
                     __handle_signma_popup(page=page, count=2)
+                    time.sleep(5)
+                    __handle_signma_popup(page=page, count=0)
+
+                if __get_ele(page=main_page, xpath='x://button[div[div[contains(text(), "Connect Wallet")]]]', loop=2):
+                    __click_ele(page=main_page, xpath='x://button[div[div[contains(text(), "Connect Wallet")]]]', loop=1)
+                    if __click_ele(page=main_page, xpath='x://button[div[div[div[div[contains(text(), "Signma")]]]]]', loop=2):
+                        __handle_signma_popup(page=page, count=2)
+                        time.sleep(5)
+                        __handle_signma_popup(page=page, count=0)
+
             if __get_ele(page=main_page, xpath='x://div[text()="GO"]/parent::div/parent::button', loop=1):
                 __click_ele(page=main_page, xpath='x://div[text()="GO"]/parent::div/parent::button', loop=1)
                 __handle_signma_popup(page=page, count=1)
