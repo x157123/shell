@@ -961,7 +961,7 @@ def __do_quackai(page, evm_id):
         __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
         key = get_key("http://150.109.5.143:5000/get_key")
-        main_page = None
+        inviter_code_regex = '0000'
         if key is not None and key != "0000":
             questions = read_data_list_file("/home/ubuntu/task/tasks/questions.txt")
             # questions = read_data_list_file("./questions.txt")
@@ -1030,9 +1030,9 @@ def __do_quackai(page, evm_id):
                     break
             if __bool:
                 _val = __get_ele_value(page=main_page, xpath='x://span[@class="font-[Poppins]"]')
-                signma_log(message=f"end,{_val}", task_name=f'quackai_{get_date_as_string()}', index=evm_id)
+                signma_log(message=f"end,{_val},{inviter_code_regex}", task_name=f'quackai_{get_date_as_string()}', index=evm_id)
         else:
-            signma_log(message=f"error,{key}", task_name=f'quackai_{get_date_as_string()}', index=evm_id)
+            signma_log(message=f"error,{key},{key}", task_name=f'quackai_{get_date_as_string()}', index=evm_id)
 
     except Exception as e:
         logger.info(f"quackai: 处理任务异常: {e}")
