@@ -159,15 +159,22 @@ install_wallet_phantom() {
 down_desc() {
     # 目录路径
     DIR="/home/$USER/task/tasks/image_descriptions.txt"
-
     rm -rf "$DIR"
-
     # 目录不存在，创建目录
     wget -q -O /home/ubuntu/task/tasks/image_descriptions.txt "https://github.com/x157123/ACL4SSR/releases/download/v.1.0.11/image_descriptions.txt" || error_exit "文件下载失败"
-
     # 授权给 指定 用户
     log_info "授权目录 $DIR 给 $USER 用户..."
     chown -R "$USER":"$USER" "$DIR"
+
+
+    # 目录路径
+    DIR_QUES="/home/$USER/task/tasks/questions.txt"
+    rm -rf "$DIR_QUES"
+    # 目录不存在，创建目录
+    wget -q -O /home/ubuntu/task/tasks/questions.txt "https://github.com/x157123/ACL4SSR/releases/download/v.1.0.12/questions.txt" || error_exit "文件下载失败"
+    # 授权给 指定 用户
+    log_info "授权目录 $DIR_QUES 给 $USER 用户..."
+    chown -R "$USER":"$USER" "$DIR_QUES"
 
     log_info "授权完成。"
 
@@ -266,6 +273,7 @@ main() {
 		pyautogui \
 		drissionpage \
 		pyperclip \
+		web3 \
 		loguru \
 		|| error_exit "Python 包安装失败"
 

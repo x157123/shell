@@ -6,12 +6,13 @@ import random
 from loguru import logger
 import argparse
 import os
-from decimal import Decimal, ROUND_DOWN
+from decimal import Decimal
 import platform
 import json
 import string
 from web3 import Web3
 import re
+import pyperclip
 
 
 # ========== 全局配置 ==========
@@ -829,7 +830,7 @@ def __do_end_eth(page, evm_id, evm_addr, _type, _amount):
     _gas = __quyer_gas()
     if _gas is not None:
         _low_gas = _gas.get('SafeGasPrice', '99')
-        if _low_gas is not None and float(_low_gas) < 0.8:
+        if _low_gas is not None and float(_low_gas) < 1.8:
             logger.info(f'获取gas成功:{_low_gas}')
             __handle_signma_popup(page=page, count=0)
             __login_wallet(page=page, evm_id=evm_id)
@@ -842,7 +843,7 @@ def __do_end_eth(page, evm_id, evm_addr, _type, _amount):
                     if float(result['balance']) >= 0.00002:
                         _bool = True
                     else:
-                        _amount = random.uniform(0.000411, 0.000620)
+                        _amount = random.uniform(0.000611, 0.000720)
                         _bool = __send_end_wallet(page, evm_id, None, _amount, "https://relay.link/bridge/bsc?fromChainId=1", 0.2, 0, 'bnb')
                 if _bool:
                     if _type == '1' or _type == '3' or _type == '5':
@@ -960,7 +961,10 @@ def __do_quackai(page, evm_id):
         __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
         key = get_key("http://150.109.5.143:5000/get_key")
+        main_page = None
         if key is not None and key != "0000":
+            questions = read_data_list_file("/home/ubuntu/task/tasks/questions.txt")
+            # questions = read_data_list_file("./questions.txt")
             main_page = page.new_tab(url=f"https://app.quackai.ai/quackipedia?inviterCode={key}")
             __click_ele(page=main_page, xpath='x://button[contains(text(), "Next")]', loop=1)
             __click_ele(page=main_page, xpath='x://button[contains(text(), "Next")]', loop=1)
@@ -974,21 +978,52 @@ def __do_quackai(page, evm_id):
                 __handle_signma_popup(page=page, count=1)
                 time.sleep(5)
                 __click_ele(page=main_page, xpath='x://div[text()="GO"]/parent::div/parent::button', loop=1)
-                time.sleep(5)
+                time.sleep(30)
                 __handle_signma_popup(page=page, count=1)
                 __click_ele(page=main_page, xpath='x://div[text()="GO"]/parent::div/parent::button', loop=1)
-                time.sleep(5)
+                time.sleep(30)
             __click_ele(page=main_page, xpath='x://button[contains(text(), "Get Passport")]', loop=1)
             if __get_ele(page=main_page, xpath='x://button[span[div[div[contains(text(), "BNB Chain")]]]]', loop=2):
                 __click_ele(page=main_page, xpath='x://button[span[div[div[contains(text(), "BNB Chain")]]]]', loop=2)
                 __handle_signma_popup(page=page, count=1)
+                time.sleep(5)
+                __handle_signma_popup(page=page, count=0)
 
-            __input_ele_value(page=main_page, xpath='x://textarea[@placeholder="What can I help you with?"]', value='你用的是什么大模型')
-            if __get_ele(page=main_page, xpath='x://button[span[div[div[contains(text(), "BNB Chain")]]]]', loop=2):
-                __click_ele(page=main_page, xpath='x://button[span[div[div[contains(text(), "BNB Chain")]]]]', loop=2)
-                __handle_signma_popup(page=page, count=1)
-            __click_ele(page=main_page, xpath='x://div[div[div[div[contains(text(), "Send")]]]]', loop=2)
-            inviter_code_regex = extract_inviter_code_regex('')
+
+            __click_ele(page=main_page, xpath='x://div[div[div[contains(text(), "Invite to Earn")]]]',find_all=True, index=1, loop=2)
+            time.sleep(4)
+            clipboard_text = pyperclip.paste().strip()
+
+            logger.info(f'数据：{clipboard_text}')
+            inviter_code_regex = extract_inviter_code_regex(clipboard_text)
+            if inviter_code_regex is not None and len(inviter_code_regex) == 6:
+                url = "http://150.109.5.143:5000/add_key"
+                payload = json.dumps({
+                    "key": inviter_code_regex
+                })
+                headers = {
+                    'Content-Type': 'application/json'
+                }
+                response = requests.request("POST", url, headers=headers, data=payload)
+
+            for i in range(random.randint(6, 8)):
+                __input_ele_value(page=main_page, xpath='x://textarea[@placeholder="What can I help you with?"]', value=random.choice(questions))
+                __click_ele(page=main_page, xpath='x://div[div[div[div[contains(text(), "Send")]]]]', loop=2)
+                if __get_ele(page=main_page, xpath='x://button[span[div[div[contains(text(), "BNB Chain")]]]]', loop=2):
+                    __click_ele(page=main_page, xpath='x://button[span[div[div[contains(text(), "BNB Chain")]]]]', loop=2)
+                    __handle_signma_popup(page=page, count=1)
+                time.sleep(10)
+                if i > 5:
+                    __bool = True
+                if __get_ele(page=main_page, xpath='x://p[contains(text(), "Your daily chat limit has been reached")]', loop=1):
+                    __bool = True
+                    break
+            if __bool:
+                _val = __get_ele_value(page=main_page, xpath='x://span[@class="font-[Poppins]"]')
+                signma_log(message=f"end,{_val}", task_name=f'quackai_{get_date_as_string()}', index=evm_id)
+        else:
+            signma_log(message=f"error,{key}", task_name=f'quackai_{get_date_as_string()}', index=evm_id)
+
     except Exception as e:
         logger.info(f"quackai: 处理任务异常: {e}")
     return __bool
@@ -1965,10 +2000,10 @@ if __name__ == '__main__':
                     else:
                         _end_day_task.append(_task_id)
             if len(filtered) > 24:
-                time.sleep(900)
+                time.sleep(800)
             elif len(filtered) > 12:
-                time.sleep(1800)
+                time.sleep(1200)
             else:
-                time.sleep(3600)
+                time.sleep(1800)
 
         time.sleep(1800)
