@@ -999,8 +999,10 @@ def __do_quackai(page, evm_id):
                 time.sleep(5)
                 __handle_signma_popup(page=page, count=0)
 
-
+            time.sleep(4)
             __click_ele(page=main_page, xpath='x://div[div[div[contains(text(), "Invite to Earn")]]]',find_all=True, index=1, loop=2)
+            time.sleep(4)
+            clipboard_text = pyperclip.paste().strip()
             time.sleep(4)
             clipboard_text = pyperclip.paste().strip()
 
