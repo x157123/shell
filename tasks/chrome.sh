@@ -256,7 +256,6 @@ main() {
   down_desc
   # 安装钱包
 #  install_wallet_dog
-
 	# 更新软件源并安装 Python 运行时及虚拟环境支持
 	apt-get update \
 		&& apt-get install -y \
@@ -264,6 +263,7 @@ main() {
 			python3-venv \
 			python3-tk \
 			python3-dev \
+			xclip \
 		|| error_exit "Python 组件安装失败"
 
 	# 升级 pip 并安装依赖包
