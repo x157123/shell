@@ -965,7 +965,7 @@ def __do_quackai(page, evm_id):
         if evm_id not in quackai_login:
             key = get_key("http://150.109.5.143:5000/get_key")
 
-        if evm_id in key is not None and key != "0000":
+        if key is not None and key != "0000":
             questions = read_data_list_file("/home/ubuntu/task/tasks/questions.txt")
             # questions = read_data_list_file("./questions.txt")
             if key != '99999':
