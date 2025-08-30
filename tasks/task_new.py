@@ -960,12 +960,18 @@ def __do_quackai(page, evm_id):
         __handle_signma_popup(page=page, count=0)
         __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
-        key = get_key("http://150.109.5.143:5000/get_key")
-        inviter_code_regex = '0000'
-        if key is not None and key != "0000":
+        quackai_login = read_data_list_file("/home/ubuntu/task/tasks/quackai_login.txt")
+        key = '99999'
+        if evm_id not in quackai_login:
+            key = get_key("http://150.109.5.143:5000/get_key")
+
+        if evm_id in key is not None and key != "0000":
             questions = read_data_list_file("/home/ubuntu/task/tasks/questions.txt")
             # questions = read_data_list_file("./questions.txt")
-            main_page = page.new_tab(url=f"https://app.quackai.ai/quackipedia?inviterCode={key}")
+            if key != '99999':
+                main_page = page.new_tab(url=f"https://app.quackai.ai/quackipedia?inviterCode={key}")
+            else:
+                main_page = page.new_tab(url=f"https://app.quackai.ai/quackipedia")
             __click_ele(page=main_page, xpath='x://button[contains(text(), "Next")]', loop=1)
             __click_ele(page=main_page, xpath='x://button[contains(text(), "Next")]', loop=1)
             __click_ele(page=main_page, xpath='x://button[contains(text(), "Explore")]', loop=1)
@@ -1033,6 +1039,7 @@ def __do_quackai(page, evm_id):
             if __bool:
                 _val = __get_ele_value(page=main_page, xpath='x://span[@class="font-[Poppins]"]')
                 signma_log(message=f"end,{_val},{inviter_code_regex}", task_name=f'quackai_{get_date_as_string()}', index=evm_id)
+                append_date_to_file("/home/ubuntu/task/tasks/quackai_login.txt", evm_id)
         else:
             signma_log(message=f"error,{key},{key}", task_name=f'quackai_{get_date_as_string()}', index=evm_id)
 
