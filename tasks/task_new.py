@@ -2032,6 +2032,7 @@ if __name__ == '__main__':
                             _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     else:
                         logger.warning(f"未知任务类型：{_type}")
+                time.sleep(60)
             except Exception as e:
                 logger.info(f"任务异常: {e}")
             finally:
@@ -2052,6 +2053,5 @@ if __name__ == '__main__':
             #     time.sleep(1200)
             # else:
             #     time.sleep(1800)
-            time.sleep(60)
 
         time.sleep(300)
