@@ -953,6 +953,29 @@ def extract_inviter_code_regex(url):
         return match.group(1)
     return None
 
+def __do_hemi(page, evm_id, evm_addr):
+    __bool = False
+    try:
+        __handle_signma_popup(page=page, count=0)
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+        main_page = page.new_tab(url="https://app.hemi.xyz/en/genesis-drop/")
+        if __click_ele(page=main_page, xpath='x://button[span[contains(text(), "Connect Wallets")]]', loop=2):
+            __click_ele(page=main_page, xpath='x://button[span[contains(text(), "Connect your EVM Wallet")]]', loop=1)
+            __click_ele(page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]', loop=3)
+            __handle_signma_popup(page=page, count=1)
+        __get_ele(page=main_page, xpath='x://div[@class="md:max-w-105 max-h-24 w-full max-w-96"]', loop=15)
+        _vs = main_page.ele('x://div[@class="md:max-w-105 max-h-24 w-full max-w-96"]')
+        if _vs is not None:
+            ele = _vs.ele('x://.//*[name()="text" and @fill="#FF6C15"]')
+            if ele is not None:
+                signma_log(message=f"{evm_addr},{ele.text}", task_name=f'hemi', index=evm_id)
+                __bool = True
+
+    except Exception as e:
+        logger.info(f"quackai: 处理任务异常: {e}")
+    return __bool
+
 
 def __do_quackai(page, evm_id):
     __bool = False
@@ -1915,7 +1938,7 @@ if __name__ == '__main__':
                 logger.warning(f"日期解析失败，跳过：{date_str!r} in {line!r}")
                 continue
             # 需求：获取今天之前（含今天）的数据，且未完成；另外 parts[0]=='0' 也保留
-            if (parts[1] == '0' and parts[0] not in _end_day_task) or (date_obj <= today and parts[0] not in end_tasks):
+            if (parts[1] == '0' and parts[0] not in _end_day_task) or (parts[1] != '0' and date_obj <= today and parts[0] not in end_tasks):
                 # if parts[1] == '0' or (parts[0] not in end_tasks):
                 logger.info(f'添加执行今日任务:{line}')
                 filtered.append(line)
@@ -1942,6 +1965,9 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
+
+                if 'quackai' != _type:
+                    continue
 
                 if _type == 'gift':
                     evm_id = _id
@@ -1971,7 +1997,9 @@ if __name__ == '__main__':
                     elif _type == 'end_eth':
                         _end = __do_end_eth(page=_page, evm_id=_id, evm_addr=arg[2], _type=arg[3], _amount=arg[4])
                     elif _type == 'quackai':
-                        _end = __do_quackai(page=_page, evm_id=_id)
+                        _end = __do_hemi(page=_page, evm_id=_id, evm_addr=arg[2])
+                    elif _type == 'hemi':
+                        _end = __do_hemi(page=_page, evm_id=_id, evm_addr=arg[2])
                     # elif _type == 'linea':
                     #     _end = __do_task_linea(page=_page, index=_window, evm_id=_id)
                     #     _end = True
@@ -2013,16 +2041,17 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 logger.info(f'数据{_end}:{_task_type}:{_task_id}')
-                if _end and _task_id and platform.system().lower() != "windows":
-                    if _task_type != '0':
+                if _end and _task_id:
+                    if _task_type != '0'  and platform.system().lower() != "windows":
                         append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
                     else:
                         _end_day_task.append(_task_id)
-            if len(filtered) > 24:
-                time.sleep(800)
-            elif len(filtered) > 12:
-                time.sleep(1200)
-            else:
-                time.sleep(1800)
+            # if len(filtered) > 24:
+            #     time.sleep(800)
+            # elif len(filtered) > 12:
+            #     time.sleep(1200)
+            # else:
+            #     time.sleep(1800)
+            time.sleep(60)
 
-        time.sleep(1800)
+        time.sleep(300)
