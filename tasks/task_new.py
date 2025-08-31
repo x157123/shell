@@ -956,7 +956,7 @@ def extract_inviter_code_regex(url):
 def __do_hemi(page, evm_id, evm_addr):
     __bool = False
     try:
-        hemi_end = read_data_list_file("/home/ubuntu/task/tasks/hemi_ends.txt")
+        hemi_end = read_data_list_file("/home/ubuntu/task/tasks/hemi_enda.txt")
         if evm_id in hemi_end or evm_id == '39423' or evm_id == '39424' or evm_id == '39425':
             __bool = True
         else:
@@ -1018,10 +1018,10 @@ def __do_hemi(page, evm_id, evm_addr):
                                 _value = __get_ele_value(page=main_page, xpath='x://a[starts-with(normalize-space(.),"You sold")]')
                                 if _value is not None:
                                     signma_log(message=f"{evm_addr},{_value}", task_name=f'hemi', index=evm_id)
-                                    append_date_to_file(file_path="/home/ubuntu/task/tasks/hemi_ends.txt", data_str=evm_id)
+                                    append_date_to_file(file_path="/home/ubuntu/task/tasks/hemi_enda.txt", data_str=evm_id)
                                     __bool = True
                     else:
-                        append_date_to_file(file_path="/home/ubuntu/task/tasks/hemi_ends.txt", data_str=evm_id)
+                        append_date_to_file(file_path="/home/ubuntu/task/tasks/hemi_enda.txt", data_str=evm_id)
                         signma_log(message=f"{evm_addr}", task_name=f'hemi_end', index=evm_id)
                         __bool = True
     except Exception as e:
