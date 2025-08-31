@@ -1017,7 +1017,7 @@ def __do_hemi(page, evm_id, evm_addr):
                             if __get_ele(page=main_page, xpath='x://button[contains(text(), "Make another swap")]', loop=8):
                                 _value = __get_ele_value(page=main_page, xpath='x://a[starts-with(normalize-space(.),"You sold")]')
                                 if _value is not None:
-                                    signma_log(message=f"{evm_addr},{_value}", task_name=f'hemi', index=evm_id)
+                                    signma_log(message=f"{evm_addr},{_value}", task_name=f'hemia', index=evm_id)
                                     append_date_to_file(file_path="/home/ubuntu/task/tasks/hemi_endb.txt", data_str=evm_id)
                                     __bool = True
                     else:
