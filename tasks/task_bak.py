@@ -1915,7 +1915,7 @@ if __name__ == '__main__':
                 logger.warning(f"日期解析失败，跳过：{date_str!r} in {line!r}")
                 continue
             # 需求：获取今天之前（含今天）的数据，且未完成；另外 parts[0]=='0' 也保留
-            if (parts[1] == '0' and parts[0] not in _end_day_task) or (date_obj <= today and parts[0] not in end_tasks):
+            if (parts[1] == '0' and parts[0] not in _end_day_task) or (parts[1] != '0' and  date_obj <= today and parts[0] not in end_tasks):
                 # if parts[1] == '0' or (parts[0] not in end_tasks):
                 logger.info(f'添加执行今日任务:{line}')
                 filtered.append(line)
