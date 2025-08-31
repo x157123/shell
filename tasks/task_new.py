@@ -1020,10 +1020,10 @@ def __do_hemi(page, evm_id, evm_addr):
                                     signma_log(message=f"{evm_addr},{_value}", task_name=f'hemi', index=evm_id)
                                     append_date_to_file(file_path="/home/ubuntu/task/tasks/hemi_ends.txt", data_str=evm_id)
                                     __bool = True
-                        else:
-                            append_date_to_file(file_path="/home/ubuntu/task/tasks/hemi_ends.txt", data_str=evm_id)
-                            signma_log(message=f"{evm_addr}", task_name=f'hemi_end', index=evm_id)
-                            __bool = True
+                    else:
+                        append_date_to_file(file_path="/home/ubuntu/task/tasks/hemi_ends.txt", data_str=evm_id)
+                        signma_log(message=f"{evm_addr}", task_name=f'hemi_end', index=evm_id)
+                        __bool = True
     except Exception as e:
         logger.info(f"quackai: 处理任务异常: {e}")
     return __bool
