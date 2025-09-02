@@ -1215,7 +1215,7 @@ def __do_task_logx(page, evm_id, index):
 def x_com(page, name, email, pwd, fa):
     _bool = False
     x_com = page.new_tab(url='https://x.com/i/flow/login')
-
+    logger.info('cf-校验')
     for i in range(3):
         if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human")]'):
             time.sleep(5)
