@@ -1215,6 +1215,15 @@ def __do_task_logx(page, evm_id, index):
 def x_com(page, name, email, pwd, fa):
     _bool = False
     x_com = page.new_tab(url='https://x.com/i/flow/login')
+
+    for i in range(3):
+        if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human")]'):
+            time.sleep(5)
+            click_x_y(524 + random.randint(1, 6), 395 + random.randint(1, 6), 24)
+            time.sleep(5)
+        else:
+            break
+
     __input_ele_value(page=x_com, xpath='x://input[@autocomplete="username"]', value=name)
     if __click_ele(page=x_com,
                    xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
@@ -2331,11 +2340,11 @@ if __name__ == '__main__':
                         append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
                     else:
                         _end_day_task.append(_task_id)
-            if len(filtered) > 24:
-                time.sleep(800)
-            elif len(filtered) > 12:
-                time.sleep(1200)
-            else:
-                time.sleep(1800)
-            # time.sleep(60)
+            # if len(filtered) > 24:
+            #     time.sleep(800)
+            # elif len(filtered) > 12:
+            #     time.sleep(1200)
+            # else:
+            #     time.sleep(1800)
+            time.sleep(60)
         time.sleep(1800)
