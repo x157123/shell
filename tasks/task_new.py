@@ -1218,7 +1218,7 @@ def x_com(page, name, email, pwd, fa, evm_id):
     logger.info('cf-校验')
     for i in range(3):
         if __get_ele(page=x_com, xpath='x://div[contains(text(), "Your account has been locked")]'):
-            signma_log(message=f"{name}:{email}:{pwd}:{fa}", task_name=f'nexus_join_error', index=evm_id)
+            signma_log(message=f"{name},{email},{pwd},{fa}", task_name=f'nexus_join_error', index=evm_id)
             break
         if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human")]'):
             time.sleep(5)
