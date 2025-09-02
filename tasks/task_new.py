@@ -1212,7 +1212,7 @@ def __do_task_logx(page, evm_id, index):
     return __bool
 
 
-def x_com(page, name, email, pwd, fa):
+def x_com(page, name, email, pwd, fa, evm_id):
     _bool = False
     x_com = page.new_tab(url='https://x.com/i/flow/login')
     logger.info('cf-校验')
@@ -1332,7 +1332,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         if __get_ele(page=profile_shadow_root, xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
                             append_date_to_file("/home/ubuntu/task/tasks/nexus_joins.txt", evm_id)
 
-        __x_bool = x_com(page=page, name=x_name, email=x_email, pwd=x_pwd, fa=x_2fa)
+        __x_bool = x_com(page=page, name=x_name, email=x_email, pwd=x_pwd, fa=x_2fa, evm_id=evm_id)
         if __x_bool:
             nexus.get(url='https://app.nexus.xyz/rewards')
             if __click_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]'):
