@@ -1217,32 +1217,33 @@ def x_com(page, name, email, pwd, fa):
     x_com = page.new_tab(url='https://x.com/i/flow/login')
     logger.info('cf-校验')
     for i in range(3):
+        if __get_ele(page=x_com, xpath='x://div[contains(text(), "Your account has been locked")]'):
+            signma_log(message=f"{name}:{email}:{pwd}:{fa}", task_name=f'nexus_join_error', index=evm_id)
+            break
         if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human")]'):
             time.sleep(5)
             click_x_y(524 + random.randint(1, 6), 395 + random.randint(1, 6), 24)
             time.sleep(5)
         else:
             break
+    if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]'):
+        __input_ele_value(page=x_com, xpath='x://input[@autocomplete="username"]', value=name)
+        if __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
 
-    __input_ele_value(page=x_com, xpath='x://input[@autocomplete="username"]', value=name)
-    if __click_ele(page=x_com,
-                   xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
+            if __get_ele(page=x_com, xpath='x://input[@data-testid="ocfEnterTextTextInput"]', loop=2):
+                __input_ele_value(page=x_com, xpath='x://input[@data-testid="ocfEnterTextTextInput"]', value=email)
+                __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]')
 
-        if __get_ele(page=x_com, xpath='x://input[@data-testid="ocfEnterTextTextInput"]', loop=2):
-            __input_ele_value(page=x_com, xpath='x://input[@data-testid="ocfEnterTextTextInput"]', value=email)
-            __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]')
-
-        __input_ele_value(page=x_com, xpath='x://input[@autocomplete="current-password"]', value=pwd)
-        if __click_ele(page=x_com,
-                       xpath='x://button[.//span[normalize-space(text())="登录" or normalize-space(text())="Log in"]]'):
-            _code = fa_code(page=page, code=fa)
-            if _code is not None:
-                __input_ele_value(page=x_com, xpath='x://input[@inputmode="numeric"]', value=_code)
-                if __click_ele(page=x_com,
-                               xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
-                    logger.info('登录')
-                    if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]'):
-                        _bool = True
+            __input_ele_value(page=x_com, xpath='x://input[@autocomplete="current-password"]', value=pwd)
+            if __click_ele(page=x_com,
+                           xpath='x://button[.//span[normalize-space(text())="登录" or normalize-space(text())="Log in"]]'):
+                _code = fa_code(page=page, code=fa)
+                if _code is not None:
+                    __input_ele_value(page=x_com, xpath='x://input[@inputmode="numeric"]', value=_code)
+                    if __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
+                        logger.info('登录')
+    if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]'):
+        _bool = True
     x_com.close()
     return _bool
 
