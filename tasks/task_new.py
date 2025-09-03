@@ -1215,17 +1215,18 @@ def __do_task_logx(page, evm_id, index):
 def x_com(page, name, email, pwd, fa, evm_id):
     _bool = False
     x_com = page.new_tab(url='https://x.com/i/flow/login')
-    logger.info('cf-校验')
-    for i in range(3):
-        if __get_ele(page=x_com, xpath='x://div[contains(text(), "Your account has been locked")]'):
-            signma_log(message=f"{name},{email},{pwd},{fa}", task_name=f'nexus_join_error', index=evm_id)
-            break
-        if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human")]'):
-            time.sleep(5)
-            click_x_y(524 + random.randint(1, 6), 395 + random.randint(1, 6), 24)
-            time.sleep(5)
-        else:
-            break
+    if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]') is None:
+        logger.info('cf-校验')
+        for i in range(3):
+            if __get_ele(page=x_com, xpath='x://div[contains(text(), "Your account has been locked")]'):
+                signma_log(message=f"{name},{email},{pwd},{fa}", task_name=f'nexus_join_error', index=evm_id)
+                break
+            if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human")]'):
+                time.sleep(5)
+                click_x_y(524 + random.randint(1, 6), 395 + random.randint(1, 6), 24)
+                time.sleep(5)
+            else:
+                break
     if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]'):
         __input_ele_value(page=x_com, xpath='x://input[@autocomplete="username"]', value=name)
         if __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
@@ -2319,7 +2320,7 @@ if __name__ == '__main__':
                     elif _type == 'nexus':
                         _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                     elif _type == 'nexus_join':
-                        _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[5])
+                        _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
                     elif _type == 'prismax':
                         if len(arg) < 3:
                             logger.warning("prismax 需要助记词/私钥参数，已跳过")
