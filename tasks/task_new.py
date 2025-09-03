@@ -1366,7 +1366,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 __join = True
 
                 nexus.get(url='https://quest.nexus.xyz/loyalty')
-                if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]'):
+                if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=3):
                     shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
                     if shadow_host:
                         shadow_root = shadow_host.shadow_root
@@ -1382,7 +1382,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                 __handle_signma_popup(page=page, count=2)
 
                 if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
-                    if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]') is None:
+                    if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=2) is None:
                         if __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]", loop=3):
                             __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]")
                             twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
