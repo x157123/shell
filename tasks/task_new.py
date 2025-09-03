@@ -1467,13 +1467,12 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
 
                         _amount = __get_ele_value(page=nexus, xpath="x://div[contains(@class, 'header-loyalty-points-parent')]//div[contains(@class, 'header-loyalty-points')]//span")
                         if _amount:
-                            if _amount == "0":
-                                __bool = False
                             if __bool:
                                 signma_log(message=_amount, task_name=f'nexus_join', index=evm_id)
+                                if _amount == '0':
+                                    __bool = False
                             else:
                                 signma_log(message=_amount, task_name=f'nexus_join_not_end', index=evm_id)
-
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
