@@ -1334,7 +1334,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         if __get_ele(page=profile_shadow_root, xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
                             append_date_to_file("/home/ubuntu/task/tasks/nexus_joins.txt", evm_id)
                             __out_join = True
-        
+
         if __out_join:
             __x_bool = x_com(page=page, name=x_name, email=x_email, pwd=x_pwd, fa=x_2fa, evm_id=evm_id)
             if __x_bool:
