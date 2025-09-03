@@ -1219,7 +1219,7 @@ def x_com(page, name, email, pwd, fa, evm_id):
         logger.info('cf-校验')
         for i in range(3):
             if __get_ele(page=x_com, xpath='x://div[contains(text(), "Your account has been locked")]'):
-                signma_log(message=f"{name},{email},{pwd},{fa}", task_name=f'nexus_join_error', index=evm_id)
+                signma_log(message=f"{name},{email},{pwd},{fa}", task_name=f'nexus_joina_error', index=evm_id)
                 break
             if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human")]'):
                 time.sleep(5)
@@ -1468,11 +1468,11 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         _amount = __get_ele_value(page=nexus, xpath="x://div[contains(@class, 'header-loyalty-points-parent')]//div[contains(@class, 'header-loyalty-points')]//span")
                         if _amount:
                             if __bool:
-                                signma_log(message=_amount, task_name=f'nexus_join', index=evm_id)
+                                signma_log(message=_amount, task_name=f'nexus_joina', index=evm_id)
                                 if _amount == '0':
                                     __bool = False
                             else:
-                                signma_log(message=_amount, task_name=f'nexus_join_not_end', index=evm_id)
+                                signma_log(message=_amount, task_name=f'nexus_joina_not_end', index=evm_id)
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
@@ -2286,73 +2286,73 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
 
-                if _type != 'nexus_join':
-                    continue
+                if _type == 'nexus_join' or _type == 'nexus_joina':
+                    if _type == 'gift':
+                        evm_id = _id
+                        evm_addr = arg[2]
+                        amount = arg[3]
+                        _bool = True
+                        # 判断需要转账
+                        if amount is not None and float(amount) > 0:
+                            end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_gift_wallet.txt")
+                            if evm_id not in end_tasks:
+                                _bool = False
+                                if __do_send_wallet('88102', evm_addr, amount):
+                                    append_date_to_file(file_path="/home/ubuntu/task/tasks/end_gift_wallet.txt", data_str=evm_id)
+                                    _bool = True
 
-                if _type == 'gift':
-                    evm_id = _id
-                    evm_addr = arg[2]
-                    amount = arg[3]
-                    _bool = True
-                    # 判断需要转账
-                    if amount is not None and float(amount) > 0:
-                        end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_gift_wallet.txt")
-                        if evm_id not in end_tasks:
-                            _bool = False
-                            if __do_send_wallet('88102', evm_addr, amount):
-                                append_date_to_file(file_path="/home/ubuntu/task/tasks/end_gift_wallet.txt", data_str=evm_id)
-                                _bool = True
-
-                    if _bool:
+                        if _bool:
+                            _page = __get_page(_type, _id, None)
+                            if _page is None:
+                                logger.error("浏览器启动失败，跳过该任务")
+                                continue
+                            _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=arg[3])
+                    else:
                         _page = __get_page(_type, _id, None)
                         if _page is None:
                             logger.error("浏览器启动失败，跳过该任务")
                             continue
-                        _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=arg[3])
-                else:
-                    _page = __get_page(_type, _id, None)
-                    if _page is None:
-                        logger.error("浏览器启动失败，跳过该任务")
-                        continue
-                    elif _type == 'end_eth':
-                        _end = __do_end_eth(page=_page, evm_id=_id, evm_addr=arg[2], _type=arg[3], _amount=arg[4])
-                    elif _type == 'quackai':
-                        # _end = __do_quackai(page=_page, evm_id=_id)
-                        _end = True
-                    # elif _type == 'linea':
-                    #     _end = __do_task_linea(page=_page, index=_window, evm_id=_id)
-                    #     _end = True
-                    # elif _type == 'portal':
-                    #     _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
-                    #     _end = True
-                    # elif _type == 'towns':
-                    #     _end = __do_task_towns(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                    elif _type == 'logx':
-                        # _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
-                        _end = True
-                    elif _type == 'nft':
-                        _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
-                        _end = True
-                    elif _type == 'molten':
-                        _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
-                        _end = True
-                    elif _type == 'rari_arb':
-                        _end = __do_swap_rari_arb_eth(page=_page, evm_id=_id)
-                        _end = True
-                    elif _type == 'rari_arb_end':
-                        _end = __do_swap_rari_arb_eth_end(page=_page, evm_id=_id)
-                        _end = True
-                    elif _type == 'nexus':
-                        _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
-                    elif _type == 'nexus_join':
-                        _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
-                    elif _type == 'prismax':
-                        if len(arg) < 3:
-                            logger.warning("prismax 需要助记词/私钥参数，已跳过")
+                        elif _type == 'end_eth':
+                            _end = __do_end_eth(page=_page, evm_id=_id, evm_addr=arg[2], _type=arg[3], _amount=arg[4])
+                        elif _type == 'quackai':
+                            # _end = __do_quackai(page=_page, evm_id=_id)
+                            _end = True
+                        # elif _type == 'linea':
+                        #     _end = __do_task_linea(page=_page, index=_window, evm_id=_id)
+                        #     _end = True
+                        # elif _type == 'portal':
+                        #     _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
+                        #     _end = True
+                        # elif _type == 'towns':
+                        #     _end = __do_task_towns(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        elif _type == 'logx':
+                            # _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
+                            _end = True
+                        elif _type == 'nft':
+                            _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
+                            _end = True
+                        elif _type == 'molten':
+                            _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
+                            _end = True
+                        elif _type == 'rari_arb':
+                            _end = __do_swap_rari_arb_eth(page=_page, evm_id=_id)
+                            _end = True
+                        elif _type == 'rari_arb_end':
+                            _end = __do_swap_rari_arb_eth_end(page=_page, evm_id=_id)
+                            _end = True
+                        elif _type == 'nexus':
+                            _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
+                        elif _type == 'nexus_join':
+                            _end = True
+                        elif _type == 'nexus_joina':
+                            _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
+                        elif _type == 'prismax':
+                            if len(arg) < 3:
+                                logger.warning("prismax 需要助记词/私钥参数，已跳过")
+                            else:
+                                _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                         else:
-                            _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                    else:
-                        logger.warning(f"未知任务类型：{_type}")
+                            logger.warning(f"未知任务类型：{_type}")
             except Exception as e:
                 logger.info(f"任务异常: {e}")
             finally:
