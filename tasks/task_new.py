@@ -1464,10 +1464,13 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
 
                         if _join_a and _join_b and _join_c and _join_d and __join  and _join_f:
                             __bool = True
-                            _amount = __get_ele_value(page=nexus, xpath="x://div[contains(@class, 'header-loyalty-points-parent')]//div[contains(@class, 'header-loyalty-points')]//span")
-                            if _amount:
-                                signma_log(message=_amount, task_name=f'nexus_join', index=evm_id)
 
+                        _amount = __get_ele_value(page=nexus, xpath="x://div[contains(@class, 'header-loyalty-points-parent')]//div[contains(@class, 'header-loyalty-points')]//span")
+                        if _amount:
+                            if __bool:
+                                signma_log(message=_amount, task_name=f'nexus_join', index=evm_id)
+                            else:
+                                signma_log(message=_amount, task_name=f'nexus_join_not_end', index=evm_id)
 
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
