@@ -1244,6 +1244,7 @@ def x_com(page, name, email, pwd, fa, evm_id):
                     if __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
                         logger.info('登录')
     if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]'):
+        time.sleep(5)
         _bool = True
     x_com.close()
     return _bool
