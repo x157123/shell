@@ -1282,24 +1282,17 @@ def __do_task_logx(page, evm_id, index):
 def x_com(page, name, email, pwd, fa, evm_id):
     _bool = False
     x_com = page.new_tab(url='https://x.com')
-    if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]'):
+    if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2):
         time.sleep(5)
         _bool = True
     else:
         x_com.get(url='https://x.com/i/flow/login')
-        if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]') is None:
+        if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]', loop=2) is None:
             logger.info('cf-校验')
-            for i in range(3):
-                if __get_ele(page=x_com, xpath='x://div[contains(text(), "Your account has been locked")]'):
-                    signma_log(message=f"{name},{email},{pwd},{fa}", task_name=f'nexus_joina_error', index=evm_id)
-                    break
-                if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human")]'):
-                    time.sleep(5)
-                    click_x_y(524 + random.randint(1, 6), 395 + random.randint(1, 6), 24)
-                    time.sleep(5)
-                else:
-                    break
-        if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]'):
+            if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human") or starts-with(normalize-space(.),"请完成以下操作，验证您是真人")]'):
+                signma_log(message=f"{name},{email},{pwd},{fa}", task_name=f'nexus_joina_error', index=evm_id)
+                _bool = None
+        if _bool is not None and __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]'):
             __input_ele_value(page=x_com, xpath='x://input[@autocomplete="username"]', value=name)
             if __click_ele(page=x_com,
                            xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
@@ -1318,9 +1311,11 @@ def x_com(page, name, email, pwd, fa, evm_id):
                         if __click_ele(page=x_com,
                                        xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
                             logger.info('登录')
-        if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]'):
+        if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2):
             time.sleep(5)
             _bool = True
+        if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human") or starts-with(normalize-space(.),"请完成以下操作，验证您是真人")]', loop=2):
+            _bool = None
     x_com.close()
     return _bool
 
@@ -1422,7 +1417,9 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
 
         if __out_join:
             __x_bool = x_com(page=page, name=x_name, email=x_email, pwd=x_pwd, fa=x_2fa, evm_id=evm_id)
-            if __x_bool:
+            if __x_bool is None:
+                __bool = True
+            elif __x_bool:
                 nexus.get(url='https://app.nexus.xyz/rewards')
                 if __click_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]'):
                     time.sleep(3)
