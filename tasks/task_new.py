@@ -1219,7 +1219,7 @@ def x_com(page, name, email, pwd, fa, evm_id):
         logger.info('cf-校验')
         for i in range(3):
             if __get_ele(page=x_com, xpath='x://div[contains(text(), "Your account has been locked")]'):
-                signma_log(message=f"{name},{email},{pwd},{fa}", task_name=f'nexus_joina_error', index=evm_id)
+                signma_log(message=f"{name},{email},{pwd},{fa}", task_name=f'nexus_joinb_error', index=evm_id)
                 break
             if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human")]'):
                 time.sleep(5)
@@ -1468,11 +1468,11 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         _amount = __get_ele_value(page=nexus, xpath="x://div[contains(@class, 'header-loyalty-points-parent')]//div[contains(@class, 'header-loyalty-points')]//span")
                         if _amount:
                             if __bool:
-                                signma_log(message=_amount, task_name=f'nexus_joina', index=evm_id)
+                                signma_log(message=_amount, task_name=f'nexus_joinb', index=evm_id)
                                 if _amount == '0':
                                     __bool = False
                             else:
-                                signma_log(message=_amount, task_name=f'nexus_joina_not_end', index=evm_id)
+                                signma_log(message=_amount, task_name=f'nexus_joinb_not_end', index=evm_id)
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
