@@ -1286,7 +1286,7 @@ def x_com(page, name, email, pwd, fa, evm_id):
         time.sleep(5)
         _bool = True
     else:
-        x_com = x_com.get(url='https://x.com/i/flow/login')
+        x_com.get(url='https://x.com/i/flow/login')
         if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]') is None:
             logger.info('cf-校验')
             for i in range(3):
