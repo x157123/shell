@@ -2373,6 +2373,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     ARGS_IP = args.ip or ""
     _window = args.display.lstrip(':')
+    evm_id = ""
+    _task = ""
     while True:
         _this_day_tmp = datetime.now().strftime("%Y-%m-%d")
         if _this_day != _this_day_tmp:
@@ -2393,6 +2395,7 @@ if __name__ == '__main__':
         # 过滤：保留“今天及以前”的数据；并排除已完成（end_tasks）之外的行
         filtered = []
         for line in tasks:
+            _task = line
             parts = line.split("||")
             if len(parts) < 3:
                 logger.warning(f"任务行格式不正确，跳过：{line!r}")
@@ -2433,7 +2436,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
 
-                if _type == 'nexus_join' or _type == 'nexus_joina':
+                # if _type == 'nexus_join' or _type == 'nexus_joina':
+                if _type:
                     if _type == 'gift':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -2511,11 +2515,14 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 logger.info(f'数据{_end}:{_task_type}:{_task_id}')
-                if _end and _task_id and platform.system().lower() != "windows":
-                    if _task_type != '0':
-                        append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
-                    else:
-                        _end_day_task.append(_task_id)
+                if _end:
+                    if _task_id and platform.system().lower() != "windows":
+                        if _task_type != '0':
+                            append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
+                        else:
+                            _end_day_task.append(_task_id)
+                else:
+                    signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
             # if len(filtered) > 24:
             #     time.sleep(800)
             # elif len(filtered) > 12:
