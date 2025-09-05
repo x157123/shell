@@ -2436,8 +2436,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
 
-                # if _type == 'nexus_join' or _type == 'nexus_joina':
-                if _type:
+                if _type == 'nexus_join' or _type == 'nexus_joina':
+                # if _type:
                     if _type == 'gift':
                         evm_id = _id
                         evm_addr = arg[2]
