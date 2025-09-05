@@ -1229,17 +1229,19 @@ def __do_task_logx(page, evm_id, index):
             page=main_page,
             xpath='x://div[contains(normalize-space(.),"Total Volume")]/following-sibling::div//span'
         )
-
-        if __click_ele(page=main_page, xpath='x://div[div[text()="Withdraw"]]', loop=1):
-            __click_ele(page=main_page, xpath='x://div[text()="MAX"]', loop=1)
-            __click_ele(page=main_page, xpath='x://div[@style="visibility: visible;" and text()="Withdraw"]', loop=1)
-
-            time.sleep(2)
-            div_txt = __get_ele_value(page=main_page, xpath='x://div[contains(@class, "sc-ialZPY hOaBhW")]', loop=10)
-            if div_txt is not None:
-                signma_log(message=f"{div_txt}", task_name=f'logx_point_end', index=evm_id)
+        if _amount_total>0:
+            if __click_ele(page=main_page, xpath='x://div[div[text()="Withdraw"]]', loop=5):
+                __click_ele(page=main_page, xpath='x://div[text()="MAX"]', loop=1)
+                __click_ele(page=main_page, xpath='x://div[@style="visibility: visible;" and text()="Withdraw"]', loop=1)
+                time.sleep(2)
+                div_txt = __get_ele_value(page=main_page, xpath='x://div[contains(@class, "sc-ialZPY hOaBhW")]', loop=10)
+                if div_txt is not None:
+                    signma_log(message=f"{div_txt}", task_name=f'logx_point_end', index=evm_id)
+                    __bool = True
+                time.sleep(10)
+            else:
+                signma_log(message=f"000", task_name=f'logx_point_end', index=evm_id)
                 __bool = True
-            time.sleep(10)
 
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
