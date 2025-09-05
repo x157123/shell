@@ -1230,49 +1230,16 @@ def __do_task_logx(page, evm_id, index):
             xpath='x://div[contains(normalize-space(.),"Total Volume")]/following-sibling::div//span'
         )
 
-        signma_log(message=f"{_amount},{_amount_total}", task_name=f'logx_point_{get_date_as_string()}', index=evm_id)
+        if __click_ele(page=main_page, xpath='x://div[div[text()="Withdraw"]]', loop=1):
+            __click_ele(page=main_page, xpath='x://div[text()="MAX"]', loop=1)
+            __click_ele(page=main_page, xpath='x://div[@style="visibility: visible;" and text()="Withdraw"]', loop=1)
 
-        if _amount > 0:
-            main_page.get('https://app.logx.network/trade/BTC')
-
-            for attempt in range(2):
-                time.sleep(5)
-                __click_ele(page=main_page, xpath='x://div[text()="MAX"]', loop=2)
-                click_x_y(1764, 416, index)  # 坐标点击：尽量保证分辨率一致
-                time.sleep(1)
-                click_x_y(1764, 416, index)  # 坐标点击：尽量保证分辨率一致
-                time.sleep(1)
-                x = random.randint(1690, 1725)
-                click_x_y(x, 540, index)
-                time.sleep(1)
-                click_x_y(x, 580, index)
-                logger.info(f'点击倍数:{x}:{index}')
-                time.sleep(2)
-                if random.choice([True, False]):
-                    __click_ele(page=main_page,
-                                xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Long"]',
-                                loop=2)
-                    click_x_y(1610, 720, index)
-                else:
-                    __click_ele(page=main_page,
-                                xpath='x://div[contains(@class,"sc-edLa-Dd") and normalize-space(text())="Short"]',
-                                loop=2)
-                    click_x_y(1770, 720, index)
-                logger.info('提交')
-                time.sleep(15)
-                if __get_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=2):
-                    break
-                else:
-                    main_page.refresh()
-            time.sleep(random.randint(3, 5))
-
-            for attempt in range(8):
-                if __click_ele(page=main_page, xpath='x://div[span[text()="Flash Close"]]', loop=2):
-                    __bool = True
-                    time.sleep(3)
-
-                time.sleep(1)
-                click_x_y(1430, 934, index)
+            time.sleep(2)
+            div_txt = __get_ele_value(page=main_page, xpath='x://div[contains(@class, "sc-ialZPY hOaBhW")]', loop=10)
+            if div_txt is not None:
+                signma_log(message=f"{div_txt}", task_name=f'logx_point_end', index=evm_id)
+                __bool = True
+            time.sleep(10)
 
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
@@ -1499,6 +1466,11 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             __click_ele(page=nexus,
                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
                             twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
+
+                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
+                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
+                                time.sleep(4)
+
                             if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True,
                                            index=0):
                                 __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
@@ -1518,19 +1490,22 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             __click_ele(page=nexus,
                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
                             twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
+                            __click_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0)
+                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
+                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
+                                time.sleep(4)
                             if __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True, index=0):
                                 if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
                                     signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True,
-                                           index=0):
+                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0):
                                 __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
-                                if __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]'):
-                                    twitter_page.close()
-                                    if __get_ele(page=nexus,
-                                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]"):
-                                        __click_ele(page=nexus,
-                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
-                                        time.sleep(5)
+                                __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
+                                twitter_page.close()
+                            if __get_ele(page=nexus,
+                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]"):
+                                __click_ele(page=nexus,
+                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
+                                time.sleep(5)
 
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
@@ -1554,6 +1529,12 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             __click_ele(page=nexus,
                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
                             twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
+                            __click_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True,
+                                        index=0)
+                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]',
+                                           find_all=True, index=0):
+                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
+                                time.sleep(4)
                             if __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True,
                                            index=0):
                                 if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
@@ -2436,8 +2417,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
 
-                if _type == 'nexus_join' or _type == 'nexus_joina':
-                # if _type:
+                if _type == 'logx_end' or _type == 'nexus_joina':
+                    # if _type:
                     if _type == 'gift':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -2477,9 +2458,9 @@ if __name__ == '__main__':
                         #     _end = True
                         # elif _type == 'towns':
                         #     _end = __do_task_towns(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                        elif _type == 'logx':
-                            # _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
-                            _end = True
+                        elif _type == 'logx_end':
+                            _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
+                            # _end = True
                         elif _type == 'nft':
                             _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
                             _end = True
@@ -2529,5 +2510,5 @@ if __name__ == '__main__':
             #     time.sleep(1200)
             # else:
             #     time.sleep(1800)
-            time.sleep(10)
+            time.sleep(600)
         time.sleep(600)
