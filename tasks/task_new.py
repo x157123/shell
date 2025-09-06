@@ -2419,8 +2419,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
 
-                if _type == 'logx_end' or _type == 'nexus_joina':
-                    # if _type:
+                # if _type == 'logx_end' or _type == 'nexus_joina':
+                if _type:
                     if _type == 'gift':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -2460,9 +2460,12 @@ if __name__ == '__main__':
                         #     _end = True
                         # elif _type == 'towns':
                         #     _end = __do_task_towns(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        elif _type == 'logx':
+                            # _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
+                            _end = True
                         elif _type == 'logx_end':
-                            _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
-                            # _end = True
+                            # _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
+                            _end = True
                         elif _type == 'nft':
                             _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
                             _end = True
@@ -2507,11 +2510,10 @@ if __name__ == '__main__':
                             _end_day_task.append(_task_id)
                 else:
                     signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-            # if len(filtered) > 24:
-            #     time.sleep(800)
-            # elif len(filtered) > 12:
-            #     time.sleep(1200)
-            # else:
-            #     time.sleep(1800)
-            time.sleep(60)
-        time.sleep(600)
+            if len(filtered) > 24:
+                time.sleep(800)
+            elif len(filtered) > 12:
+                time.sleep(1200)
+            else:
+                time.sleep(1800)
+        time.sleep(1800)
