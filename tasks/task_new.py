@@ -1801,34 +1801,34 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 except ValueError:
                     logger.debug(f"Daily Prisma Points 解析失败：{num_str}")
 
-            # 尝试问答获取积分
-            main_page.get('https://app.prismax.ai/whitepaper')
-            if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Review answers")]', loop=1):
-                logger.info('答题积分完成')
-            elif __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
-                # for i in range(2):
-                if __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
-                    __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
-                    if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]',
-                                   loop=2):
-                        for offset in range(5):
-                            time.sleep(random.uniform(10, 15))
-                            # _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
-                            # if _select_t:
-                            #     main_page.actions.move_to(_select_t).click()
-                            # time.sleep(random.uniform(2, 4))
-                            _select = __get_ele(page=main_page,
-                                                xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover") or starts-with(normalize-space(.),"Network-owned data is community-controlled") or starts-with(normalize-space(.),"Current AI models lack sufficient") or starts-with(normalize-space(.),"Achievement of high robot autonomy") or starts-with(normalize-space(.),"More robots generate valuable datasets")]]')
-                            if _select:
-                                main_page.actions.move_to(_select).click()
-                            _next = __get_ele(page=main_page,
-                                              xpath='x://button[(@class="QuizModal_navButton__Zy2TN" and contains(normalize-space(.), "Next →")) or (@class="QuizModal_goldButton__SjXdA" and contains(normalize-space(.), "Finish Quiz →"))]')
-                            if _next:
-                                time.sleep(random.uniform(5, 8))
-                                main_page.actions.move_to(_next).click()
-                        time.sleep(10)
-                    main_page.get('https://app.prismax.ai/whitepaper')
-                    time.sleep(2)
+            # # 尝试问答获取积分
+            # main_page.get('https://app.prismax.ai/whitepaper')
+            # if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Review answers")]', loop=1):
+            #     logger.info('答题积分完成')
+            # elif __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
+            #     # for i in range(2):
+            #     if __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
+            #         __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
+            #         if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]',
+            #                        loop=2):
+            #             for offset in range(5):
+            #                 time.sleep(random.uniform(10, 15))
+            #                 # _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
+            #                 # if _select_t:
+            #                 #     main_page.actions.move_to(_select_t).click()
+            #                 # time.sleep(random.uniform(2, 4))
+            #                 _select = __get_ele(page=main_page,
+            #                                     xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover") or starts-with(normalize-space(.),"Network-owned data is community-controlled") or starts-with(normalize-space(.),"Current AI models lack sufficient") or starts-with(normalize-space(.),"Achievement of high robot autonomy") or starts-with(normalize-space(.),"More robots generate valuable datasets")]]')
+            #                 if _select:
+            #                     main_page.actions.move_to(_select).click()
+            #                 _next = __get_ele(page=main_page,
+            #                                   xpath='x://button[(@class="QuizModal_navButton__Zy2TN" and contains(normalize-space(.), "Next →")) or (@class="QuizModal_goldButton__SjXdA" and contains(normalize-space(.), "Finish Quiz →"))]')
+            #                 if _next:
+            #                     time.sleep(random.uniform(5, 8))
+            #                     main_page.actions.move_to(_next).click()
+            #             time.sleep(10)
+            #         main_page.get('https://app.prismax.ai/whitepaper')
+            #         time.sleep(2)
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
     return __bool
@@ -2483,9 +2483,9 @@ if __name__ == '__main__':
                         elif _type == 'nexus_join':
                             _end = True
                         elif _type == 'nexus_joina':
-                            # _end = True
-                            _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3],
-                                                        x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
+                            _end = True
+                            # _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3],
+                            #                             x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
                         elif _type == 'prismax':
                             if len(arg) < 3:
                                 logger.warning("prismax 需要助记词/私钥参数，已跳过")
@@ -2511,9 +2511,9 @@ if __name__ == '__main__':
                 else:
                     signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
             if len(filtered) > 24:
-                time.sleep(800)
+                time.sleep(1000)
             elif len(filtered) > 12:
-                time.sleep(1200)
-            else:
                 time.sleep(1800)
+            else:
+                time.sleep(3600)
         time.sleep(1800)
