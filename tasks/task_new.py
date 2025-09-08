@@ -1301,6 +1301,145 @@ def fa_code(page, code):
     fa_page.close()
     return _code
 
+def __do_task_nexus_pod(page, evm_id, index):
+    __bool = False
+    __out_join = False
+    try:
+        amount = 0
+        logger.info('登录钱包')
+        time.sleep(3)
+        __handle_signma_popup(page=page, count=0)
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+
+        nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
+        __get_ele(page=nexus, xpath='x://a[contains(text(), "FAQ")]', loop=10)
+        if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
+            __click_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1)
+            shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
+            if shadow_host:
+                shadow_root = shadow_host.shadow_root
+                if shadow_root:
+                    continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
+                    if continue_button:
+                        __click_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
+                        shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+                        if shadow_host:
+                            shadow_root = shadow_host.shadow_root
+                            if shadow_root:
+                                continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+                                if continue_button:
+                                    continue_button.click(by_js=True)
+                                    time.sleep(1)
+                                    signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+                                    if signma_ele:
+                                        signma_ele.click(by_js=True)
+                                        __handle_signma_popup(page=page, count=1, timeout=45)
+
+            __handle_signma_popup(page=page, count=0)
+            net_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]', timeout=3)
+            if net_shadow_host:
+                net_shadow_root = net_shadow_host.shadow_root
+                if net_shadow_root:
+                    newt_work = net_shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]', timeout=3)
+                    if newt_work:
+                        newt_work.click(by_js=True)
+                        __handle_signma_popup(page=page, count=1, timeout=45)
+
+        # 获取 nexus积分
+        nexus.get(url='https://app.nexus.xyz/rewards')
+        ele = nexus.ele('x://span[contains(normalize-space(.), "NEX")]')
+        if ele:
+            t = ele.text.replace('\xa0', ' ').strip()
+            import re
+            m = re.search(r'([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?)\s*NEX\b', t, re.I)
+            amount = (m.group(1).replace(',', '')) if m else '0'
+            time.sleep(3)
+            __bool = True
+
+        nexus.get(url='https://quest.nexus.xyz/loyalty')
+        if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=3):
+            shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+            if shadow_host:
+                shadow_root = shadow_host.shadow_root
+                if shadow_root:
+                    continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+                    if continue_button:
+                        continue_button.click(by_js=True)
+                        time.sleep(1)
+                        signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+                        if signma_ele:
+                            signma_ele.click(by_js=True)
+                            __handle_signma_popup(page=page, count=2, timeout=45)
+        __handle_signma_popup(page=page, count=2)
+
+        if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
+            if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=2) is None:
+
+                _join_a = True
+                _join_b = True
+                _join_c = True
+                _join_d = True
+                _join_f = True
+                _join_g = True
+                if __get_ele(page=nexus,
+                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]",
+                             loop=1):
+                    _join_a = False
+                if __get_ele(page=nexus,
+                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                             loop=1):
+                    _join_f = False
+                if __get_ele(page=nexus,
+                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                             loop=1):
+                    _join_b = False
+                if __get_ele(page=nexus,
+                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                             loop=1):
+                    _join_c = False
+                if __get_ele(page=nexus,
+                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                             loop=1):
+                    _join_d = False
+                if __get_ele(page=nexus, xpath='x://a[@label="Go to Camp Nexus Blog"]', loop=1):
+                    _join_g = False
+
+                if _join_a and _join_b and _join_c and _join_d and _join_f and _join_g:
+                    __bool = True
+
+                __click_ele(page=nexus, xpath='x://button[starts-with(@id, "radix-")]')
+                __click_ele(page=nexus, xpath='x://a//div[@id="connect-wallet-balance-link"]')
+
+
+                spelunking = nexus.ele('x://div[contains(@class, "opacity-100!") and .//p[text()="Spelunking Badge"]]')
+
+                newbie = nexus.ele('x://div[contains(@class, "opacity-100!") and .//p[text()="Newbie Badge"]]')
+
+                trailmaster = nexus.ele('x://div[contains(@class, "opacity-100!") and .//p[text()="Trailmaster Badge"]]')
+
+                _pond = __get_ele_value(page=nexus, xpath='x://span[contains(@class,"font-bold lg:text-xl text-lg")]')
+
+                _trailmaster = False
+                _newbie = False
+                _spelunking = False
+
+                if trailmaster:
+                    _trailmaster = True
+
+                if newbie:
+                    _newbie = True
+
+                if spelunking:
+                    _spelunking = True
+
+                signma_log(message=f'{amount},{_pond.replace(",", "")},{_trailmaster},{_newbie},{_spelunking},{__bool},{_join_a},{_join_b},{_join_c},{_join_d},{_join_f},{_join_g}', task_name=f'nexus_joina_add', index=evm_id)
+
+                __bool = True
+
+    except Exception as e:
+        logger.info(f"窗口{index}: 处理任务异常: {e}")
+    return __bool
 
 def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
     __bool = False
@@ -2419,8 +2558,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
 
-                # if _type == 'logx_end' or _type == 'nexus_joina':
-                if _type:
+                if _type == 'nexus_joina':
+                    # if _type:
                     if _type == 'gift':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -2480,12 +2619,8 @@ if __name__ == '__main__':
                             _end = True
                         elif _type == 'nexus':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
-                        elif _type == 'nexus_join':
-                            _end = True
                         elif _type == 'nexus_joina':
-                            _end = True
-                            # _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3],
-                            #                             x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
+                            _end = __do_task_nexus_pod(page=_page, index=_window, evm_id=_id)
                         elif _type == 'prismax':
                             if len(arg) < 3:
                                 logger.warning("prismax 需要助记词/私钥参数，已跳过")
