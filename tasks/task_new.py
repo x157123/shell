@@ -1303,6 +1303,7 @@ def fa_code(page, code):
 
 def __do_task_nexus_pod(page, evm_id, index):
     __bool = False
+    __bool_end = False
     __out_join = False
     try:
         amount = 0
@@ -1355,7 +1356,6 @@ def __do_task_nexus_pod(page, evm_id, index):
             m = re.search(r'([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?)\s*NEX\b', t, re.I)
             amount = (m.group(1).replace(',', '')) if m else '0'
             time.sleep(3)
-            __bool = True
 
         nexus.get(url='https://quest.nexus.xyz/loyalty')
         if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=3):
@@ -1406,7 +1406,7 @@ def __do_task_nexus_pod(page, evm_id, index):
                     _join_g = False
 
                 if _join_a and _join_b and _join_c and _join_d and _join_f and _join_g:
-                    __bool = True
+                    __bool_end = True
 
                 __click_ele(page=nexus, xpath='x://button[starts-with(@id, "radix-")]')
                 __click_ele(page=nexus, xpath='x://a//div[@id="connect-wallet-balance-link"]')
@@ -1433,9 +1433,8 @@ def __do_task_nexus_pod(page, evm_id, index):
                 if spelunking:
                     _spelunking = True
 
-                __bool = False
                 if float(amount) > 0:
-                    signma_log(message=f'{amount},{_pond.replace(",", "")},{_trailmaster},{_newbie},{_spelunking},{__bool},{_join_a},{_join_b},{_join_c},{_join_d},{_join_f},{_join_g}', task_name=f'nexus_joina_adds', index=evm_id)
+                    signma_log(message=f'{amount},{_pond.replace(",", "")},{_trailmaster},{_newbie},{_spelunking},{__bool_end},{_join_a},{_join_b},{_join_c},{_join_d},{_join_f},{_join_g}', task_name=f'nexus_joina_adds', index=evm_id)
                     __bool = True
 
     except Exception as e:
