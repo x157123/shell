@@ -1433,9 +1433,9 @@ def __do_task_nexus_pod(page, evm_id, index):
                 if spelunking:
                     _spelunking = True
 
-                signma_log(message=f'{amount},{_pond.replace(",", "")},{_trailmaster},{_newbie},{_spelunking},{__bool},{_join_a},{_join_b},{_join_c},{_join_d},{_join_f},{_join_g}', task_name=f'nexus_joina_add', index=evm_id)
                 __bool = False
                 if float(amount) > 0:
+                    signma_log(message=f'{amount},{_pond.replace(",", "")},{_trailmaster},{_newbie},{_spelunking},{__bool},{_join_a},{_join_b},{_join_c},{_join_d},{_join_f},{_join_g}', task_name=f'nexus_joina_adds', index=evm_id)
                     __bool = True
 
     except Exception as e:
@@ -2620,7 +2620,7 @@ if __name__ == '__main__':
                             _end = True
                         elif _type == 'nexus':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
-                        elif _type == 'nexus_joina':
+                        elif _type == 'nexus_joinb':
                             _end = __do_task_nexus_pod(page=_page, index=_window, evm_id=_id)
                         elif _type == 'prismax':
                             if len(arg) < 3:
