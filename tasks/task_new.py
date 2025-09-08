@@ -1434,8 +1434,9 @@ def __do_task_nexus_pod(page, evm_id, index):
                     _spelunking = True
 
                 signma_log(message=f'{amount},{_pond.replace(",", "")},{_trailmaster},{_newbie},{_spelunking},{__bool},{_join_a},{_join_b},{_join_c},{_join_d},{_join_f},{_join_g}', task_name=f'nexus_joina_add', index=evm_id)
-
-                __bool = True
+                __bool = False
+                if float(amount) > 0:
+                    __bool = True
 
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
