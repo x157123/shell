@@ -1371,6 +1371,8 @@ def __do_task_nexus_pod(page, evm_id, index):
                         if signma_ele:
                             signma_ele.click(by_js=True)
                             __handle_signma_popup(page=page, count=2, timeout=45)
+
+        __click_ele(page=nexus, xpath='x://button[contains(text(), "Click to Sign")]')
         __handle_signma_popup(page=page, count=2)
 
         if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
