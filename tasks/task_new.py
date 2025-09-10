@@ -382,122 +382,27 @@ def __login_wallet(page, evm_id):
         time.sleep(1)
 
 
-def get_balance_daibi(address):
-    url = "https://rpc.linea.build/"
-
-    headers = {
-        "content-type": "application/json",
-    }
-
-    data = [
-        {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "method": "eth_getBalance",
-            "params": [address, "latest"]
-        },
-        {
-            "method": "eth_call",
-            "params": [
-                {
-                    "to": "0x1789e0043623282d5dcc7f213d703c6d8bafbb04",
-                    "data": f"0x70a08231000000000000000000000000{address[2:].lower()}"
-                },
-                "latest"
-            ],
-            "id": 2,
-            "jsonrpc": "2.0"
-        }
-    ]
-
-    response = requests.post(url, headers=headers, json=data)
-
-    if response.status_code == 200:
-        results = response.json()
-        eth_balance = None
-        token_balance = None
-
-        for result in results:
-            if result.get("id") == 1:
-                # ETH 余额
-                eth_wei = int(result["result"], 16)
-                eth_balance = Decimal(eth_wei) / Decimal(10 ** 18)
-                eth_balance = eth_balance.normalize()
-
-            elif result.get("id") == 2:
-                # 代币余额
-                token_raw = int(result["result"], 16)
-                token_balance = Decimal(token_raw) / Decimal(10 ** 18)
-                token_balance = token_balance.normalize()
-
-        return eth_balance, token_balance
-    else:
-        print(f"请求失败，状态码: {response.status_code}")
-        return None, None
-
-
-def __do_task_linea(page, evm_id, evm_addr, index):
+def __do_task_linea(page, evm_id, index):
     __bool = False
     try:
-        eth_bal, token_bal = get_balance_daibi(evm_addr)
-        signma_log(message=f"{eth_bal},{token_bal}", task_name=f'linea_on_linea', index=evm_id)
-        if float(token_bal) > 0:
-            __handle_signma_popup(page=page, count=0)
-            time.sleep(3)
-            __login_wallet(page=page, evm_id=evm_id)
-            __handle_signma_popup(page=page, count=0)
+        __handle_signma_popup(page=page, count=0)
+        time.sleep(3)
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
 
-            # __add_net_work(page=page, coin_name='linea')
+        __add_net_work(page=page, coin_name='linea')
 
-            logger.info('已登录钱包')
+        logger.info('已登录钱包')
 
-            main_page = page.new_tab(url="https://linea.build/hub/tokens/swap?fromChain=59144&fromToken=0x1789e0043623282D5DCc7F213d703C6D8BAfBB04&toChain=59144&toToken=0x0000000000000000000000000000000000000000")
-            for i in range(5):
-                if __get_ele(page=main_page, xpath='x://h1[contains(text(), "linea.build")]', loop=1):
-                    time.sleep(5)
-                    click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), index)
-                    time.sleep(4)
-                    signma_log(message=f"1", task_name=f'linea_init_cf', index=evm_id)
-                else:
-                    break
+        main_page = page.new_tab(url="https://linea.build/hub/rewards")
 
-            shadow_div = main_page.ele('x://div[@id="dynamic-widget"]')
-            if shadow_div:
-                shadow_root = shadow_div.shadow_root
-                if shadow_root:
-                    shadow_connect = shadow_root.ele("x://button[@data-testid='ConnectButton']")
-                    if shadow_connect:
-                        shadow_connect.click(by_js=True)
-                        # 定位到包含 shadow DOM 的元素
-                        shadow_host = main_page.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-                        if shadow_host:
-                            shadow_root_signma = shadow_host.shadow_root
-                            if shadow_root_signma:
-                                # 进入 shadow DOM
-                                signma_ele = shadow_root_signma.ele('x://button[div[span[text()="Signma"]]]')
-                                if signma_ele:
-                                    signma_ele.click(by_js=True)
-                                    __handle_signma_popup(page=page, count=2)
-                                    time.sleep(3)
-            __handle_signma_popup(page=page, count=0)
-
-            # 删除未完成数
-            if __click_ele(page=main_page, xpath='x://li[div[p[contains(text(), "Signature required")]]]', loop=1):
-                if __click_ele(page=main_page, xpath='x://button[contains(text(), "See details")]'):
-                    __click_ele(page=main_page, xpath='x://button[@aria-label="Remove transaction"]')
-                    time.sleep(5)
-
-            if __click_ele(page=main_page, xpath='x://button[contains(text(), "max")]'):
-                if __click_ele(page=main_page, xpath='x://button[contains(text(), "Review swap")]'):
-                    if __click_ele(page=main_page, xpath='x://button[contains(text(), "Start swapping")]'):
-                        if __click_ele(page=main_page, xpath='x://button[contains(text(), "Continue")]'):
-                            if __handle_signma_popup(page=page, count=2):
-                                __handle_signma_popup(page=page, count=0)
-                                time.sleep(10)
-                                _eth_bal, _token_bal = get_balance_daibi(evm_addr)
-                                if float(token_bal) > 0 and float(eth_bal) < float(_eth_bal):
-                                    signma_log(message=f"{eth_bal},{token_bal},{_eth_bal},{_token_bal}", task_name=f'linea_end', index=evm_id)
-                                    __bool = True
+        shadow_host = main_page.eles('x://div[@id="dynamic-widget"]')
+        if shadow_host:
+            shadow_root = shadow_host[1].shadow_root
+            if shadow_root:
+                continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
+                if continue_button:
+                    continue_button.click(by_js=False)
 
 
     except Exception as e:
@@ -2632,7 +2537,6 @@ if __name__ == '__main__':
                 logger.info(f'添加执行今日任务:{line}')
                 filtered.append(line)
         random.shuffle(filtered)
-        _type = ''
         for part in filtered:
             _page = None
             _end = False
@@ -2656,8 +2560,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
 
-                if _type == 'linea':
-                    # if _type:
+                # if _type == 'nexus_joinb':
+                if _type:
                     if _type == 'gift':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -2689,8 +2593,8 @@ if __name__ == '__main__':
                         elif _type == 'quackai':
                             # _end = __do_quackai(page=_page, evm_id=_id)
                             _end = True
-                        elif _type == 'linea':
-                            _end = __do_task_linea(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        # elif _type == 'linea':
+                        #     _end = __do_task_linea(page=_page, index=_window, evm_id=_id)
                         #     _end = True
                         # elif _type == 'portal':
                         #     _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
@@ -2735,19 +2639,18 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 logger.info(f'数据{_end}:{_task_type}:{_task_id}')
-                if _type == 'linea':
-                    if _end:
-                        if _task_id and platform.system().lower() != "windows":
-                            if _task_type != '0':
-                                append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
-                            else:
-                                _end_day_task.append(_task_id)
-                    else:
-                        signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-        #     if len(filtered) > 24:
-        #         time.sleep(1000)
-        #     elif len(filtered) > 12:
-        #         time.sleep(1800)
-        #     else:
-        #         time.sleep(3600)
-        time.sleep(10)
+                if _end:
+                    if _task_id and platform.system().lower() != "windows":
+                        if _task_type != '0':
+                            append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
+                        else:
+                            _end_day_task.append(_task_id)
+                else:
+                    signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
+            if len(filtered) > 24:
+                time.sleep(1000)
+            elif len(filtered) > 12:
+                time.sleep(1800)
+            else:
+                time.sleep(3600)
+        time.sleep(3600)
