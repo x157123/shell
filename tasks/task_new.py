@@ -400,6 +400,8 @@ def __do_task_linea(page, evm_id, index):
                 time.sleep(5)
                 click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), index)
                 time.sleep(4)
+            else:
+                break
 
         shadow_div = main_page.ele('x://div[@id="dynamic-widget"]')
         if shadow_div:
