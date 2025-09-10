@@ -467,7 +467,6 @@ def __do_task_linea(page, evm_id, evm_addr, index):
                     shadow_connect = shadow_root.ele("x://button[@data-testid='ConnectButton']")
                     if shadow_connect:
                         shadow_connect.click(by_js=True)
-
                         # 定位到包含 shadow DOM 的元素
                         shadow_host = main_page.ele('x://div[@data-testid="dynamic-modal-shadow"]')
                         if shadow_host:
@@ -480,10 +479,6 @@ def __do_task_linea(page, evm_id, evm_addr, index):
                                     __handle_signma_popup(page=page, count=2)
                                     time.sleep(3)
             __handle_signma_popup(page=page, count=0)
-
-            if __get_ele(page=main_page, xpath='x://button[contains(text(), "Exchange")]'):
-                __bool = True
-                signma_log(message=f"{__bool}", task_name=f'linea_init', index=evm_id)
 
             # 删除未完成数
             if __click_ele(page=main_page, xpath='x://li[div[p[contains(text(), "Signature required")]]]', loop=1):
