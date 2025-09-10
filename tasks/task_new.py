@@ -493,7 +493,7 @@ def __do_task_linea(page, evm_id, evm_addr, index):
                             if __handle_signma_popup(page=page, count=2):
                                 __handle_signma_popup(page=page, count=0)
                                 time.sleep(10)
-                                _eth_bal, _token_bal = get_balance(evm_addr)
+                                _eth_bal, _token_bal = get_balance_daibi(evm_addr)
                                 if float(token_bal) > 0 and float(eth_bal) < float(_eth_bal):
                                     signma_log(message=f"{eth_bal},{token_bal},{_eth_bal},{_token_bal}", task_name=f'linea_end', index=evm_id)
                                     __bool = True
