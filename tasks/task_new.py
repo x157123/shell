@@ -395,7 +395,12 @@ def __do_task_linea(page, evm_id, index):
         logger.info('已登录钱包')
 
         main_page = page.new_tab(url="https://linea.build/hub/tokens/swap?fromChain=59144&fromToken=0xB5beDd42000b71FddE22D3eE8a79Bd49A568fC8F&toChain=59144&toToken=0x0000000000000000000000000000000000000000")
-        time.sleep(300)
+        for i in range(3):
+            if __get_ele(page=main_page, xpath='x://h1[contains(text(), "linea.build")]', loop=1):
+                time.sleep(5)
+                click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), index)
+                time.sleep(4)
+
         shadow_div = main_page.ele('x://div[@id="dynamic-widget"]')
         if shadow_div:
             shadow_root = shadow_div.shadow_root
