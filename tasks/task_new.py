@@ -440,6 +440,7 @@ def __do_task_linea(page, evm_id, evm_addr, index):
     __bool = False
     try:
         eth_bal, token_bal = get_balance_daibi(evm_addr)
+        signma_log(message=f"{eth_bal},{token_bal}", task_name=f'linea_on_linea', index=evm_id)
         if float(token_bal) > 0:
             __handle_signma_popup(page=page, count=0)
             time.sleep(3)
@@ -498,8 +499,6 @@ def __do_task_linea(page, evm_id, evm_addr, index):
                                     signma_log(message=f"{eth_bal},{token_bal},{_eth_bal},{_token_bal}", task_name=f'linea_end', index=evm_id)
                                     __bool = True
 
-        else:
-            signma_log(message=f"{eth_bal},{token_bal}", task_name=f'linea_on_linea', index=evm_id)
 
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
