@@ -400,6 +400,7 @@ def __do_task_linea(page, evm_id, index):
                 time.sleep(5)
                 click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), index)
                 time.sleep(4)
+                signma_log(message=f"1", task_name=f'linea_init_cf', index=evm_id)
             else:
                 break
 
