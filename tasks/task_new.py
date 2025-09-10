@@ -390,7 +390,7 @@ def __do_task_linea(page, evm_id, index):
         __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
 
-        __add_net_work(page=page, coin_name='linea')
+        # __add_net_work(page=page, coin_name='linea')
 
         logger.info('已登录钱包')
 
