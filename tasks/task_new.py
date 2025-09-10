@@ -426,6 +426,7 @@ def __do_task_linea(page, evm_id, index):
         __handle_signma_popup(page=page, count=0)
 
         if __get_ele(page=main_page, xpath='x://button[contains(text(), "Exchange")]'):
+            __bool = True
             signma_log(message=f"{__bool}", task_name=f'linea_init', index=evm_id)
 
         # 删除未完成数
