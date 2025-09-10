@@ -382,7 +382,7 @@ def __login_wallet(page, evm_id):
         time.sleep(1)
 
 
-def get_balance(address):
+def get_balance_daibi(address):
     url = "https://rpc.linea.build/"
 
     headers = {
@@ -439,18 +439,17 @@ def get_balance(address):
 def __do_task_linea(page, evm_id, evm_addr, index):
     __bool = False
     try:
-        __handle_signma_popup(page=page, count=0)
-        time.sleep(3)
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
-
-        # __add_net_work(page=page, coin_name='linea')
-
-        logger.info('已登录钱包')
-
-        eth_bal, token_bal = get_balance(evm_addr)
-
+        eth_bal, token_bal = get_balance_daibi(evm_addr)
         if float(token_bal) > 0:
+            __handle_signma_popup(page=page, count=0)
+            time.sleep(3)
+            __login_wallet(page=page, evm_id=evm_id)
+            __handle_signma_popup(page=page, count=0)
+
+            # __add_net_work(page=page, coin_name='linea')
+
+            logger.info('已登录钱包')
+
             main_page = page.new_tab(url="https://linea.build/hub/tokens/swap?fromChain=59144&fromToken=0x1789e0043623282D5DCc7F213d703C6D8BAfBB04&toChain=59144&toToken=0x0000000000000000000000000000000000000000")
             for i in range(3):
                 if __get_ele(page=main_page, xpath='x://h1[contains(text(), "linea.build")]', loop=1):
@@ -2757,4 +2756,4 @@ if __name__ == '__main__':
         #         time.sleep(1800)
         #     else:
         #         time.sleep(3600)
-        time.sleep(5)
+        time.sleep(10)
