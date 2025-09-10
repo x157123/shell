@@ -390,7 +390,7 @@ def __do_task_linea(page, evm_id, index):
         __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
 
-        # __add_net_work(page=page, coin_name='linea')
+        __add_net_work(page=page, coin_name='linea')
 
         logger.info('已登录钱包')
 
@@ -425,6 +425,9 @@ def __do_task_linea(page, evm_id, index):
                                 time.sleep(3)
         __handle_signma_popup(page=page, count=0)
 
+        if __get_ele(page=main_page, xpath='x://button[contains(text(), "Exchange")]'):
+            signma_log(message=f"{__bool}", task_name=f'linea_init', index=evm_id)
+
         # 删除未完成数
         if __click_ele(page=main_page, xpath='x://li[div[p[contains(text(), "Signature required")]]]', loop=1):
             if __click_ele(page=main_page, xpath='x://button[contains(text(), "See details")]'):
@@ -438,7 +441,7 @@ def __do_task_linea(page, evm_id, index):
                         if __handle_signma_popup(page=page, count=2):
                             __handle_signma_popup(page=page, count=0)
                             __bool = True
-        signma_log(message=f"{__bool}", task_name=f'linea_init', index=evm_id)
+
 
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
