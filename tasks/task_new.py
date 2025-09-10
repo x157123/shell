@@ -424,12 +424,20 @@ def __do_task_linea(page, evm_id, index):
                                 __handle_signma_popup(page=page, count=2)
                                 time.sleep(3)
         __handle_signma_popup(page=page, count=0)
+
+        # 删除未完成数
+        if __click_ele(page=main_page, xpath='x://li[div[p[contains(text(), "Signature required")]]]', loop=1):
+            if __click_ele(page=main_page, xpath='x://button[contains(text(), "See details")]'):
+                __click_ele(page=main_page, xpath='x://button[@aria-label="Remove transaction"]')
+                time.sleep(5)
+
         if __click_ele(page=main_page, xpath='x://button[contains(text(), "max")]'):
-            __bool = True
-            # if __click_ele(page=main_page, xpath='x://button[contains(text(), "Review swap")]'):
-            #     if __click_ele(page=main_page, xpath='x://button[contains(text(), "Start swapping")]'):
-            #         if __click_ele(page=main_page, xpath='x://button[contains(text(), "Continue")]'):
-            #             __handle_signma_popup(page=page, count=2)
+            if __click_ele(page=main_page, xpath='x://button[contains(text(), "Review swap")]'):
+                if __click_ele(page=main_page, xpath='x://button[contains(text(), "Start swapping")]'):
+                    if __click_ele(page=main_page, xpath='x://button[contains(text(), "Continue")]'):
+                        if __handle_signma_popup(page=page, count=2):
+                            __handle_signma_popup(page=page, count=0)
+                            __bool = True
         signma_log(message=f"{__bool}", task_name=f'linea_init', index=evm_id)
 
     except Exception as e:
