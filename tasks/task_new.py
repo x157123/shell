@@ -569,6 +569,9 @@ def __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_
     w_page = None
     try:
         w_page = wallet_page.new_tab(url=_url)
+
+        __click_ele(page=w_page, xpath='x://button[text()="I Understand"]', loop=3)
+
         if __click_ele(page=w_page, xpath='x://button[text()="Connect Wallet"]', loop=3):
             els = __get_ele(page=w_page, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
             if els and els.shadow_root:
@@ -606,9 +609,12 @@ def __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_
         elif amount == '50%':
             __click_ele(page=w_page, xpath='x://button[text()="50%"]', loop=1)
         if amount is not None and amount != 'Max' and amount != '20%' and amount != '50%':
-            __input_ele_value(page=w_page, xpath='x://input[@inputmode="decimal"]', value=amount)
+            if float(amount) > 0:
+                __input_ele_value(page=w_page, xpath='x://input[@inputmode="decimal"]', value=amount)
+            else:
+                __input_ele_value(page=w_page, xpath='x://input[@inputmode="decimal"]', value="0")
 
-        time.sleep(4)
+        time.sleep(10)
         send_amount = __get_ele_value(page=w_page,
                                       xpath='x://div[contains(@class, "relay-text_text-subtle-secondary relay-font_body") and contains(text(), "$")]',
                                       find_all=True, index=0)
@@ -845,6 +851,222 @@ def get_balance(rpc_url: str, address: str, unit: str) -> dict:
     except Exception as e:
         return {"error": f"查询失败: {str(e)}", "success": False}
 
+
+
+def get_polygon_balance(address):
+    url = "https://polygon-bor-rpc.publicnode.com"
+
+    headers = {
+        "content-type": "application/json",
+    }
+
+    data = [
+        {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": "eth_getBalance",
+            "params": [address, "latest"]
+        },
+        {
+            "method": "eth_call",
+            "params": [
+                {
+                    "to": "0x2297aebd383787a160dd0d9f71508148769342e3",
+                    "data": f"0x70a08231000000000000000000000000{address[2:].lower()}"
+                },
+                "latest"
+            ],
+            "id": 2,
+            "jsonrpc": "2.0"
+        },
+        {
+            "method": "eth_call",
+            "params": [
+                {
+                    "to": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+                    "data": f"0x70a08231000000000000000000000000{address[2:].lower()}"
+                },
+                "latest"
+            ],
+            "id": 3,
+            "jsonrpc": "2.0"
+        },
+        {
+            "method": "eth_call",
+            "params": [
+                {
+                    "to": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+                    "data": f"0x70a08231000000000000000000000000{address[2:].lower()}"
+                },
+                "latest"
+            ],
+            "id": 4,
+            "jsonrpc": "2.0"
+        },
+        {
+            "method": "eth_call",
+            "params": [
+                {
+                    "to": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+                    "data": f"0x70a08231000000000000000000000000{address[2:].lower()}"
+                },
+                "latest"
+            ],
+            "id": 5,
+            "jsonrpc": "2.0"
+        }
+    ]
+
+    response = requests.post(url, headers=headers, json=data)
+
+    if response.status_code == 200:
+        results = response.json()
+        pol = None
+        btc_b = None
+        usdc = None
+        usdt = None
+        wpol = None
+
+        for result in results:
+            if result.get("id") == 1:
+                # ETH 余额
+                eth_wei = int(result["result"], 16)
+                pol = Decimal(eth_wei) / Decimal(10 ** 18)
+                # 不使用 normalize()，保持原始精度
+
+            elif result.get("id") == 2:
+                # 代币余额
+                token_raw = int(result["result"], 16)
+                btc_b = Decimal(token_raw) / Decimal(10 ** 8)
+                # 不使用 normalize()，保持原始精度
+
+
+            elif result.get("id") == 3:
+                # 代币余额
+                token_raw = int(result["result"], 16)
+                usdc = Decimal(token_raw) / Decimal(10 ** 6)
+                # 不使用 normalize()，保持原始精度
+
+
+            elif result.get("id") == 4:
+                # 代币余额
+                token_raw = int(result["result"], 16)
+                usdt = Decimal(token_raw) / Decimal(10 ** 6)
+                # 不使用 normalize()，保持原始精度
+
+            elif result.get("id") == 5:
+                # 代币余额
+                token_raw = int(result["result"], 16)
+                wpol = Decimal(token_raw) / Decimal(10 ** 18)
+                # 不使用 normalize()，保持原始精度
+
+        return pol, btc_b, usdc, usdt, wpol
+    else:
+        print(f"请求失败，状态码: {response.status_code}")
+        return None, None
+
+
+def format_balance(balance, decimals=18):
+    """格式化余额，避免科学计数法"""
+    if balance is None:
+        return "N/A"
+
+    # 转换为字符串，避免科学计数法
+    balance_str = format(balance, f'.{decimals}f')
+
+    # 移除尾随的零，但保留至少一位小数
+    balance_str = balance_str.rstrip('0').rstrip('.')
+    if '.' not in balance_str:
+        balance_str += '.0'
+
+    return balance_str
+
+def __do_end_ploy(page, evm_id, evm_addr):
+    _end_bool_data = False
+    _gas = __quyer_gas()
+    if _gas is not None:
+        _low_gas = _gas.get('SafeGasPrice', '99')
+        if _low_gas is not None and float(_low_gas) < 1.8:
+
+            __handle_signma_popup(page=page, count=0)
+            __login_wallet(page=page, evm_id=evm_id)
+            __handle_signma_popup(page=page, count=0)
+
+            _end_bool = True
+
+            if _end_bool:
+                pol, btc_b, usdc, usdt, wpol = get_polygon_balance(evm_addr)
+                if btc_b > 0.000001:
+                    _end_bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/polygon?fromChainId=137&fromCurrency=0x2297aebd383787a160dd0d9f71508148769342e3", 0.05,
+                                                  0, 'end_wallet')
+                if usdc > 0.08:
+                    _end_bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/polygon?fromChainId=137&fromCurrency=0x3c499c542cef5e3811e1192ce70d8cc03d5c3359", 0.02,
+                                                  0, 'end_wallet')
+
+                pol, btc_b, usdc, usdt, wpol = get_polygon_balance(evm_addr)
+                if pol>0.3:
+                    random_choice = random.choice([1, 2, 3, 4])
+                    if random_choice == 1:
+                        _end_bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/base?fromChainId=137", 0.05, 0, 'end_wallet')
+                    elif random_choice == 2:
+                        _end_bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/arbitrum?fromChainId=137", 0.05, 0, 'end_wallet')
+                    elif random_choice == 3:
+                        _end_bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/optimism?fromChainId=137", 0.05, 0, 'end_wallet')
+                    elif random_choice == 4:
+                        _end_bool = __send_end_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/rari?fromChainId=137", 0.05, 0, 'end_wallet')
+
+                pol, btc_b, usdc, usdt, wpol = get_polygon_balance(evm_addr)
+                if btc_b <= 0.000001 and usdc <= 0.08 and pol <= 0.3:
+                    _end_bool = True
+
+            if _end_bool:
+                # eth
+                _end_bool = __send_end_wallet(page, evm_id, None, 'Max',
+                                              "https://relay.link/bridge/rari?fromChainId=1",
+                                              0.05,
+                                              0, 'end_wallet')
+            if _end_bool:
+                # op
+                _end_bool = __send_end_wallet(page, evm_id, None, 'Max',
+                                              "https://relay.link/bridge/rari?fromChainId=10",
+                                              0.05,
+                                              0, 'end_wallet')
+            if _end_bool:
+                # base
+                _end_bool = __send_end_wallet(page, evm_id, None, 'Max',
+                                              "https://relay.link/bridge/rari?fromChainId=8453",
+                                              0.05,
+                                              0, 'end_wallet')
+            if _end_bool:
+                # arb
+                _end_bool = __send_end_wallet(page, evm_id, None, 'Max',
+                                              "https://relay.link/bridge/rari?fromChainId=42161",
+                                              0.05,
+                                              0, 'end_wallet')
+            if _end_bool:
+                # appchain
+                _end_bool = __send_end_wallet(page, evm_id, None, 'Max',
+                                              "https://relay.link/bridge/rari?fromChainId=466",
+                                              2.2,
+                                              0, 'end_wallet')
+            if _end_bool:
+                # rari_to_op
+                _end_mon = random.uniform(0.00111, 0.00181)
+                _end_bool = __send_end_wallet(page, evm_id, '0xb3d4984fa477e5d4ce4158cf0f9365561657b1c1', 'Max',
+                                              "https://relay.link/bridge/optimism?fromChainId=1380012617",
+                                              0.45,
+                                              _end_mon, 'end_wallet')
+
+    # https://relay.link/bridge/polygon?fromChainId=137&fromCurrency=0x2297aebd383787a160dd0d9f71508148769342e3  btc.b->pol
+    # https://relay.link/bridge/polygon?fromChainId=137&fromCurrency=0x3c499c542cef5e3811e1192ce70d8cc03d5c3359  usdc -> pol
+    # https://relay.link/bridge/polygon?fromChainId=137&fromCurrency=0xc2132d05d31c914a87c6611c10748aeb04b58e8f  usdt -> pol
+
+    # https://relay.link/bridge/base?fromChainId=137 pol -> base
+    # https://relay.link/bridge/arbitrum?fromChainId=137 pol -> arbitrum
+    # https://relay.link/bridge/optimism?fromChainId=137 pol -> optimism
+    # https://relay.link/bridge/rari?fromChainId=137 pol -> rari
+    # 限制gas 0.06
+    return _end_bool_data
 
 def __do_end_eth(page, evm_id, evm_addr, _type, _amount):
     _end_bool = False
@@ -2657,7 +2879,10 @@ if __name__ == '__main__':
                             logger.error("浏览器启动失败，跳过该任务")
                             continue
                         elif _type == 'end_eth':
-                            _end = __do_end_eth(page=_page, evm_id=_id, evm_addr=arg[2], _type=arg[3], _amount=arg[4])
+                            # _end = __do_end_eth(page=_page, evm_id=_id, evm_addr=arg[2], _type=arg[3], _amount=arg[4])
+                            _end = True
+                        elif _type == 'end_ploy':
+                            _end = __do_end_ploy(page=_page, evm_id=_id, evm_addr=arg[2])
                         elif _type == 'quackai':
                             # _end = __do_quackai(page=_page, evm_id=_id)
                             _end = True
