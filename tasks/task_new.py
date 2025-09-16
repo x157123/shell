@@ -788,13 +788,11 @@ def __do_task_gift(page, evm_id, index, evm_addr, amount):
                     if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Collected Successfully!')]",
                                  loop=4):
                         signma_log(message=f"gift_nft", task_name=f'task_{get_date_as_string()}', index=evm_id)
+                        __bool = True
 
                 if main_page is not None:
                     main_page.close()
-
-            if __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/rari?fromChainId=466", 0.1,
-                             0.000005):
-                __bool = True
+            __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/rari?fromChainId=466", 0.1, 0.000005)
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
