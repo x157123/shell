@@ -1052,7 +1052,7 @@ def __do_end_ploy(page, evm_id, evm_addr):
             if _end_bool:
                 # rari_to_op
                 _end_mon = random.uniform(0.00111, 0.00181)
-                _end_bool = __send_end_wallet(page, evm_id, '0xb3d4984fa477e5d4ce4158cf0f9365561657b1c1', 'Max',
+                _end_bool_data = __send_end_wallet(page, evm_id, '0xb3d4984fa477e5d4ce4158cf0f9365561657b1c1', 'Max',
                                               "https://relay.link/bridge/optimism?fromChainId=1380012617",
                                               0.45,
                                               _end_mon, 'end_wallet')
