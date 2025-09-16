@@ -737,7 +737,6 @@ def __do_task_gift(page, evm_id, index, evm_addr, amount):
     _bool = True
     try:
         if _bool:
-            _bool = False
             time.sleep(1)
             __handle_signma_popup(page=page, count=0)
             time.sleep(2)
