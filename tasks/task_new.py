@@ -626,6 +626,8 @@ def __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_
 
         if 0 <= float(send_amount) <= 0.2:
             _bool = True
+        elif float(balance_value) < end_amount:
+            _bool = True
         else:
             gas_fee = round(float(send_amount) - float(receive_amount), 3)
             if float(gas_fee) > max_gas_fee:
@@ -743,22 +745,22 @@ def __do_task_gift(page, evm_id, index, evm_addr, amount):
             __handle_signma_popup(page=page, count=0)
             logger.info('已登录钱包')
 
-            arb = get_eth_balance("arb", evm_addr)
-            rari = get_eth_balance("rari", evm_addr)
-            if float(arb) > 0.00005 and float(rari) > 0.00005:
-                urls = ["https://relay.link/bridge/appchain?fromChainId=1380012617",
-                        "https://relay.link/bridge/appchain?fromChainId=42161"]
-                _url = random.choice(urls)
-                if _url == 'https://relay.link/bridge/appchain?fromChainId=1380012617':
-                    _bool = __send_wallet(page, evm_id, None, 'Max', _url, 0.05, 0.00003)
-                elif _url == 'https://relay.link/bridge/appchain?fromChainId=42161':
-                    _bool = __send_wallet(page, evm_id, None, 'Max', _url, 0.05, 0.00001)
-            elif float(arb) > 0.00005 > float(rari):
-                _bool = __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/appchain?fromChainId=42161",
-                                      0.05, 0.00001)
-            elif float(arb) < 0.00005 < float(rari):
-                _bool = __send_wallet(page, evm_id, None, 'Max',
-                                      "https://relay.link/bridge/appchain?fromChainId=1380012617", 0.05, 0.00003)
+            # arb = get_eth_balance("arb", evm_addr)
+            # rari = get_eth_balance("rari", evm_addr)
+            # if float(arb) > 0.00005 and float(rari) > 0.00005:
+            #     urls = ["https://relay.link/bridge/appchain?fromChainId=1380012617",
+            #             "https://relay.link/bridge/appchain?fromChainId=42161"]
+            #     _url = random.choice(urls)
+            #     if _url == 'https://relay.link/bridge/appchain?fromChainId=1380012617':
+            #         _bool = __send_wallet(page, evm_id, None, 'Max', _url, 0.05, 0.00003)
+            #     elif _url == 'https://relay.link/bridge/appchain?fromChainId=42161':
+            #         _bool = __send_wallet(page, evm_id, None, 'Max', _url, 0.05, 0.00001)
+            # elif float(arb) > 0.00005 > float(rari):
+            #     _bool = __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/appchain?fromChainId=42161",
+            #                           0.05, 0.00001)
+            # elif float(arb) < 0.00005 < float(rari):
+            #     _bool = __send_wallet(page, evm_id, None, 'Max',
+            #                           "https://relay.link/bridge/appchain?fromChainId=1380012617", 0.05, 0.00003)
 
             __select_net(page=page, net_name='AppChain', net_name_t='Appchain', add_net='appChain')
             if _bool:
@@ -1053,9 +1055,9 @@ def __do_end_ploy(page, evm_id, evm_addr):
                 # rari_to_op
                 _end_mon = random.uniform(0.00111, 0.00181)
                 _end_bool_data = __send_end_wallet(page, evm_id, '0xb3d4984fa477e5d4ce4158cf0f9365561657b1c1', 'Max',
-                                              "https://relay.link/bridge/optimism?fromChainId=1380012617",
-                                              0.45,
-                                              _end_mon, 'end_wallet')
+                                                   "https://relay.link/bridge/optimism?fromChainId=1380012617",
+                                                   0.45,
+                                                   _end_mon, 'end_wallet')
 
     # https://relay.link/bridge/polygon?fromChainId=137&fromCurrency=0x2297aebd383787a160dd0d9f71508148769342e3  btc.b->pol
     # https://relay.link/bridge/polygon?fromChainId=137&fromCurrency=0x3c499c542cef5e3811e1192ce70d8cc03d5c3359  usdc -> pol
