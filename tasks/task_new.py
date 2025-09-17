@@ -980,6 +980,24 @@ def format_balance(balance, decimals=18):
 
     return balance_str
 
+
+def __do_airdrop(page, evm_id, evm_addr):
+    _bool = False
+    __handle_signma_popup(page=page, count=0)
+    main_page = page.new_tab('https://airdrop.0gfoundation.ai/flow')
+    __click_ele(page=main_page, xpath='x://button[contains(text(), "Check another address")]')
+    __input_ele_value(page=main_page, xpath='x://input[@placeholder="Enter your EVM wallet address"]', value=evm_addr)
+    __click_ele(page=main_page, xpath='x://div[contains(@class,"cursor-pointer items-center justify-center rounded-full")]')
+    if __click_ele(page=main_page, xpath='x://button[contains(text(), "Next")  and not(@disabled)]'):
+        if __get_ele(page=main_page, xpath='x://div[contains(text(), "Not Eligible")]'):
+            _bool = True
+            signma_log(message=f"{evm_addr},1", task_name=f'airdrop', index=evm_id)
+        elif __get_ele(page=main_page, xpath='x://div[contains(text(), "Eligible")]'):
+            signma_log(message=f"{evm_addr},2", task_name=f'airdrop', index=evm_id)
+            _bool = True
+    return _bool
+
+
 def __do_end_ploy(page, evm_id, evm_addr):
     _end_bool_data = False
     _gas = __quyer_gas()
@@ -2788,6 +2806,7 @@ if __name__ == '__main__':
     _window = args.display.lstrip(':')
     evm_id = ""
     _task = ""
+    _type = ""
     while True:
         _this_day_tmp = datetime.now().strftime("%Y-%m-%d")
         if _this_day != _this_day_tmp:
@@ -2849,8 +2868,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
 
-                # if _type == 'nexus_joinb':
-                if _type:
+                if _type == 'airdrop':
+                # if _type:
                     if _type == 'gift':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -2882,6 +2901,8 @@ if __name__ == '__main__':
                             _end = True
                         elif _type == 'end_ploy':
                             _end = __do_end_ploy(page=_page, evm_id=_id, evm_addr=arg[2])
+                        elif _type == 'airdrop':
+                            _end = __do_airdrop(page=_page, evm_id=_id, evm_addr=arg[2])
                         elif _type == 'quackai':
                             # _end = __do_quackai(page=_page, evm_id=_id)
                             _end = True
@@ -2929,24 +2950,25 @@ if __name__ == '__main__':
             except Exception as e:
                 logger.info(f"任务异常: {e}")
             finally:
-                if _page is not None:
-                    try:
-                        _page.quit()
-                    except Exception:
-                        logger.exception("退出错误")
-                logger.info(f'数据{_end}:{_task_type}:{_task_id}')
-                if _end:
-                    if _task_id and platform.system().lower() != "windows":
-                        if _task_type != '0':
-                            append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
-                        else:
-                            _end_day_task.append(_task_id)
-                else:
-                    signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-            if len(filtered) > 24:
-                time.sleep(1000)
-            elif len(filtered) > 12:
-                time.sleep(1800)
-            else:
-                time.sleep(3600)
-        time.sleep(3600)
+                if _type == 'airdrop':
+                    if _page is not None:
+                        try:
+                            _page.quit()
+                        except Exception:
+                            logger.exception("退出错误")
+                    logger.info(f'数据{_end}:{_task_type}:{_task_id}')
+                    if _end:
+                        if _task_id and platform.system().lower() != "windows":
+                            if _task_type != '0':
+                                append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
+                            else:
+                                _end_day_task.append(_task_id)
+                    else:
+                        signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
+            # if len(filtered) > 24:
+            #     time.sleep(1000)
+            # elif len(filtered) > 12:
+            #     time.sleep(1800)
+            # else:
+            #     time.sleep(3600)
+        time.sleep(400)
