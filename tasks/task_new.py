@@ -1000,6 +1000,7 @@ def __do_airdrop(page, evm_ids):
             signma_log(message=f"登陆失败", task_name=f'airdrop_log', index=evm_id)
         tp.close()
     main_page = page.new_tab('https://airdrop.0gfoundation.ai/flow')
+    time.sleep(360000)
 
 
 def __do_end_ploy(page, evm_id, evm_addr):
