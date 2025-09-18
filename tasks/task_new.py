@@ -981,21 +981,25 @@ def format_balance(balance, decimals=18):
     return balance_str
 
 
-def __do_airdrop(page, evm_id, evm_addr):
+def __do_airdrop(page, evm_ids):
     _bool = False
     __handle_signma_popup(page=page, count=0)
+    arg = evm_ids.split(",")
+    for evm_id in arg:
+        if evm_id == "airdrop":  # 遇到 "airdrop" 就跳过
+            continue
+        __handle_signma_popup(page=page, count=0)
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+        tp = page.new_tab('chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html')
+        if __get_ele(page=tp, xpath=f'x://span[contains(@class," account_info_label") and contains(text(), "test-{evm_id}")]'):
+            logger.info(f'账号登陆成功: {evm_id}')
+            signma_log(message=f"登陆成功", task_name=f'airdrop_log', index=evm_id)
+        else:
+            logger.info(f'账号登陆失败: {evm_id}')
+            signma_log(message=f"登陆失败", task_name=f'airdrop_log', index=evm_id)
+        tp.close()
     main_page = page.new_tab('https://airdrop.0gfoundation.ai/flow')
-    __click_ele(page=main_page, xpath='x://button[contains(text(), "Check another address")]')
-    __input_ele_value(page=main_page, xpath='x://input[@placeholder="Enter your EVM wallet address"]', value=evm_addr)
-    __click_ele(page=main_page, xpath='x://div[contains(@class,"cursor-pointer items-center justify-center rounded-full")]')
-    if __click_ele(page=main_page, xpath='x://button[contains(text(), "Next")  and not(@disabled)]'):
-        if __get_ele(page=main_page, xpath='x://div[contains(text(), "Not Eligible")]'):
-            _bool = True
-            signma_log(message=f"{evm_addr},1", task_name=f'airdrop', index=evm_id)
-        elif __get_ele(page=main_page, xpath='x://div[contains(text(), "Eligible")]'):
-            signma_log(message=f"{evm_addr},2", task_name=f'airdrop', index=evm_id)
-            _bool = True
-    return _bool
 
 
 def __do_end_ploy(page, evm_id, evm_addr):
@@ -2868,8 +2872,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
 
-                # if _type == 'airdrop':
-                if _type:
+                if _type == 'airdrop':
+                    # if _type:
                     if _type == 'gift':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -2892,7 +2896,7 @@ if __name__ == '__main__':
                                 continue
                             _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=arg[3])
                     else:
-                        _page = __get_page(_type, _id, None)
+                        _page = __get_page(_type, "000001", None)
                         if _page is None:
                             logger.error("浏览器启动失败，跳过该任务")
                             continue
@@ -2902,7 +2906,9 @@ if __name__ == '__main__':
                         elif _type == 'end_ploy':
                             _end = __do_end_ploy(page=_page, evm_id=_id, evm_addr=arg[2])
                         elif _type == 'airdrop':
-                            _end = __do_airdrop(page=_page, evm_id=_id, evm_addr=arg[2])
+                            __do_airdrop(page=_page, evm_ids=parts[3])
+                            _end = False
+                            time.sleep(3600000)
                         elif _type == 'quackai':
                             # _end = __do_quackai(page=_page, evm_id=_id)
                             _end = True
@@ -2955,19 +2961,20 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                logger.info(f'数据{_end}:{_task_type}:{_task_id}')
-                if _end:
-                    if _task_id and platform.system().lower() != "windows":
-                        if _task_type != '0':
-                            append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
-                        else:
-                            _end_day_task.append(_task_id)
-                else:
-                    signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-            if len(filtered) > 24:
-                time.sleep(1000)
-            elif len(filtered) > 12:
-                time.sleep(1800)
-            else:
-                time.sleep(3600)
-        time.sleep(3600)
+                if _type == 'airdrop':
+                    logger.info(f'数据{_end}:{_task_type}:{_task_id}')
+                    if _end:
+                        if _task_id and platform.system().lower() != "windows":
+                            if _task_type != '0':
+                                append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
+                            else:
+                                _end_day_task.append(_task_id)
+                    else:
+                        signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
+        #     if len(filtered) > 24:
+        #         time.sleep(1000)
+        #     elif len(filtered) > 12:
+        #         time.sleep(1800)
+        #     else:
+        #         time.sleep(3600)
+        # time.sleep(3600)
