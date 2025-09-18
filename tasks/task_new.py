@@ -1040,7 +1040,7 @@ def __do_airdrop(page, evm_ids):
             __handle_signma_popup(page=page, count=0)
             tp = page.new_tab('chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html')
             evm_ele = __get_ele(page=tp,
-                                xpath=f'x://span[contains(@class," account_info_label") and contains(text(), "test-{evm_id}")]')
+                                xpath=f'x://span[contains(@class," account_info_label") and contains(text(), "1-{evm_id}")]')
             if evm_ele:
                 title_value = evm_ele.attr("title")
                 logger.info(f'账号登陆成功: {evm_id},{title_value}')
