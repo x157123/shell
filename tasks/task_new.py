@@ -1057,7 +1057,7 @@ def __do_airdrop(page, evm_ids):
                 if __click_ele(page=main_page, xpath='x://div[contains(@class,"relative flex cursor-pointer items-center")]'):
                     __click_ele(page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]')
                     __handle_signma_popup(page=page, count=1)
-                    if __get_ele(page=main_page, xpath='x://p[contains(text(), "Address already connected")]'):
+                    if __get_ele(page=main_page, xpath='x://p[contains(text(), "Address already connected")]', loop=2):
                         logger.info('已链接钱包')
                     elif __get_ele(page=main_page, xpath='x://button[contains(text(), "Accept")]', loop=2):
                         scroll_div = main_page.ele(
