@@ -991,11 +991,15 @@ def __do_airdrop(page, evm_ids):
         __handle_signma_popup(page=page, count=0)
         __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
         tp = page.new_tab('chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html')
         if __get_ele(page=tp, xpath=f'x://span[contains(@class," account_info_label") and contains(text(), "1-{evm_id}")]'):
             logger.info(f'账号登陆成功: {evm_id}')
             signma_log(message=f"登陆成功", task_name=f'airdrop_log', index=evm_id)
         else:
+            __handle_signma_popup(page=page, count=0)
+            __login_wallet(page=page, evm_id=evm_id)
             __handle_signma_popup(page=page, count=0)
             __login_wallet(page=page, evm_id=evm_id)
             __handle_signma_popup(page=page, count=0)
