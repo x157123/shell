@@ -981,39 +981,100 @@ def format_balance(balance, decimals=18):
     return balance_str
 
 
+# def __do_airdrop(page, evm_ids):
+#     _bool = False
+#     __handle_signma_popup(page=page, count=0)
+#     arg = evm_ids.split(",")
+#     for evm_id in arg:
+#         if evm_id == "airdrop":  # 遇到 "airdrop" 就跳过
+#             continue
+#         __handle_signma_popup(page=page, count=0)
+#         __login_wallet(page=page, evm_id=evm_id)
+#         __handle_signma_popup(page=page, count=0)
+#         __login_wallet(page=page, evm_id=evm_id)
+#         __handle_signma_popup(page=page, count=0)
+#         tp = page.new_tab('chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html')
+#         if __get_ele(page=tp, xpath=f'x://span[contains(@class," account_info_label") and contains(text(), "1-{evm_id}")]'):
+#             logger.info(f'账号登陆成功: {evm_id}')
+#             signma_log(message=f"登陆成功", task_name=f'airdrop_log', index=evm_id)
+#         else:
+#             __handle_signma_popup(page=page, count=0)
+#             __login_wallet(page=page, evm_id=evm_id)
+#             __handle_signma_popup(page=page, count=0)
+#             __login_wallet(page=page, evm_id=evm_id)
+#             __handle_signma_popup(page=page, count=0)
+#             tp = page.new_tab('chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html')
+#             if __get_ele(page=tp, xpath=f'x://span[contains(@class," account_info_label") and contains(text(), "1-{evm_id}")]'):
+#                 logger.info(f'账号登陆成功: {evm_id}')
+#                 signma_log(message=f"登陆成功", task_name=f'airdrop_log', index=evm_id)
+#             else:
+#                 logger.info(f'账号登陆失败: {evm_id}')
+#                 signma_log(message=f"登陆失败", task_name=f'airdrop_log', index=evm_id)
+#         tp.close()
+#     main_page = page.new_tab('https://airdrop.0gfoundation.ai/flow')
+#     time.sleep(360000)
+
+def __do_airdrop_addr(addr: str, prefix_len: int = 4, suffix_len: int = 4) -> str:
+    if len(addr) <= prefix_len + suffix_len:
+        return addr
+    return addr[:prefix_len] + "..." + addr[-suffix_len:]
+
 def __do_airdrop(page, evm_ids):
     _bool = False
     __handle_signma_popup(page=page, count=0)
     arg = evm_ids.split(",")
-    for evm_id in arg:
-        if evm_id == "airdrop":  # 遇到 "airdrop" 就跳过
-            continue
-        __handle_signma_popup(page=page, count=0)
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
-        tp = page.new_tab('chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html')
-        if __get_ele(page=tp, xpath=f'x://span[contains(@class," account_info_label") and contains(text(), "1-{evm_id}")]'):
-            logger.info(f'账号登陆成功: {evm_id}')
-            signma_log(message=f"登陆成功", task_name=f'airdrop_log', index=evm_id)
-        else:
+    main_page = page.new_tab('https://airdrop.0gfoundation.ai/flow')
+    __click_ele(page=main_page, xpath=f'x://button[contains(text(), "Connect Wallet")]')
+    my_list = []
+    for offset in range(10):
+        for evm_id in arg:
+            title_value = '00000'
+            if evm_id == "airdrop":  # 遇到 "airdrop" 就跳过
+                continue
+            if evm_id in my_list:
+                continue
             __handle_signma_popup(page=page, count=0)
             __login_wallet(page=page, evm_id=evm_id)
             __handle_signma_popup(page=page, count=0)
             __login_wallet(page=page, evm_id=evm_id)
             __handle_signma_popup(page=page, count=0)
             tp = page.new_tab('chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html')
-            if __get_ele(page=tp, xpath=f'x://span[contains(@class," account_info_label") and contains(text(), "1-{evm_id}")]'):
-                logger.info(f'账号登陆成功: {evm_id}')
-                signma_log(message=f"登陆成功", task_name=f'airdrop_log', index=evm_id)
+            evm_ele = __get_ele(page=tp,
+                                xpath=f'x://span[contains(@class," account_info_label") and contains(text(), "test-{evm_id}")]')
+            if evm_ele:
+                title_value = evm_ele.attr("title")
+                logger.info(f'账号登陆成功: {evm_id},{title_value}')
+                # signma_log(message=f"登陆成功", task_name=f'airdrop_log', index=evm_id)
             else:
                 logger.info(f'账号登陆失败: {evm_id}')
-                signma_log(message=f"登陆失败", task_name=f'airdrop_log', index=evm_id)
-        tp.close()
-    main_page = page.new_tab('https://airdrop.0gfoundation.ai/flow')
+                # signma_log(message=f"登陆失败", task_name=f'airdrop_log', index=evm_id)
+            tp.close()
+            main_page.refresh()
+            shorten_addr = __do_airdrop_addr(title_value)
+            __click_ele(page=main_page, xpath=f'x://button[contains(text(), "Connect Wallet")]')
+            time.sleep(3)
+            if __get_ele(page=main_page, xpath=f'x://span[contains(text(), "{shorten_addr}")]', loop=2) is None:
+                if __click_ele(page=main_page, xpath='x://div[contains(@class,"relative flex cursor-pointer items-center")]'):
+                    __click_ele(page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]')
+                    __handle_signma_popup(page=page, count=1)
+                    if __get_ele(page=main_page, xpath='x://p[contains(text(), "Address already connected")]'):
+                        logger.info('已链接钱包')
+                    elif __get_ele(page=main_page, xpath='x://button[contains(text(), "Accept")]', loop=2):
+                        scroll_div = main_page.ele(
+                            locator='x://div[contains(@class,"overflow-y-auto") and contains(@class,"max-h")]')
+                        # 把鼠标移动到容器上，然后模拟滚轮
+                        for i in range(16):
+                            scroll_div.scroll.down(1000)  # 移到容器上
+                        if __click_ele(page=main_page, xpath='x://button[contains(text(), "Accept")]'):
+                            __handle_signma_popup(page=page, count=1)
+            else:
+                my_list.append(evm_id)
+        if __get_ele(page=main_page, xpath=f'x://div[contains(@class,"items-center justify-center rounded-md") and contains(text(), "{len(arg)-1}")]'):
+            signma_log(message=f"关联成功", task_name=f'airdrop_join_end', index='0')
+            break
+    if __get_ele(page=main_page, xpath=f'x://div[contains(@class,"items-center justify-center rounded-md") and contains(text(), "{len(arg) - 1}")]') is None:
+        signma_log(message=f"关联失败", task_name=f'airdrop_join_end', index='0')
     time.sleep(360000)
-
 
 def __do_end_ploy(page, evm_id, evm_addr):
     _end_bool_data = False
