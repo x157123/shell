@@ -2187,9 +2187,10 @@ def __do_task_nexus(page, evm_id, index):
         __click_ele(page=nexus, xpath='x://a//div[@id="connect-wallet-balance-link"]')
         _pond = __get_ele_value(page=nexus, xpath='x://span[contains(@class,"font-bold lg:text-xl text-lg")]')
 
-        signma_log(message=f'{amount},{_pond}', task_name=f'nexus_point_js_{get_date_as_string()}', index=evm_id)
-        time.sleep(3)
-        __bool = True
+        if amount is not None and _pond is not None:
+            signma_log(message=f'{amount},{_pond.replace(",", "")}', task_name=f'nexus_point_data_{get_date_as_string()}', index=evm_id)
+            time.sleep(3)
+            __bool = True
 
         # if random.choice([True, False]):
         #     if __get_ele(page=nexus, xpath="x://div[contains(., 'Welcome to Camp Nexus')]"):
