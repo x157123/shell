@@ -2978,7 +2978,7 @@ if __name__ == '__main__':
                                 continue
                             _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=arg[3])
                     else:
-                        _page = __get_page(_type, "000001", None)
+                        _page = __get_page(_type, _id, None)
                         if _page is None:
                             logger.error("浏览器启动失败，跳过该任务")
                             continue
