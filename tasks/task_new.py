@@ -1893,6 +1893,14 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 __join = True
 
                 nexus.get(url='https://quest.nexus.xyz/loyalty')
+                for i in range(3):
+                    time.sleep(4)
+                    if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
+                        time.sleep(5)
+                        click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), index)
+                    else:
+                        break
+
                 if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=3):
                     shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
                     if shadow_host:
@@ -3046,10 +3054,10 @@ if __name__ == '__main__':
                                 _end_day_task.append(_task_id)
                     else:
                         signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-            if len(filtered) > 24:
-                time.sleep(1000)
-            elif len(filtered) > 12:
-                time.sleep(1800)
-            else:
-                time.sleep(3600)
-        time.sleep(3600)
+        #     if len(filtered) > 24:
+        #         time.sleep(1000)
+        #     elif len(filtered) > 12:
+        #         time.sleep(1800)
+        #     else:
+        #         time.sleep(3600)
+        # time.sleep(3600)
