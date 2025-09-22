@@ -2946,8 +2946,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
 
-                if _type == 'airdrop':
-                    # if _type:
+                # if _type == 'airdrop':
+                if _type:
                     if _type == 'gift':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -3015,8 +3015,8 @@ if __name__ == '__main__':
                         elif _type == 'nexus':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                         elif _type == 'nexus_joina':
-                            # _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_2fa=arg[5], x_email=arg[6])
-                            _end = True
+                            _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
+                            # _end = True
                         elif _type == 'nexus_joinb':
                             # _end = __do_task_nexus_pod(page=_page, index=_window, evm_id=_id)
                             _end = True
@@ -3035,7 +3035,8 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type == 'airdrop':
+                # if _type == 'airdrop':
+                if _type:
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end:
                         if _task_id and platform.system().lower() != "windows":
@@ -3045,10 +3046,10 @@ if __name__ == '__main__':
                                 _end_day_task.append(_task_id)
                     else:
                         signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-        #     if len(filtered) > 24:
-        #         time.sleep(1000)
-        #     elif len(filtered) > 12:
-        #         time.sleep(1800)
-        #     else:
-        #         time.sleep(3600)
-        # time.sleep(3600)
+            if len(filtered) > 24:
+                time.sleep(1000)
+            elif len(filtered) > 12:
+                time.sleep(1800)
+            else:
+                time.sleep(3600)
+        time.sleep(3600)
