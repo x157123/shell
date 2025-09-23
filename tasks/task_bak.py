@@ -2395,22 +2395,32 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 click_x_y(166 + random.randint(1, 15), 1002 + random.randint(1, 15), index)
                 if __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]', loop=2):
                     click_x_y(883 + random.randint(1, 15), 735 + random.randint(1, 15), index)
+                    _a = True
+                    _b = True
+                    _c = True
+                    _d = True
+                    _f = True
                     for offset in range(5):
-                        if __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"More robots generate valuable datasets")]]', loop=1):
+                        if _a and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"More robots generate valuable datasets")]]', loop=1):
                             click_x_y(821 + random.randint(1, 15), 621 + random.randint(1, 15), index)
                             click_x_y(821 + random.randint(1, 15), 621 + random.randint(1, 15), index)
-                        elif __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Achievement of high robot autonomy")]]', loop=1):
+                            _a = False
+                        elif _b and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Achievement of high robot autonomy")]]', loop=1):
                             click_x_y(831 + random.randint(1, 15), 732 + random.randint(1, 15), index)
                             click_x_y(831 + random.randint(1, 15), 732 + random.randint(1, 15), index)
-                        elif __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Current AI models lack sufficient")]]', loop=1):
+                            _b = False
+                        elif _c and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Current AI models lack sufficient")]]', loop=1):
                             click_x_y(816 + random.randint(1, 15), 422 + random.randint(1, 15), index)
                             click_x_y(816 + random.randint(1, 15), 422 + random.randint(1, 15), index)
-                        elif __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Network-owned data is community-controlled")]]', loop=1):
+                            _c = False
+                        elif _d and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Network-owned data is community-controlled")]]', loop=1):
                             click_x_y(835 + random.randint(1, 15), 723 + random.randint(1, 15), index)
                             click_x_y(835 + random.randint(1, 15), 723 + random.randint(1, 15), index)
-                        elif __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover")]]', loop=1):
+                            _d = False
+                        elif _f and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover")]]', loop=1):
                             click_x_y(835 + random.randint(1, 15), 593 + random.randint(1, 15), index)
                             click_x_y(835 + random.randint(1, 15), 593 + random.randint(1, 15), index)
+                            _f = False
 
                         time.sleep(random.uniform(3, 5))
                         click_x_y(1208 + random.randint(1, 8), 698 + random.randint(1, 8), index)
