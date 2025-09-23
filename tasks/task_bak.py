@@ -2441,9 +2441,9 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                         # if _next:
                         #     time.sleep(random.uniform(5, 8))
                         #     main_page.actions.move_to(_next).click()
-                    # time.sleep(60)
+                    time.sleep(60)
                     # main_page.get('https://app.prismax.ai/whitepaper')
-                    time.sleep(2)
+                    # time.sleep(2)
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
     return __bool
