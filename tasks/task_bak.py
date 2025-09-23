@@ -34,7 +34,7 @@ def __get_page(_type, _id, _port):
         else:
             # 23002 - 23011
             num = random.randint(23002, 23011)
-            options.set_proxy(f"43.160.196.49:23011")
+            # options.set_proxy(f"43.160.196.49:23011")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
     else:
         if platform.system().lower() == "windows":
@@ -2441,8 +2441,8 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                         # if _next:
                         #     time.sleep(random.uniform(5, 8))
                         #     main_page.actions.move_to(_next).click()
-                    time.sleep(60)
-                    main_page.get('https://app.prismax.ai/whitepaper')
+                    # time.sleep(60)
+                    # main_page.get('https://app.prismax.ai/whitepaper')
                     time.sleep(2)
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
