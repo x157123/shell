@@ -23,7 +23,6 @@ def __get_page(_type, _id, _port):
     _pages = None
     logger.info(f"启动类型: {_type}")
     options = ChromiumOptions()
-    options.set_proxy(f"43.134.30.120:22303")
     if platform.system().lower() == "windows":
         options.set_browser_path(r"F:\chrome_tool\127.0.6483.0\chrome.exe")
     else:
@@ -33,6 +32,9 @@ def __get_page(_type, _id, _port):
         if platform.system().lower() == "windows":
             options.add_extension(f"F:/chrome_tool/phantom")
         else:
+            # 23002 - 23011
+            num = random.randint(23002, 23011)
+            options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
     else:
         if platform.system().lower() == "windows":
