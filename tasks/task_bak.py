@@ -1992,7 +1992,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 __click_ele(page=nexus,
                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
                                 time.sleep(5)
-
+                        nexus.scroll.down(200)
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
                                      loop=1):
@@ -2010,7 +2010,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                     __click_ele(page=nexus,
                                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]")
                                     time.sleep(5)
-
+                        nexus.scroll.down(200)
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim')]",
                                      loop=1):
@@ -2028,7 +2028,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 twitter_page.close()
                                 __click_ele(page=nexus,
                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-
+                        nexus.scroll.down(200)
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                      loop=1):
