@@ -34,7 +34,7 @@ def __get_page(_type, _id, _port):
         else:
             # 23002 - 23011
             num = random.randint(23002, 23011)
-            # options.set_proxy(f"43.160.196.49:23011")
+            options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
     else:
         if platform.system().lower() == "windows":
