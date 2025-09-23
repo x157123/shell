@@ -2407,7 +2407,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                             if _next:
                                 time.sleep(random.uniform(5, 8))
                                 main_page.actions.move_to(_next).click()
-                        time.sleep(10)
+                        time.sleep(300)
                     main_page.get('https://app.prismax.ai/whitepaper')
                     time.sleep(2)
     except Exception as e:
