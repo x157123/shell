@@ -2401,6 +2401,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                     _d = True
                     _f = True
                     for offset in range(5):
+                        time.sleep(random.uniform(3, 5))
                         if _a and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"More robots generate valuable datasets")]]', loop=1):
                             click_x_y(821 + random.randint(1, 15), 621 + random.randint(1, 15), index)
                             click_x_y(821 + random.randint(1, 15), 621 + random.randint(1, 15), index)
