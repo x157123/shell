@@ -2425,6 +2425,10 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
 
                         time.sleep(random.uniform(3, 5))
                         click_x_y(1208 + random.randint(1, 8), 698 + random.randint(1, 8), index)
+
+                    if __get_ele(page=main_page, xpath='x://span[starts-with(normalize-space(.),"Security verification failed")]', loop=3):
+                        # 验证错误
+                        __bool = False
                         # time.sleep(random.uniform(10, 15))
                         # # _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
                         # # if _select_t:
