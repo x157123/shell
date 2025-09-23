@@ -2124,10 +2124,11 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         if _amount:
                             if __bool:
                                 signma_log(message=_amount, task_name=f'nexus_joina', index=evm_id)
-                                if _amount == '0':
+                                if float(_amount.replace("K", "")) < 9:
                                     __bool = False
                             else:
                                 signma_log(message=_amount, task_name=f'nexus_joina_not_end', index=evm_id)
+
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
