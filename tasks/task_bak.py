@@ -2393,9 +2393,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 # for i in range(2):
                 # __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
                 click_x_y(166 + random.randint(1, 15), 1002 + random.randint(1, 15), index)
-                click_x_y(166 + random.randint(1, 15), 1002 + random.randint(1, 15), index)
                 if __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]', loop=2):
-                    click_x_y(883 + random.randint(1, 15), 735 + random.randint(1, 15), index)
                     click_x_y(883 + random.randint(1, 15), 735 + random.randint(1, 15), index)
                     for offset in range(5):
                         if __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"More robots generate valuable datasets")]]', loop=1):
