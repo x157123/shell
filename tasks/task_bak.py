@@ -23,6 +23,7 @@ def __get_page(_type, _id, _port):
     _pages = None
     logger.info(f"启动类型: {_type}")
     options = ChromiumOptions()
+    options.set_proxy(f"43.134.30.120:22303")
     if platform.system().lower() == "windows":
         options.set_browser_path(r"F:\chrome_tool\127.0.6483.0\chrome.exe")
     else:
