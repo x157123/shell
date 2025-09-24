@@ -3035,7 +3035,7 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
 
-                if _type == 'prismax':
+                if _type == 'nexus_joina':
                 # if _type:
                     if _type == 'gift':
                         evm_id = _id
@@ -3123,7 +3123,7 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type == 'prismax':
+                if _type == 'nexus_joina':
                 # if _type:
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end:
