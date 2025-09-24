@@ -2449,9 +2449,11 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 try:
                     if float(num_str.replace(',', '')) > 0:
                         sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
-                        signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
                         if float(sum_num_str.replace(',', '')) > 3500:
                             __bool = True
+                            signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_end_{get_date_as_string()}', index=evm_id)
+                        else:
+                            signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
                 except ValueError:
                     logger.debug(f"Daily Prisma Points 解析失败：{num_str}")
 
