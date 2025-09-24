@@ -3045,7 +3045,7 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-
+                logger.warning(f"启动任务:{part}")
                 if _type == 'prismax':
                 # if _type:
                     if _type == 'gift':
