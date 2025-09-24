@@ -2369,18 +2369,17 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 _login = False
 
         if _login:
-            time.sleep(2)
-            num_str = __get_ele_value(page=main_page,
-                                      xpath='x://span[normalize-space()="Daily Prisma Points"]/following-sibling::div/span')
-            if num_str is not None:
-                try:
-                    if float(num_str.replace(',', '')) > 0:
-                        sum_num_str = __get_ele_value(page=main_page,
-                                                      xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
-                        signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
-                        __bool = True
-                except ValueError:
-                    logger.debug(f"Daily Prisma Points 解析失败：{num_str}")
+            # time.sleep(2)
+            # num_str = __get_ele_value(page=main_page,
+            #                           xpath='x://span[normalize-space()="Daily Prisma Points"]/following-sibling::div/span')
+            # if num_str is not None:
+            #     try:
+            #         if float(num_str.replace(',', '')) > 0:
+            #             sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
+            #             signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
+            #             __bool = True
+            #     except ValueError:
+            #         logger.debug(f"Daily Prisma Points 解析失败：{num_str}")
 
             # 尝试问答获取积分
             main_page.get('https://app.prismax.ai/whitepaper')
@@ -2397,8 +2396,8 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                     _c = True
                     _d = True
                     _f = True
+                    time.sleep(random.uniform(3, 5))
                     for offset in range(5):
-                        time.sleep(random.uniform(3, 5))
                         if _a and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"More robots generate valuable datasets")]]', loop=1):
                             click_x_y(821 + random.randint(1, 15), 621 + random.randint(1, 15), index)
                             time.sleep(1)
@@ -2424,13 +2423,12 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                             time.sleep(1)
                             click_x_y(835 + random.randint(1, 15), 593 + random.randint(1, 15), index)
                             _f = False
-
                         time.sleep(random.uniform(3, 5))
                         click_x_y(1208 + random.randint(1, 8), 698 + random.randint(1, 8), index)
 
                     if __get_ele(page=main_page, xpath='x://span[starts-with(normalize-space(.),"Security verification failed")]', loop=3):
                         # 验证错误
-                        __bool = False
+                        signma_log(message='提交错误', task_name=f'prismax_join_error_{get_date_as_string()}', index=evm_id)
                         # time.sleep(random.uniform(10, 15))
                         # # _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
                         # # if _select_t:
@@ -2445,7 +2443,19 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                         #     main_page.actions.move_to(_next).click()
                     # time.sleep(60)
                     # main_page.get('https://app.prismax.ai/whitepaper')
-                    time.sleep(60)
+                    time.sleep(20)
+            main_page.get(url='https://app.prismax.ai/')
+            num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="Daily Prisma Points"]/following-sibling::div/span')
+            if num_str is not None:
+                try:
+                    if float(num_str.replace(',', '')) > 0:
+                        sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
+                        signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
+                        if float(sum_num_str.replace(',', '')) > 3500:
+                            __bool = True
+                except ValueError:
+                    logger.debug(f"Daily Prisma Points 解析失败：{num_str}")
+
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
     return __bool
