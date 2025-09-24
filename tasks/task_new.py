@@ -2313,7 +2313,6 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
     __bool = False
     try:
         __login_new_wallet(page=page, evm_addr=evm_addr)
-
         main_page = page.new_tab(url='https://app.prismax.ai/')
         _login = True
         __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
