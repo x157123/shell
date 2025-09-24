@@ -33,7 +33,7 @@ def __get_page(_type, _id, _port):
             options.add_extension(f"F:/chrome_tool/phantom")
         else:
             num = random.randint(23001, 23400)
-            options.set_proxy(f"43.160.196.49:{num}")
+            # options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
     else:
         if platform.system().lower() == "windows":
