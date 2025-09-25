@@ -62,6 +62,8 @@ def __get_page(_type, _id, _port):
             _pages = None
     if _pages is not None:
         _pages.set.window.max()
+        if _type == 'prismax':
+            _pages.set.blocked_urls(r'.*\.(jpg|png|gif|webp|svg)')
 
     logger.info('初始化结束')
     return _pages
