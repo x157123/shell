@@ -33,7 +33,7 @@ def __get_page(_type, _id, _port):
             options.add_extension(f"F:/chrome_tool/phantom")
         else:
             prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
-            if evm_id not in prismax_init:
+            if _id not in prismax_init:
                 num = random.randint(23001, 23400)
                 options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
