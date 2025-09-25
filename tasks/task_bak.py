@@ -2431,9 +2431,9 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                             # 验证错误
                             signma_log(message='提交错误', task_name=f'prismax_join_error_{get_date_as_string()}', index=evm_id)
                         elif __get_ele(page=main_page, xpath='x://h2[starts-with(normalize-space(.),"Congratulations")]', loop=3):
-                            signma_log(message='3500', task_name=f'prismax_point_tmp_{get_date_as_string()}', index=evm_id)
+                            signma_log(message='3500', task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
                         else:
-                            signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmp_{get_date_as_string()}', index=evm_id)
+                            signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
     return True
