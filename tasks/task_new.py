@@ -3106,10 +3106,10 @@ if __name__ == '__main__':
                             # _end = __do_task_nexus_pod(page=_page, index=_window, evm_id=_id)
                             _end = True
                         elif _type == 'prismax':
-                            signma_log(message=_task, task_name=f'prismax_task_{get_date_as_string()}', index=evm_id)
                             if len(arg) < 3:
                                 logger.warning("prismax 需要助记词/私钥参数，已跳过")
                             else:
+                                signma_log(message=part, task_name=f'prismax_task_{get_date_as_string()}', index=_id)
                                 prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                                 if _id not in prismax_init:
                                     _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
