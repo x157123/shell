@@ -2318,14 +2318,65 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
         __login_new_wallet(page=page, evm_addr=evm_addr)
         main_page = page.new_tab(url='https://app.prismax.ai/')
         _login = True
-        if __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]'):
-            __bool = True
-            signma_log(message="1", task_name=f'prismax_init_{get_date_as_string()}', index=evm_id)
-        time.sleep(5)
-        main_page.get('https://app.prismax.ai/whitepaper')
-        time.sleep(5)
+        __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
+        _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
+        if _wallet_but:
+            main_page.actions.move_to(_wallet_but).click()
+            time.sleep(4)
+            if __click_ele(page=main_page,
+                           xpath='x://div[contains(@class,"ConnectWalletHeader_connectOption") and .//p[normalize-space()="Phantom Wallet"]]'):
+                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/notification.html',
+                                           timeout=3)
+                if phantom_page is not None:
+                    if __get_ele(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]',
+                                 loop=1):
+                        __input_ele_value(page=phantom_page,
+                                          xpath='x://input[@data-testid="unlock-form-password-input"]',
+                                          value='sdfasfd#dfff312')
+                        if __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "解锁")]'):
+                            logger.info('解锁账号')
+                    __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/popup.html', timeout=3)
+                if phantom_page is not None:
+                    __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+            time.sleep(5)
 
+        _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
+        if _wallet_but:
+            main_page.get(url='https://app.prismax.ai/')
+            __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
+            time.sleep(5)
+            _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
+            main_page.actions.move_to(_wallet_but).click()
+            time.sleep(4)
+            if __click_ele(page=main_page,
+                           xpath='x://div[contains(@class,"ConnectWalletHeader_connectOption") and .//p[normalize-space()="Phantom Wallet"]]'):
+                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/notification.html',
+                                           timeout=3)
+                if phantom_page is not None:
+                    if __get_ele(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]',
+                                 loop=1):
+                        __input_ele_value(page=phantom_page,
+                                          xpath='x://input[@data-testid="unlock-form-password-input"]',
+                                          value='sdfasfd#dfff312')
+                        if __click_ele(page=phantom_page, xpath='x://button[contains(normalize-space(.), "解锁")]'):
+                            logger.info('解锁账号')
+                    __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/popup.html', timeout=3)
+                if phantom_page is not None:
+                    __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
+            time.sleep(5)
 
+            if __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1):
+                _login = False
+
+        if _login:
+            time.sleep(2)
+            sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
+            if float(sum_num_str.replace(',', '')) > 3500:
+                prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
+                if evm_id not in prismax_init:
+                    append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
 
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
@@ -2451,20 +2502,6 @@ def __do_task_prismax_bak(page, evm_id, evm_addr, index):
                     if __get_ele(page=main_page, xpath='x://span[starts-with(normalize-space(.),"Security verification failed")]', loop=3):
                         # 验证错误
                         signma_log(message='提交错误', task_name=f'prismax_join_error_{get_date_as_string()}', index=evm_id)
-                        # time.sleep(random.uniform(10, 15))
-                        # # _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
-                        # # if _select_t:
-                        # #     main_page.actions.move_to(_select_t).click()
-                        # # time.sleep(random.uniform(2, 4))
-                        # _select = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover") or starts-with(normalize-space(.),"Network-owned data is community-controlled") or starts-with(normalize-space(.),"Current AI models lack sufficient") or starts-with(normalize-space(.),"Achievement of high robot autonomy") or starts-with(normalize-space(.),"More robots generate valuable datasets")]]')
-                        # if _select:
-                        #     main_page.actions.move_to(_select).click()
-                        # _next = __get_ele(page=main_page, xpath='x://button[(@class="QuizModal_navButton__Zy2TN" and contains(normalize-space(.), "Next →")) or (@class="QuizModal_goldButton__SjXdA" and contains(normalize-space(.), "Finish Quiz →"))]')
-                        # if _next:
-                        #     time.sleep(random.uniform(5, 8))
-                        #     main_page.actions.move_to(_next).click()
-                    # time.sleep(60)
-                    # main_page.get('https://app.prismax.ai/whitepaper')
                     time.sleep(20)
             main_page.get(url='https://app.prismax.ai/')
             num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="Daily Prisma Points"]/following-sibling::div/span')
@@ -2475,6 +2512,9 @@ def __do_task_prismax_bak(page, evm_id, evm_addr, index):
                         if float(sum_num_str.replace(',', '')) > 3500:
                             __bool = True
                             signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_dt_{get_date_as_string()}', index=evm_id)
+                            nexus_joins = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
+                            if evm_id not in nexus_joins:
+                                append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
                         else:
                             signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
                 except ValueError:
@@ -3171,7 +3211,7 @@ if __name__ == '__main__':
                                 _end_day_task.append(_task_id)
                     else:
                         signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    time.sleep(60)
+                    time.sleep(600)
             # if len(filtered) > 24:
             #     time.sleep(600)
             # elif len(filtered) > 12:
