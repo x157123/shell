@@ -2369,7 +2369,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
 
             if __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1):
                 _login = False
-
+        time.sleep(200)
         if _login:
             # time.sleep(2)
             # num_str = __get_ele_value(page=main_page,
