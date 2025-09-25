@@ -2373,7 +2373,6 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 _login = False
 
         if _login:
-            __bool = True
             time.sleep(2)
             sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
             if float(sum_num_str.replace(',', '')) > 3500:
@@ -2439,7 +2438,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                             signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
-    return __bool
+    return True
 
 
 # 添加网络
