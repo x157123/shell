@@ -2312,7 +2312,24 @@ def __login_new_wallet(page, evm_addr):
             logger.debug(f"关闭 Phantom 页面失败：{e}")
 
 
+
 def __do_task_prismax(page, evm_id, evm_addr, index):
+    __bool = False
+    try:
+        __login_new_wallet(page=page, evm_addr=evm_addr)
+        main_page = page.new_tab(url='https://app.prismax.ai/')
+        _login = True
+        if __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]'):
+            __bool = True
+            signma_log(message="1", task_name=f'prismax_init_{get_date_as_string()}', index=evm_id)
+        time.sleep(5)
+        main_page.get('https://app.prismax.ai/whitepaper')
+        time.sleep(5)
+    except Exception as e:
+        logger.info(f"窗口{index}处理任务异常: {e}")
+    return __bool
+
+def __do_task_prismax_bak(page, evm_id, evm_addr, index):
     __bool = False
     try:
         __login_new_wallet(page=page, evm_addr=evm_addr)

@@ -61,6 +61,8 @@ def __get_page(_type, _id, _port):
             _pages = None
     if _pages is not None:
         _pages.set.window.max()
+        # if _type == 'prismax' and platform.system().lower() != "windows":
+        #     _pages.set.blocked_urls(r'.*\.(jpg|png|gif|webp|svg)')
 
     logger.info('初始化结束')
     return _pages
@@ -2315,6 +2317,25 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
         __login_new_wallet(page=page, evm_addr=evm_addr)
         main_page = page.new_tab(url='https://app.prismax.ai/')
         _login = True
+        if __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]'):
+            __bool = True
+        time.sleep(5)
+        main_page.get('https://app.prismax.ai/whitepaper')
+        time.sleep(5)
+
+
+
+    except Exception as e:
+        logger.info(f"窗口{index}处理任务异常: {e}")
+    return __bool
+
+
+def __do_task_prismax_bak(page, evm_id, evm_addr, index):
+    __bool = False
+    try:
+        __login_new_wallet(page=page, evm_addr=evm_addr)
+        main_page = page.new_tab(url='https://app.prismax.ai/')
+        _login = True
         __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
         _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
         if _wallet_but:
@@ -2342,7 +2363,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
         if _wallet_but:
             main_page.get(url='https://app.prismax.ai/')
             __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
-            time.sleep(10)
+            time.sleep(5)
             _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
             main_page.actions.move_to(_wallet_but).click()
             time.sleep(4)
@@ -3048,8 +3069,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 logger.warning(f"启动任务:{part}")
-                # if _type == 'prismax':
-                if _type == 'nexus_joina':
+                if _type == 'prismax':
+                # if _type == 'nexus_joina':
                 # if _type:
                     if _type == 'gift':
                         evm_id = _id
@@ -3137,7 +3158,7 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type == 'nexus_joina':
+                if _type == 'prismax':
                 # if _type:
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end:
