@@ -2436,6 +2436,9 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                             signma_log(message='3500', task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
                         else:
                             signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+        else:
+            signma_log(message='登陆失败', task_name=f'prismax_point_out_{get_date_as_string()}', index=evm_id)
+
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
     return True
