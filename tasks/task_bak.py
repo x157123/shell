@@ -35,8 +35,8 @@ def __get_page(_type, _id, _port):
             prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
             if _id not in prismax_init:
                 signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
-            #     num = random.randint(23001, 23400)
-            #     options.set_proxy(f"43.160.196.49:{num}")
+                num = random.randint(23001, 23400)
+                options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
             options.set_argument("--blink-settings=imagesEnabled=false")
     else:
