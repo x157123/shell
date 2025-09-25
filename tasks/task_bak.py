@@ -34,8 +34,9 @@ def __get_page(_type, _id, _port):
         else:
             prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
             if _id not in prismax_init:
-                num = random.randint(23001, 23400)
-                options.set_proxy(f"43.160.196.49:{num}")
+                signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
+            #     num = random.randint(23001, 23400)
+            #     options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
             options.set_argument("--blink-settings=imagesEnabled=false")
     else:
@@ -2373,7 +2374,6 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 _login = False
 
         if _login:
-            __bool = True
             time.sleep(2)
             sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
             if float(sum_num_str.replace(',', '')) > 3500:
@@ -2431,12 +2431,19 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                             # 验证错误
                             signma_log(message='提交错误', task_name=f'prismax_join_error_{get_date_as_string()}', index=evm_id)
                         elif __get_ele(page=main_page, xpath='x://h2[starts-with(normalize-space(.),"Congratulations")]', loop=3):
+                            prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
+                            if evm_id not in prismax_init:
+                                append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
                             signma_log(message='3500', task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
                         else:
                             signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+        else:
+            signma_log(message='登陆失败', task_name=f'prismax_point_out_{get_date_as_string()}', index=evm_id)
+
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
-    return __bool
+    return True
+
 
 # 添加网络
 def __add_net_work(page, coin_name='base'):
@@ -3102,7 +3109,12 @@ if __name__ == '__main__':
                             if len(arg) < 3:
                                 logger.warning("prismax 需要助记词/私钥参数，已跳过")
                             else:
-                                _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                                signma_log(message=part, task_name=f'prismax_task_{get_date_as_string()}', index=_id)
+                                prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
+                                if _id not in prismax_init:
+                                    _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                                else:
+                                    _end = True
                         else:
                             logger.warning(f"未知任务类型：{_type}")
             except Exception as e:
