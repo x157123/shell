@@ -2380,7 +2380,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
 
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
-    return __bool
+    return True
 
 
 def __do_task_prismax_bak(page, evm_id, evm_addr, index):
