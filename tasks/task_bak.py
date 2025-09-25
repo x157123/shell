@@ -32,9 +32,8 @@ def __get_page(_type, _id, _port):
         if platform.system().lower() == "windows":
             options.add_extension(f"F:/chrome_tool/phantom")
         else:
-            # 23002 - 23011
-            num = random.randint(23001, 23100)
-            options.set_proxy(f"43.160.196.49:{num}")
+            num = random.randint(23001, 23400)
+            # options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
     else:
         if platform.system().lower() == "windows":
@@ -1948,7 +1947,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
                             if __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Authorize app"]]'):
                                 time.sleep(5)
-                        nexus.scroll.down(100)
+
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                      loop=1):
@@ -1972,7 +1971,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                     __click_ele(page=nexus,
                                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
                                     time.sleep(5)
-                        nexus.scroll.down(200)
+
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                      loop=1):
@@ -1995,7 +1994,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 __click_ele(page=nexus,
                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
                                 time.sleep(5)
-                        nexus.scroll.down(200)
+
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
                                      loop=1):
@@ -2013,7 +2012,25 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                     __click_ele(page=nexus,
                                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]")
                                     time.sleep(5)
-                        nexus.scroll.down(200)
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim')]",
+                                     loop=1):
+                            __click_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+                            __click_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet')]")
+                            twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
+                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
+                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
+                                time.sleep(4)
+                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0):
+                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
+                                __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
+                                twitter_page.close()
+                                __click_ele(page=nexus,
+                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                      loop=1):
@@ -2042,7 +2059,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                     __click_ele(page=nexus,
                                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
                                     time.sleep(5)
-                        nexus.scroll.down(200)
+
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]",
                                      loop=1):
@@ -2071,24 +2088,6 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                     __click_ele(page=nexus,
                                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]")
                                     time.sleep(5)
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim')]",
-                                     loop=1):
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet')]")
-                            twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
-                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
-                                time.sleep(4)
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0):
-                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
-                                __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
-                                twitter_page.close()
-                                __click_ele(page=nexus,
-                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
 
                         _join_a = True
                         _join_b = True
@@ -2127,11 +2126,10 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         if _amount:
                             if __bool:
                                 signma_log(message=_amount, task_name=f'nexus_joina', index=evm_id)
-                                if float(_amount.replace("K", "")) < 9:
+                                if _amount == '0':
                                     __bool = False
                             else:
                                 signma_log(message=_amount, task_name=f'nexus_joina_not_end', index=evm_id)
-
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
@@ -2315,7 +2313,6 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
     __bool = False
     try:
         __login_new_wallet(page=page, evm_addr=evm_addr)
-
         main_page = page.new_tab(url='https://app.prismax.ai/')
         _login = True
         __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
@@ -2371,19 +2368,17 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 _login = False
 
         if _login:
-            time.sleep(2)
-            num_str = __get_ele_value(page=main_page,
-                                      xpath='x://span[normalize-space()="Daily Prisma Points"]/following-sibling::div/span')
-            if num_str is not None:
-                try:
-                    if float(num_str.replace(',', '')) > 0:
-                        sum_num_str = __get_ele_value(page=main_page,
-                                                      xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
-                        signma_log(message=(sum_num_str or "0").replace(",", ""),
-                                   task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
-                        __bool = True
-                except ValueError:
-                    logger.debug(f"Daily Prisma Points 解析失败：{num_str}")
+            # time.sleep(2)
+            # num_str = __get_ele_value(page=main_page,
+            #                           xpath='x://span[normalize-space()="Daily Prisma Points"]/following-sibling::div/span')
+            # if num_str is not None:
+            #     try:
+            #         if float(num_str.replace(',', '')) > 0:
+            #             sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
+            #             signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
+            #             __bool = True
+            #     except ValueError:
+            #         logger.debug(f"Daily Prisma Points 解析失败：{num_str}")
 
             # 尝试问答获取积分
             main_page.get('https://app.prismax.ai/whitepaper')
@@ -2400,35 +2395,39 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                     _c = True
                     _d = True
                     _f = True
+                    time.sleep(random.uniform(3, 5))
                     for offset in range(5):
-                        time.sleep(random.uniform(3, 5))
                         if _a and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"More robots generate valuable datasets")]]', loop=1):
                             click_x_y(821 + random.randint(1, 15), 621 + random.randint(1, 15), index)
+                            time.sleep(1)
                             click_x_y(821 + random.randint(1, 15), 621 + random.randint(1, 15), index)
                             _a = False
                         elif _b and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Achievement of high robot autonomy")]]', loop=1):
                             click_x_y(831 + random.randint(1, 15), 732 + random.randint(1, 15), index)
+                            time.sleep(1)
                             click_x_y(831 + random.randint(1, 15), 732 + random.randint(1, 15), index)
                             _b = False
                         elif _c and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Current AI models lack sufficient")]]', loop=1):
                             click_x_y(816 + random.randint(1, 15), 422 + random.randint(1, 15), index)
+                            time.sleep(1)
                             click_x_y(816 + random.randint(1, 15), 422 + random.randint(1, 15), index)
                             _c = False
                         elif _d and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Network-owned data is community-controlled")]]', loop=1):
                             click_x_y(835 + random.randint(1, 15), 723 + random.randint(1, 15), index)
+                            time.sleep(1)
                             click_x_y(835 + random.randint(1, 15), 723 + random.randint(1, 15), index)
                             _d = False
                         elif _f and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover")]]', loop=1):
                             click_x_y(835 + random.randint(1, 15), 593 + random.randint(1, 15), index)
+                            time.sleep(1)
                             click_x_y(835 + random.randint(1, 15), 593 + random.randint(1, 15), index)
                             _f = False
-
                         time.sleep(random.uniform(3, 5))
                         click_x_y(1208 + random.randint(1, 8), 698 + random.randint(1, 8), index)
 
                     if __get_ele(page=main_page, xpath='x://span[starts-with(normalize-space(.),"Security verification failed")]', loop=3):
                         # 验证错误
-                        __bool = False
+                        signma_log(message='提交错误', task_name=f'prismax_join_error_{get_date_as_string()}', index=evm_id)
                         # time.sleep(random.uniform(10, 15))
                         # # _select_t = __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Higher token prices attract") or starts-with(normalize-space(.),"Teleoperator-generated data") or starts-with(normalize-space(.),"To automatically validate data quality") or starts-with(normalize-space(.),"Data collection infrastructure is fragmented") or starts-with(normalize-space(.),"Introduction of visual data collection")]]')
                         # # if _select_t:
@@ -2441,9 +2440,23 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                         # if _next:
                         #     time.sleep(random.uniform(5, 8))
                         #     main_page.actions.move_to(_next).click()
-                    time.sleep(60)
+                    # time.sleep(60)
                     # main_page.get('https://app.prismax.ai/whitepaper')
-                    # time.sleep(2)
+                    time.sleep(20)
+            main_page.get(url='https://app.prismax.ai/')
+            num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="Daily Prisma Points"]/following-sibling::div/span')
+            if num_str is not None:
+                try:
+                    if float(num_str.replace(',', '')) > 0:
+                        sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
+                        if float(sum_num_str.replace(',', '')) > 3500:
+                            __bool = True
+                            signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_dt_{get_date_as_string()}', index=evm_id)
+                        else:
+                            signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
+                except ValueError:
+                    logger.debug(f"Daily Prisma Points 解析失败：{num_str}")
+
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
     return __bool
@@ -3034,9 +3047,10 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-
-                if _type == 'nexus_joina':
-                # if _type:
+                logger.warning(f"启动任务:{part}")
+                # if _type == 'prismax':
+                # if _type == 'nexus_joina':
+                if _type:
                     if _type == 'gift':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -3123,8 +3137,8 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type == 'nexus_joina':
-                # if _type:
+                # if _type == 'nexus_joina':
+                if _type:
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end:
                         if _task_id and platform.system().lower() != "windows":
@@ -3134,10 +3148,11 @@ if __name__ == '__main__':
                                 _end_day_task.append(_task_id)
                     else:
                         signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-        #     if len(filtered) > 24:
-        #         time.sleep(1000)
-        #     elif len(filtered) > 12:
-        #         time.sleep(1800)
-        #     else:
-        #         time.sleep(3600)
-        time.sleep(60)
+                    time.sleep(600)
+            # if len(filtered) > 24:
+            #     time.sleep(600)
+            # elif len(filtered) > 12:
+            #     time.sleep(1800)
+            # else:
+            #     time.sleep(3600)
+        time.sleep(1800)
