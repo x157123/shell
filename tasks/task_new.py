@@ -35,6 +35,7 @@ def __get_page(_type, _id, _port):
             num = random.randint(23001, 23400)
             # options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
+            options.set_argument("--blink-settings=imagesEnabled=false")
     else:
         if platform.system().lower() == "windows":
             options.add_extension(f"F:/chrome_tool/signma")
@@ -61,8 +62,8 @@ def __get_page(_type, _id, _port):
             _pages = None
     if _pages is not None:
         _pages.set.window.max()
-        # if _type == 'prismax' and platform.system().lower() != "windows":
-        #     _pages.set.blocked_urls(r'.*\.(jpg|png|gif|webp|svg)')
+        if _type == 'prismax' and platform.system().lower() != "windows":
+            _pages.set.blocked_urls(r'.*\.(jpg|png|gif|webp|svg)')
 
     logger.info('初始化结束')
     return _pages
@@ -2319,6 +2320,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
         _login = True
         if __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]'):
             __bool = True
+            signma_log(message="1", task_name=f'prismax_init_{get_date_as_string()}', index=evm_id)
         time.sleep(5)
         main_page.get('https://app.prismax.ai/whitepaper')
         time.sleep(5)
