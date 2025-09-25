@@ -35,6 +35,7 @@ def __get_page(_type, _id, _port):
             num = random.randint(23001, 23400)
             # options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
+            options.set_argument("--blink-settings=imagesEnabled=false")
     else:
         if platform.system().lower() == "windows":
             options.add_extension(f"F:/chrome_tool/signma")
