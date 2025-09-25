@@ -3113,6 +3113,7 @@ if __name__ == '__main__':
                                 prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                                 if _id not in prismax_init:
                                     _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                                    _end = True
                                 else:
                                     _end = True
                         else:
