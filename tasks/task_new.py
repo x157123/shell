@@ -2377,6 +2377,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                 if evm_id not in prismax_init:
                     append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
+            signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmp_{get_date_as_string()}', index=evm_id)
 
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
