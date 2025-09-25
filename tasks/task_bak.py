@@ -2372,6 +2372,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
             if __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1):
                 _login = False
 
+        sum_num_str = "0"
         if _login:
             time.sleep(2)
             sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
@@ -2379,8 +2380,60 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                 if evm_id not in prismax_init:
                     append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
-            signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmp_{get_date_as_string()}', index=evm_id)
+                signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmp_{get_date_as_string()}', index=evm_id)
+            else:
+                # 尝试问答获取积分
+                main_page.get('https://app.prismax.ai/whitepaper')
+                if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Review answers")]', loop=1):
+                    logger.info('答题积分完成')
+                elif __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
+                    # for i in range(2):
+                    # __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
+                    click_x_y(166 + random.randint(1, 15), 1002 + random.randint(1, 15), index)
+                    if __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]', loop=2):
+                        click_x_y(883 + random.randint(1, 15), 735 + random.randint(1, 15), index)
+                        _a = True
+                        _b = True
+                        _c = True
+                        _d = True
+                        _f = True
+                        time.sleep(random.uniform(3, 5))
+                        for offset in range(5):
+                            if _a and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"More robots generate valuable datasets")]]', loop=1):
+                                click_x_y(821 + random.randint(1, 15), 621 + random.randint(1, 15), index)
+                                time.sleep(1)
+                                click_x_y(821 + random.randint(1, 15), 621 + random.randint(1, 15), index)
+                                _a = False
+                            elif _b and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Achievement of high robot autonomy")]]', loop=1):
+                                click_x_y(831 + random.randint(1, 15), 732 + random.randint(1, 15), index)
+                                time.sleep(1)
+                                click_x_y(831 + random.randint(1, 15), 732 + random.randint(1, 15), index)
+                                _b = False
+                            elif _c and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Current AI models lack sufficient")]]', loop=1):
+                                click_x_y(816 + random.randint(1, 15), 422 + random.randint(1, 15), index)
+                                time.sleep(1)
+                                click_x_y(816 + random.randint(1, 15), 422 + random.randint(1, 15), index)
+                                _c = False
+                            elif _d and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Network-owned data is community-controlled")]]', loop=1):
+                                click_x_y(835 + random.randint(1, 15), 723 + random.randint(1, 15), index)
+                                time.sleep(1)
+                                click_x_y(835 + random.randint(1, 15), 723 + random.randint(1, 15), index)
+                                _d = False
+                            elif _f and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover")]]', loop=1):
+                                click_x_y(835 + random.randint(1, 15), 593 + random.randint(1, 15), index)
+                                time.sleep(1)
+                                click_x_y(835 + random.randint(1, 15), 593 + random.randint(1, 15), index)
+                                _f = False
+                            time.sleep(random.uniform(3, 5))
+                            click_x_y(1208 + random.randint(1, 8), 698 + random.randint(1, 8), index)
 
+                        if __get_ele(page=main_page, xpath='x://span[starts-with(normalize-space(.),"Security verification failed")]', loop=3):
+                            # 验证错误
+                            signma_log(message='提交错误', task_name=f'prismax_join_error_{get_date_as_string()}', index=evm_id)
+                        elif __get_ele(page=main_page, xpath='x://h2[starts-with(normalize-space(.),"Congratulations")]', loop=3):
+                            signma_log(message='3500', task_name=f'prismax_point_tmp_{get_date_as_string()}', index=evm_id)
+                        else:
+                            signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmp_{get_date_as_string()}', index=evm_id)
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
     return True
