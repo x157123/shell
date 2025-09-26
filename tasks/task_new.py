@@ -3202,11 +3202,12 @@ if __name__ == '__main__':
                             if len(arg) < 3:
                                 logger.warning("prismax 需要助记词/私钥参数，已跳过")
                             else:
-                                prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
-                                if _id not in prismax_init:
-                                    _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                                else:
-                                    _end = True
+                                _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                                # prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
+                                # if _id not in prismax_init:
+                                #     _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                                # else:
+                                #     _end = True
                         else:
                             logger.warning(f"未知任务类型：{_type}")
             except Exception as e:
