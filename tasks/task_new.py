@@ -32,12 +32,12 @@ def __get_page(_type, _id, _port):
         if platform.system().lower() == "windows":
             options.add_extension(f"F:/chrome_tool/phantom")
         else:
-            prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
-            if _id not in prismax_init:
-                signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
+            # prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
+            # if _id not in prismax_init:
+                # signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
                 # num = random.randint(23001, 23400)
-                num = "23002"
-                options.set_proxy(f"43.160.196.49:{num}")
+                # num = "23002"
+                # options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
             options.set_argument("--blink-settings=imagesEnabled=false")
     else:
@@ -2509,6 +2509,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                         if __get_ele(page=main_page, xpath='x://span[starts-with(normalize-space(.),"Security verification failed")]', loop=3):
                             # 验证错误
                             signma_log(message='提交错误', task_name=f'prismax_join_error_{get_date_as_string()}', index=evm_id)
+                            signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
                         elif __get_ele(page=main_page, xpath='x://h2[starts-with(normalize-space(.),"Congratulations")]', loop=3):
                             prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                             if evm_id not in prismax_init:
@@ -2519,6 +2520,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                             if __get_ele(page=main_page, xpath='x://span[starts-with(normalize-space(.),"Security verification failed")]', loop=3):
                                 # 验证错误
                                 signma_log(message='提交错误', task_name=f'prismax_join_error_{get_date_as_string()}', index=evm_id)
+                                signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
                             elif __get_ele(page=main_page, xpath='x://h2[starts-with(normalize-space(.),"Congratulations")]', loop=3):
                                 prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                                 if evm_id not in prismax_init:
@@ -3122,8 +3124,8 @@ if __name__ == '__main__':
                 _id = arg[1]
                 logger.warning(f"启动任务:{part}")
                 # if _type == 'prismax':
-                if _type == 'nexus_joina':
-                # if _type:
+                # if _type == 'nexus_joina':
+                if _type:
                 #     signma_log(message=part, task_name=f'prismax_task_{get_date_as_string()}', index=_id)
                     if _type == 'gift':
                         evm_id = _id
@@ -3203,7 +3205,6 @@ if __name__ == '__main__':
                                 prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                                 if _id not in prismax_init:
                                     _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                                    _end = True
                                 else:
                                     _end = True
                         else:
@@ -3216,8 +3217,8 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type == 'nexus_joina':
-                # if _type:
+                # if _type == 'nexus_joina':
+                if _type:
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end:
                         if _task_id and platform.system().lower() != "windows":
@@ -3227,11 +3228,10 @@ if __name__ == '__main__':
                                 _end_day_task.append(_task_id)
                     else:
                         signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    time.sleep(60)
-            # if len(filtered) > 24:
-            #     time.sleep(600)
-            # elif len(filtered) > 12:
-            #     time.sleep(1800)
-            # else:
-            #     time.sleep(3600)
+            if len(filtered) > 24:
+                time.sleep(600)
+            elif len(filtered) > 12:
+                time.sleep(1800)
+            else:
+                time.sleep(3600)
         time.sleep(600)
