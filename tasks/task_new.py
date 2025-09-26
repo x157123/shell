@@ -3124,7 +3124,7 @@ if __name__ == '__main__':
                 # if _type == 'prismax':
                 if _type == 'nexus_joina':
                 # if _type:
-                    signma_log(message=part, task_name=f'prismax_task_{get_date_as_string()}', index=_id)
+                #     signma_log(message=part, task_name=f'prismax_task_{get_date_as_string()}', index=_id)
                     if _type == 'gift':
                         evm_id = _id
                         evm_addr = arg[2]
