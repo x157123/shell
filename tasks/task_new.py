@@ -1820,7 +1820,10 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
         if __x_bool is None:
             __bool = True
         elif __x_bool:
-            nexus_joins = read_data_list_file("/home/ubuntu/task/tasks/nexus_joins.txt")
+            if platform.system().lower() == "windows":
+                nexus_joins = read_data_list_file("F:/tmp/chrome_data/nexus_joins.txt")
+            else:
+                nexus_joins = read_data_list_file("/home/ubuntu/task/tasks/nexus_joins.txt")
             if evm_id not in nexus_joins:
                 nexus.refresh()
                 time.sleep(3)
@@ -1855,7 +1858,10 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             profile.click()
                             if __get_ele(page=profile_shadow_root,
                                          xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
-                                append_date_to_file("/home/ubuntu/task/tasks/nexus_joins.txt", evm_id)
+                                if platform.system().lower() == "windows":
+                                    append_date_to_file("F:/tmp/chrome_data/nexus_joins.txt", evm_id)
+                                else:
+                                    append_date_to_file("/home/ubuntu/task/tasks/nexus_joins.txt", evm_id)
                                 __out_join = True
             else:
                 __out_join = True
@@ -1927,6 +1933,35 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
 
                 if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
                     if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
+                        if platform.system().lower() == "windows":
+                            nexus_joinas = read_data_list_file("F:/tmp/chrome_data/nexus_joinas.txt")
+                        else:
+                            nexus_joinas = read_data_list_file("/home/ubuntu/task/tasks/nexus_joinas.txt")
+                        if evm_id not in nexus_joinas:
+                            # 取消 tw关注
+                            nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
+                            if __get_ele(page=nexus,
+                                         xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]'):
+                                __click_ele(page=nexus,
+                                            xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]')
+                                __click_ele(page=nexus, xpath='x://button[text()="Disconnect Twitter"]')
+                            nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
+                            if __get_ele(page=nexus,
+                                         xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]'):
+                                __click_ele(page=nexus,
+                                            xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]')
+                                if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
+                                    logger.info('重新关注')
+                                    nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
+                                    if __get_ele(page=nexus,
+                                                 xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]'):
+                                        logger.info('重新关注成功')
+                                        if platform.system().lower() == "windows":
+                                            append_date_to_file("F:/tmp/chrome_data/nexus_joinas.txt", evm_id)
+                                        else:
+                                            append_date_to_file("/home/ubuntu/task/tasks/nexus_joinas.txt", evm_id)
+                            nexus.get(url='https://quest.nexus.xyz/loyalty')
+
 
                         for i in range(3):
                             nexus.scroll.to_bottom()
@@ -1934,17 +1969,6 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         nexus.refresh()
                         nexus.scroll.to_bottom()
                         time.sleep(5)
-
-                        if __get_ele(page=nexus, xpath='x://a[@label="Visit Blog"]', loop=1):
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-                            __click_ele(page=nexus, xpath='x://a[@label="Visit Blog"]')
-                            twitter_page = __get_popup(page=page, _url='blog.nexus.xyz', timeout=45)
-                            if twitter_page is not None:
-                                time.sleep(10)
-                                twitter_page.close()
-                                __click_ele(page=nexus,
-                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
 
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]",
@@ -1958,178 +1982,176 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                      loop=1):
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
-                            twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
+                            nex_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Celebrate our Snag Partnership', 'Go to Post')
 
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
-                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
-                                time.sleep(4)
-
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True,
-                                           index=0):
-                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
-                                if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
-                                    signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
-                                __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
-                                twitter_page.close()
-                                if __get_ele(page=nexus,
-                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]"):
-                                    __click_ele(page=nexus,
-                                                xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
-                                    time.sleep(5)
 
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                      loop=1):
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
-                            twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
-                            __click_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0)
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
-                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
-                                time.sleep(4)
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True, index=0):
-                                if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
-                                    signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0):
-                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
-                                __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
-                                twitter_page.close()
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]"):
-                                __click_ele(page=nexus,
-                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
-                                time.sleep(5)
+                            nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Like & Share our Testnet III Announcement', 'Go to Post')
 
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
                                      loop=1):
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account')]")
-                            twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
-                            if __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Follow"]]'):
-                                if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
-                                    signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
-                                twitter_page.close()
-                                if __get_ele(page=nexus,
-                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]"):
-                                    __click_ele(page=nexus,
-                                                xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]")
-                                    time.sleep(5)
+                            nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nexus', 'Go to Account')
 
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim')]",
-                                     loop=1):
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet')]")
-                            twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
-                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
-                                time.sleep(4)
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0):
-                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
-                                __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
-                                twitter_page.close()
-                                __click_ele(page=nexus,
-                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
 
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                      loop=1):
+                            nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Share Spelunking Badge', 'Go to Post')
+
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Founder')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                     loop=1):
+                            nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nodejox - The Founder', 'Go to Account')
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Voice')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                     loop=1):
+                            nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nodejox - The Voice', 'Go to Account')
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Doctor')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                     loop=1):
+                            nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nodejox - The Doctor', 'Go to Account')
+
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                     loop=1):
+                            # 需要调整
                             __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+                            __click_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post')]")
                             twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
-                            __click_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True,
-                                        index=0)
+
                             if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]',
                                            find_all=True, index=0):
                                 __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
                                 time.sleep(4)
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True,
-                                           index=0):
-                                if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
-                                    signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
                             if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True,
                                            index=0):
                                 __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
-                                if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
-                                    signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
                                 __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
+
+                            __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0)
+                            __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value='I like them all')
+                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton"]'):
                                 twitter_page.close()
                                 if __get_ele(page=nexus,
-                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]"):
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]"):
                                     __click_ele(page=nexus,
-                                                xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
+                                                xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
                                     time.sleep(5)
+
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                     loop=1):
+                            # 需要调整
+                            __click_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
+                            twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
+                            __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0)
+                            __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value='I like them all')
+                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton"]'):
+                                twitter_page.close()
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]"):
+                                    __click_ele(page=nexus,
+                                                xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
+                                    time.sleep(5)
+
 
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]",
                                      loop=1):
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]")
-                            twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
-                            __click_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True,
-                                        index=0)
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]',
-                                           find_all=True, index=0):
-                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
-                                time.sleep(4)
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True,
-                                           index=0):
-                                if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
-                                    signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True,
-                                           index=0):
-                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
-                                if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
-                                    signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
-                                __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
-                                twitter_page.close()
-                                if __get_ele(page=nexus,
-                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]"):
-                                    __click_ele(page=nexus,
-                                                xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]")
-                                    time.sleep(5)
+                            nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Shine a Light on the Numbers', 'Like and Share this Post')
 
-                        _join_a = True
-                        _join_b = True
-                        _join_c = True
-                        _join_d = True
-                        _join_f = True
-                        _join_g = True
+
+                        if __get_ele(page=nexus, xpath='x://a[@label="Visit Blog"]', loop=1):
+                            __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+                            __click_ele(page=nexus, xpath='x://a[@label="Visit Blog"]')
+                            twitter_page = __get_popup(page=page, _url='blog.nexus.xyz', timeout=45)
+                            if twitter_page is not None:
+                                time.sleep(10)
+                                twitter_page.close()
+                                __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim')]",
+                                     loop=1):
+                            nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, 'Goodbye Camp Nexus', 'Repost Tweet')
+
+                        __bool = True
+
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]",
                                      loop=1):
-                            _join_a = False
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                     loop=1):
-                            _join_f = False
+                            __bool = False
+
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                      loop=1):
-                            _join_b = False
+                            __bool = False
+
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                      loop=1):
-                            _join_c = False
+                            __bool = False
+
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
                                      loop=1):
-                            _join_d = False
+                            __bool = False
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                     loop=1):
+                            __bool = False
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Founder')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                     loop=1):
+                            __bool = False
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Voice')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                     loop=1):
+                            __bool = False
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Doctor')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                     loop=1):
+                            __bool = False
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                     loop=1):
+                            __bool = False
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                     loop=1):
+                            __bool = False
+
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]",
+                                     loop=1):
+                            __bool = False
+
                         if __get_ele(page=nexus, xpath='x://a[@label="Visit Blog"]', loop=1):
-                            _join_g = False
+                            __bool = False
 
-                        if _join_a and _join_b and _join_c and _join_d and __join and _join_f and _join_g:
-                            __bool = True
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim')]",
+                                     loop=1):
+                            __bool = False
 
-                        _amount = __get_ele_value(page=nexus,
-                                                  xpath="x://div[contains(@class, 'header-loyalty-points-parent')]//div[contains(@class, 'header-loyalty-points')]//span")
+                        _amount = __get_ele_value(page=nexus, xpath="x://div[contains(@class, 'header-loyalty-points-parent')]//div[contains(@class, 'header-loyalty-points')]//span")
                         if _amount:
                             if __bool:
                                 signma_log(message=_amount, task_name=f'nexus_joina', index=evm_id)
@@ -2140,6 +2162,62 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
+
+
+
+def nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]")
+    twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
+    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
+        __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
+        time.sleep(4)
+    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0):
+        __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
+        __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
+        twitter_page.close()
+        __click_ele(page=nexus,
+                    xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+
+
+def nex_like_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]")
+    twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
+    __click_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0)
+    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
+        __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
+        time.sleep(4)
+    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True, index=0):
+        if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
+            signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
+    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True,
+                   index=0):
+        __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
+        if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
+            signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
+        __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
+        twitter_page.close()
+        if __get_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]"):
+            __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]")
+            time.sleep(5)
+
+
+def nex_follow(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]")
+    twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
+    if __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Follow"]]'):
+        if __get_ele(page=twitter_page,
+                     xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]',
+                     loop=1):
+            signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
+        twitter_page.close()
+        if __get_ele(page=nexus,
+                     xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]"):
+            __click_ele(page=nexus,
+                        xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]")
+            time.sleep(5)
 
 
 def __do_task_nexus(page, evm_id, index):
@@ -3043,10 +3121,10 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 logger.warning(f"启动任务:{part}")
-                if _type == 'prismax':
+                # if _type == 'prismax':
+                if _type == 'nexus_joina':
+                # if _type:
                     signma_log(message=part, task_name=f'prismax_task_{get_date_as_string()}', index=_id)
-                    # if _type == 'nexus_joina':
-                    # if _type:
                     if _type == 'gift':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -3113,8 +3191,8 @@ if __name__ == '__main__':
                         elif _type == 'nexus':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                         elif _type == 'nexus_joina':
-                            _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
-                            # _end = True
+                            # _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
+                            _end = True
                         elif _type == 'nexus_joinb':
                             # _end = __do_task_nexus_pod(page=_page, index=_window, evm_id=_id)
                             _end = True
@@ -3138,8 +3216,8 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type == 'prismax':
-                    # if _type:
+                if _type == 'nexus_joina':
+                # if _type:
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end:
                         if _task_id and platform.system().lower() != "windows":
