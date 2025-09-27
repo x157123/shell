@@ -3260,8 +3260,7 @@ if __name__ == '__main__':
                                 logger.warning("prismax 需要助记词/私钥参数，已跳过")
                             else:
                                 _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
-
-
+                                end_available(evm_id=_id)
                         else:
                             logger.warning(f"未知任务类型：{_type}")
             except Exception as e:
