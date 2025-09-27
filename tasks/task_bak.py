@@ -72,7 +72,7 @@ def __get_page(_type, _id, _port, _home_ip):
 
 
 def check_available(evm_id: str = '0000') -> bool:
-    url = f"http://43.160.196.149:123/api/check?client_id={evm_id}"
+    url = f"http://43.160.196.49:7890/api/check?client_id={evm_id}"
     try:
         response = requests.get(url, timeout=15)  # 设置超时 5 秒
         response.raise_for_status()  # 如果响应状态码不是 200 会抛异常
@@ -84,7 +84,7 @@ def check_available(evm_id: str = '0000') -> bool:
 
 
 def end_available(evm_id: str = '0000') -> bool:
-    url = f"http://43.160.196.149:123/api/release?client_id={evm_id}"
+    url = f"http://43.160.196.49:7890/api/release?client_id={evm_id}"
     try:
         response = requests.get(url, timeout=15)  # 设置超时 5 秒
         response.raise_for_status()  # 如果响应状态码不是 200 会抛异常
