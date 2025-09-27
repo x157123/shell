@@ -19,7 +19,7 @@ evm_ext_id = "ohgmkpjifodfiomblclfpdhehohinlnn"
 ARGS_IP = ""  # 在 main 里赋值
 
 
-def __get_page(_type, _id, _port):
+def __get_page(_type, _id, _port, _home_ip):
     _pages = None
     logger.info(f"启动类型: {_type}")
     options = ChromiumOptions()
@@ -32,12 +32,10 @@ def __get_page(_type, _id, _port):
         if platform.system().lower() == "windows":
             options.add_extension(f"F:/chrome_tool/phantom")
         else:
-            # prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
-            # if _id not in prismax_init:
-                # signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
-                # num = random.randint(23001, 23400)
-                # num = "23002"
-                # options.set_proxy(f"43.160.196.49:{num}")
+            if _home_ip:
+                signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
+                num = "23002"
+                options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
             options.set_argument("--blink-settings=imagesEnabled=false")
     else:
@@ -71,6 +69,28 @@ def __get_page(_type, _id, _port):
 
     logger.info('初始化结束')
     return _pages
+
+
+def check_available(evm_id: str = '0000') -> bool:
+    url = f"http://43.160.196.49:7890/api/check?client_id={evm_id}"
+    try:
+        response = requests.get(url, timeout=15)  # 设置超时 5 秒
+        response.raise_for_status()  # 如果响应状态码不是 200 会抛异常
+        data = response.json()
+        return data.get("available", False)
+    except Exception as e:
+        print("请求失败:", e)
+        return False
+
+
+def end_available(evm_id: str = '0000') -> bool:
+    url = f"http://43.160.196.49:7890/api/release?client_id={evm_id}"
+    try:
+        response = requests.get(url, timeout=15)  # 设置超时 5 秒
+        response.raise_for_status()  # 如果响应状态码不是 200 会抛异常
+    except Exception as e:
+        print("请求失败:", e)
+    return True
 
 
 # ========== 文件读写 ==========
@@ -676,7 +696,7 @@ def __do_send_wallet(evm_id, send_evm_addr, amount):
     _bool = False
     wallet_page = None
     try:
-        wallet_page = __get_page('wallet', evm_id, '34533')
+        wallet_page = __get_page('wallet', evm_id, '34533', False)
         __login_wallet(page=wallet_page, evm_id=evm_id)
         __add_net_work(page=wallet_page, coin_name='base')
         urls = ["https://relay.link/bridge/rari?fromChainId=8453",
@@ -2417,7 +2437,7 @@ def __login_new_wallet(page, evm_addr):
             logger.debug(f"关闭 Phantom 页面失败：{e}")
 
 
-def __do_task_prismax(page, evm_id, evm_addr, index):
+def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
     __bool = False
     try:
         __login_new_wallet(page=page, evm_addr=evm_addr)
@@ -2483,63 +2503,54 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                 if evm_id not in prismax_init:
                     append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
                 signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                __bool = True
             else:
-                # 尝试问答获取积分
-                main_page.get('https://app.prismax.ai/whitepaper')
-                if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Review answers")]', loop=1):
-                    logger.info('答题积分完成')
-                elif __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
-                    # for i in range(2):
-                    # __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
-                    click_x_y(166 + random.randint(1, 15), 1002 + random.randint(1, 15), index)
-                    if __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]', loop=2):
-                        click_x_y(883 + random.randint(1, 15), 735 + random.randint(1, 15), index)
-                        _a = True
-                        _b = True
-                        _c = True
-                        _d = True
-                        _f = True
-                        time.sleep(random.uniform(3, 5))
-                        for offset in range(5):
-                            if _a and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"More robots generate valuable datasets")]]', loop=1):
-                                click_x_y(821 + random.randint(1, 15), 621 + random.randint(1, 15), index)
-                                time.sleep(1)
-                                click_x_y(821 + random.randint(1, 15), 621 + random.randint(1, 15), index)
-                                _a = False
-                            elif _b and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Achievement of high robot autonomy")]]', loop=1):
-                                click_x_y(831 + random.randint(1, 15), 732 + random.randint(1, 15), index)
-                                time.sleep(1)
-                                click_x_y(831 + random.randint(1, 15), 732 + random.randint(1, 15), index)
-                                _b = False
-                            elif _c and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Current AI models lack sufficient")]]', loop=1):
-                                click_x_y(816 + random.randint(1, 15), 422 + random.randint(1, 15), index)
-                                time.sleep(1)
-                                click_x_y(816 + random.randint(1, 15), 422 + random.randint(1, 15), index)
-                                _c = False
-                            elif _d and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Network-owned data is community-controlled")]]', loop=1):
-                                click_x_y(835 + random.randint(1, 15), 723 + random.randint(1, 15), index)
-                                time.sleep(1)
-                                click_x_y(835 + random.randint(1, 15), 723 + random.randint(1, 15), index)
-                                _d = False
-                            elif _f and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover")]]', loop=1):
-                                click_x_y(835 + random.randint(1, 15), 593 + random.randint(1, 15), index)
-                                time.sleep(1)
-                                click_x_y(835 + random.randint(1, 15), 593 + random.randint(1, 15), index)
-                                _f = False
+                if _home_ip:
+                    # 尝试问答获取积分
+                    main_page.get('https://app.prismax.ai/whitepaper')
+                    if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Review answers")]', loop=1):
+                        logger.info('答题积分完成')
+                    elif __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2):
+                        # for i in range(2):
+                        # __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Start Quiz")]', loop=2)
+                        click_x_y(166 + random.randint(1, 15), 1002 + random.randint(1, 15), index)
+                        if __get_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Take the quiz")]', loop=2):
+                            click_x_y(883 + random.randint(1, 15), 735 + random.randint(1, 15), index)
+                            _a = True
+                            _b = True
+                            _c = True
+                            _d = True
+                            _f = True
                             time.sleep(random.uniform(3, 5))
-                            click_x_y(1208 + random.randint(1, 8), 698 + random.randint(1, 8), index)
+                            for offset in range(5):
+                                if _a and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"More robots generate valuable datasets")]]', loop=1):
+                                    click_x_y(821 + random.randint(1, 15), 621 + random.randint(1, 15), index)
+                                    time.sleep(1)
+                                    click_x_y(821 + random.randint(1, 15), 621 + random.randint(1, 15), index)
+                                    _a = False
+                                elif _b and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Achievement of high robot autonomy")]]', loop=1):
+                                    click_x_y(831 + random.randint(1, 15), 732 + random.randint(1, 15), index)
+                                    time.sleep(1)
+                                    click_x_y(831 + random.randint(1, 15), 732 + random.randint(1, 15), index)
+                                    _b = False
+                                elif _c and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Current AI models lack sufficient")]]', loop=1):
+                                    click_x_y(816 + random.randint(1, 15), 422 + random.randint(1, 15), index)
+                                    time.sleep(1)
+                                    click_x_y(816 + random.randint(1, 15), 422 + random.randint(1, 15), index)
+                                    _c = False
+                                elif _d and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"Network-owned data is community-controlled")]]', loop=1):
+                                    click_x_y(835 + random.randint(1, 15), 723 + random.randint(1, 15), index)
+                                    time.sleep(1)
+                                    click_x_y(835 + random.randint(1, 15), 723 + random.randint(1, 15), index)
+                                    _d = False
+                                elif _f and __get_ele(page=main_page, xpath='x://div[span[starts-with(normalize-space(.),"To incentivize speed and discover")]]', loop=1):
+                                    click_x_y(835 + random.randint(1, 15), 593 + random.randint(1, 15), index)
+                                    time.sleep(1)
+                                    click_x_y(835 + random.randint(1, 15), 593 + random.randint(1, 15), index)
+                                    _f = False
+                                time.sleep(random.uniform(3, 5))
+                                click_x_y(1208 + random.randint(1, 8), 698 + random.randint(1, 8), index)
 
-                        if __get_ele(page=main_page, xpath='x://span[starts-with(normalize-space(.),"Security verification failed")]', loop=3):
-                            # 验证错误
-                            signma_log(message='提交错误', task_name=f'prismax_join_error_{get_date_as_string()}', index=evm_id)
-                            signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
-                        elif __get_ele(page=main_page, xpath='x://h2[starts-with(normalize-space(.),"Congratulations")]', loop=3):
-                            prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
-                            if evm_id not in prismax_init:
-                                append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
-                            signma_log(message='3500', task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
-                        else:
-                            click_x_y(1208 + random.randint(1, 8), 698 + random.randint(1, 8), index)
                             if __get_ele(page=main_page, xpath='x://span[starts-with(normalize-space(.),"Security verification failed")]', loop=3):
                                 # 验证错误
                                 signma_log(message='提交错误', task_name=f'prismax_join_error_{get_date_as_string()}', index=evm_id)
@@ -2548,16 +2559,31 @@ def __do_task_prismax(page, evm_id, evm_addr, index):
                                 prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                                 if evm_id not in prismax_init:
                                     append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
-                                    signma_log(message='3500', task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                                signma_log(message='3500', task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                                __bool = True
                             else:
-                                signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
-                        time.sleep(5)
+                                click_x_y(1208 + random.randint(1, 8), 698 + random.randint(1, 8), index)
+                                if __get_ele(page=main_page, xpath='x://span[starts-with(normalize-space(.),"Security verification failed")]', loop=3):
+                                    # 验证错误
+                                    signma_log(message='提交错误', task_name=f'prismax_join_error_{get_date_as_string()}', index=evm_id)
+                                    signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                                elif __get_ele(page=main_page, xpath='x://h2[starts-with(normalize-space(.),"Congratulations")]', loop=3):
+                                    prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
+                                    if evm_id not in prismax_init:
+                                        append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
+                                    signma_log(message='3500', task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                                    __bool = True
+                                else:
+                                    signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                            time.sleep(5)
+                # else:
+                #     signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
         else:
             signma_log(message='登陆失败', task_name=f'prismax_point_out_{get_date_as_string()}', index=evm_id)
 
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
-    return True
+    return __bool
 
 
 # 添加网络
@@ -3148,9 +3174,9 @@ if __name__ == '__main__':
                 logger.warning(f"启动任务:{part}")
                 # if _type == 'prismax':
                 # if _type == 'nexus_joina':
-                if _type == 'mira':
-                # if _type:
-                #     signma_log(message=part, task_name=f'prismax_task_{get_date_as_string()}', index=_id)
+                # if _type == 'mira':
+                if _type:
+                    #     signma_log(message=part, task_name=f'prismax_task_{get_date_as_string()}', index=_id)
                     if _type == 'gift':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -3167,13 +3193,20 @@ if __name__ == '__main__':
                                     _bool = True
 
                         if _bool:
-                            _page = __get_page(_type, _id, None)
+                            _page = __get_page(_type, _id, None, False)
                             if _page is None:
                                 logger.error("浏览器启动失败，跳过该任务")
                                 continue
                             _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=arg[3])
                     else:
-                        _page = __get_page(_type, _id, None)
+                        _home_ip = False
+                        _dt = False
+                        if _type == 'prismax':
+                            prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
+                            if _id not in prismax_init:
+                                _dt = True
+                                _home_ip = check_available(_id)
+                        _page = __get_page(_type, _id, None, _home_ip)
                         if _page is None:
                             logger.error("浏览器启动失败，跳过该任务")
                             continue
@@ -3228,12 +3261,13 @@ if __name__ == '__main__':
                             if len(arg) < 3:
                                 logger.warning("prismax 需要助记词/私钥参数，已跳过")
                             else:
-                                _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                                # prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
-                                # if _id not in prismax_init:
-                                #     _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                                # else:
-                                #     _end = True
+                                if _home_ip:
+                                    logger.info('获取到ip位')
+                                else:
+                                    logger.info('未获取到ip位')
+                                _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
+                                if _home_ip:
+                                    end_available(evm_id=_id)
                         else:
                             logger.warning(f"未知任务类型：{_type}")
             except Exception as e:
@@ -3244,8 +3278,8 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type == 'mira':
-                # if _type:
+                # if _type == 'mira':
+                if _type:
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end:
                         if _task_id and platform.system().lower() != "windows":
@@ -3255,11 +3289,10 @@ if __name__ == '__main__':
                                 _end_day_task.append(_task_id)
                     else:
                         signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-            time.sleep(10)
-            # if len(filtered) > 24:
-            #     time.sleep(600)
-            # elif len(filtered) > 12:
-            #     time.sleep(1800)
-            # else:
-            #     time.sleep(3600)
-        time.sleep(600)
+            if len(filtered) > 24:
+                time.sleep(600)
+            elif len(filtered) > 12:
+                time.sleep(1800)
+            else:
+                time.sleep(3600)
+        time.sleep(3600)

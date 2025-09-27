@@ -2576,8 +2576,8 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
                                 else:
                                     signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
                             time.sleep(5)
-                else:
-                    signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                # else:
+                #     signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
         else:
             signma_log(message='登陆失败', task_name=f'prismax_point_out_{get_date_as_string()}', index=evm_id)
 
@@ -3266,7 +3266,8 @@ if __name__ == '__main__':
                                 else:
                                     logger.info('未获取到ip位')
                                 _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
-                                end_available(evm_id=_id)
+                                if _home_ip:
+                                    end_available(evm_id=_id)
                         else:
                             logger.warning(f"未知任务类型：{_type}")
             except Exception as e:
