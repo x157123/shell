@@ -3259,6 +3259,10 @@ if __name__ == '__main__':
                             if len(arg) < 3:
                                 logger.warning("prismax 需要助记词/私钥参数，已跳过")
                             else:
+                                if _home_ip:
+                                    logger.info('获取到ip位')
+                                else:
+                                    logger.info('未获取到ip位')
                                 _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
                                 end_available(evm_id=_id)
                         else:
