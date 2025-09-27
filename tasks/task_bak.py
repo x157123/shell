@@ -2560,6 +2560,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
                                 if evm_id not in prismax_init:
                                     append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
                                 signma_log(message='3500', task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                                __bool = True
                             else:
                                 click_x_y(1208 + random.randint(1, 8), 698 + random.randint(1, 8), index)
                                 if __get_ele(page=main_page, xpath='x://span[starts-with(normalize-space(.),"Security verification failed")]', loop=3):
@@ -2570,7 +2571,8 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
                                     prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                                     if evm_id not in prismax_init:
                                         append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
-                                        signma_log(message='3500', task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                                    signma_log(message='3500', task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                                    __bool = True
                                 else:
                                     signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
                             time.sleep(5)
