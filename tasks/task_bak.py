@@ -350,6 +350,16 @@ def __get_popup(page, _url: str = '', timeout: int = 15):
                 return tab
     return None
 
+def __get_popup_url(page, _url: str = '', timeout: int = 15):
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        time.sleep(1)
+        all_tabs = page.get_tabs()
+        for tab in all_tabs:
+            if _url in tab.url:
+                return tab.url
+    return None
+
 
 def __close_popup(page, _url: str = '', timeout: int = 15):
     start_time = time.time()
@@ -2084,11 +2094,14 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0)
                             __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value='I like them all')
                             if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton"]'):
+                                time.sleep(5)
+                                url = __get_popup_url(page=page, _url='x.com', timeout=15)
                                 twitter_page.close()
-                                if __get_ele(page=nexus,
-                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]"):
-                                    __click_ele(page=nexus,
-                                                xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
+                                if url is not None:
+                                    if __click_ele(page=twitter_page, xpath='x://button[text()="Enter Link"]'):
+                                        __input_ele_value(page=twitter_page, xpath='x://button[@name="contentUrl"]', value=url)
+                                if __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]"):
+                                    __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
                                     time.sleep(5)
 
 
@@ -2102,12 +2115,16 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0)
                             __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value='I like them all')
                             if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton"]'):
+                                time.sleep(5)
+                                url = __get_popup_url(page=page, _url='x.com', timeout=15)
                                 twitter_page.close()
-                                if __get_ele(page=nexus,
-                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]"):
-                                    __click_ele(page=nexus,
-                                                xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
+                                if url is not None:
+                                    if __click_ele(page=twitter_page, xpath='x://button[text()="Enter Link"]'):
+                                        __input_ele_value(page=twitter_page, xpath='x://button[@name="contentUrl"]', value=url)
+                                if __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]"):
+                                    __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
                                     time.sleep(5)
+
 
 
                         if __get_ele(page=nexus,
