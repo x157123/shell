@@ -1995,6 +1995,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                             xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]')
                                 if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
                                     logger.info('重新关注')
+                                    time.sleep(10)
                                     nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
                                     if __get_ele(page=nexus,
                                                  xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]'):
