@@ -1387,6 +1387,12 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         if profile:
                             profile.click()
                             if __get_ele(page=profile_shadow_root,
+                                         xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]',
+                                         loop=2):
+                                __click_ele(page=profile_shadow_root,
+                                            xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]')
+                            time.sleep(4)
+                            if __get_ele(page=profile_shadow_root,
                                          xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
                                 if platform.system().lower() == "windows":
                                     append_date_to_file("E:/tmp/chrome_data/nexus_joins.txt", evm_id)
@@ -1570,8 +1576,11 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
 
                             __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0)
+                            time.sleep(3)
                             __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value='I like them all')
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton"]'):
+                            # twitter_page.actions.type('I like them all')
+                            time.sleep(3)
+                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton" and not(@disabled)]'):
                                 time.sleep(5)
                                 url = __get_popup_url(page=page, _url='x.com', timeout=15)
                                 twitter_page.close()
@@ -1592,8 +1601,11 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
                             twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
                             __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0)
+                            time.sleep(3)
                             __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value='I like them all')
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton"]'):
+                            # twitter_page.actions.type('I like them all')
+                            time.sleep(1)
+                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton" and not(@disabled)]'):
                                 time.sleep(5)
                                 url = __get_popup_url(page=page, _url='x.com', timeout=15)
                                 twitter_page.close()
