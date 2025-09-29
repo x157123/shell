@@ -1418,7 +1418,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 __out_join = True
             else:
                 __out_join = True
-
+            __out_join = True
             if __out_join:
                 nexus.get(url='https://app.nexus.xyz/rewards')
                 nexus.refresh()
