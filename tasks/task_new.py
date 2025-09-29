@@ -1506,12 +1506,15 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                     logger.info('重新关注')
                                     time.sleep(10)
                                     nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
+                                    time.sleep(2)
                                     if __get_ele(page=nexus,
                                                  xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]'):
                                         logger.info('重新关注成功')
                                         if platform.system().lower() == "windows":
+                                            logger.info('写入文件0')
                                             append_date_to_file("E:/tmp/chrome_data/nexus_joinas.txt", evm_id)
                                         else:
+                                            logger.info('写入文件1')
                                             append_date_to_file("/home/ubuntu/task/tasks/nexus_joinas.txt", evm_id)
                             nexus.get(url='https://quest.nexus.xyz/loyalty')
 
