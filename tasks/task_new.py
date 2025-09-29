@@ -1314,7 +1314,7 @@ def fa_code(page, code):
 
 
 def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
-    __bool = True
+    __bool = False
     __join = False
     __out_join = False
     try:
@@ -1360,7 +1360,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
 
         __x_bool = x_com(page=page, name=x_name, email=x_email, pwd=x_pwd, fa=x_2fa, evm_id=evm_id)
         if __x_bool is None:
-            __bool = True
+            __bool = False
         elif __x_bool:
             if platform.system().lower() == "windows":
                 nexus_joins = read_data_list_file("E:/tmp/chrome_data/nexus_joins.txt")
@@ -1524,6 +1524,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         # scroll_div.scroll.down(1000)  # 滚动页面
                         time.sleep(3)
 
+
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]",
                                      loop=1):
@@ -1660,7 +1661,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                      loop=1):
                             nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, 'Goodbye Camp Nexus', 'Repost Tweet')
 
-
+                        __bool = True
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]",
                                      loop=1):
