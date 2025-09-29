@@ -1252,10 +1252,14 @@ def x_com(page, name, email, pwd, fa, evm_id):
         x_com.get(url='https://x.com/i/flow/login')
 
         for i in range(3):
-            time.sleep(4)
+            time.sleep(2)
             if __get_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1):
                 __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1)
-                x_com.refresh()
+                time.sleep(1)
+                if __get_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1):
+                    x_com.refresh()
+                else:
+                    break
             else:
                 break
 
@@ -1601,8 +1605,10 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                         __input_ele_value(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//input[@name='contentUrl']", value=url)
                                 if __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]"):
                                     __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]")
-                                    time.sleep(5)
-
+                                    time.sleep(2)
+                                elif __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]"):
+                                    __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+                                    time.sleep(2)
 
 
                         if __get_ele(page=nexus,
@@ -1628,8 +1634,10 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                         __input_ele_value(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//input[@name='contentUrl']", value=url)
                                 if __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]"):
                                     __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]")
-                                    time.sleep(5)
-
+                                    time.sleep(2)
+                                elif __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]"):
+                                    __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+                                    time.sleep(2)
 
 
                         if __get_ele(page=nexus,
@@ -1721,8 +1729,6 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         if _amount:
                             if __bool:
                                 signma_log(message=_amount, task_name=f'nexus_joina', index=evm_id)
-                                if _amount == '0':
-                                    __bool = False
                             else:
                                 signma_log(message=_amount, task_name=f'nexus_joina_not_end', index=evm_id)
     except Exception as e:
