@@ -1252,7 +1252,7 @@ def x_com(page, name, email, pwd, fa, evm_id):
         x_com.get(url='https://x.com/i/flow/login')
 
         __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=2)
-        
+
         if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]', loop=2) is None:
             logger.info('cf-校验')
             if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human") or starts-with(normalize-space(.),"请完成以下操作，验证您是真人")]'):
