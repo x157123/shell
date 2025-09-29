@@ -1314,7 +1314,7 @@ def fa_code(page, code):
 
 
 def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
-    __bool = False
+    __bool = True
     __join = False
     __out_join = False
     try:
@@ -1660,7 +1660,6 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                      loop=1):
                             nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, 'Goodbye Camp Nexus', 'Repost Tweet')
 
-                        __bool = True
 
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]",
