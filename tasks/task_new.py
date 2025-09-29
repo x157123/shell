@@ -1245,6 +1245,15 @@ def __do_hemi(page, evm_id, evm_addr):
 def x_com(page, name, email, pwd, fa, evm_id):
     _bool = False
     x_com = page.new_tab(url='https://x.com')
+
+    for i in range(4):
+        time.sleep(4)
+        if __get_ele(page=x_com, xpath='x://h1[contains(text(), "x.com")]', loop=1):
+            time.sleep(5)
+            click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), 24)
+        else:
+            break
+
     if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2):
         time.sleep(5)
         _bool = True
@@ -1262,8 +1271,6 @@ def x_com(page, name, email, pwd, fa, evm_id):
                     break
             else:
                 break
-
-
 
         if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]', loop=2) is None:
             logger.info('cf-校验')
@@ -1460,7 +1467,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 __join = True
 
                 nexus.get(url='https://quest.nexus.xyz/loyalty')
-                for i in range(3):
+                for i in range(4):
                     time.sleep(4)
                     if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
                         time.sleep(5)
