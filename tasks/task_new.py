@@ -1740,8 +1740,8 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
 
 
 def nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
-    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]")
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=2)
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]", loop=2)
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
     if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
         __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
@@ -1751,12 +1751,12 @@ def nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
         __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=1)
         twitter_page.close()
         __click_ele(page=nexus,
-                    xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+                    xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=2)
 
 
 def nex_like_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
-    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]")
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=2)
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]", loop=2)
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
     __click_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0)
     if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
@@ -1772,14 +1772,14 @@ def nex_like_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
             signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
         __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=1)
         twitter_page.close()
-        if __get_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]"):
-            __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]")
+        if __get_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]", loop=2):
+            __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]", loop=2)
             time.sleep(5)
 
 
 def nex_follow(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
-    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]")
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=2)
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]", loop=2)
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
     if __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Follow"]]'):
         if __get_ele(page=twitter_page,
@@ -1788,7 +1788,7 @@ def nex_follow(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
             signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
         twitter_page.close()
         if __get_ele(page=nexus,
-                     xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]"):
+                     xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]", loop=2):
             __click_ele(page=nexus,
                         xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]")
             time.sleep(5)
