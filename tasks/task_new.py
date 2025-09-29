@@ -1569,7 +1569,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]',
                                            find_all=True, index=0):
                                 __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
-                                time.sleep(4)
+                                time.sleep(2)
                             if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True,
                                            index=0):
                                 __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
@@ -1725,7 +1725,7 @@ def nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
     if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
         __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
-        time.sleep(4)
+        time.sleep(2)
     if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0):
         __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
         __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=1)
@@ -1741,7 +1741,7 @@ def nex_like_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
     __click_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0)
     if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
         __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
-        time.sleep(4)
+        time.sleep(2)
     if __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True, index=0):
         if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
             signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
