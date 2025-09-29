@@ -1678,7 +1678,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             __bool = False
 
                         if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]",
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[text()='Follow Nexus']",
                                      loop=1):
                             __bool = False
 
