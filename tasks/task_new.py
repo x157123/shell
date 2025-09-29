@@ -1251,7 +1251,15 @@ def x_com(page, name, email, pwd, fa, evm_id):
     else:
         x_com.get(url='https://x.com/i/flow/login')
 
-        __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=2)
+        for i in range(3):
+            time.sleep(4)
+            if __get_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1):
+                __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1)
+                x_com.refresh()
+            else:
+                break
+
+
 
         if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]', loop=2) is None:
             logger.info('cf-校验')
@@ -1506,11 +1514,11 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
 
                         for i in range(3):
                             nexus.scroll.to_bottom()
-                        time.sleep(5)
+                        time.sleep(3)
                         nexus.refresh()
                         nexus.scroll.to_bottom()
                         # scroll_div.scroll.down(1000)  # 滚动页面
-                        time.sleep(5)
+                        time.sleep(3)
 
                         if __get_ele(page=nexus,
                                      xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]",
