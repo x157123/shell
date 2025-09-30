@@ -2076,7 +2076,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
         if _login:
             time.sleep(2)
             sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
-            if float(sum_num_str.replace(',', '')) > 3500:
+            if float(sum_num_str.replace(',', '')) > 2500:
                 prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                 if evm_id not in prismax_init:
                     append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
