@@ -1774,9 +1774,9 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
                         if _amount:
                             if __bool:
-                                signma_log(message=f'{_0},{_I},{_II},{_DEVNET_NEX}', task_name=f'nexus_joina', index=evm_id)
+                                signma_log(message=f'{_0},{_I},{_II},{_DEVNET_NEX},{_amount}', task_name=f'nexus_joina', index=evm_id)
                             else:
-                                signma_log(message=f'{_0},{_I},{_II},{_DEVNET_NEX}', task_name=f'nexus_joina_not_end', index=evm_id)
+                                signma_log(message=f'{_0},{_I},{_II},{_DEVNET_NEX},{_amount}', task_name=f'nexus_joina_not_end', index=evm_id)
 
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
@@ -2743,8 +2743,8 @@ if __name__ == '__main__':
                         elif _type == 'nexus':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                         elif _type == 'nexus_joina':
-                            # _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
-                            _end = True
+                            _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
+                            # _end = True
                         elif _type == 'prismax':
                             if len(arg) < 3:
                                 logger.warning("prismax 需要助记词/私钥参数，已跳过")
