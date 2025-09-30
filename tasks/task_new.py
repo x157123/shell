@@ -1331,6 +1331,11 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
         __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
 
+        _II = None
+        _I = None
+        _0 = None
+        _DEVNET_NEX = None
+
         nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
         __get_ele(page=nexus, xpath='x://a[contains(text(), "FAQ")]', loop=10)
         if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
@@ -1465,6 +1470,12 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                          xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]',
                                          loop=2):
                                 __join = True
+
+                nexus.get(url='https://app.nexus.xyz/rewards')
+                _II = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=0)
+                _I = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=0)
+                _0 = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=1)
+                _DEVNET_NEX = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=1)
 
                 nexus.get(url='https://quest.nexus.xyz/loyalty')
                 for i in range(4):
@@ -1752,9 +1763,10 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
                         if _amount:
                             if __bool:
-                                signma_log(message=_amount, task_name=f'nexus_joina', index=evm_id)
+                                signma_log(message=f'{_0},{_I},{_II},{_DEVNET_NEX}', task_name=f'nexus_joina', index=evm_id)
                             else:
-                                signma_log(message=_amount, task_name=f'nexus_joina_not_end', index=evm_id)
+                                signma_log(message=f'{_0},{_I},{_II},{_DEVNET_NEX}', task_name=f'nexus_joina_not_end', index=evm_id)
+
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
@@ -2720,8 +2732,8 @@ if __name__ == '__main__':
                         elif _type == 'nexus':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                         elif _type == 'nexus_joina':
-                            # _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
-                            _end = True
+                            _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
+                            # _end = True
                         elif _type == 'prismax':
                             if len(arg) < 3:
                                 logger.warning("prismax 需要助记词/私钥参数，已跳过")
