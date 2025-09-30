@@ -1494,7 +1494,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                     time.sleep(4)
                     if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
                         time.sleep(5)
-                        click_x_y(524 + random.randint(1, 8), 393 + random.randint(1, 18), index)
+                        click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), index)
                         time.sleep(10)
                     else:
                         break
