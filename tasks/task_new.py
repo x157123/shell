@@ -1370,7 +1370,8 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         newt_work.click(by_js=True)
                         __handle_signma_popup(page=page, count=1, timeout=45)
 
-        __x_bool = x_com(page=page, name=x_name, email=x_email, pwd=x_pwd, fa=x_2fa, evm_id=evm_id)
+        # __x_bool = x_com(page=page, name=x_name, email=x_email, pwd=x_pwd, fa=x_2fa, evm_id=evm_id)
+        __x_bool = True
         if __x_bool is None:
             __bool = False
         elif __x_bool:
@@ -1774,10 +1775,10 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
                         if _amount:
                             if __bool:
-                                signma_log(message=f'{_0},{_I},{_II},{_DEVNET_NEX},{_amount}', task_name=f'nexus_joina', index=evm_id)
+                                signma_log(message=f'{_0},{_I},{_II},{_DEVNET_NEX},{_amount}', task_name=f'nexus_joinb', index=evm_id)
                             else:
-                                signma_log(message=f'{_0},{_I},{_II},{_DEVNET_NEX},{_amount}', task_name=f'nexus_joina_not_end', index=evm_id)
-
+                                signma_log(message=f'{_0},{_I},{_II},{_DEVNET_NEX},{_amount}', task_name=f'nexus_joinb_not_end', index=evm_id)
+                        __bool = True
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
@@ -2688,7 +2689,7 @@ if __name__ == '__main__':
                 _id = arg[1]
                 logger.warning(f"启动任务:{part}")
                 # if _type == 'prismax':
-                if _type == 'nexus_joina':
+                if _type == 'nexus_joinb' or _type == 'nexus_joina':
                 # if _type:
                     #     signma_log(message=part, task_name=f'prismax_task_{get_date_as_string()}', index=_id)
                     if _type == 'gift':
@@ -2743,6 +2744,9 @@ if __name__ == '__main__':
                         elif _type == 'nexus':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                         elif _type == 'nexus_joina':
+                            # _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
+                            _end = True
+                        elif _type == 'nexus_joinb':
                             _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
                             # _end = True
                         elif _type == 'prismax':
@@ -2766,7 +2770,7 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type == 'nexus_joina':
+                if _type == 'nexus_joinb' or _type == 'nexus_joina':
                 # if _type:
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end:
