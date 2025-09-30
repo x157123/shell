@@ -1472,10 +1472,20 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 __join = True
 
                 nexus.get(url='https://app.nexus.xyz/rewards')
-                _II = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=0)
-                _I = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=0)
-                _0 = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=1)
-                _DEVNET_NEX = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=1)
+                if __click_ele(page=nexus, xpath='x://button[text()="PREVIOUS"]'):
+                    _II = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=0)
+                    _I = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=0)
+                    _0 = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=1)
+                    _DEVNET_NEX = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=1)
+
+                    if _DEVNET_NEX is None:
+                        nexus.refresh()
+                        if __click_ele(page=nexus, xpath='x://button[text()="PREVIOUS"]'):
+                            _II = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=0)
+                            _I = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=0)
+                            _0 = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=1)
+                            _DEVNET_NEX = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=1)
+
 
                 nexus.get(url='https://quest.nexus.xyz/loyalty')
                 for i in range(4):
