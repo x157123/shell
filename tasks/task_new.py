@@ -2154,8 +2154,8 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
                                 else:
                                     signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
                             time.sleep(5)
-                # else:
-                #     signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                else:
+                    signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
         else:
             signma_log(message='登陆失败', task_name=f'prismax_point_out_{get_date_as_string()}', index=evm_id)
 
@@ -2689,7 +2689,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 logger.warning(f"启动任务:{part}")
-                if _type == 'prismax':
+                # if _type == 'prismax':
+                if _type == 'prismax' or _type == 'nexus_joina':
                 # if _type == 'nexus_joina':
                 # if _type:
                     #     signma_log(message=part, task_name=f'prismax_task_{get_date_as_string()}', index=_id)
@@ -2768,7 +2769,7 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type == 'prismax':
+                if _type == 'prismax' or _type == 'nexus_joina':
                 # if _type == 'nexus_joina':
                 # if _type:
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
@@ -2780,10 +2781,10 @@ if __name__ == '__main__':
                                 _end_day_task.append(_task_id)
                     else:
                         signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-            # if len(filtered) > 24:
-            #     time.sleep(600)
-            # elif len(filtered) > 12:
-            #     time.sleep(1800)
-            # else:
-            #     time.sleep(3600)
+            if len(filtered) > 24:
+                time.sleep(600)
+            elif len(filtered) > 12:
+                time.sleep(1800)
+            else:
+                time.sleep(3600)
         time.sleep(1800)
