@@ -27,7 +27,9 @@ def __get_page(_type, _id, _port, _home_ip):
         options.set_browser_path(r"E:\chrome_tool\127.0.6483.0\chrome.exe")
     else:
         options.set_browser_path('/opt/google/chrome')
-
+    if _home_ip:
+        num = "23002"
+        options.set_proxy(f"43.160.196.49:{num}")
     if _type == 'prismax':
         if platform.system().lower() == "windows":
             options.add_extension(f"E:/chrome_tool/phantom")
