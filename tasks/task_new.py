@@ -1471,7 +1471,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 time.sleep(2)
                                 if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
                                     __get_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]', loop=10)
-                                    time.sleep(5)
+                                    time.sleep(50)
 
                 nexus.get(url='https://app.nexus.xyz/rewards')
                 nexus.refresh()
