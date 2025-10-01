@@ -1518,7 +1518,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         else:
                             break
 
-                    if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=3):
+                    if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1):
                         shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
                         if shadow_host:
                             shadow_root = shadow_host.shadow_root
