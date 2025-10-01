@@ -2864,4 +2864,4 @@ if __name__ == '__main__':
                     #     time.sleep(1800)
                     # else:
                     #     time.sleep(3600)
-        time.sleep(300)
+        time.sleep(1800)
