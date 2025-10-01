@@ -1684,7 +1684,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                         url = __get_popup_url(page=page, _url='x.com', timeout=15)
                                         twitter_page.close()
                                         if url is not None:
-                                            if __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[text()='Enter Link']", loop=2):
+                                            if __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[text()='Enter Link']", loop=1):
                                                 __input_ele_value(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//input[@name='contentUrl']", value=url)
                                         if __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]", loop=1):
                                             __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]")
@@ -1715,7 +1715,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                         url = __get_popup_url(page=page, _url='x.com', timeout=15)
                                         twitter_page.close()
                                         if url is not None:
-                                            if __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[text()='Enter Link']", loop=2):
+                                            if __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[text()='Enter Link']", loop=1):
                                                 __input_ele_value(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//input[@name='contentUrl']", value=url)
                                         if __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]", loop=1):
                                             __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]")
