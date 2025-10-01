@@ -2918,6 +2918,9 @@ if __name__ == '__main__':
                         #         logger.error("浏览器启动失败，跳过该任务")
                         #         continue
                         #     _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        #     if _end:
+                        #         signma_log(message=f"1", task_name=f'end_nexus_card_logs', index=evm_id)
+
                     else:
                         _home_ip = False
                         _dt = False
