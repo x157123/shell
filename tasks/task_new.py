@@ -1436,7 +1436,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                     click_x_y(1076, 629, 24)
                             time.sleep(2)
                             if __get_ele(page=profile_shadow_root,
-                                         xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
+                                         xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]', loop=1):
                                 if platform.system().lower() == "windows":
                                     append_date_to_file("E:/tmp/chrome_data/nexus_joins.txt", evm_id)
                                 else:
@@ -1444,7 +1444,6 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 __out_join = True
             else:
                 __out_join = True
-            __out_join = True
             if __out_join:
                 nexus.get(url='https://app.nexus.xyz/rewards')
                 nexus.refresh()
@@ -1461,12 +1460,12 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             profile.click()
                             if __get_ele(page=profile_shadow_root,
                                          xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]',
-                                         loop=2):
+                                         loop=1):
                                 __click_ele(page=profile_shadow_root,
                                             xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]')
-                                time.sleep(5)
+                                time.sleep(2)
                                 if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
-                                    time.sleep(10)
+                                    __get_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]', loop=10)
 
                 nexus.get(url='https://app.nexus.xyz/rewards')
                 nexus.refresh()
@@ -1751,69 +1750,97 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]",
                                          loop=1):
                                 __bool = False
+                            else:
+                                _a = False
 
                             if _b and __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Follow Nodejox - The Author')]",
                                          loop=1):
                                 __bool = False
+                            else:
+                                _b = False
 
                             if _c and __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]",
                                          loop=1):
                                 __bool = False
+                            else:
+                                _c = False
 
                             if _d and __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]",
                                          loop=1):
                                 __bool = False
+                            else:
+                                _d = False
 
                             if _e and __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[text()='Follow Nexus ']",
                                          loop=1):
                                 __bool = False
+                            else:
+                                _e = False
 
                             if _f and __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]",
                                          loop=1):
                                 __bool = False
+                            else:
+                                _f = False
 
                             if _g and __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Founder')]",
                                          loop=1):
                                 __bool = False
+                            else:
+                                _g = False
 
                             if _h and __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Voice')]",
                                          loop=1):
                                 __bool = False
+                            else:
+                                _h = False
 
                             if _i and __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Doctor')]",
                                          loop=1):
                                 __bool = False
+                            else:
+                                _i = False
 
                             if _j and __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]",
                                          loop=1):
                                 __bool = False
+                            else:
+                                _j = False
 
                             if _k and __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]",
                                          loop=1):
                                 __bool = False
+                            else:
+                                _k = False
 
                             if _l and __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]",
                                          loop=1):
                                 __bool = False
+                            else:
+                                _l = False
 
                             if _m and __get_ele(page=nexus, xpath='x://a[@label="Visit Blog"]', loop=1):
                                 __bool = False
+                            else:
+                                _m = False
 
                             if _n and __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]",
                                          loop=1):
                                 __bool = False
+                            else:
+                                _n = False
 
                             if __bool:
                                 break
