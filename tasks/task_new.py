@@ -1471,7 +1471,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 time.sleep(2)
                                 if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
                                     __get_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]', loop=10)
-                                    time.sleep(50)
+                                    time.sleep(10)
 
                 nexus.get(url='https://app.nexus.xyz/rewards')
                 nexus.refresh()
@@ -1489,6 +1489,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                          xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]',
                                          loop=2):
                                 __join = True
+                __join = True
                 if __join:
                     nexus.get(url='https://app.nexus.xyz/rewards')
                     if __click_ele(page=nexus, xpath='x://button[text()="PREVIOUS"]'):
