@@ -1448,6 +1448,11 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                 nexus.get(url='https://app.nexus.xyz/rewards')
                 nexus.refresh()
                 time.sleep(3)
+                if __get_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]'):
+                    logger.info('加载成功')
+                else:
+                    nexus.get(url='https://app.nexus.xyz/rewards')
+                    nexus.refresh()
                 if __click_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]'):
                     time.sleep(3)
                     pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
