@@ -1393,7 +1393,6 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                 time.sleep(10)
             else:
                 break
-
         if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=3):
             shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
             if shadow_host:
@@ -1408,7 +1407,6 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             signma_ele.click(by_js=True)
                             __handle_signma_popup(page=page, count=2, timeout=45)
         __handle_signma_popup(page=page, count=2)
-
         nexus.get(url='https://app.nexus.xyz/rewards')
 
         __x_bool = x_com(page=page, name=x_name, email=x_email, pwd=x_pwd, fa=x_2fa, evm_id=evm_id)
@@ -2791,12 +2789,12 @@ if __name__ == '__main__':
                             if _id not in prismax_init:
                                 _dt = True
                                 _home_ip = check_available(_id)
-                        # if _type == 'nexus_joina':
-                        #     _home_ip = check_available(_id)
-                        #     if _home_ip:
-                        #         logger.info('加载住宅ip')
-                        #     else:
-                        #         break
+                        if _type == 'nexus_joina':
+                            _home_ip = check_available(_id)
+                            if _home_ip:
+                                logger.info('加载住宅ip')
+                            else:
+                                break
                         _page = __get_page(_type, _id, None, _home_ip)
                         if _page is None:
                             logger.error("浏览器启动失败，跳过该任务")
@@ -2823,7 +2821,7 @@ if __name__ == '__main__':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                         elif _type == 'nexus_joina':
                             _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
-                            # end_available(evm_id=_id)
+                            end_available(evm_id=_id)
                             # _end = True
                         elif _type == 'prismax':
                             if len(arg) < 3:
@@ -2864,4 +2862,4 @@ if __name__ == '__main__':
                     #     time.sleep(1800)
                     # else:
                     #     time.sleep(3600)
-        time.sleep(1800)
+        time.sleep(1200)
