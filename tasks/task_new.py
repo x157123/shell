@@ -1272,6 +1272,11 @@ def x_com(page, name, email, pwd, fa, evm_id):
             else:
                 break
 
+        if __get_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1):
+            signma_log(message=f"{name},{email},{pwd},{fa}", task_name=f'nexus_joina_error_service', index=evm_id)
+            x_com.close()
+            return None
+
         if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]', loop=2) is None:
             logger.info('cf-校验')
             if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human") or starts-with(normalize-space(.),"请完成以下操作，验证您是真人")]'):
@@ -1373,7 +1378,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
         __x_bool = x_com(page=page, name=x_name, email=x_email, pwd=x_pwd, fa=x_2fa, evm_id=evm_id)
         # __x_bool = True
         if __x_bool is None:
-            __bool = False
+            __bool = True
         elif __x_bool:
             if platform.system().lower() == "windows":
                 nexus_joins = read_data_list_file("E:/tmp/chrome_data/nexus_joins.txt")
