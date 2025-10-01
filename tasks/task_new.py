@@ -1378,7 +1378,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
         __x_bool = x_com(page=page, name=x_name, email=x_email, pwd=x_pwd, fa=x_2fa, evm_id=evm_id)
         # __x_bool = True
         if __x_bool is None:
-            __bool = True
+            __bool = False
         elif __x_bool:
             if platform.system().lower() == "windows":
                 nexus_joins = read_data_list_file("E:/tmp/chrome_data/nexus_joins.txt")
@@ -2696,7 +2696,6 @@ if __name__ == '__main__':
                 logger.warning(f"启动任务:{part}")
                 # if _type == 'prismax':
                 if _type == 'nexus_joina':
-                # if _type == 'nexus_joina':
                 # if _type:
                     #     signma_log(message=part, task_name=f'prismax_task_{get_date_as_string()}', index=_id)
                     if _type == 'gift':
@@ -2726,6 +2725,12 @@ if __name__ == '__main__':
                             if _id not in prismax_init:
                                 _dt = True
                                 _home_ip = check_available(_id)
+                        if _type == 'nexus_joina':
+                            _home_ip = check_available(_id)
+                            if _home_ip:
+                                logger.info('加载住宅ip')
+                            else:
+                                break
                         _page = __get_page(_type, _id, None, _home_ip)
                         if _page is None:
                             logger.error("浏览器启动失败，跳过该任务")
@@ -2752,6 +2757,7 @@ if __name__ == '__main__':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                         elif _type == 'nexus_joina':
                             _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
+                            end_available(evm_id=_id)
                             # _end = True
                         elif _type == 'prismax':
                             if len(arg) < 3:
