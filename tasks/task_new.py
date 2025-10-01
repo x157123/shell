@@ -1383,32 +1383,6 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
             else:
                 signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
 
-
-        nexus.get(url='https://quest.nexus.xyz/loyalty')
-        for i in range(5):
-            time.sleep(4)
-            if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
-                time.sleep(5)
-                click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), index)
-                time.sleep(10)
-            else:
-                break
-        if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=3):
-            shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-            if shadow_host:
-                shadow_root = shadow_host.shadow_root
-                if shadow_root:
-                    continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
-                    if continue_button:
-                        continue_button.click(by_js=True)
-                        time.sleep(1)
-                        signma_ele = shadow_root.ele('x://span[text()="Signma"]')
-                        if signma_ele:
-                            signma_ele.click(by_js=True)
-                            __handle_signma_popup(page=page, count=2, timeout=45)
-        __handle_signma_popup(page=page, count=2)
-        nexus.get(url='https://app.nexus.xyz/rewards')
-
         __x_bool = x_com(page=page, name=x_name, email=x_email, pwd=x_pwd, fa=x_2fa, evm_id=evm_id)
         # __x_bool = True
         if __x_bool is None:
