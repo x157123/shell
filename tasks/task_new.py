@@ -2870,7 +2870,7 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 logger.warning(f"启动任务:{part}")
-                if _type:
+                if _type == 'nexus_hz' or _type == 'prismax':
                     # if _type == 'nexus_hz':
                     if _type == 'nexus_hz':
                         evm_id = _id
@@ -2887,7 +2887,7 @@ if __name__ == '__main__':
                                 _bool = True
                             else:
                                 if amount is not None and float(amount) > 0:
-                                    __do_send_wallet('88102', evm_addr, amount, 0.1, 'nexus_eth')
+                                    __do_send_wallet('88102', evm_addr, amount, 0.08, 'nexus_eth')
                                 else:
                                     rari = get_eth_balance("rari", evm_addr)
                                     if 0.0005 <= float(rari):
@@ -2900,7 +2900,7 @@ if __name__ == '__main__':
                                         else:
                                             amount_tmp = random.uniform(0.000511, 0.000620)
                                         _amount = "{:.5f}".format(amount_tmp)
-                                        __send_end_wallet(_page, evm_id, None, _amount, "https://relay.link/bridge/ethereum?fromChainId=1380012617", 0.1, 0, 'nexus_eth')
+                                        __send_end_wallet(_page, evm_id, None, _amount, "https://relay.link/bridge/ethereum?fromChainId=1380012617", 0.08, 0, 'nexus_eth')
                                 ethereum = get_eth_balance("ethereum", evm_addr)
                                 if float(ethereum) >= 0.00047:
                                     append_date_to_file(file_path="/home/ubuntu/task/tasks/end_nexus_wallet.txt", data_str=evm_id)
@@ -2988,7 +2988,7 @@ if __name__ == '__main__':
                         logger.exception("退出错误")
                 # if _type == 'nexus_hz':
                 # if _type == 'nexus_joina':
-                if _type:
+                if _type == 'nexus_hz' or _type == 'prismax':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end:
                         if _task_id and platform.system().lower() != "windows":
@@ -2998,7 +2998,7 @@ if __name__ == '__main__':
                                 _end_day_task.append(_task_id)
                     else:
                         signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-            time.sleep(1800)
+            time.sleep(600)
             # if len(filtered) > 24:
             #     time.sleep(600)
             # elif len(filtered) > 12:
