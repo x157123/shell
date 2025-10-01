@@ -2757,12 +2757,12 @@ if __name__ == '__main__':
                             if _id not in prismax_init:
                                 _dt = True
                                 _home_ip = check_available(_id)
-                        if _type == 'nexus_joina':
-                            _home_ip = check_available(_id)
-                            if _home_ip:
-                                logger.info('加载住宅ip')
-                            else:
-                                break
+                        # if _type == 'nexus_joina':
+                        #     _home_ip = check_available(_id)
+                        #     if _home_ip:
+                        #         logger.info('加载住宅ip')
+                        #     else:
+                        #         break
                         _page = __get_page(_type, _id, None, _home_ip)
                         if _page is None:
                             logger.error("浏览器启动失败，跳过该任务")
@@ -2789,7 +2789,7 @@ if __name__ == '__main__':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                         elif _type == 'nexus_joina':
                             _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
-                            end_available(evm_id=_id)
+                            # end_available(evm_id=_id)
                             # _end = True
                         elif _type == 'prismax':
                             if len(arg) < 3:
