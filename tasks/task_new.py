@@ -2909,17 +2909,17 @@ if __name__ == '__main__':
                                     _end = True
                                 else:
                                     _bool = False
-                        # else:
-                        #     _bool = True
-                        # if _bool:
-                        #     if _page is None:
-                        #         _page = __get_page("nexus_joina", _id, None, False)
-                        #     if _page is None:
-                        #         logger.error("浏览器启动失败，跳过该任务")
-                        #         continue
-                        #     _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                        #     if _end:
-                        #         signma_log(message=f"1", task_name=f'end_nexus_card_logs', index=evm_id)
+                        else:
+                            _bool = True
+                        if _bool:
+                            if _page is None:
+                                _page = __get_page("nexus_joina", _id, None, False)
+                            if _page is None:
+                                logger.error("浏览器启动失败，跳过该任务")
+                                continue
+                            _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                            if _end:
+                                signma_log(message=f"1", task_name=f'end_nexus_card_logs', index=evm_id)
 
                     else:
                         _home_ip = False
