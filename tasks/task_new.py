@@ -1478,7 +1478,7 @@ def __do_task_nexus_hz_qy(page, evm_id, evm_addr, index):
                 __bool_a = True
             if _idb not in nexus_no_bad:
                 __bool_b = True
-            signma_log(message=f"{ethereum_start},{_amount},{__bool_a},{__bool_b}", task_name=f'nexus_card_info', index=evm_id)
+            signma_log(message=f"{evm_addr},{ethereum_start},{_amount},{__bool_a},{__bool_b}", task_name=f'nexus_card_info', index=evm_id)
             __bool = True
     return __bool
 
