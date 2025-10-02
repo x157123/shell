@@ -2869,7 +2869,7 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-                logger.warning(f"启动任务:{part}")
+                logger.warning(f"启动任务1:{part}")
                 if _type == 'nexus_hzlq':
                     # if _type == 'nexus_hz':
                     logger.warning(f"启动任务--------:{part}")
