@@ -2870,7 +2870,7 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 logger.warning(f"启动任务1:{_type}:{part}")
-                if _type == 'nexus_hzlq':
+                if _type == 'prismax':
                     # if _type == 'nexus_hz':
                     logger.warning(f"启动任务--------:{part}")
                     if _type == 'nexus_hzlq':
@@ -2912,15 +2912,15 @@ if __name__ == '__main__':
                                     _bool = False
                         else:
                             _bool = True
-                        if _bool:
-                            if _page is None:
-                                _page = __get_page("nexus_joina", _id, None, False)
-                            if _page is None:
-                                logger.error("浏览器启动失败，跳过该任务")
-                                continue
-                            _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                            if _end:
-                                signma_log(message=f"1", task_name=f'end_nexus_card_logs', index=evm_id)
+                        # if _bool:
+                        #     if _page is None:
+                        #         _page = __get_page("nexus_joina", _id, None, False)
+                        #     if _page is None:
+                        #         logger.error("浏览器启动失败，跳过该任务")
+                        #         continue
+                        #     _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        #     if _end:
+                        #         signma_log(message=f"1", task_name=f'end_nexus_card_logs', index=evm_id)
 
                     else:
                         _home_ip = False
@@ -2989,7 +2989,7 @@ if __name__ == '__main__':
                         logger.exception("退出错误")
                 # if _type == 'nexus_hz':
                 # if _type == 'nexus_joina':
-                if _type == 'nexus_hzlq':
+                if _type == 'prismax':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end:
                         if _task_id and platform.system().lower() != "windows":
