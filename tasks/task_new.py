@@ -1475,11 +1475,9 @@ def __do_task_nexus_hz_qy(page, evm_id, evm_addr, index):
         _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
         if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
             if _ida not in nexus_no_bad:
-                if __get_ele(page=nexus, xpath='x://a[div[div[span[text()="Alpha Genesis Glyph"]]]]', loop=3):
-                    __bool_a = True
+                __bool_a = True
             if _idb not in nexus_no_bad:
-                if __get_ele(page=nexus, xpath='x://a[div[div[span[text()="No Bad Ideas Glyph"]]]]', loop=3):
-                    __bool_b = True
+                __bool_b = True
             signma_log(message=f"{ethereum_start},{_amount},{__bool_a},{__bool_b}", task_name=f'nexus_card_info', index=evm_id)
             __bool = True
     return __bool
