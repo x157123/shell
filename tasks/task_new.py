@@ -1380,7 +1380,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                     logger.info('点击')
                     if __get_ele(page=nexus, xpath='x://h1[contains(text(), "Alpha Genesis Glyph")]'):
                         if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3):
-                            __handle_signma_popup(page=page, count=2, timeout=45) # Ethereum
+                            __handle_signma_popup(page=page, count=2, timeout=15) # Ethereum
                             if __get_ele(page=nexus, xpath='x://h1[contains(text(), "Your purchase succeeded!")]', loop=15):
                                 __bool_a = True
                                 logger.info('成功')
@@ -1408,7 +1408,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                     logger.info('点击')
                     if __get_ele(page=nexus, xpath='x://h1[contains(text(), "No Bad Ideas Glyph")]'):
                         if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3):
-                            __handle_signma_popup(page=page, count=2, timeout=45)
+                            __handle_signma_popup(page=page, count=2, timeout=15)
                             if __get_ele(page=nexus, xpath='x://h1[contains(text(), "Your purchase succeeded!")]', loop=15):
                                 __bool_b = True
                                 logger.info('成功')
