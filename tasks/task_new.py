@@ -2870,9 +2870,9 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 logger.warning(f"启动任务:{part}")
-                if _type == 'nexus_hz' or _type == 'prismax':
+                if _type == 'nexus_hzlq':
                     # if _type == 'nexus_hz':
-                    if _type == 'nexus_hz':
+                    if _type == 'nexus_hzlq':
                         evm_id = _id
                         evm_addr = arg[2]
                         amount = arg[3]
@@ -2988,7 +2988,7 @@ if __name__ == '__main__':
                         logger.exception("退出错误")
                 # if _type == 'nexus_hz':
                 # if _type == 'nexus_joina':
-                if _type == 'nexus_hz' or _type == 'prismax':
+                if _type == 'nexus_hzlq':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end:
                         if _task_id and platform.system().lower() != "windows":
