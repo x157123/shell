@@ -1378,6 +1378,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                 # 30092 30123
                 if __click_ele(page=nexus, xpath='x://a[div[div[span[text()="Alpha Genesis Glyph"]]]]', loop=3):
                     logger.info('点击')
+                    time.sleep(3)
                     if __get_ele(page=nexus, xpath='x://h1[contains(text(), "Alpha Genesis Glyph")]'):
                         if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3):
                             __handle_signma_popup(page=page, count=2, timeout=15) # Ethereum
@@ -1406,6 +1407,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                 # 30092 30123
                 if __click_ele(page=nexus, xpath='x://a[div[div[span[text()="No Bad Ideas Glyph"]]]]', loop=3):
                     logger.info('点击')
+                    time.sleep(3)
                     if __get_ele(page=nexus, xpath='x://h1[contains(text(), "No Bad Ideas Glyph")]'):
                         if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3):
                             __handle_signma_popup(page=page, count=2, timeout=15)
@@ -1426,6 +1428,60 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                                     else:
                                         append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _ida)
         if __bool_a and __bool_b:
+            __bool = True
+    return __bool
+
+
+def __do_task_nexus_hz_qy(page, evm_id, evm_addr, index):
+    __bool = False
+    _ida = f'1_{evm_id}'
+    _idb = f'2_{evm_id}'
+    nexus = page.new_tab(url='https://quest.nexus.xyz/loyalty')
+    if platform.system().lower() == "windows":
+        nexus_no_bad = read_data_list_file("E:/tmp/chrome_data/nexus_card.txt")
+    else:
+        nexus_no_bad = read_data_list_file("/home/ubuntu/task/tasks/nexus_card.txt")
+    ethereum_start = get_eth_balance("ethereum", evm_addr)
+    for i in range(5):
+        time.sleep(4)
+        if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
+            time.sleep(5)
+            click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), index)
+            time.sleep(10)
+        else:
+            break
+
+    if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1):
+        shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+        if shadow_host:
+            shadow_root = shadow_host.shadow_root
+            if shadow_root:
+                continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+                if continue_button:
+                    continue_button.click(by_js=True)
+                    time.sleep(1)
+                    signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+                    if signma_ele:
+                        signma_ele.click(by_js=True)
+                        __handle_signma_popup(page=page, count=2, timeout=45)
+
+    __handle_signma_popup(page=page, count=2)
+    # 0.0005
+    if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
+        __bool_a = False
+        __bool_b = False
+        _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
+        if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
+            if _ida not in nexus_no_bad:
+                if __get_ele(page=nexus, xpath='x://a[div[div[span[text()="Alpha Genesis Glyph"]]]]', loop=3):
+                    __bool_a = True
+
+            __close_popup(page=page, _url=evm_ext_id, timeout=5)
+            nexus.get(url='https://quest.nexus.xyz/loyalty')
+            if _idb not in nexus_no_bad:
+                if __get_ele(page=nexus, xpath='x://a[div[div[span[text()="No Bad Ideas Glyph"]]]]', loop=3):
+                    __bool_b = True
+            signma_log(message=f"{ethereum_start},{_amount},{__bool_a},{__bool_b}", task_name=f'nexus_card_info', index=evm_id)
             __bool = True
     return __bool
 
@@ -2084,52 +2140,40 @@ def __do_task_nexus(page, evm_id, index):
             amount = (m.group(1).replace(',', '')) if m else '0'
 
 
-        nexus.get(url='https://quest.nexus.xyz/loyalty')
-        for i in range(3):
-            time.sleep(4)
-            if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
-                time.sleep(5)
-                click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), index)
-            else:
-                break
+        # nexus.get(url='https://quest.nexus.xyz/loyalty')
+        # for i in range(3):
+        #     time.sleep(4)
+        #     if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
+        #         time.sleep(5)
+        #         click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), index)
+        #     else:
+        #         break
+        #
+        # if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=3):
+        #     shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+        #     if shadow_host:
+        #         shadow_root = shadow_host.shadow_root
+        #         if shadow_root:
+        #             continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+        #             if continue_button:
+        #                 continue_button.click(by_js=True)
+        #                 time.sleep(1)
+        #                 signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+        #                 if signma_ele:
+        #                     signma_ele.click(by_js=True)
+        #                     __handle_signma_popup(page=page, count=2, timeout=45)
+        #
+        # __handle_signma_popup(page=page, count=2)
+        # __click_ele(page=nexus, xpath='x://button[starts-with(@id, "radix-")]')
+        # __click_ele(page=nexus, xpath='x://a//div[@id="connect-wallet-balance-link"]')
+        # _pond = __get_ele_value(page=nexus, xpath='x://span[contains(@class,"font-bold lg:text-xl text-lg")]')
 
-        if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=3):
-            shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-            if shadow_host:
-                shadow_root = shadow_host.shadow_root
-                if shadow_root:
-                    continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
-                    if continue_button:
-                        continue_button.click(by_js=True)
-                        time.sleep(1)
-                        signma_ele = shadow_root.ele('x://span[text()="Signma"]')
-                        if signma_ele:
-                            signma_ele.click(by_js=True)
-                            __handle_signma_popup(page=page, count=2, timeout=45)
-
-        __handle_signma_popup(page=page, count=2)
-        __click_ele(page=nexus, xpath='x://button[starts-with(@id, "radix-")]')
-        __click_ele(page=nexus, xpath='x://a//div[@id="connect-wallet-balance-link"]')
-        _pond = __get_ele_value(page=nexus, xpath='x://span[contains(@class,"font-bold lg:text-xl text-lg")]')
-
-        if amount is not None and _pond is not None:
-            signma_log(message=f'{amount},{_pond.replace(",", "")}', task_name=f'nexus_point_data_{get_date_as_string()}', index=evm_id)
+        if amount is not None:
+            signma_log(message=f'{amount}', task_name=f'nexus_point_data_{get_date_as_string()}', index=evm_id)
             time.sleep(3)
             __bool = True
 
-        # if random.choice([True, False]):
-        #     if __get_ele(page=nexus, xpath="x://div[contains(., 'Welcome to Camp Nexus')]"):
-        #         __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-        #         if __get_ele(page=nexus, xpath='x://a[@label="Visit Blog"]', loop=1):
-        #             __click_ele(page=nexus, xpath='x://a[@label="Visit Blog"]')
-        #             twitter_page = __get_popup(page=page, _url='blog.nexus.xyz', timeout=45)
-        #             if twitter_page is not None:
-        #                 time.sleep(10)
-        #                 twitter_page.close()
-        #                 if __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]"):
-        #                     time.sleep(60)
-        #                     if __get_ele(page=nexus, xpath="x://div[contains(., 'Welcome to Camp Nexus')]") is None:
-        #                         signma_log(message=evm_id, task_name=f'nexus_camp', index=evm_id)
+
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
@@ -2870,58 +2914,61 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 logger.warning(f"启动任务1:{_type}:{part}")
-                if _type == 'prismax':
+                if _type == 'prismax' or _type == 'nexus_hz_query' or _type == 'nexus':
                     # if _type == 'nexus_hz':
                     logger.warning(f"启动任务--------:{part}")
-                    if _type == 'nexus_hzlq':
-                        evm_id = _id
-                        evm_addr = arg[2]
-                        amount = arg[3]
-                        _bool = False
-                        # # 判断需要转账
-                        end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_nexus_wallet.txt")
-                        if evm_id not in end_tasks:
-                            ethereum = get_eth_balance("ethereum", evm_addr)
-                            if float(ethereum) >= 0.00047:
-                                append_date_to_file(file_path="/home/ubuntu/task/tasks/end_nexus_wallet.txt", data_str=evm_id)
-                                signma_log(message=f"1", task_name=f'end_nexus_wallet_logs', index=evm_id)
-                                _bool = True
-                            else:
-                                if amount is not None and float(amount) > 0:
-                                    __do_send_wallet('88102', evm_addr, amount, 0.1, 'nexus_eth')
-                                else:
-                                    rari = get_eth_balance("rari", evm_addr)
-                                    if 0.0005 <= float(rari):
-                                        _page = __get_page("nexus_joina", _id, None, False)
-                                        __login_wallet(page=_page, evm_id=evm_id)
-                                        __handle_signma_popup(page=_page, count=0)
-                                        __add_net_work(page=_page, coin_name='rari')
-                                        if float(rari) <= 0.0006:
-                                            amount_tmp = random.uniform(0.000501, float(rari) - 0.00002)
-                                        else:
-                                            amount_tmp = random.uniform(0.000511, 0.000620)
-                                        _amount = "{:.5f}".format(amount_tmp)
-                                        __send_end_wallet(_page, evm_id, None, _amount, "https://relay.link/bridge/ethereum?fromChainId=1380012617", 0.1, 0, 'nexus_eth')
-                                ethereum = get_eth_balance("ethereum", evm_addr)
-                                if float(ethereum) >= 0.00047:
-                                    append_date_to_file(file_path="/home/ubuntu/task/tasks/end_nexus_wallet.txt", data_str=evm_id)
-                                    signma_log(message=f"1", task_name=f'end_nexus_wallet_logs', index=evm_id)
-                                    _bool = True
-                                    _end = True
-                                else:
-                                    _bool = False
-                        else:
-                            _bool = True
-                        # if _bool:
-                        #     if _page is None:
-                        #         _page = __get_page("nexus_joina", _id, None, False)
-                        #     if _page is None:
-                        #         logger.error("浏览器启动失败，跳过该任务")
-                        #         continue
-                        #     _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                        #     if _end:
-                        #         signma_log(message=f"1", task_name=f'end_nexus_card_logs', index=evm_id)
-
+                    # if _type == 'nexus_hzlq':
+                    #     evm_id = _id
+                    #     evm_addr = arg[2]
+                    #     amount = arg[3]
+                    #     _bool = False
+                    #     # # 判断需要转账
+                    #     end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_nexus_wallet.txt")
+                    #     if evm_id not in end_tasks:
+                    #         ethereum = get_eth_balance("ethereum", evm_addr)
+                    #         if float(ethereum) >= 0.00047:
+                    #             append_date_to_file(file_path="/home/ubuntu/task/tasks/end_nexus_wallet.txt", data_str=evm_id)
+                    #             signma_log(message=f"1", task_name=f'end_nexus_wallet_logs', index=evm_id)
+                    #             _bool = True
+                    #         else:
+                    #             if amount is not None and float(amount) > 0:
+                    #                 __do_send_wallet('88102', evm_addr, amount, 0.1, 'nexus_eth')
+                    #             else:
+                    #                 rari = get_eth_balance("rari", evm_addr)
+                    #                 if 0.0005 <= float(rari):
+                    #                     _page = __get_page("nexus_joina", _id, None, False)
+                    #                     __login_wallet(page=_page, evm_id=evm_id)
+                    #                     __handle_signma_popup(page=_page, count=0)
+                    #                     __add_net_work(page=_page, coin_name='rari')
+                    #                     if float(rari) <= 0.0006:
+                    #                         amount_tmp = random.uniform(0.000501, float(rari) - 0.00002)
+                    #                     else:
+                    #                         amount_tmp = random.uniform(0.000511, 0.000620)
+                    #                     _amount = "{:.5f}".format(amount_tmp)
+                    #                     __send_end_wallet(_page, evm_id, None, _amount, "https://relay.link/bridge/ethereum?fromChainId=1380012617", 0.1, 0, 'nexus_eth')
+                    #             ethereum = get_eth_balance("ethereum", evm_addr)
+                    #             if float(ethereum) >= 0.00047:
+                    #                 append_date_to_file(file_path="/home/ubuntu/task/tasks/end_nexus_wallet.txt", data_str=evm_id)
+                    #                 signma_log(message=f"1", task_name=f'end_nexus_wallet_logs', index=evm_id)
+                    #                 _bool = True
+                    #             else:
+                    #                 _bool = False
+                    #     else:
+                    #         _bool = True
+                    #     if _bool:
+                    #         if _page is None:
+                    #             _page = __get_page("nexus_joina", _id, None, False)
+                    #         if _page is None:
+                    #             logger.error("浏览器启动失败，跳过该任务")
+                    #             continue
+                    #         _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                    #         if _end:
+                    #             signma_log(message=f"1", task_name=f'end_nexus_card_logs', index=evm_id)
+                    if _type == 'nexus_hz_query':
+                        _page = __get_page("nexus_joina", _id, None, False)
+                        __login_wallet(page=_page, evm_id=evm_id)
+                        __handle_signma_popup(page=_page, count=0)
+                        _end = __do_task_nexus_hz_qy(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     else:
                         _home_ip = False
                         _dt = False
@@ -2989,7 +3036,7 @@ if __name__ == '__main__':
                         logger.exception("退出错误")
                 # if _type == 'nexus_hz':
                 # if _type == 'nexus_joina':
-                if _type == 'prismax':
+                if _type == 'prismax' or _type == 'nexus_hz_query' or _type == 'nexus':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end:
                         if _task_id and platform.system().lower() != "windows":
@@ -2999,11 +3046,11 @@ if __name__ == '__main__':
                                 _end_day_task.append(_task_id)
                     else:
                         signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    time.sleep(600)
-            # if len(filtered) > 24:
-            #     time.sleep(600)
-            # elif len(filtered) > 12:
-            #     time.sleep(1800)
-            # else:
-            #     time.sleep(3600)
+                    # time.sleep(600)
+                    if len(filtered) > 24:
+                        time.sleep(600)
+                    elif len(filtered) > 12:
+                        time.sleep(1800)
+                    else:
+                        time.sleep(3600)
         time.sleep(1200)
