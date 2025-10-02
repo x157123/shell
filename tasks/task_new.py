@@ -2911,8 +2911,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 logger.warning(f"启动任务1:{_type}:{part}")
-                # if _type == 'prismax' or _type == 'nexus_hz_query' or _type == 'nexus':
-                if _type == 'nexus_hz_query':
+                if _type == 'prismax' or _type == 'nexus_hz_query':
+                # if _type == 'nexus_hz_query':
                     logger.warning(f"启动任务--------:{part}")
                     # if _type == 'nexus_hzlq':
                     #     evm_id = _id
@@ -3032,8 +3032,8 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 # if _type == 'nexus_hz':
-                if _type == 'nexus_hz_query':
-                # if _type == 'prismax' or _type == 'nexus_hz_query' or _type == 'nexus':
+                # if _type == 'nexus_hz_query':
+                if _type == 'prismax' or _type == 'nexus_hz_query':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end:
                         if _task_id and platform.system().lower() != "windows":
@@ -3043,11 +3043,11 @@ if __name__ == '__main__':
                                 _end_day_task.append(_task_id)
                     else:
                         signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    # time.sleep(600)
+                    time.sleep(600)
                     # if len(filtered) > 24:
                     #     time.sleep(600)
                     # elif len(filtered) > 12:
                     #     time.sleep(1800)
                     # else:
                     #     time.sleep(3600)
-        time.sleep(1200)
+        time.sleep(3600)
