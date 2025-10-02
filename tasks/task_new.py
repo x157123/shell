@@ -1470,14 +1470,13 @@ def __do_task_nexus_hz_qy(page, evm_id, evm_addr, index):
     if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
         __bool_a = False
         __bool_b = False
+        for i in range(3):
+            nexus.scroll.to_bottom()
         _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
         if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
             if _ida not in nexus_no_bad:
                 if __get_ele(page=nexus, xpath='x://a[div[div[span[text()="Alpha Genesis Glyph"]]]]', loop=3):
                     __bool_a = True
-
-            __close_popup(page=page, _url=evm_ext_id, timeout=5)
-            nexus.get(url='https://quest.nexus.xyz/loyalty')
             if _idb not in nexus_no_bad:
                 if __get_ele(page=nexus, xpath='x://a[div[div[span[text()="No Bad Ideas Glyph"]]]]', loop=3):
                     __bool_b = True
