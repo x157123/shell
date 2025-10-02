@@ -2872,6 +2872,7 @@ if __name__ == '__main__':
                 logger.warning(f"启动任务:{part}")
                 if _type == 'nexus_hzlq':
                     # if _type == 'nexus_hz':
+                    logger.warning(f"启动任务--------:{part}")
                     if _type == 'nexus_hzlq':
                         evm_id = _id
                         evm_addr = arg[2]
