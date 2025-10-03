@@ -1400,7 +1400,8 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                                         append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _ida)
                                     else:
                                         append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _ida)
-
+            else:
+                __bool_a = True
 
             __close_popup(page=page, _url=evm_ext_id, timeout=5)
             nexus.get(url='https://quest.nexus.xyz/loyalty')
@@ -1429,6 +1430,8 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                                         append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _ida)
                                     else:
                                         append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _ida)
+            else:
+                __bool_b = True
         if __bool_a and __bool_b:
             __bool = True
 
