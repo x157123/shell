@@ -1412,35 +1412,39 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                 __bool_b = True
             elif _idb not in nexus_no_bad:
                 # 30092 30123
-                if __click_ele(page=nexus, xpath='x://a[div[div[span[text()="No Bad Ideas Glyph"]]]]', loop=3):
-                    logger.info('点击')
-                    time.sleep(3)
-                    if __get_ele(page=nexus, xpath='x://h1[contains(text(), "No Bad Ideas Glyph")]'):
-                        if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3):
-                            __handle_signma_popup(page=page, count=2, timeout=15)
-                            if __get_ele(page=nexus, xpath='x://h1[contains(text(), "Your purchase succeeded!")]', loop=15):
-                                __bool_b = True
-                                logger.info('成功')
-                                if platform.system().lower() == "windows":
-                                    append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _idb)
-                                else:
-                                    append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _idb)
-                            else:
-                                logger.info('查询余额 当余额变更 说明也成功')
-                                _ethereum_tmp = get_eth_balance("ethereum", evm_addr)
-                                if float(_ethereum) - float(_ethereum_tmp) > 0.000002 and float(_ethereum_tmp) > 0:
-                                    _ethereum = _ethereum_tmp
+                _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
+                if _amount and float(_amount) > 1500:
+                    if __click_ele(page=nexus, xpath='x://a[div[div[span[text()="No Bad Ideas Glyph"]]]]', loop=3):
+                        logger.info('点击')
+                        time.sleep(3)
+                        if __get_ele(page=nexus, xpath='x://h1[contains(text(), "No Bad Ideas Glyph")]'):
+                            if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3):
+                                __handle_signma_popup(page=page, count=2, timeout=15)
+                                if __get_ele(page=nexus, xpath='x://h1[contains(text(), "Your purchase succeeded!")]', loop=15):
                                     __bool_b = True
+                                    logger.info('成功')
                                     if platform.system().lower() == "windows":
-                                        append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _ida)
+                                        append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _idb)
                                     else:
-                                        append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _ida)
+                                        append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _idb)
+                                else:
+                                    logger.info('查询余额 当余额变更 说明也成功')
+                                    _ethereum_tmp = get_eth_balance("ethereum", evm_addr)
+                                    if float(_ethereum) - float(_ethereum_tmp) > 0.000002 and float(_ethereum_tmp) > 0:
+                                        _ethereum = _ethereum_tmp
+                                        __bool_b = True
+                                        if platform.system().lower() == "windows":
+                                            append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _ida)
+                                        else:
+                                            append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _ida)
             else:
                 __bool_b = True
         if __bool_a and __bool_b:
             __bool = True
         _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
         signma_log(message=f"{evm_addr},{ethereum_start},{_ethereum},{_amount},{__bool_a},{__bool_b},{__bool}", task_name=f'nexus_card_info_a', index=evm_id)
+        if not __bool_b and _amount and float(_amount) < 15000:
+            __bool = True
     return __bool
 
 
