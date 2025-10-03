@@ -1392,9 +1392,9 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                                     append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _ida)
                             else:
                                 logger.info('查询余额 当余额变更 说明也成功')
-                                _ethereum = get_eth_balance("ethereum", evm_addr)
-                                if float(ethereum_start) - float(_ethereum) > 0.000002 and float(_ethereum) > 0:
-                                    ethereum_start = _ethereum
+                                _ethereum_tmp = get_eth_balance("ethereum", evm_addr)
+                                if float(_ethereum) - float(_ethereum_tmp) > 0.000002 and float(_ethereum_tmp) > 0:
+                                    _ethereum = _ethereum_tmp
                                     __bool_a = True
                                     if platform.system().lower() == "windows":
                                         append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _ida)
@@ -1421,8 +1421,9 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                                     append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _idb)
                             else:
                                 logger.info('查询余额 当余额变更 说明也成功')
-                                _ethereum = get_eth_balance("ethereum", evm_addr)
-                                if float(ethereum_start) - float(_ethereum) > 0.000002 and float(_ethereum) > 0:
+                                _ethereum_tmp = get_eth_balance("ethereum", evm_addr)
+                                if float(_ethereum) - float(_ethereum_tmp) > 0.000002 and float(_ethereum_tmp) > 0:
+                                    _ethereum = _ethereum_tmp
                                     __bool_a = True
                                     if platform.system().lower() == "windows":
                                         append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _ida)
@@ -1430,9 +1431,9 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                                         append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _ida)
         if __bool_a and __bool_b:
             __bool = True
-            signma_log(message=f"{evm_addr},{_ethereum},{_amount},{__bool_a},{__bool_b},{__bool}", task_name=f'nexus_card_info_a', index=evm_id)
+            signma_log(message=f"{evm_addr},{ethereum_start},{_ethereum},{_amount},{__bool_a},{__bool_b},{__bool}", task_name=f'nexus_card_info_a', index=evm_id)
         else:
-            signma_log(message=f"{evm_addr},{_ethereum},{_amount},{__bool_a},{__bool_b},{__bool}", task_name=f'nexus_card_info_a', index=evm_id)
+            signma_log(message=f"{evm_addr},{ethereum_start},{_ethereum},{_amount},{__bool_a},{__bool_b},{__bool}", task_name=f'nexus_card_info_a', index=evm_id)
     return __bool
 
 
@@ -3047,11 +3048,11 @@ if __name__ == '__main__':
                                 _end_day_task.append(_task_id)
                     else:
                         signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    time.sleep(600)
+                    # time.sleep(600)
                     # if len(filtered) > 24:
                     #     time.sleep(600)
                     # elif len(filtered) > 12:
                     #     time.sleep(1800)
                     # else:
                     #     time.sleep(3600)
-        time.sleep(3600)
+        time.sleep(600)
