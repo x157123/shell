@@ -1432,10 +1432,8 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
         if __bool_a and __bool_b:
             __bool = True
 
-        if __bool:
-            signma_log(message=f"{evm_addr},{ethereum_start},{_ethereum},{_amount},{__bool_a},{__bool_b},{__bool}", task_name=f'nexus_card_info_a', index=evm_id)
-        else:
-            signma_log(message=f"{evm_addr},{ethereum_start},{_ethereum},{_amount},{__bool_a},{__bool_b},{__bool}", task_name=f'nexus_card_info_a', index=evm_id)
+
+        signma_log(message=f"{evm_addr},{ethereum_start},{_ethereum},{_amount},{__bool_a},{__bool_b},{__bool}", task_name=f'nexus_card_info_a', index=evm_id)
     return __bool
 
 
