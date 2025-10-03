@@ -1371,11 +1371,14 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                         __handle_signma_popup(page=page, count=2, timeout=45)
     __handle_signma_popup(page=page, count=2)
     # 0.0005
+
     if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
         __bool_a = False
         __bool_b = False
         if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
-            if _ida not in nexus_no_bad:
+            if __get_ele(page=nexus, xpath='x://div[contains(text(), "Minting asset from direct listing with name Alpha Genesis Glyph")]'):
+                __bool_a = True
+            elif _ida not in nexus_no_bad:
                 # 30092 30123
                 if __click_ele(page=nexus, xpath='x://a[div[div[span[text()="Alpha Genesis Glyph"]]]]', loop=3):
                     logger.info('点击')
@@ -1400,12 +1403,14 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                                         append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _ida)
                                     else:
                                         append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _ida)
+                            __close_popup(page=page, _url=evm_ext_id, timeout=5)
+                            nexus.get(url='https://quest.nexus.xyz/loyalty')
             else:
                 __bool_a = True
 
-            __close_popup(page=page, _url=evm_ext_id, timeout=5)
-            nexus.get(url='https://quest.nexus.xyz/loyalty')
-            if _idb not in nexus_no_bad:
+            if __get_ele(page=nexus, xpath='x://div[contains(text(), "Minting asset from direct listing with name No Bad Ideas Glyph")]'):
+                __bool_b = True
+            elif _idb not in nexus_no_bad:
                 # 30092 30123
                 if __click_ele(page=nexus, xpath='x://a[div[div[span[text()="No Bad Ideas Glyph"]]]]', loop=3):
                     logger.info('点击')
@@ -1425,7 +1430,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                                 _ethereum_tmp = get_eth_balance("ethereum", evm_addr)
                                 if float(_ethereum) - float(_ethereum_tmp) > 0.000002 and float(_ethereum_tmp) > 0:
                                     _ethereum = _ethereum_tmp
-                                    __bool_a = True
+                                    __bool_b = True
                                     if platform.system().lower() == "windows":
                                         append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _ida)
                                     else:
@@ -1434,8 +1439,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                 __bool_b = True
         if __bool_a and __bool_b:
             __bool = True
-
-
+        _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
         signma_log(message=f"{evm_addr},{ethereum_start},{_ethereum},{_amount},{__bool_a},{__bool_b},{__bool}", task_name=f'nexus_card_info_a', index=evm_id)
     return __bool
 
@@ -2928,11 +2932,17 @@ if __name__ == '__main__':
                         amount = arg[3]
                         _bool = False
                         # # 判断需要转账
-                        end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_nexus_wallet.txt")
+                        if platform.system().lower() == "windows":
+                            end_tasks = read_data_list_file("E:/tmp/chrome_data/end_nexus_wallet.txt")
+                        else:
+                            end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_nexus_wallet.txt")
                         if evm_id not in end_tasks:
                             ethereum = get_eth_balance("ethereum", evm_addr)
                             if float(ethereum) >= 0.00047:
-                                append_date_to_file(file_path="/home/ubuntu/task/tasks/end_nexus_wallet.txt", data_str=evm_id)
+                                if platform.system().lower() == "windows":
+                                    append_date_to_file(file_path="E:/tmp/chrome_data/end_nexus_wallet.txt", data_str=evm_id)
+                                else:
+                                    append_date_to_file(file_path="/home/ubuntu/task/tasks/end_nexus_wallet.txt", data_str=evm_id)
                                 signma_log(message=f"1", task_name=f'end_nexus_wallet_logs', index=evm_id)
                                 _bool = True
                             else:
@@ -2953,7 +2963,10 @@ if __name__ == '__main__':
                                         __send_end_wallet(_page, evm_id, None, _amount, "https://relay.link/bridge/ethereum?fromChainId=1380012617", 0.1, 0, 'nexus_eth')
                                 ethereum = get_eth_balance("ethereum", evm_addr)
                                 if float(ethereum) >= 0.00047:
-                                    append_date_to_file(file_path="/home/ubuntu/task/tasks/end_nexus_wallet.txt", data_str=evm_id)
+                                    if platform.system().lower() == "windows":
+                                        append_date_to_file(file_path="E:/tmp/chrome_data/end_nexus_wallet.txt", data_str=evm_id)
+                                    else:
+                                        append_date_to_file(file_path="/home/ubuntu/task/tasks/end_nexus_wallet.txt", data_str=evm_id)
                                     signma_log(message=f"1", task_name=f'end_nexus_wallet_logs', index=evm_id)
                                     _bool = True
                                 else:
@@ -2963,6 +2976,8 @@ if __name__ == '__main__':
                         if _bool:
                             if _page is None:
                                 _page = __get_page("nexus_joina", _id, None, False)
+                                __login_wallet(page=_page, evm_id=evm_id)
+                                __handle_signma_popup(page=_page, count=0)
                             if _page is None:
                                 logger.error("浏览器启动失败，跳过该任务")
                                 continue
@@ -3043,12 +3058,14 @@ if __name__ == '__main__':
                 if _type == 'nexus_hz_one':
                 # if _type == 'prismax' or _type == 'nexus_hz_query':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
-                    if _end:
-                        if _task_id and platform.system().lower() != "windows":
-                            if _task_type != '0':
+                    if _end and _task_id:
+                        if _task_type != '0':
+                            if platform.system().lower() != "windows":
                                 append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
                             else:
-                                _end_day_task.append(_task_id)
+                                append_date_to_file(file_path="E:/tmp/chrome_data/end_tasks.txt", data_str=_task_id)
+                        else:
+                            _end_day_task.append(_task_id)
                     else:
                         signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
                     # time.sleep(600)
