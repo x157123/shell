@@ -249,6 +249,8 @@ main() {
 	mkdir -p "/home/ubuntu/task/tasks/img"
   chown -R "$USER":"$USER" "/home/ubuntu/task/tasks/img"
 
+  sudo mv /etc/apt/sources.list.d/google-chrome.list /etc/apt/sources.list.d/google-chrome.list.bak
+
   down_desc
 	# 更新软件源并安装 Python 运行时及虚拟环境支持
 	apt-get update \
