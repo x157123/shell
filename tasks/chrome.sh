@@ -182,10 +182,10 @@ install_wallet_dog() {
   # 文件下载地址
   TARGET_DIR="/home/$USER/extensions/"
 
-  if [ -d "$DIR" ]; then
-    log_info "钱包目录 $DIR 已存在，准备删除。"
-    rm -rf "$DIR"
-  fi
+#  if [ -d "$DIR" ]; then
+#    log_info "钱包目录 $DIR 已存在，准备删除。"
+#    rm -rf "$DIR"
+#  fi
 
   # 判断目录是否存在
   if [ ! -d "$DIR" ]; then
@@ -250,8 +250,6 @@ main() {
   chown -R "$USER":"$USER" "/home/ubuntu/task/tasks/img"
 
   down_desc
-  # 安装钱包
-#  install_wallet_dog
 	# 更新软件源并安装 Python 运行时及虚拟环境支持
 	apt-get update \
 		&& apt-get install -y \
@@ -274,6 +272,9 @@ main() {
 		|| error_exit "Python 包安装失败"
 
   install_chrome_120
+
+  # 安装钱包
+  install_wallet_dog
 
   # 循环创建 :23 到 :27 的 VNC 会话
   for display in {23..25}; do
