@@ -3,7 +3,7 @@
 # 默认值
 USER="ubuntu"
 PASSWORD="Mmscm716+"
-
+readonly CHROME_DEB="google-chrome-stable_current_amd64.deb"
 readonly CHROME_URL_OLD="https://github.com/x157123/ACL4SSR/releases/download/chro/google-chrome-stable_120.0.6099.224-1_amd64.deb"
 
 # 错误处理函数
