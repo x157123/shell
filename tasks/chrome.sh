@@ -33,9 +33,7 @@ check_port() {
 install_chrome_120(){
     if ! dpkg-query -W google-chrome-stable >/dev/null 2>&1; then
         log_info "安装 Google Chrome..."
-        if ! curl -sSL "$CHROME_URL_OLD" -o "$CHROME_DEB"; then
-            log_info "URL 下载失败..."
-        fi
+        wget -q -O "$CHROME_DEB" "$CHROME_URL_OLD" || error_exit "浏览器下载失败"
         sudo dpkg -i "$CHROME_DEB" || sudo apt-get install -f -y || error_exit "Google Chrome 安装失败"
         rm -f "$CHROME_DEB"
         sudo apt-mark hold google-chrome-stable
