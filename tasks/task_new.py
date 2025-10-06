@@ -2996,11 +2996,11 @@ if __name__ == '__main__':
                     else:
                         _home_ip = False
                         _dt = False
-                        if _type == 'prismax':
-                            prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
-                            if _id not in prismax_init:
-                                _dt = True
-                                _home_ip = check_available(_id)
+                        # if _type == 'prismax':
+                        #     prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
+                        #     if _id not in prismax_init:
+                        #         _dt = True
+                        #         _home_ip = check_available(_id)
                         if _type == 'nexus_joina':
                             _home_ip = check_available(_id)
                             if _home_ip:
