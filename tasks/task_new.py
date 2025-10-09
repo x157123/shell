@@ -2631,6 +2631,166 @@ def __do_swap_rari_arb_eth(page, evm_id):
     return True
 
 
+def __do_task_pond(page, evm_id, index):
+    __bool = False
+    __handle_signma_popup(page=page, count=0)
+    time.sleep(2)
+    __login_wallet(page=page, evm_id=evm_id)
+    __handle_signma_popup(page=page, count=0)
+    pond_url = 'https://cryptopond.xyz/points?tab=idea'
+
+    pop = page.new_tab(url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html")
+    evm_addr_span = __get_ele(page=pop, xpath='x://span[contains(@class, "account_info_label")]')
+    evm_addr = evm_addr_span.attr('title')
+    pop.close()
+
+    pond_page = page.new_tab(url=pond_url)
+
+    if __click_ele(page=pond_page, xpath='x://button[text()="Sign in"]', loop=2):
+        __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter email"]',
+                          value=(evm_addr.lower() + "@dmail.ai"))
+        __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter password"]', value="yhy023r@23h34a7")
+        __click_ele(page=pond_page,
+                    xpath='x://button[contains(@class, "chakra-button") and contains(@class, "css-16ek3z6") and text()="Sign in"]')
+        __click_verify_ele(page=pond_page, window=index,
+                           xpath='x://button[text()="Sign in" and contains(@class, "chakra-button css-16ek3z6") and not(@disabled)]',
+                           loop=10)
+        if __click_ele(page=pond_page, xpath='x://button[text()=" Continue"]', loop=2):
+            __click_ele(page=pond_page, xpath='x://button[text()=" Continue"]', loop=3)
+            __click_ele(page=pond_page, xpath='x://button[text()="Got It"]', loop=3)
+
+    # 开始任务
+
+    __click_ele(page=pond_page, xpath='x://p[text()="Competition"]')
+    if __click_ele(page=pond_page,
+                   xpath='x://span[text()="Post or Comment in Discussion Area"]/ancestor::div[2]/following-sibling::div//button',
+                   loop=1):
+        _else = pond_page.eles('x://div[contains(@class, "css-m0plwk")]//a')
+        _len = len(_else)
+        index = random.randint(1, _len)
+        _else[index].click()
+        __click_ele(page=pond_page, xpath='x://button[text()="Confirm"]', loop=2)
+        time.sleep(2)
+        __click_ele(page=pond_page, xpath='x://button[text()="Discussion"]')
+        time.sleep(2)
+        __click_ele(page=pond_page, xpath='x://button[text()="New Topic"]')
+        __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter title"]', value="Intelligent Form Autofill and Data Extraction")
+
+        __click_ele(page=pond_page, xpath='x://div[@class="ProseMirror bn-editor bn-default-styles"]')
+        pond_page.actions.type(
+            "and deep learning-based entity recognition to automatically fill out forms and extract structured information. The model follows these key steps")
+        pond_page.actions.type("Document and Form Detection")
+        time.sleep(2)
+        __click_ele(page=pond_page, xpath='x://button[text()="Publish Topic"]')
+        time.sleep(10)
+        pond_page.get(url=pond_url)
+
+
+    # 任务1   Common
+    __click_ele(page=pond_page, xpath='x://p[text()="Common"]', must=True)
+    if __click_ele(page=pond_page,
+                   xpath='x://span[text()="Complete Profile Information"]/ancestor::div[2]/following-sibling::div//button',
+                   loop=1):
+        __click_ele(page=pond_page, xpath='x://button[text()="Save"]')
+
+
+    # 任务 2  idea Propose an Idea
+    __click_ele(page=pond_page, xpath='x://p[text()="Idea"]')
+    go_in = pond_page.ele('x://span[text()="Propose an Idea"]/ancestor::div[2]/following-sibling::div//button')
+    if go_in:
+        __click_ele(page=pond_page,
+                    xpath='x://span[text()="Propose an Idea"]/ancestor::div[2]/following-sibling::div//button')
+        __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter the title of your model idea"]',
+                          value="SmartFormAI: AI-Powered Intelligent Form Autofill and Data Extraction")
+        __input_ele_value(page=pond_page,
+                          xpath='x://textarea[@placeholder="Enter a brief summary of your model idea"]',
+                          value="SmartFormAI is an AI model designed to automate form-filling processes and extract structured data from various document types. Leveraging natural language processing (NLP) and computer vision, this model can understand and interpret input fields, extract relevant user information, and accurately populate forms across web and desktop applications. The model is particularly useful for automating repetitive form submissions, enhancing data entry efficiency, and integrating with enterprise-level workflows.")
+        __click_ele(page=pond_page, xpath='x://div[@class="ProseMirror bn-editor bn-default-styles"]')
+        pond_page.actions.type(
+            "SmartFormAI is an AI model that combines OCR (Optical Character Recognition), NLP, and deep learning-based entity recognition to automatically fill out forms and extract structured information. The model follows these key steps:")
+        pond_page.actions.type("Document and Form Detection:")
+        pond_page.actions.type(
+            "Uses computer vision to identify form structures in images, PDFs, or digital forms.")
+        pond_page.actions.type(
+            "Recognizes input fields, labels, and section titles using OCR and layout analysis.")
+        pond_page.actions.type("Data Extraction and Interpretation:")
+        pond_page.actions.type(
+            "Analyzes provided text (e.g., user profile, ID cards, invoices) to extract relevant details.")
+        pond_page.actions.type(
+            "Uses NLP-based Named Entity Recognition (NER) to classify fields (e.g., name, address, email, etc.).")
+        pond_page.actions.type("Intelligent Form-Filling:")
+        pond_page.actions.type("Maps extracted data to corresponding fields using contextual understanding.")
+        pond_page.actions.type("Auto-fills fields dynamically, ensuring accuracy and format compliance.")
+        pond_page.actions.type("Supports learning from user interactions to improve accuracy over time.")
+        pond_page.actions.type("Integration & Automation:")
+        time.sleep(3)
+        __click_ele(page=pond_page, xpath='x://button[text()="Save"]')
+        time.sleep(15)
+        pond_page.get(url=pond_url)
+
+    # 任务3  idea Propose an Idea
+    __click_ele(page=pond_page, xpath='x://p[text()="Idea"]')
+    if __click_ele(page=pond_page,
+                   xpath='x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button',
+                   loop=1):
+        index = random.randint(1, 6)
+        pond_page.get(url=f"https://cryptopond.xyz/ideas?page={index}")
+        time.sleep(10)
+        __click_ele(page=pond_page, xpath='x://div[contains(@class, "css-1mfyor6")]', loop=10)
+        pond_page.get(url=pond_url)
+
+    # 获取积分
+    time.sleep(5)
+    integral = __get_ele_value(page=pond_page,
+                               xpath='x://p[contains(@class, "chakra-text") and contains(@class, "css-c1o5sq")]')
+
+    # 获取积分
+    time.sleep(5)
+    integral = __get_ele_value(page=pond_page,
+                               xpath='x://p[contains(@class, "chakra-text") and contains(@class, "css-c1o5sq")]')
+
+    if integral is not None:
+        signma_log(message=f"{evm_addr},{integral}", task_name=f'task_pond_{get_date_as_string()}', index=evm_id)
+        __bool = True
+    else:
+        signma_log(message=f"{evm_addr},00", task_name=f'task_pond_{get_date_as_string()}', index=evm_id)
+
+    return __bool
+
+def __click_verify_ele(page, window, xpath: str = '', loop: int = 5, must: bool = False, by_jd: bool = True,
+                       find_all: bool = False,
+                       index: int = -1) -> int:
+    loop_count = 1
+    while True:
+        logger.info(f'查找元素{xpath}:{loop_count}')
+        try:
+            if not find_all:
+                # logger.info(f'点击按钮{xpath}:{loop_count}')
+                page.ele(locator=xpath).click(by_js=None)
+            else:
+                page.eles(locator=xpath)[index].click(by_js=None)
+            break
+        except Exception as e:
+            error = e
+            pass
+
+        try:
+            logger.info(f'点击{xpath}:{loop_count}')
+            click_x_y(789 + random.randint(1, 6), 531 + random.randint(1, 6), window)
+        except Exception as e:
+            error = e
+            pass
+
+        if loop_count >= loop:
+            # logger.info(f'---> {xpath} 无法找到元素。。。', str(error)[:100])
+            if must:
+                # page.quit()
+                raise Exception(f'未找到元素:{xpath}')
+            return 0
+        loop_count += 1
+        # time.sleep(1)
+    return 1
+
 def __do_swap_rari_arb_eth_end(page, evm_id):
     try:
         __login_wallet(page=page, evm_id=evm_id)
@@ -3012,6 +3172,8 @@ if __name__ == '__main__':
                             continue
                         elif _type == 'gift':
                             _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=0)
+                        elif _type == 'pond':
+                            _end = __do_task_pond(page=_page, index=_window, evm_id=_id)
                         elif _type == 'end_eth':
                             # _end = __do_end_eth(page=_page, evm_id=_id, evm_addr=arg[2], _type=arg[3], _amount=arg[4])
                             _end = True
