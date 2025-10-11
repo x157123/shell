@@ -2520,7 +2520,7 @@ def __do_task_nft(page, index, evm_id):
         __add_net_work(page=page, coin_name='rari')
         __select_net(page=page, net_name='Rari Chain', net_name_t='RARI Chain')
 
-        hyperbolic_page = page.new_tab(url='https://rarible.com/create/start')
+        hyperbolic_page = page.new_tab(url='https://og.rarible.com/create/rari-erc-721')
         # 等待页面加载完成
 
         if __get_ele(page=hyperbolic_page, xpath="x://a[contains(text(), 'Create')]", loop=5):
