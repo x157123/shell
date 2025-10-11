@@ -3196,7 +3196,7 @@ if __name__ == '__main__':
                             _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
                             _end = True
                         elif _type == 'molten':
-                            # _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
+                            _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
                             _end = True
                         elif _type == 'rari_arb':
                             _end = __do_swap_rari_arb_eth(page=_page, evm_id=_id)
