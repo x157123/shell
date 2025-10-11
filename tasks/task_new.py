@@ -3087,7 +3087,7 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 logger.warning(f"启动任务1:{_type}:{part}")
-                if _type == 'pond':
+                if _type == 'nft':
                 # if _type:
                     if _type == 'nexus_hz_one_a':
                         evm_id = _id
@@ -3220,7 +3220,7 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 # if _type:
-                if _type == 'pond':
+                if _type == 'nft':
                 # if _type == 'prismax' or _type == 'nexus_hz_query':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
