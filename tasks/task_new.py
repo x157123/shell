@@ -2702,9 +2702,7 @@ def __do_task_pond(page, evm_id, index):
 
     # 任务1   Common
     __click_ele(page=pond_page, xpath='x://p[text()="Common"]', must=True)
-    if __click_ele(page=pond_page,
-                   xpath='x://span[text()="Complete Profile Information"]/ancestor::div[2]/following-sibling::div//button',
-                   loop=1):
+    if __click_ele(page=pond_page, xpath='x://span[text()="Complete Profile Information"]/ancestor::div[2]/following-sibling::div//button', loop=1):
         __click_ele(page=pond_page, xpath='x://button[text()="Save"]')
 
 
@@ -2740,13 +2738,13 @@ def __do_task_pond(page, evm_id, index):
         time.sleep(3)
         __click_ele(page=pond_page, xpath='x://button[text()="Save"]')
         time.sleep(15)
-        pond_page.get(url=pond_url)
 
     # 任务3  idea Propose an Idea
+    pond_page.get(url=pond_url)
+    time.sleep(1)
     __click_ele(page=pond_page, xpath='x://p[text()="Idea"]')
-    if __click_ele(page=pond_page,
-                   xpath='x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button',
-                   loop=1):
+    time.sleep(2)
+    if __click_ele(page=pond_page, xpath='x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button', loop=1):
         index = random.randint(1, 6)
         pond_page.get(url=f"https://cryptopond.xyz/ideas?page={index}")
         time.sleep(10)
