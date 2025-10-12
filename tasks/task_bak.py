@@ -2656,6 +2656,7 @@ def __do_task_pond(page, evm_id, index):
     pop = page.new_tab(url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html")
     evm_addr_span = __get_ele(page=pop, xpath='x://span[contains(@class, "account_info_label")]')
     evm_addr = evm_addr_span.attr('title')
+    time.sleep(10)
     pop.close()
 
     pond_page = page.new_tab(url=pond_url)
