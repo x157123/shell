@@ -2759,7 +2759,7 @@ def __do_task_pond(page, evm_id, index):
                                xpath='x://p[contains(@class, "chakra-text") and contains(@class, "css-c1o5sq")]')
 
     if integral is not None:
-        signma_log(message=f"{evm_addr},{integral.replace(",", "")}", task_name=f'task_pond_{get_date_as_string()}', index=evm_id)
+        signma_log(message=f"{evm_addr},{integral.replace(',', '')}", task_name=f'task_pond_{get_date_as_string()}', index=evm_id)
         __bool = True
     else:
         signma_log(message=f"{evm_addr},00", task_name=f'task_pond_{get_date_as_string()}', index=evm_id)
