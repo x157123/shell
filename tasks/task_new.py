@@ -2185,7 +2185,7 @@ def __do_task_nexus(page, evm_id, index):
         _pond = __get_ele_value(page=nexus, xpath='x://span[contains(@class,"font-bold lg:text-xl text-lg")]')
 
         if amount is not None and _pond is not None:
-            signma_log(message=f'{amount},{_pond.replace(",", "")}', task_name=f'nexus_point_data_{get_date_as_string()}', index=evm_id)
+            signma_log(message=f'{amount},{_pond.replace(",", "")}', task_name=f'nexus_point_{get_date_as_string()}', index=evm_id)
             time.sleep(3)
             __bool = True
 
