@@ -2154,11 +2154,12 @@ def __do_task_nexus(page, evm_id, index):
 
 
         nexus.get(url='https://quest.nexus.xyz/loyalty')
-        for i in range(3):
+        for i in range(5):
             time.sleep(4)
             if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
                 time.sleep(5)
-                click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), index)
+                click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), index)
+                time.sleep(10)
             else:
                 break
 
@@ -2762,7 +2763,7 @@ def __do_task_pond(page, evm_id, index):
                                xpath='x://p[contains(@class, "chakra-text") and contains(@class, "css-c1o5sq")]')
 
     if integral is not None:
-        signma_log(message=f"{evm_addr},{integral}", task_name=f'task_pond_{get_date_as_string()}', index=evm_id)
+        signma_log(message=f"{evm_addr},{integral.replace(",", "")}", task_name=f'task_pond_{get_date_as_string()}', index=evm_id)
         __bool = True
     else:
         signma_log(message=f"{evm_addr},00", task_name=f'task_pond_{get_date_as_string()}', index=evm_id)
@@ -3058,7 +3059,6 @@ if __name__ == '__main__':
         # 过滤：保留“今天及以前”的数据；并排除已完成（end_tasks）之外的行
         filtered = []
         for line in tasks:
-            _task = line
             parts = line.split("||")
             if len(parts) < 3:
                 logger.warning(f"任务行格式不正确，跳过：{line!r}")
@@ -3091,6 +3091,7 @@ if __name__ == '__main__':
                 _task_id = parts[0]
                 _task_type = parts[1]
                 arg = parts[3].split(",")
+                _task = parts[3]
 
                 if len(arg) < 2:
                     logger.warning(f"任务 arg 参数不足，跳过：{parts[3]!r}")
@@ -3244,7 +3245,7 @@ if __name__ == '__main__':
                         else:
                             _end_day_task.append(_task_id)
                     else:
-                        signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
+                        signma_log(message=f"{_type},{_task_id},{_task}", task_name=f'error_task_{get_date_as_string()}', index=evm_id)
                     if len(filtered) > 48:
                         time.sleep(600)
                     elif len(filtered) > 24:
