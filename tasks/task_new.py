@@ -738,6 +738,58 @@ def __do_task_gift(page, evm_id, index, evm_addr, amount):
     return __bool
 
 
+def __do_task_airdrop(page, evm_id, index):
+    __bool = False
+    try:
+        time.sleep(1)
+        __handle_signma_popup(page=page, count=0)
+        time.sleep(2)
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+        logger.info('已登录钱包')
+        main_page = page.new_tab(url="https://registration.airdrop.0gfoundation.ai/")
+
+        __click_ele(page=main_page, xpath='x://a[normalize-space(.)="Enter"]', loop=2)
+        __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Connect Wallet"]', loop=2)
+        el = main_page.ele('x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"cursor-pointer")]')
+        if el:
+            el.click(by_js=True)
+            if __click_ele(page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]'):
+                __handle_signma_popup(page=page, count=2)
+
+        scroll_div = main_page.ele(locator='x://div[contains(@class,"overflow-y-auto") and contains(@class,"max-h")]')
+        if scroll_div:
+            # 把鼠标移动到容器上，然后模拟滚轮
+            for i in range(15):
+                scroll_div.scroll.down(1500)  # 移到容器上
+            if __click_ele(page=main_page, xpath="x://button[contains(normalize-space(.),'Accept')]"):
+                __handle_signma_popup(page=page, count=2)
+
+        if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Registration Complete!')]", loop=2):
+            signma_log(message=f"1", task_name=f'airdrop_log', index=evm_id)
+            __bool = True
+        elif __get_ele(page=main_page, xpath="x://button[contains(normalize-space(.),'Next')]"):
+            if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.),"Next")]'):
+                __click_ele(page=main_page, xpath='x://div[div[span[contains(normalize-space(.),"Follow OG X")]]]')
+                time.sleep(1)
+                __click_ele(page=main_page, xpath='x://div[div[span[contains(normalize-space(.),"Join 0G Discord")]]]')
+                time.sleep(1)
+                if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.),"Next")]'):
+                    if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'You are not eligible')]", loop=2):
+                        signma_log(message=f"0", task_name=f'airdrop_log', index=evm_id)
+                        __bool = True
+                    elif __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Registration Complete!')]", loop=2):
+                        signma_log(message=f"1", task_name=f'airdrop_log', index=evm_id)
+                        __bool = True
+                    else:
+                        signma_log(message=f"99", task_name=f'airdrop_log', index=evm_id)
+
+        if main_page is not None:
+            main_page.close()
+    except Exception as e:
+        logger.info(f"窗口{index}: 处理任务异常: {e}")
+    return __bool
+
 def __quyer_gas():
     params = {
         'module': 'gastracker',
@@ -3096,8 +3148,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 logger.warning(f"启动任务1:{_type}:{part}")
-                # if _type == 'nft':
-                if _type:
+                if _type == 'airdrop':
+                # if _type:
                     if _type == 'nexus_hz_one_a':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -3181,6 +3233,8 @@ if __name__ == '__main__':
                             continue
                         elif _type == 'gift':
                             _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=0)
+                        elif _type == 'airdrop':
+                            _end = __do_task_airdrop(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=0)
                         elif _type == 'pond':
                             _end = __do_task_pond(page=_page, index=_window, evm_id=_id)
                         elif _type == 'end_eth':
@@ -3228,8 +3282,8 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type:
-                # if _type == 'nft':
+                # if _type:
+                if _type == 'airdrop':
                 # if _type == 'prismax' or _type == 'nexus_hz_query':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
