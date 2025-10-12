@@ -247,6 +247,7 @@ main() {
 	stop_services
 
   sudo dpkg --remove --force-remove-reinstreq google-chrome-stable
+  sudo mv /etc/apt/sources.list.d/google-chrome.list /etc/apt/sources.list.d/google-chrome.list.bak
 
 	mkdir -p "/home/ubuntu/task/tasks/img"
   chown -R "$USER":"$USER" "/home/ubuntu/task/tasks/img"
