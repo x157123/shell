@@ -24,28 +24,30 @@ def __get_page(_type, _id, _port, _home_ip):
     logger.info(f"启动类型: {_type}")
     options = ChromiumOptions()
     if platform.system().lower() == "windows":
-        options.set_browser_path(r"F:\chrome_tool\127.0.6483.0\chrome.exe")
+        options.set_browser_path(r"E:\chrome_tool\127.0.6483.0\chrome.exe")
     else:
         options.set_browser_path('/opt/google/chrome')
-
+    if _home_ip:
+        num = "23002"
+        options.set_proxy(f"43.160.196.49:{num}")
     if _type == 'prismax':
         if platform.system().lower() == "windows":
-            options.add_extension(f"F:/chrome_tool/phantom")
+            options.add_extension(f"E:/chrome_tool/phantom")
         else:
             if _home_ip:
-                signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
+                # signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
                 num = "23002"
                 options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
             options.set_argument("--blink-settings=imagesEnabled=false")
     else:
         if platform.system().lower() == "windows":
-            options.add_extension(f"F:/chrome_tool/signma")
+            options.add_extension(f"E:/chrome_tool/signma")
         else:
             options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
     # 用户数据目录
     if platform.system().lower() == "windows":
-        options.set_user_data_path(f"F:/tmp/chrome_data/{_type}/{_id}")
+        options.set_user_data_path(f"E:/tmp/chrome_data/{_type}/{_id}")
     else:
         options.set_user_data_path(f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}")
     # 端口可能被占用，尝试几次
@@ -421,114 +423,6 @@ def __login_wallet(page, evm_id):
         time.sleep(1)
 
 
-def __do_task_linea(page, evm_id, index):
-    __bool = False
-    try:
-        __handle_signma_popup(page=page, count=0)
-        time.sleep(3)
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
-
-        __add_net_work(page=page, coin_name='linea')
-
-        logger.info('已登录钱包')
-
-        main_page = page.new_tab(url="https://linea.build/hub/rewards")
-
-        shadow_host = main_page.eles('x://div[@id="dynamic-widget"]')
-        if shadow_host:
-            shadow_root = shadow_host[1].shadow_root
-            if shadow_root:
-                continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
-                if continue_button:
-                    continue_button.click(by_js=False)
-
-
-    except Exception as e:
-        logger.info(f"窗口{index}: 处理任务异常: {e}")
-    return __bool
-
-
-def __do_task_portal(page, evm_id, index):
-    __bool = False
-    try:
-        __handle_signma_popup(page=page, count=0)
-        time.sleep(3)
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
-        logger.info('已登录钱包')
-
-        main_page = page.new_tab(url="https://portal.abs.xyz/")
-        time.sleep(5)
-        if __get_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Login with Wallet"]]', loop=4):
-            time.sleep(5)
-            click_x_y(363, 755, index)
-            if __get_ele(page=main_page, xpath='x://div[normalize-space(.)="Other wallets"]/ancestor::button[1]',
-                         loop=2):
-                logger.info('点击成功')
-            else:
-                click_x_y(363, 755, index)
-                time.sleep(1)
-            if __get_ele(page=main_page, xpath='x://div[normalize-space(.)="Other wallets"]/ancestor::button[1]',
-                         loop=20):
-                time.sleep(2)
-                click_x_y(437, 740, index)
-                if __get_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Signma"]]', loop=10):
-                    time.sleep(2)
-                    click_x_y(414, 524, index)
-                    __handle_signma_popup(page=page, count=2, timeout=60)
-                    time.sleep(20)
-
-        __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Skip"]', loop=5)
-
-        main_page.get("https://portal.abs.xyz/profile")
-        __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Send"]]', loop=5)
-
-        if 88111 <= int(evm_id) <= 89110:
-            __input_ele_value(page=main_page, xpath='x://input[@placeholder="Address, domain or identity"]',
-                              value='0xc0c828e71C462971F3105454592DbeFBd21D2BDb')
-        else:
-            __input_ele_value(page=main_page, xpath='x://input[@placeholder="Address, domain or identity"]',
-                              value='0xf5eEE81fCD4b07CB6EcD3357d618312102230256')
-
-        __click_ele(page=main_page, xpath='x://article[.//p[starts-with(normalize-space(.),"Balance:")]]/button',
-                    loop=1)
-
-        # __click_ele(page=main_page, xpath='x://button[contains(@class,"styles_switchButton__") and contains(@class,"styles_token__")]', loop=1)
-
-        time.sleep(5)
-
-        lis = main_page.eles(
-            'x://ul[contains(@class,"styles_container__")]/li['
-            'number(translate((.//h4[starts-with(normalize-space(.), "$")])[1], "$,", "")) > 0]'
-        )
-
-        data = []
-        for li in lis:
-            name = (li.ele('x:.//p[contains(@class,"styles_description__")]') or
-                    li.ele('x:.//h4[not(starts-with(normalize-space(.), "$"))]')).text
-            usd = li.ele('x:.//h4[starts-with(normalize-space(.), "$")]').text  # 如 "$2.1412"
-
-            signma_log(message=f"{name},{usd}", task_name=f'portal_point_{get_date_as_string()}', index=evm_id)
-            __bool = True
-        time.sleep(5)
-        # __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="25%"]]', loop=1)
-        # time.sleep(5)
-        # __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="75%"]]', loop=1)
-        # time.sleep(5)
-        # __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Review Tokens" and not(@disabled)]', loop=1)
-        # time.sleep(2)
-        # __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Send"]]', loop=1)
-        #
-        # time.sleep(5)
-        # # PENGU         ABSTER
-        # time.sleep(3000)
-
-    except Exception as e:
-        logger.info(f"窗口{index}: 处理任务异常: {e}")
-    return __bool
-
-
 # 钱包转账
 def __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_fee, end_amount):
     _bool = False
@@ -540,8 +434,9 @@ def __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_fee,
                 __handle_signma_popup(page=wallet_page, count=1)
             else:
                 __click_ele(page=els.shadow_root, xpath='x://button[@data-testid="close-button"]', loop=1)
-            time.sleep(2)
+    time.sleep(2)
 
+    __handle_signma_popup(page=wallet_page, count=0)
     if send_evm_addr is not None:
         if __click_ele(page=w_page,
                        xpath="x://div[contains(text(), 'Buy')]/following-sibling::button[@aria-label='Multi wallet dropdown']",
@@ -574,8 +469,7 @@ def __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_fee,
     gas_fee = round(float(send_amount) - float(receive_amount), 3)
     if float(gas_fee) > max_gas_fee:
         # logger.error(f'{gas_fee} gas too high to {send_evm_addr}')
-        signma_log(message=f"gas_fee,{amount},{gas_fee},{_url}", task_name=f'wallet_gift_{get_date_as_string()}',
-                   index=evm_id)
+        signma_log(message=f"gas_fee,{amount},{gas_fee},{_url}", task_name=f'wallet_gift_{get_date_as_string()}', index=evm_id)
 
     elif __click_ele(page=w_page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
         __handle_signma_popup(page=wallet_page, count=3)
@@ -584,8 +478,7 @@ def __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_fee,
             if __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1):
                 if __click_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
                     time.sleep(2)
-                    signma_log(message=f"send,{amount},{gas_fee},{_url}",
-                               task_name=f'wallet_gift_{get_date_as_string()}', index=evm_id)
+                    signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_gift_{get_date_as_string()}', index=evm_id)
                     _bool = True
             else:
                 if __click_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
@@ -692,8 +585,7 @@ def __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_
                                 if __get_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
                                     __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1)
                                     time.sleep(2)
-                                    signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}',
-                                               index=evm_id)
+                                    signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
                                     _bool = True
     except Exception as e:
         logger.info(f"{evm_id}: 处理任务异常: {e}")
@@ -702,18 +594,20 @@ def __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_
     return _bool
 
 
-def __do_send_wallet(evm_id, send_evm_addr, amount):
+def __do_send_wallet(evm_id, send_evm_addr, amount, max_gas, _type):
     _bool = False
     wallet_page = None
     try:
         wallet_page = __get_page('wallet', evm_id, '34533', False)
         __login_wallet(page=wallet_page, evm_id=evm_id)
         __add_net_work(page=wallet_page, coin_name='base')
-        urls = ["https://relay.link/bridge/rari?fromChainId=8453",
-                "https://relay.link/bridge/appchain?fromChainId=8453",
-                "https://relay.link/bridge/arbitrum?fromChainId=8453"]
-        _url = random.choice(urls)
-        _bool = __send_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, 0.05, 0)
+        __handle_signma_popup(page=wallet_page, count=0)
+        # urls = ["https://relay.link/bridge/rari?fromChainId=8453",
+        #         "https://relay.link/bridge/appchain?fromChainId=8453",
+        #         "https://relay.link/bridge/arbitrum?fromChainId=8453"]
+        # _url = random.choice(urls)
+        _url = "https://relay.link/bridge/ethereum?fromChainId=8453"
+        _bool = __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas, 0, _type)
     except Exception as e:
         logger.info(f"钱包转账异常{send_evm_addr}：{e}")
     finally:
@@ -749,6 +643,13 @@ def eth_get_balance_once(url: str, address: str) -> Decimal:
 
 def get_eth_balance(chain: str, address: str) -> str:
     RPC_URLS = {
+        "ethereum": [
+            "https://eth.llamarpc.com",
+            "https://rpc.ankr.com/eth",
+            "https://ethereum.publicnode.com",
+            "https://eth.rpc.blxrbdn.com",
+            "https://cloudflare-eth.com"
+        ],
         "base": ["https://mainnet.base.org"],
         "op": ["https://mainnet.optimism.io"],
         "arb": ["https://arb1.arbitrum.io/rpc"],
@@ -808,7 +709,7 @@ def __do_task_gift(page, evm_id, index, evm_addr, amount):
                 else:
                     main_page = page.new_tab(url="https://gift.xyz/")
 
-                if __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Sign in"]]', loop=2):
+                if __click_ele(page=main_page, xpath='x://button[.//span[normalize-space(.)="Sign in"]]', loop=5):
                     if __click_ele(page=main_page,
                                    xpath='x://span[normalize-space(.)="Sign in with Wallet"]/ancestor::button[1]',
                                    loop=5):
@@ -831,7 +732,7 @@ def __do_task_gift(page, evm_id, index, evm_addr, amount):
 
                 if main_page is not None:
                     main_page.close()
-            __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/rari?fromChainId=466", 0.1, 0.000005)
+            # __send_wallet(page, evm_id, None, 'Max', "https://relay.link/bridge/rari?fromChainId=466", 0.1, 0.000005)
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
@@ -1019,101 +920,6 @@ def format_balance(balance, decimals=18):
 
     return balance_str
 
-
-# def __do_airdrop(page, evm_ids):
-#     _bool = False
-#     __handle_signma_popup(page=page, count=0)
-#     arg = evm_ids.split(",")
-#     for evm_id in arg:
-#         if evm_id == "airdrop":  # 遇到 "airdrop" 就跳过
-#             continue
-#         __handle_signma_popup(page=page, count=0)
-#         __login_wallet(page=page, evm_id=evm_id)
-#         __handle_signma_popup(page=page, count=0)
-#         __login_wallet(page=page, evm_id=evm_id)
-#         __handle_signma_popup(page=page, count=0)
-#         tp = page.new_tab('chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html')
-#         if __get_ele(page=tp, xpath=f'x://span[contains(@class," account_info_label") and contains(text(), "1-{evm_id}")]'):
-#             logger.info(f'账号登陆成功: {evm_id}')
-#             signma_log(message=f"登陆成功", task_name=f'airdrop_log', index=evm_id)
-#         else:
-#             __handle_signma_popup(page=page, count=0)
-#             __login_wallet(page=page, evm_id=evm_id)
-#             __handle_signma_popup(page=page, count=0)
-#             __login_wallet(page=page, evm_id=evm_id)
-#             __handle_signma_popup(page=page, count=0)
-#             tp = page.new_tab('chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html')
-#             if __get_ele(page=tp, xpath=f'x://span[contains(@class," account_info_label") and contains(text(), "1-{evm_id}")]'):
-#                 logger.info(f'账号登陆成功: {evm_id}')
-#                 signma_log(message=f"登陆成功", task_name=f'airdrop_log', index=evm_id)
-#             else:
-#                 logger.info(f'账号登陆失败: {evm_id}')
-#                 signma_log(message=f"登陆失败", task_name=f'airdrop_log', index=evm_id)
-#         tp.close()
-#     main_page = page.new_tab('https://airdrop.0gfoundation.ai/flow')
-#     time.sleep(360000)
-
-def __do_airdrop_addr(addr: str, prefix_len: int = 4, suffix_len: int = 4) -> str:
-    if len(addr) <= prefix_len + suffix_len:
-        return addr
-    return addr[:prefix_len] + "..." + addr[-suffix_len:]
-
-def __do_airdrop(page, evm_ids):
-    _bool = False
-    __handle_signma_popup(page=page, count=0)
-    arg = evm_ids.split(",")
-    main_page = page.new_tab('https://airdrop.0gfoundation.ai/flow')
-    __click_ele(page=main_page, xpath=f'x://button[contains(text(), "Connect Wallet")]')
-    my_list = []
-    for offset in range(10):
-        for evm_id in arg:
-            title_value = '00000'
-            if evm_id == "airdrop":  # 遇到 "airdrop" 就跳过
-                continue
-            if evm_id in my_list:
-                continue
-            __handle_signma_popup(page=page, count=0)
-            __login_wallet(page=page, evm_id=evm_id)
-            __handle_signma_popup(page=page, count=0)
-            __login_wallet(page=page, evm_id=evm_id)
-            __handle_signma_popup(page=page, count=0)
-            tp = page.new_tab('chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html')
-            evm_ele = __get_ele(page=tp,
-                                xpath=f'x://span[contains(@class," account_info_label") and contains(text(), "1-{evm_id}")]')
-            if evm_ele:
-                title_value = evm_ele.attr("title")
-                logger.info(f'账号登陆成功: {evm_id},{title_value}')
-                # signma_log(message=f"登陆成功", task_name=f'airdrop_log', index=evm_id)
-            else:
-                logger.info(f'账号登陆失败: {evm_id}')
-                # signma_log(message=f"登陆失败", task_name=f'airdrop_log', index=evm_id)
-            tp.close()
-            main_page.refresh()
-            shorten_addr = __do_airdrop_addr(title_value)
-            __click_ele(page=main_page, xpath=f'x://button[contains(text(), "Connect Wallet")]')
-            time.sleep(3)
-            if __get_ele(page=main_page, xpath=f'x://span[contains(text(), "{shorten_addr}")]', loop=2) is None:
-                if __click_ele(page=main_page, xpath='x://div[contains(@class,"relative flex cursor-pointer items-center")]'):
-                    __click_ele(page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]')
-                    __handle_signma_popup(page=page, count=1)
-                    if __get_ele(page=main_page, xpath='x://p[contains(text(), "Address already connected")]', loop=2):
-                        logger.info('已链接钱包')
-                    elif __get_ele(page=main_page, xpath='x://button[contains(text(), "Accept")]', loop=2):
-                        scroll_div = main_page.ele(
-                            locator='x://div[contains(@class,"overflow-y-auto") and contains(@class,"max-h")]')
-                        # 把鼠标移动到容器上，然后模拟滚轮
-                        for i in range(16):
-                            scroll_div.scroll.down(1000)  # 移到容器上
-                        if __click_ele(page=main_page, xpath='x://button[contains(text(), "Accept")]'):
-                            __handle_signma_popup(page=page, count=1)
-            else:
-                my_list.append(evm_id)
-        if __get_ele(page=main_page, xpath=f'x://div[contains(@class,"items-center justify-center rounded-md") and contains(text(), "{len(arg)-1}")]'):
-            signma_log(message=f"关联成功", task_name=f'airdrop_join_end', index='0')
-            break
-    if __get_ele(page=main_page, xpath=f'x://div[contains(@class,"items-center justify-center rounded-md") and contains(text(), "{len(arg) - 1}")]') is None:
-        signma_log(message=f"关联失败", task_name=f'airdrop_join_end', index='0')
-    time.sleep(360000)
 
 def __do_end_ploy(page, evm_id, evm_addr):
     _end_bool_data = False
@@ -1360,132 +1166,6 @@ def extract_inviter_code_regex(url):
         return match.group(1)
     return None
 
-
-def __do_mira(page, evm_id):
-    __bool = False
-    try:
-        __handle_signma_popup(page=page, count=0)
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
-        main_page = page.new_tab(url="https://mira.tokentable.xyz/checker")
-        if __click_ele(page=main_page, xpath='x://button[span[contains(text(), "Connect EVM Wallet")]]', loop=3):
-            if __click_ele(page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]', loop=3):
-                __handle_signma_popup(page=page, count=2)
-        __handle_signma_popup(page=page, count=0)
-        # 已登陆
-        if __get_ele(page=main_page, xpath='x://button[contains(text(), "Disconnect")]', loop=3):
-            __bool = True
-            if __get_ele(page=main_page, xpath='x://div[contains(text(), "Not Eligible")]', loop=2):
-                signma_log(message="0", task_name=f'mira_enda', index=evm_id)
-            else:
-                signma_log(message="1", task_name=f'mira_enda', index=evm_id)
-    except Exception as e:
-        logger.info(f"quackai: 处理任务异常: {e}")
-    return __bool
-
-
-def __do_quackai(page, evm_id):
-    __bool = False
-    try:
-        __handle_signma_popup(page=page, count=0)
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
-        quackai_login = read_data_list_file("/home/ubuntu/task/tasks/quackai_login.txt")
-        key = '99999'
-        if evm_id not in quackai_login:
-            key = get_key("http://150.109.5.143:5000/get_key")
-
-        if key is not None and key != "0000":
-            questions = read_data_list_file("/home/ubuntu/task/tasks/questions.txt")
-            # questions = read_data_list_file("./questions.txt")
-            if key != '99999':
-                main_page = page.new_tab(url=f"https://app.quackai.ai/quackipedia?inviterCode={key}")
-            else:
-                main_page = page.new_tab(url=f"https://app.quackai.ai/quackipedia")
-            __click_ele(page=main_page, xpath='x://button[contains(text(), "Next")]', loop=1)
-            __click_ele(page=main_page, xpath='x://button[contains(text(), "Next")]', loop=1)
-            __click_ele(page=main_page, xpath='x://button[contains(text(), "Explore")]', loop=1)
-            if __get_ele(page=main_page, xpath='x://button[div[div[contains(text(), "Connect Wallet")]]]', loop=2):
-                __click_ele(page=main_page, xpath='x://button[div[div[contains(text(), "Connect Wallet")]]]', loop=1)
-                if __click_ele(page=main_page, xpath='x://button[div[div[div[div[contains(text(), "Signma")]]]]]',
-                               loop=2):
-                    __handle_signma_popup(page=page, count=2)
-                    time.sleep(5)
-                    __handle_signma_popup(page=page, count=0)
-
-                if __get_ele(page=main_page, xpath='x://button[div[div[contains(text(), "Connect Wallet")]]]', loop=2):
-                    __click_ele(page=main_page, xpath='x://button[div[div[contains(text(), "Connect Wallet")]]]',
-                                loop=1)
-                    if __click_ele(page=main_page, xpath='x://button[div[div[div[div[contains(text(), "Signma")]]]]]',
-                                   loop=2):
-                        __handle_signma_popup(page=page, count=2)
-                        time.sleep(5)
-                        __handle_signma_popup(page=page, count=0)
-
-            if __get_ele(page=main_page, xpath='x://div[text()="GO"]/parent::div/parent::button', loop=1):
-                __click_ele(page=main_page, xpath='x://div[text()="GO"]/parent::div/parent::button', loop=1)
-                __handle_signma_popup(page=page, count=1)
-                time.sleep(5)
-                __click_ele(page=main_page, xpath='x://div[text()="GO"]/parent::div/parent::button', loop=1)
-                time.sleep(30)
-                __handle_signma_popup(page=page, count=1)
-                __click_ele(page=main_page, xpath='x://div[text()="GO"]/parent::div/parent::button', loop=1)
-                time.sleep(30)
-            __click_ele(page=main_page, xpath='x://button[contains(text(), "Get Passport")]', loop=1)
-            if __get_ele(page=main_page, xpath='x://button[span[div[div[contains(text(), "BNB Chain")]]]]', loop=2):
-                __click_ele(page=main_page, xpath='x://button[span[div[div[contains(text(), "BNB Chain")]]]]', loop=2)
-                __handle_signma_popup(page=page, count=1)
-                time.sleep(5)
-                __handle_signma_popup(page=page, count=0)
-
-            time.sleep(4)
-            __click_ele(page=main_page, xpath='x://div[div[div[contains(text(), "Invite to Earn")]]]', find_all=True,
-                        index=1, loop=2)
-            time.sleep(4)
-            clipboard_text = pyperclip.paste().strip()
-            time.sleep(4)
-            clipboard_text = pyperclip.paste().strip()
-
-            logger.info(f'数据：{clipboard_text}')
-            inviter_code_regex = extract_inviter_code_regex(clipboard_text)
-            if inviter_code_regex is not None and len(inviter_code_regex) == 6:
-                url = "http://150.109.5.143:5000/add_key"
-                payload = json.dumps({
-                    "key": inviter_code_regex
-                })
-                headers = {
-                    'Content-Type': 'application/json'
-                }
-                response = requests.request("POST", url, headers=headers, data=payload)
-
-            for i in range(random.randint(6, 8)):
-                __input_ele_value(page=main_page, xpath='x://textarea[@placeholder="What can I help you with?"]',
-                                  value=random.choice(questions))
-                __click_ele(page=main_page, xpath='x://div[div[div[div[contains(text(), "Send")]]]]', loop=2)
-                if __get_ele(page=main_page, xpath='x://button[span[div[div[contains(text(), "BNB Chain")]]]]', loop=2):
-                    __click_ele(page=main_page, xpath='x://button[span[div[div[contains(text(), "BNB Chain")]]]]',
-                                loop=2)
-                    __handle_signma_popup(page=page, count=1)
-                time.sleep(10)
-                if i > 5:
-                    __bool = True
-                if __get_ele(page=main_page, xpath='x://p[contains(text(), "Your daily chat limit has been reached")]',
-                             loop=1):
-                    __bool = True
-                    break
-            if __bool:
-                _val = __get_ele_value(page=main_page, xpath='x://span[@class="font-[Poppins]"]')
-                signma_log(message=f"end,{_val},{inviter_code_regex}", task_name=f'quackai_{get_date_as_string()}',
-                           index=evm_id)
-                append_date_to_file("/home/ubuntu/task/tasks/quackai_login.txt", evm_id)
-        else:
-            signma_log(message=f"error,{key},{key}", task_name=f'quackai_{get_date_as_string()}', index=evm_id)
-
-    except Exception as e:
-        logger.info(f"quackai: 处理任务异常: {e}")
-    return __bool
-
-
 def __do_hemi(page, evm_id, evm_addr):
     __bool = False
     try:
@@ -1570,71 +1250,41 @@ def __do_hemi(page, evm_id, evm_addr):
         logger.info(f"quackai: 处理任务异常: {e}")
     return __bool
 
-
-def __do_task_logx(page, evm_id, index):
-    __bool = False
-    try:
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
-        logger.info('已登录钱包')
-
-        main_page = page.new_tab(url="https://app.logx.network/portfolio")
-
-        _amount = wait_for_positive_amount(
-            page=main_page,
-            xpath='x://div[contains(normalize-space(.),"Buying Power")]/following-sibling::div[1]//span[starts-with(normalize-space(.),"$")]'
-        )
-
-        if _amount <= 0:
-            if __click_ele(page=main_page, xpath='x://span[text()="Connect wallet"]', loop=1):
-                if __click_ele(page=main_page,
-                               xpath='x://div[contains(@class,"sc-dcJtft iIBsYu btn marg") and .//*[contains(@d,"M21.4379 21.7337")]]',
-                               loop=3):
-                    __handle_signma_popup(page=page, count=2)
-            if __click_ele(page=main_page, xpath='x://span[text()="Establish Connection"]', loop=1):
-                if __click_ele(page=main_page,
-                               xpath='x://div[div[div[text()="Establish Connection"]] and contains(@class,"sc-dcJtft iIBsYu sc-NxrBK idZGaa") ]',
-                               loop=1):
-                    __handle_signma_popup(page=page, count=1)
-
-            __click_ele(page=main_page, xpath='x://div[contains(@class, "sc-djTQOc bLFUQW")]', loop=1)
-
-            _amount = wait_for_positive_amount(
-                page=main_page,
-                xpath='x://div[contains(normalize-space(.),"Buying Power")]/following-sibling::div[1]//span[starts-with(normalize-space(.),"$")]'
-            )
-
-        _amount_total = wait_for_positive_amount(
-            page=main_page,
-            xpath='x://div[contains(normalize-space(.),"Total Volume")]/following-sibling::div//span'
-        )
-        if _amount_total>0:
-            if __click_ele(page=main_page, xpath='x://div[div[text()="Withdraw"]]', loop=5):
-                __click_ele(page=main_page, xpath='x://div[text()="MAX"]', loop=1)
-                __click_ele(page=main_page, xpath='x://div[@style="visibility: visible;" and text()="Withdraw"]', loop=1)
-                time.sleep(2)
-                div_txt = __get_ele_value(page=main_page, xpath='x://div[contains(@class, "sc-ialZPY hOaBhW")]', loop=10)
-                if div_txt is not None:
-                    signma_log(message=f"{div_txt}", task_name=f'logx_point_end', index=evm_id)
-                    __bool = True
-                time.sleep(10)
-            else:
-                signma_log(message=f"000", task_name=f'logx_point_end', index=evm_id)
-                __bool = True
-
-    except Exception as e:
-        logger.info(f"窗口{index}: 处理任务异常: {e}")
-    return __bool
-
-
 def x_com(page, name, email, pwd, fa, evm_id):
     _bool = False
     x_com = page.new_tab(url='https://x.com')
+
+    for i in range(4):
+        time.sleep(4)
+        if __get_ele(page=x_com, xpath='x://h1[contains(text(), "x.com")]', loop=1):
+            time.sleep(5)
+            click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), 24)
+        else:
+            break
+
     if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2):
         time.sleep(5)
         _bool = True
     else:
         x_com.get(url='https://x.com/i/flow/login')
+
+        for i in range(3):
+            time.sleep(2)
+            if __get_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1):
+                __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1)
+                time.sleep(1)
+                if __get_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1):
+                    x_com.refresh()
+                else:
+                    break
+            else:
+                break
+
+        if __get_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1):
+            signma_log(message=f"{name},{email},{pwd},{fa}", task_name=f'nexus_joina_error_service', index=evm_id)
+            x_com.close()
+            return None
+
         if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]', loop=2) is None:
             logger.info('cf-校验')
             if __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human") or starts-with(normalize-space(.),"请完成以下操作，验证您是真人")]'):
@@ -1682,147 +1332,173 @@ def fa_code(page, code):
     fa_page.close()
     return _code
 
-def __do_task_nexus_pod(page, evm_id, index):
+
+def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     __bool = False
-    __bool_end = False
-    __out_join = False
-    try:
-        amount = 0
-        logger.info('登录钱包')
-        time.sleep(3)
-        __handle_signma_popup(page=page, count=0)
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
+    _ida = f'1_{evm_id}'
+    _idb = f'2_{evm_id}'
+    if platform.system().lower() == "windows":
+        nexus_no_bad = read_data_list_file("E:/tmp/chrome_data/nexus_card.txt")
+    else:
+        nexus_no_bad = read_data_list_file("/home/ubuntu/task/tasks/nexus_card.txt")
 
-        nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
-        __get_ele(page=nexus, xpath='x://a[contains(text(), "FAQ")]', loop=10)
-        if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
-            __click_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1)
-            shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
-            if shadow_host:
-                shadow_root = shadow_host.shadow_root
-                if shadow_root:
-                    continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
-                    if continue_button:
-                        __click_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
-                        shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-                        if shadow_host:
-                            shadow_root = shadow_host.shadow_root
-                            if shadow_root:
-                                continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
-                                if continue_button:
-                                    continue_button.click(by_js=True)
-                                    time.sleep(1)
-                                    signma_ele = shadow_root.ele('x://span[text()="Signma"]')
-                                    if signma_ele:
-                                        signma_ele.click(by_js=True)
-                                        __handle_signma_popup(page=page, count=1, timeout=45)
+    __select_net(page=page, net_name='Ethereum', net_name_t='Ethereum', add_net=None)
+    ethereum_start = get_eth_balance("ethereum", evm_addr)
+    _ethereum = ethereum_start
 
-            __handle_signma_popup(page=page, count=0)
-            net_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]', timeout=3)
-            if net_shadow_host:
-                net_shadow_root = net_shadow_host.shadow_root
-                if net_shadow_root:
-                    newt_work = net_shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]', timeout=3)
-                    if newt_work:
-                        newt_work.click(by_js=True)
-                        __handle_signma_popup(page=page, count=1, timeout=45)
+    nexus = page.new_tab(url='https://quest.nexus.xyz/loyalty')
+    for i in range(5):
+        time.sleep(4)
+        if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
+            time.sleep(5)
+            click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), index)
+            time.sleep(10)
+        else:
+            break
 
-        # 获取 nexus积分
-        nexus.get(url='https://app.nexus.xyz/rewards')
-        ele = nexus.ele('x://span[contains(normalize-space(.), "NEX")]')
-        if ele:
-            t = ele.text.replace('\xa0', ' ').strip()
-            import re
-            m = re.search(r'([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?)\s*NEX\b', t, re.I)
-            amount = (m.group(1).replace(',', '')) if m else '0'
-            time.sleep(3)
+    if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1):
+        shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+        if shadow_host:
+            shadow_root = shadow_host.shadow_root
+            if shadow_root:
+                continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+                if continue_button:
+                    continue_button.click(by_js=True)
+                    time.sleep(1)
+                    signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+                    if signma_ele:
+                        signma_ele.click(by_js=True)
+                        __handle_signma_popup(page=page, count=2, timeout=45)
+    __handle_signma_popup(page=page, count=2)
+    # 0.0005
 
-        nexus.get(url='https://quest.nexus.xyz/loyalty')
-        if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=3):
-            shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-            if shadow_host:
-                shadow_root = shadow_host.shadow_root
-                if shadow_root:
-                    continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
-                    if continue_button:
-                        continue_button.click(by_js=True)
-                        time.sleep(1)
-                        signma_ele = shadow_root.ele('x://span[text()="Signma"]')
-                        if signma_ele:
-                            signma_ele.click(by_js=True)
-                            __handle_signma_popup(page=page, count=2, timeout=45)
+    if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
+        __bool_a = False
+        __bool_b = False
+        if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
+            if __get_ele(page=nexus, xpath='x://div[contains(text(), "Minting asset from direct listing with name Alpha Genesis Glyph")]'):
+                __bool_a = True
+            elif _ida not in nexus_no_bad:
+                # 30092 30123
+                if __click_ele(page=nexus, xpath='x://a[div[div[span[text()="Alpha Genesis Glyph"]]]]', loop=3):
+                    logger.info('点击')
+                    time.sleep(3)
+                    if __get_ele(page=nexus, xpath='x://h1[contains(text(), "Alpha Genesis Glyph")]'):
+                        if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3):
+                            __handle_signma_popup(page=page, count=2, timeout=15) # Ethereum
+                            if __get_ele(page=nexus, xpath='x://h1[contains(text(), "Your purchase succeeded!")]', loop=15):
+                                __bool_a = True
+                                logger.info('成功')
+                                if platform.system().lower() == "windows":
+                                    append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _ida)
+                                else:
+                                    append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _ida)
+                            else:
+                                logger.info('查询余额 当余额变更 说明也成功')
+                                _ethereum_tmp = get_eth_balance("ethereum", evm_addr)
+                                if float(_ethereum) - float(_ethereum_tmp) > 0.000002 and float(_ethereum_tmp) > 0:
+                                    _ethereum = _ethereum_tmp
+                                    __bool_a = True
+                                    if platform.system().lower() == "windows":
+                                        append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _ida)
+                                    else:
+                                        append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _ida)
+                            __close_popup(page=page, _url=evm_ext_id, timeout=5)
+                            nexus.get(url='https://quest.nexus.xyz/loyalty')
+            else:
+                __bool_a = True
 
-        __click_ele(page=nexus, xpath='x://button[contains(text(), "Click to Sign")]')
-        __handle_signma_popup(page=page, count=2)
-
-        if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
-            if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=2) is None:
-
-                _join_a = True
-                _join_b = True
-                _join_c = True
-                _join_d = True
-                _join_f = True
-                _join_g = True
-                if __get_ele(page=nexus,
-                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]",
-                             loop=1):
-                    _join_a = False
-                if __get_ele(page=nexus,
-                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                             loop=1):
-                    _join_f = False
-                if __get_ele(page=nexus,
-                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                             loop=1):
-                    _join_b = False
-                if __get_ele(page=nexus,
-                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                             loop=1):
-                    _join_c = False
-                if __get_ele(page=nexus,
-                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
-                             loop=1):
-                    _join_d = False
-                if __get_ele(page=nexus, xpath='x://a[@label="Visit Blog"]', loop=1):
-                    _join_g = False
-
-                if _join_a and _join_b and _join_c and _join_d and _join_f and _join_g:
-                    __bool_end = True
-
-                __click_ele(page=nexus, xpath='x://button[starts-with(@id, "radix-")]')
-                __click_ele(page=nexus, xpath='x://a//div[@id="connect-wallet-balance-link"]')
-
-
-                spelunking = nexus.ele('x://div[contains(@class, "opacity-100!") and .//p[text()="Spelunking Badge"]]')
-
-                newbie = nexus.ele('x://div[contains(@class, "opacity-100!") and .//p[text()="Newbie Badge"]]')
-
-                trailmaster = nexus.ele('x://div[contains(@class, "opacity-100!") and .//p[text()="Trailmaster Badge"]]')
-
-                _pond = __get_ele_value(page=nexus, xpath='x://span[contains(@class,"font-bold lg:text-xl text-lg")]')
-
-                _trailmaster = False
-                _newbie = False
-                _spelunking = False
-
-                if trailmaster:
-                    _trailmaster = True
-
-                if newbie:
-                    _newbie = True
-
-                if spelunking:
-                    _spelunking = True
-
-                if float(amount) > 0:
-                    signma_log(message=f'{amount},{_pond.replace(",", "")},{_trailmaster},{_newbie},{_spelunking},{__bool_end},{_join_a},{_join_b},{_join_c},{_join_d},{_join_f},{_join_g}', task_name=f'nexus_joina_adds', index=evm_id)
-                    __bool = True
-
-    except Exception as e:
-        logger.info(f"窗口{index}: 处理任务异常: {e}")
+            if __get_ele(page=nexus, xpath='x://div[contains(text(), "Minting asset from direct listing with name No Bad Ideas Glyph")]'):
+                __bool_b = True
+            elif _idb not in nexus_no_bad:
+                # 30092 30123
+                _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
+                if _amount and float(_amount) > 1500:
+                    if __click_ele(page=nexus, xpath='x://a[div[div[span[text()="No Bad Ideas Glyph"]]]]', loop=3):
+                        logger.info('点击')
+                        time.sleep(3)
+                        if __get_ele(page=nexus, xpath='x://h1[contains(text(), "No Bad Ideas Glyph")]'):
+                            if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3):
+                                __handle_signma_popup(page=page, count=2, timeout=15)
+                                if __get_ele(page=nexus, xpath='x://h1[contains(text(), "Your purchase succeeded!")]', loop=15):
+                                    __bool_b = True
+                                    logger.info('成功')
+                                    if platform.system().lower() == "windows":
+                                        append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _idb)
+                                    else:
+                                        append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _idb)
+                                else:
+                                    logger.info('查询余额 当余额变更 说明也成功')
+                                    _ethereum_tmp = get_eth_balance("ethereum", evm_addr)
+                                    if float(_ethereum) - float(_ethereum_tmp) > 0.000002 and float(_ethereum_tmp) > 0:
+                                        _ethereum = _ethereum_tmp
+                                        __bool_b = True
+                                        if platform.system().lower() == "windows":
+                                            append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _ida)
+                                        else:
+                                            append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _ida)
+            else:
+                __bool_b = True
+        if __bool_a and __bool_b:
+            __bool = True
+        _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
+        signma_log(message=f"{evm_addr},{ethereum_start},{_ethereum},{_amount},{__bool_a},{__bool_b},{__bool}", task_name=f'nexus_card_info_a', index=evm_id)
+        if not __bool_b and _amount and float(_amount) < 15000:
+            __bool = True
     return __bool
+
+
+def __do_task_nexus_hz_qy(page, evm_id, evm_addr, index):
+    __bool = False
+    _ida = f'1_{evm_id}'
+    _idb = f'2_{evm_id}'
+    nexus = page.new_tab(url='https://quest.nexus.xyz/loyalty')
+    if platform.system().lower() == "windows":
+        nexus_no_bad = read_data_list_file("E:/tmp/chrome_data/nexus_card.txt")
+    else:
+        nexus_no_bad = read_data_list_file("/home/ubuntu/task/tasks/nexus_card.txt")
+    ethereum_start = get_eth_balance("ethereum", evm_addr)
+    for i in range(5):
+        time.sleep(4)
+        if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
+            time.sleep(5)
+            click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), index)
+            time.sleep(10)
+        else:
+            break
+
+    if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1):
+        shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+        if shadow_host:
+            shadow_root = shadow_host.shadow_root
+            if shadow_root:
+                continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+                if continue_button:
+                    continue_button.click(by_js=True)
+                    time.sleep(1)
+                    signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+                    if signma_ele:
+                        signma_ele.click(by_js=True)
+                        __handle_signma_popup(page=page, count=2, timeout=45)
+
+    __handle_signma_popup(page=page, count=2)
+    # 0.0005
+    if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
+        __bool_a = False
+        __bool_b = False
+        for i in range(3):
+            nexus.scroll.to_bottom()
+        _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
+        if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
+            if _ida not in nexus_no_bad:
+                __bool_a = True
+            if _idb not in nexus_no_bad:
+                __bool_b = True
+            signma_log(message=f"{evm_addr},{ethereum_start},{_amount},{__bool_a},{__bool_b}", task_name=f'nexus_card_info', index=evm_id)
+            __bool = True
+    return __bool
+
+
 
 def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
     __bool = False
@@ -1835,6 +1511,11 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
         __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
 
+        _II = None
+        _I = None
+        _0 = None
+        _DEVNET_NEX = None
+
         nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
         __get_ele(page=nexus, xpath='x://a[contains(text(), "FAQ")]', loop=10)
         if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
@@ -1860,7 +1541,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                         __handle_signma_popup(page=page, count=1, timeout=45)
 
             __handle_signma_popup(page=page, count=0)
-            net_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]', timeout=3)
+            net_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]', timeout=5)
             if net_shadow_host:
                 net_shadow_root = net_shadow_host.shadow_root
                 if net_shadow_root:
@@ -1868,13 +1549,20 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                     if newt_work:
                         newt_work.click(by_js=True)
                         __handle_signma_popup(page=page, count=1, timeout=45)
+                    else:
+                        signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
+                else:
+                    signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
+            else:
+                signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
 
         __x_bool = x_com(page=page, name=x_name, email=x_email, pwd=x_pwd, fa=x_2fa, evm_id=evm_id)
+        # __x_bool = True
         if __x_bool is None:
-            __bool = True
+            __bool = False
         elif __x_bool:
             if platform.system().lower() == "windows":
-                nexus_joins = read_data_list_file("F:/tmp/chrome_data/nexus_joins.txt")
+                nexus_joins = read_data_list_file("E:/tmp/chrome_data/nexus_joins.txt")
             else:
                 nexus_joins = read_data_list_file("/home/ubuntu/task/tasks/nexus_joins.txt")
             if evm_id not in nexus_joins:
@@ -1910,19 +1598,34 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                         if profile:
                             profile.click()
                             if __get_ele(page=profile_shadow_root,
-                                         xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
+                                         xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]',
+                                         loop=2):
+                                __click_ele(page=profile_shadow_root,
+                                            xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]')
+                                time.sleep(2)
+                                if __get_ele(page=profile_shadow_root,
+                                             xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]',
+                                             loop=1):
+                                    click_x_y(1076, 629, 24)
+                            time.sleep(2)
+                            if __get_ele(page=profile_shadow_root,
+                                         xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]', loop=1):
                                 if platform.system().lower() == "windows":
-                                    append_date_to_file("F:/tmp/chrome_data/nexus_joins.txt", evm_id)
+                                    append_date_to_file("E:/tmp/chrome_data/nexus_joins.txt", evm_id)
                                 else:
                                     append_date_to_file("/home/ubuntu/task/tasks/nexus_joins.txt", evm_id)
                                 __out_join = True
             else:
                 __out_join = True
-
             if __out_join:
                 nexus.get(url='https://app.nexus.xyz/rewards')
                 nexus.refresh()
                 time.sleep(3)
+                if __get_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]'):
+                    logger.info('加载成功')
+                else:
+                    nexus.get(url='https://app.nexus.xyz/rewards')
+                    nexus.refresh()
                 if __click_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]'):
                     time.sleep(3)
                     pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
@@ -1935,16 +1638,16 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             profile.click()
                             if __get_ele(page=profile_shadow_root,
                                          xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]',
-                                         loop=2):
+                                         loop=1):
                                 __click_ele(page=profile_shadow_root,
                                             xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]')
-                                time.sleep(5)
+                                time.sleep(2)
                                 if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
+                                    __get_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]', loop=10)
                                     time.sleep(10)
 
                 nexus.get(url='https://app.nexus.xyz/rewards')
                 nexus.refresh()
-                time.sleep(3)
                 if __click_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]'):
                     time.sleep(3)
                     pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
@@ -1959,268 +1662,374 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                          xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]',
                                          loop=2):
                                 __join = True
+                __join = True
+                if __join:
+                    nexus.get(url='https://app.nexus.xyz/rewards')
+                    if __click_ele(page=nexus, xpath='x://button[text()="PREVIOUS"]'):
+                        time.sleep(2)
+                        _II = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=0)
+                        _I = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=0)
+                        _0 = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=1)
+                        _DEVNET_NEX = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=1)
 
-                nexus.get(url='https://quest.nexus.xyz/loyalty')
-                for i in range(3):
-                    time.sleep(4)
-                    if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
-                        time.sleep(5)
-                        click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), index)
-                    else:
-                        break
+                        if _DEVNET_NEX is None:
+                            nexus.refresh()
+                            if __click_ele(page=nexus, xpath='x://button[text()="PREVIOUS"]'):
+                                _II = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=0)
+                                _I = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=0)
+                                _0 = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=1)
+                                _DEVNET_NEX = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=1)
+                    time.sleep(2)
 
-                if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=3):
-                    shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-                    if shadow_host:
-                        shadow_root = shadow_host.shadow_root
-                        if shadow_root:
-                            continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
-                            if continue_button:
-                                continue_button.click(by_js=True)
-                                time.sleep(1)
-                                signma_ele = shadow_root.ele('x://span[text()="Signma"]')
-                                if signma_ele:
-                                    signma_ele.click(by_js=True)
-                                    __handle_signma_popup(page=page, count=2, timeout=45)
-                __handle_signma_popup(page=page, count=2)
-
-                if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
-                    if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
-                        if platform.system().lower() == "windows":
-                            nexus_joinas = read_data_list_file("F:/tmp/chrome_data/nexus_joinas.txt")
+                    nexus.get(url='https://quest.nexus.xyz/loyalty')
+                    for i in range(5):
+                        time.sleep(4)
+                        if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
+                            time.sleep(5)
+                            click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), index)
+                            time.sleep(10)
                         else:
-                            nexus_joinas = read_data_list_file("/home/ubuntu/task/tasks/nexus_joinas.txt")
-                        if evm_id not in nexus_joinas:
-                            # 取消 tw关注
-                            nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
-                            if __get_ele(page=nexus,
-                                         xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]'):
-                                __click_ele(page=nexus,
-                                            xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]')
-                                __click_ele(page=nexus, xpath='x://button[text()="Disconnect Twitter"]')
-                            nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
-                            if __get_ele(page=nexus,
-                                         xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]'):
-                                __click_ele(page=nexus,
-                                            xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]')
-                                if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
-                                    logger.info('重新关注')
-                                    time.sleep(10)
-                                    nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
-                                    if __get_ele(page=nexus,
-                                                 xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]'):
-                                        logger.info('重新关注成功')
-                                        if platform.system().lower() == "windows":
-                                            append_date_to_file("F:/tmp/chrome_data/nexus_joinas.txt", evm_id)
-                                        else:
-                                            append_date_to_file("/home/ubuntu/task/tasks/nexus_joinas.txt", evm_id)
-                            nexus.get(url='https://quest.nexus.xyz/loyalty')
+                            break
 
+                    if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1):
+                        shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+                        if shadow_host:
+                            shadow_root = shadow_host.shadow_root
+                            if shadow_root:
+                                continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+                                if continue_button:
+                                    continue_button.click(by_js=True)
+                                    time.sleep(1)
+                                    signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+                                    if signma_ele:
+                                        signma_ele.click(by_js=True)
+                                        __handle_signma_popup(page=page, count=2, timeout=45)
+                    __handle_signma_popup(page=page, count=2)
 
-                        for i in range(3):
-                            nexus.scroll.to_bottom()
-                        time.sleep(5)
-                        nexus.refresh()
-                        nexus.scroll.to_bottom()
-                        time.sleep(5)
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]",
-                                     loop=1):
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]")
-                            twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
-                            if __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Authorize app"]]'):
-                                time.sleep(5)
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                     loop=1):
-                            nex_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Celebrate our Snag Partnership', 'Go to Post')
-
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                     loop=1):
-                            nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Like & Share our Testnet III Announcement', 'Go to Post')
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
-                                     loop=1):
-                            nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nexus', 'Go to Account')
-
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                     loop=1):
-                            nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Share Spelunking Badge', 'Go to Post')
-
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Founder')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
-                                     loop=1):
-                            nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nodejox - The Founder', 'Go to Account')
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Voice')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
-                                     loop=1):
-                            nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nodejox - The Voice', 'Go to Account')
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Doctor')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
-                                     loop=1):
-                            nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nodejox - The Doctor', 'Go to Account')
-
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                     loop=1):
-                            # 需要调整
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post')]")
-                            twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
-
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]',
-                                           find_all=True, index=0):
-                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
-                                time.sleep(4)
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True,
-                                           index=0):
-                                __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
-                                __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
-
-                            __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0)
-                            __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value='I like them all')
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton"]'):
-                                time.sleep(5)
-                                url = __get_popup_url(page=page, _url='x.com', timeout=15)
-                                twitter_page.close()
-                                if url is not None:
-                                    if __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[text()='Enter Link']"):
-                                        __input_ele_value(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//input[@name='contentUrl']", value=url)
-                                if __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]"):
-                                    __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]")
-                                    time.sleep(5)
-
-
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                     loop=1):
-                            # 需要调整
-                            __click_ele(page=nexus,
-                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]")
-                            twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
-                            __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0)
-                            __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value='I like them all')
-                            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton"]'):
-                                time.sleep(5)
-                                url = __get_popup_url(page=page, _url='x.com', timeout=15)
-                                twitter_page.close()
-                                if url is not None:
-                                    if __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[text()='Enter Link']"):
-                                        __input_ele_value(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//input[@name='contentUrl']", value=url)
-                                if __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]"):
-                                    __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]")
-                                    time.sleep(5)
-
-
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]",
-                                     loop=1):
-                            nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Shine a Light on the Numbers', 'Like and Share this Post')
-
-
-                        if __get_ele(page=nexus, xpath='x://a[@label="Visit Blog"]', loop=1):
-                            __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-                            __click_ele(page=nexus, xpath='x://a[@label="Visit Blog"]')
-                            twitter_page = __get_popup(page=page, _url='blog.nexus.xyz', timeout=45)
-                            if twitter_page is not None:
-                                time.sleep(10)
-                                twitter_page.close()
-                                __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim')]",
-                                     loop=1):
-                            nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, 'Goodbye Camp Nexus', 'Repost Tweet')
-
-                        __bool = True
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]",
-                                     loop=1):
-                            __bool = False
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]",
-                                     loop=1):
-                            __bool = False
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]",
-                                     loop=1):
-                            __bool = False
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]",
-                                     loop=1):
-                            __bool = False
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]",
-                                     loop=1):
-                            __bool = False
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Founder')]",
-                                     loop=1):
-                            __bool = False
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Voice')]",
-                                     loop=1):
-                            __bool = False
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Doctor')]",
-                                     loop=1):
-                            __bool = False
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]",
-                                     loop=1):
-                            __bool = False
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]",
-                                     loop=1):
-                            __bool = False
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]",
-                                     loop=1):
-                            __bool = False
-
-                        if __get_ele(page=nexus, xpath='x://a[@label="Visit Blog"]', loop=1):
-                            __bool = False
-
-                        if __get_ele(page=nexus,
-                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]",
-                                     loop=1):
-                            __bool = False
-
-                        _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
-                        if _amount:
-                            if __bool:
-                                signma_log(message=_amount, task_name=f'nexus_joina', index=evm_id)
-                                if _amount == '0':
-                                    __bool = False
+                    if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
+                        if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
+                            if platform.system().lower() == "windows":
+                                nexus_joinas = read_data_list_file("E:/tmp/chrome_data/nexus_joinas.txt")
                             else:
-                                signma_log(message=_amount, task_name=f'nexus_joina_not_end', index=evm_id)
+                                nexus_joinas = read_data_list_file("/home/ubuntu/task/tasks/nexus_joinas.txt")
+                            if evm_id not in nexus_joinas:
+                                # 取消 tw关注
+                                nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
+                                if __get_ele(page=nexus,
+                                             xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]', loop=2):
+                                    __click_ele(page=nexus,
+                                                xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]')
+                                    __click_ele(page=nexus, xpath='x://button[text()="Disconnect Twitter"]')
+                                nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
+                                if __get_ele(page=nexus,
+                                             xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]', loop=2):
+                                    __click_ele(page=nexus,
+                                                xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]')
+                                    if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
+                                        logger.info('重新关注')
+                                        time.sleep(10)
+                                        nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
+                                        time.sleep(2)
+                                        if __get_ele(page=nexus,
+                                                     xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]', loop=2):
+                                            logger.info('重新关注成功')
+                                            if platform.system().lower() == "windows":
+                                                logger.info('写入文件0')
+                                                append_date_to_file("E:/tmp/chrome_data/nexus_joinas.txt", evm_id)
+                                            else:
+                                                logger.info('写入文件1')
+                                                append_date_to_file("/home/ubuntu/task/tasks/nexus_joinas.txt", evm_id)
+                                nexus.get(url='https://quest.nexus.xyz/loyalty')
+
+
+                            for i in range(3):
+                                nexus.scroll.to_bottom()
+                            time.sleep(3)
+                            nexus.refresh()
+                            nexus.scroll.to_bottom()
+                            # scroll_div.scroll.down(1000)  # 滚动页面
+                            time.sleep(3)
+
+                            _a = False
+                            _b = False
+                            _c = False
+                            _d = False
+                            _e = False
+                            _f = False
+                            _g = False
+                            _h = False
+                            _i = False
+                            _j = False
+                            _k = False
+                            _l = False
+                            _m = False
+                            _n = False
+
+                            for i in range(2):
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]",
+                                             loop=1):
+                                    _a = True
+                                    __click_ele(page=nexus,
+                                                xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]")
+                                    twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
+                                    if __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Authorize app"]]'):
+                                        time.sleep(5)
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Follow Nodejox - The Author')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _b = True
+                                    nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'NEW: Follow Nodejox - The Author', 'Go to Account')
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _c = True
+                                    nex_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Celebrate our Snag Partnership', 'Go to Post')
+
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _d = True
+                                    nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Like & Share our Testnet III Announcement', 'Go to Post')
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _e = True
+                                    nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nexus', 'Go to Account')
+
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _f = True
+                                    nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Share Spelunking Badge', 'Go to Post')
+
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Founder')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _g = True
+                                    nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nodejox - The Founder', 'Go to Account')
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Voice')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _h = True
+                                    nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nodejox - The Voice', 'Go to Account')
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Doctor')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _i = True
+                                    nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nodejox - The Doctor', 'Go to Account')
+
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _j = True
+                                    # 需要调整
+                                    __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=1)
+                                    __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[@label='Go to Post']", loop=1)
+                                    __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post')]", loop=1)
+                                    twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
+
+                                    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]',
+                                                   find_all=True, index=0):
+                                        __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
+                                        time.sleep(2)
+                                    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True,
+                                                   index=0):
+                                        __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
+                                        __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
+
+                                    __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0)
+                                    time.sleep(3)
+                                    __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value='I like them all')
+                                    # twitter_page.actions.type('I like them all')
+                                    time.sleep(3)
+                                    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton" and not(@disabled)]'):
+                                        time.sleep(5)
+                                        url = __get_popup_url(page=page, _url='x.com', timeout=15)
+                                        twitter_page.close()
+                                        if url is not None:
+                                            if __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[text()='Enter Link']", loop=1):
+                                                __input_ele_value(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//input[@name='contentUrl']", value=url)
+                                        if __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]", loop=1):
+                                            __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]")
+                                            time.sleep(2)
+                                        elif __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=1):
+                                            __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=1)
+                                            time.sleep(2)
+                                        __get_ele(page=nexus,
+                                                  xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                                  loop=1)
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _k = True
+                                    # 需要调整
+                                    __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=1)
+                                    __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[@label='Go to Post']", loop=1)
+                                    __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post')]", loop=1)
+                                    twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
+                                    __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0)
+                                    time.sleep(3)
+                                    __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value='I like them all')
+                                    # twitter_page.actions.type('I like them all')
+                                    time.sleep(1)
+                                    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton" and not(@disabled)]'):
+                                        time.sleep(5)
+                                        url = __get_popup_url(page=page, _url='x.com', timeout=15)
+                                        twitter_page.close()
+                                        if url is not None:
+                                            if __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[text()='Enter Link']", loop=1):
+                                                __input_ele_value(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//input[@name='contentUrl']", value=url)
+                                        if __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]", loop=1):
+                                            __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]")
+                                            time.sleep(2)
+                                        elif __get_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[@label='Go to Post']", loop=1):
+                                            __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[@label='Go to Post']")
+                                            time.sleep(2)
+
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _l = True
+                                    nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Shine a Light on the Numbers', 'Like and Share this Post')
+
+
+                                if __get_ele(page=nexus, xpath='x://a[@label="Visit Blog"]', loop=1):
+                                    _m = True
+                                    __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+                                    __click_ele(page=nexus, xpath='x://a[@label="Visit Blog"]')
+                                    twitter_page = __get_popup(page=page, _url='blog.nexus.xyz', timeout=45)
+                                    if twitter_page is not None:
+                                        time.sleep(10)
+                                        twitter_page.close()
+                                        __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim') or @label='Repost Tweet']",
+                                             loop=1):
+                                    _n = True
+                                    nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, 'Goodbye Camp Nexus', 'Repost Tweet')
+                                    __click_ele(page=nexus,
+                                                xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim') or @label='Repost Tweet']",
+                                                loop=1)
+
+                                # <h1 class="text-2xl font-bold">Your purchase succeeded!</h1>
+                                __bool = True
+                                if _a and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]",
+                                                    loop=1):
+                                    __bool = False
+                                else:
+                                    _a = False
+
+                                if _b and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Follow Nodejox - The Author')]",
+                                                    loop=1):
+                                    __bool = False
+                                else:
+                                    _b = False
+
+                                if _c and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]",
+                                                    loop=1):
+                                    __bool = False
+                                else:
+                                    _c = False
+
+                                if _d and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]",
+                                                    loop=1):
+                                    __bool = False
+                                else:
+                                    _d = False
+
+                                if _e and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[text()='Follow Nexus ']",
+                                                    loop=1):
+                                    __bool = False
+                                else:
+                                    _e = False
+
+                                if _f and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]",
+                                                    loop=1):
+                                    __bool = False
+                                else:
+                                    _f = False
+
+                                if _g and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Founder')]",
+                                                    loop=1):
+                                    __bool = False
+                                else:
+                                    _g = False
+
+                                if _h and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Voice')]",
+                                                    loop=1):
+                                    __bool = False
+                                else:
+                                    _h = False
+
+                                if _i and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Doctor')]",
+                                                    loop=1):
+                                    __bool = False
+                                else:
+                                    _i = False
+
+                                if _j and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]",
+                                                    loop=1):
+                                    __bool = False
+                                else:
+                                    _j = False
+
+                                if _k and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]",
+                                                    loop=1):
+                                    __bool = False
+                                else:
+                                    _k = False
+
+                                if _l and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]",
+                                                    loop=1):
+                                    __bool = False
+                                else:
+                                    _l = False
+
+                                if _m and __get_ele(page=nexus, xpath='x://a[@label="Visit Blog"]', loop=1):
+                                    __bool = False
+                                else:
+                                    _m = False
+
+                                if _n and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]",
+                                                    loop=1):
+                                    __bool = False
+                                else:
+                                    _n = False
+
+                                if __bool:
+                                    break
+                            _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
+                            if _amount:
+                                if __bool:
+                                    signma_log(message=f'{_0},{_I},{_II},{_DEVNET_NEX},{_amount}', task_name=f'nexus_joinc', index=evm_id)
+                                else:
+                                    signma_log(message=f'{_0},{_I},{_II},{_DEVNET_NEX},{_amount}', task_name=f'nexus_joinc_not_end', index=evm_id)
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
@@ -2228,28 +2037,28 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
 
 
 def nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
-    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]")
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=2)
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]", loop=2)
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
     if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
         __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
-        time.sleep(4)
+        time.sleep(2)
     if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0):
         __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
-        __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
+        __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=1)
         twitter_page.close()
         __click_ele(page=nexus,
-                    xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+                    xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=2)
 
 
 def nex_like_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
-    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]")
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=1)
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]", loop=1)
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
     __click_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0)
     if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
         __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
-        time.sleep(4)
+        time.sleep(2)
     if __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True, index=0):
         if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
             signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
@@ -2258,16 +2067,16 @@ def nex_like_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
         __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
         if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
             signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
-        __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]')
+        __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=1)
         twitter_page.close()
-        if __get_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]"):
-            __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]")
+        if __get_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]", loop=2):
+            __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]", loop=2)
             time.sleep(5)
 
 
 def nex_follow(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
-    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]")
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=1)
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]", loop=1)
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
     if __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Follow"]]'):
         if __get_ele(page=twitter_page,
@@ -2276,7 +2085,7 @@ def nex_follow(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
             signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
         twitter_page.close()
         if __get_ele(page=nexus,
-                     xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]"):
+                     xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]", loop=1):
             __click_ele(page=nexus,
                         xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]")
             time.sleep(5)
@@ -2292,7 +2101,7 @@ def __do_task_nexus(page, evm_id, index):
         __handle_signma_popup(page=page, count=0)
 
         nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
-        __get_ele(page=nexus, xpath='x://a[contains(text(), "FAQ")]', loop=10)
+        __get_ele(page=nexus, xpath='x://h1[contains(text(), "REWARDS")]', loop=10)
         if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
             __click_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1)
             shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
@@ -2345,11 +2154,12 @@ def __do_task_nexus(page, evm_id, index):
 
 
         nexus.get(url='https://quest.nexus.xyz/loyalty')
-        for i in range(3):
+        for i in range(5):
             time.sleep(4)
             if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
                 time.sleep(5)
-                click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), index)
+                click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), index)
+                time.sleep(10)
             else:
                 break
 
@@ -2368,12 +2178,14 @@ def __do_task_nexus(page, evm_id, index):
                             __handle_signma_popup(page=page, count=2, timeout=45)
 
         __handle_signma_popup(page=page, count=2)
+
+        __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=1)
         __click_ele(page=nexus, xpath='x://button[starts-with(@id, "radix-")]')
         __click_ele(page=nexus, xpath='x://a//div[@id="connect-wallet-balance-link"]')
         _pond = __get_ele_value(page=nexus, xpath='x://span[contains(@class,"font-bold lg:text-xl text-lg")]')
 
         if amount is not None and _pond is not None:
-            signma_log(message=f'{amount},{_pond.replace(",", "")}', task_name=f'nexus_point_data_{get_date_as_string()}', index=evm_id)
+            signma_log(message=f'{amount},{_pond.replace(",", "")}', task_name=f'nexus_point_{get_date_as_string()}', index=evm_id)
             time.sleep(3)
             __bool = True
 
@@ -2517,11 +2329,11 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
         if _login:
             time.sleep(2)
             sum_num_str = __get_ele_value(page=main_page, xpath='x://span[normalize-space()="All-Time Prisma Points"]/following-sibling::div/span')
-            if float(sum_num_str.replace(',', '')) > 3500:
+            if float(sum_num_str.replace(',', '')) > 2500:
                 prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                 if evm_id not in prismax_init:
                     append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
-                signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
                 __bool = True
             else:
                 if _home_ip:
@@ -2572,33 +2384,29 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
 
                             if __get_ele(page=main_page, xpath='x://span[starts-with(normalize-space(.),"Security verification failed")]', loop=3):
                                 # 验证错误
-                                signma_log(message='提交错误', task_name=f'prismax_join_error_{get_date_as_string()}', index=evm_id)
-                                signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                                signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
                             elif __get_ele(page=main_page, xpath='x://h2[starts-with(normalize-space(.),"Congratulations")]', loop=3):
                                 prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                                 if evm_id not in prismax_init:
                                     append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
-                                signma_log(message='3500', task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                                signma_log(message='3500', task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
                                 __bool = True
                             else:
                                 click_x_y(1208 + random.randint(1, 8), 698 + random.randint(1, 8), index)
                                 if __get_ele(page=main_page, xpath='x://span[starts-with(normalize-space(.),"Security verification failed")]', loop=3):
                                     # 验证错误
-                                    signma_log(message='提交错误', task_name=f'prismax_join_error_{get_date_as_string()}', index=evm_id)
-                                    signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                                    signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
                                 elif __get_ele(page=main_page, xpath='x://h2[starts-with(normalize-space(.),"Congratulations")]', loop=3):
                                     prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                                     if evm_id not in prismax_init:
                                         append_date_to_file("/home/ubuntu/task/tasks/prismax_init.txt", evm_id)
-                                    signma_log(message='3500', task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                                    signma_log(message='3500', task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
                                     __bool = True
                                 else:
-                                    signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
+                                    signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
                             time.sleep(5)
-                # else:
-                #     signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_tmps_{get_date_as_string()}', index=evm_id)
-        else:
-            signma_log(message='登陆失败', task_name=f'prismax_point_out_{get_date_as_string()}', index=evm_id)
+                else:
+                    signma_log(message=(sum_num_str or "0").replace(",", ""), task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
 
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
@@ -2707,100 +2515,13 @@ def __get_email_code(page, _main_page, xpath, evm_addr, index):
     return code
 
 
-def __do_task_towns(page, index, evm_id, evm_addr):
-    try:
-        __handle_signma_popup(page=page, count=0)
-        time.sleep(2)
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
-        logger.info('已登录钱包')
-        towns_page = page.new_tab(url='https://app.towns.com/')
-        if __click_ele(page=towns_page, xpath="x://button[contains(text(), 'Log In')]", loop=2):
-            if __get_ele(page=towns_page, xpath="x://button[contains(text(), 'Continue with Email')]", loop=1) is None:
-                __click_ele(page=towns_page, xpath="x://button[div[contains(text(), 'More options')]]", loop=2,
-                            must=True)
-
-            __click_ele(page=towns_page,
-                        xpath="x://button[contains(text(), 'Continue with Email')]", loop=2, must=True)
-            __input_ele_value(page=towns_page, xpath='x://input[@id="email-input"]',
-                              value=(evm_addr.lower() + "@dmail.ai"))
-            time.sleep(2)
-            __click_ele(page=towns_page,
-                        xpath="x://button[span[contains(text(), 'Submit')] and not(@disabled)]", loop=2, must=True)
-            code = __get_email_code(page=towns_page.browser, _main_page=towns_page,
-                                    xpath='x://table[@data-id="react-email-section"]//p[@data-id="react-email-text"]',
-                                    evm_addr=evm_addr.lower(), index=index)
-            if code is not None:
-                # 查找所有 input 元素，定位到 div 下的所有 text 类型的 input
-                inputs = towns_page.eles('x://div//input[@type="text"]')
-                for i, input_element in enumerate(inputs):
-                    # 填入对应的数字
-                    input_element.input(code[i])
-                time.sleep(5)
-
-        towns_page.get("https://app.towns.com/?panel=trading-wallet&stackId=main")
-        time.sleep(10)
-
-        if __get_ele(page=towns_page, xpath='x://span[contains(normalize-space(.), "orphaned funds")]'):
-            __click_ele(page=towns_page, xpath='x://span[span[span[contains(normalize-space(.), "orphaned funds")]]]')
-            time.sleep(5)
-            __click_ele(page=towns_page, xpath='x://span[@data-testid="max-button"]')
-            time.sleep(3)
-            inp = towns_page.ele('x://input[@id="ethAmount"]', timeout=3)  # 也可用 'id:amount' 或 'css:input#amount'
-            val = "0"
-            if inp is not None:
-                val = inp.run_js('return this.value') or "0"
-
-            __input_ele_value(page=towns_page, xpath='x://input[@data-testid="pill-selector-input"]',
-                              value='0xbcd224f78a1b75821a62ebda2835429c01f7b5ec')
-            __click_ele(page=towns_page,
-                        xpath='x://span[@data-testid="linked-wallet-option-0xbcd224f78a1b75821a62ebda2835429c01f7b5ec"]')
-            time.sleep(5)
-            if __click_ele(page=towns_page, xpath='x://button[.//p[normalize-space()="Transfer"]]'):
-                __click_ele(page=towns_page, xpath='x://button[.//*[contains(normalize-space(.), "Confirm")]]', loop=8)
-                if __get_ele(page=towns_page,
-                             xpath="x://span[contains(text(), 'Your assets have been transferred successfully')]",
-                             loop=8):
-                    time.sleep(5)
-                    signma_log(message=f"{val}", task_name=f'towns_{get_date_as_string()}', index=evm_id)
-        else:
-            if __get_ele(page=towns_page, xpath='x://button[.//span[text()="Send"]]'):
-                __click_ele(page=towns_page, xpath='x://button[.//span[text()="Send"]]')
-                __click_ele(page=towns_page, xpath='x://span[@id="container"]')
-                time.sleep(3)
-                __click_ele(page=towns_page, xpath='x://span[@data-testid="suggested-people-list-entries"]')
-                time.sleep(5)
-                __click_ele(page=towns_page, xpath='x://span[@data-testid="max-button"]')
-                time.sleep(3)
-                inp = towns_page.ele('x://input[@id="amount"]', timeout=3)  # 也可用 'id:amount' 或 'css:input#amount'
-                val = "0"
-                if inp is not None:
-                    val = inp.run_js('return this.value') or "0"
-                __input_ele_value(page=towns_page, xpath='x://input[@data-testid="pill-selector-input"]',
-                                  value='0xbcd224f78a1b75821a62ebda2835429c01f7b5ec')
-                __click_ele(page=towns_page,
-                            xpath='x://span[@data-testid="linked-wallet-option-0xbcd224f78a1b75821a62ebda2835429c01f7b5ec"]')
-                time.sleep(5)
-                if __click_ele(page=towns_page, xpath='x://button[.//p[normalize-space()="Send"]]'):
-                    __click_ele(page=towns_page, xpath="x://button[contains(text(), 'Pay with ETH')]", loop=8)
-
-                    time.sleep(5)
-                    __click_ele(page=towns_page, xpath="x://button[contains(text(), 'Pay with ETH')]", loop=2)
-
-                    if __get_ele(page=towns_page, xpath="x://span[contains(text(), 'ETH was sent to 0xbcd...5ec')]",
-                                 loop=8):
-                        signma_log(message=f"{val}", task_name=f'towns_{get_date_as_string()}', index=evm_id)
-                        time.sleep(5)
-
-    except Exception as e:
-        logger.info(f"未知异常 {evm_id} ：{e}")
-    return True
-
-
 def __do_task_nft(page, index, evm_id):
     try:
         n = random.randint(1, 22264)
-        image_files = f"/home/ubuntu/task/tasks/img/img{n:05d}.png"
+        if platform.system().lower() == "windows":
+            image_files = f"F:/img/img{n:05d}.png"
+        else:
+            image_files = f"/home/ubuntu/task/tasks/img/img{n:05d}.png"
         __down_file(f"https://vmxjp.15712345.xyz/img/img{n:05d}.png", image_files)
         image_descriptions = read_data_list_file("/home/ubuntu/task/tasks/image_descriptions.txt", check_exists=True)
         __handle_signma_popup(page=page, count=0)
@@ -2810,7 +2531,7 @@ def __do_task_nft(page, index, evm_id):
         __add_net_work(page=page, coin_name='rari')
         __select_net(page=page, net_name='Rari Chain', net_name_t='RARI Chain')
 
-        hyperbolic_page = page.new_tab(url='https://rarible.com/create/start')
+        hyperbolic_page = page.new_tab(url='https://og.rarible.com/create/rari-erc-721')
         # 等待页面加载完成
 
         if __get_ele(page=hyperbolic_page, xpath="x://a[contains(text(), 'Create')]", loop=5):
@@ -2915,10 +2636,169 @@ def __do_swap_rari_arb_eth(page, evm_id):
                 if __handle_signma_popup(page=page, count=1):
                     signma_log(message=f"rari_arb", task_name=f'task_{get_date_as_string()}', index=evm_id)
                     time.sleep(5)
+
     except Exception as e:
         logger.info(f"未知异常 {evm_id} ：{e}")
     return True
 
+
+def __do_task_pond(page, evm_id, index):
+    __bool = False
+    __handle_signma_popup(page=page, count=0)
+    time.sleep(2)
+    __login_wallet(page=page, evm_id=evm_id)
+    __handle_signma_popup(page=page, count=0)
+    pond_url = 'https://cryptopond.xyz/points?tab=idea'
+
+    pop = page.new_tab(url="chrome-extension://ohgmkpjifodfiomblclfpdhehohinlnn/popup.html")
+    evm_addr_span = __get_ele(page=pop, xpath='x://span[contains(@class, "account_info_label")]')
+    evm_addr = evm_addr_span.attr('title')
+    pop.close()
+
+    pond_page = page.new_tab(url=pond_url)
+
+    if __click_ele(page=pond_page, xpath='x://button[text()="Sign in"]', loop=2):
+        __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter email"]',
+                          value=(evm_addr.lower() + "@dmail.ai"))
+        __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter password"]', value="yhy023r@23h34a7")
+        __click_ele(page=pond_page,
+                    xpath='x://button[contains(@class, "chakra-button") and contains(@class, "css-16ek3z6") and text()="Sign in"]')
+        __click_verify_ele(page=pond_page, window=index,
+                           xpath='x://button[text()="Sign in" and contains(@class, "chakra-button css-16ek3z6") and not(@disabled)]',
+                           loop=10)
+        if __click_ele(page=pond_page, xpath='x://button[text()=" Continue"]', loop=2):
+            __click_ele(page=pond_page, xpath='x://button[text()=" Continue"]', loop=3)
+            __click_ele(page=pond_page, xpath='x://button[text()="Got It"]', loop=3)
+
+    # 开始任务
+
+    __click_ele(page=pond_page, xpath='x://p[text()="Competition"]')
+    if __click_ele(page=pond_page,
+                   xpath='x://span[text()="Post or Comment in Discussion Area"]/ancestor::div[2]/following-sibling::div//button',
+                   loop=1):
+        _else = pond_page.eles('x://div[contains(@class, "css-m0plwk")]//a')
+        _len = len(_else)
+        index = random.randint(1, _len)
+        _else[index].click()
+        __click_ele(page=pond_page, xpath='x://button[text()="Confirm"]', loop=2)
+        time.sleep(2)
+        __click_ele(page=pond_page, xpath='x://button[text()="Discussion"]')
+        time.sleep(2)
+        __click_ele(page=pond_page, xpath='x://button[text()="New Topic"]')
+        __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter title"]', value="Intelligent Form Autofill and Data Extraction")
+
+        __click_ele(page=pond_page, xpath='x://div[@class="ProseMirror bn-editor bn-default-styles"]')
+        pond_page.actions.type(
+            "and deep learning-based entity recognition to automatically fill out forms and extract structured information. The model follows these key steps")
+        pond_page.actions.type("Document and Form Detection")
+        time.sleep(2)
+        __click_ele(page=pond_page, xpath='x://button[text()="Publish Topic"]')
+        time.sleep(10)
+        pond_page.get(url=pond_url)
+
+
+    # 任务1   Common
+    __click_ele(page=pond_page, xpath='x://p[text()="Common"]', must=True)
+    if __click_ele(page=pond_page, xpath='x://span[text()="Complete Profile Information"]/ancestor::div[2]/following-sibling::div//button', loop=1):
+        __click_ele(page=pond_page, xpath='x://button[text()="Save"]')
+
+
+    # 任务 2  idea Propose an Idea
+    __click_ele(page=pond_page, xpath='x://p[text()="Idea"]')
+    go_in = pond_page.ele('x://span[text()="Propose an Idea"]/ancestor::div[2]/following-sibling::div//button')
+    if go_in:
+        __click_ele(page=pond_page,
+                    xpath='x://span[text()="Propose an Idea"]/ancestor::div[2]/following-sibling::div//button')
+        __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter the title of your model idea"]',
+                          value="SmartFormAI: AI-Powered Intelligent Form Autofill and Data Extraction")
+        __input_ele_value(page=pond_page,
+                          xpath='x://textarea[@placeholder="Enter a brief summary of your model idea"]',
+                          value="SmartFormAI is an AI model designed to automate form-filling processes and extract structured data from various document types. Leveraging natural language processing (NLP) and computer vision, this model can understand and interpret input fields, extract relevant user information, and accurately populate forms across web and desktop applications. The model is particularly useful for automating repetitive form submissions, enhancing data entry efficiency, and integrating with enterprise-level workflows.")
+        __click_ele(page=pond_page, xpath='x://div[@class="ProseMirror bn-editor bn-default-styles"]')
+        pond_page.actions.type(
+            "SmartFormAI is an AI model that combines OCR (Optical Character Recognition), NLP, and deep learning-based entity recognition to automatically fill out forms and extract structured information. The model follows these key steps:")
+        pond_page.actions.type("Document and Form Detection:")
+        pond_page.actions.type(
+            "Uses computer vision to identify form structures in images, PDFs, or digital forms.")
+        pond_page.actions.type(
+            "Recognizes input fields, labels, and section titles using OCR and layout analysis.")
+        pond_page.actions.type("Data Extraction and Interpretation:")
+        pond_page.actions.type(
+            "Analyzes provided text (e.g., user profile, ID cards, invoices) to extract relevant details.")
+        pond_page.actions.type(
+            "Uses NLP-based Named Entity Recognition (NER) to classify fields (e.g., name, address, email, etc.).")
+        pond_page.actions.type("Intelligent Form-Filling:")
+        pond_page.actions.type("Maps extracted data to corresponding fields using contextual understanding.")
+        pond_page.actions.type("Auto-fills fields dynamically, ensuring accuracy and format compliance.")
+        pond_page.actions.type("Supports learning from user interactions to improve accuracy over time.")
+        pond_page.actions.type("Integration & Automation:")
+        time.sleep(3)
+        __click_ele(page=pond_page, xpath='x://button[text()="Save"]')
+        time.sleep(15)
+
+    # 任务3  idea Propose an Idea
+    pond_page.get(url=pond_url)
+    time.sleep(1)
+    __click_ele(page=pond_page, xpath='x://p[text()="Idea"]')
+    time.sleep(2)
+    if __click_ele(page=pond_page, xpath='x://span[text()="Vote on an Idea"]/ancestor::div[2]/following-sibling::div//button', loop=1):
+        index = random.randint(1, 6)
+        pond_page.get(url=f"https://cryptopond.xyz/ideas?page={index}")
+        time.sleep(10)
+        __click_ele(page=pond_page, xpath='x://div[contains(@class, "css-1mfyor6")]', loop=10)
+        pond_page.get(url=pond_url)
+
+    # 获取积分
+    time.sleep(5)
+    integral = __get_ele_value(page=pond_page,
+                               xpath='x://p[contains(@class, "chakra-text") and contains(@class, "css-c1o5sq")]')
+
+    # 获取积分
+    time.sleep(5)
+    integral = __get_ele_value(page=pond_page,
+                               xpath='x://p[contains(@class, "chakra-text") and contains(@class, "css-c1o5sq")]')
+
+    if integral is not None:
+        signma_log(message=f"{evm_addr},{integral.replace(',', '')}", task_name=f'task_pond_{get_date_as_string()}', index=evm_id)
+        __bool = True
+    else:
+        signma_log(message=f"{evm_addr},00", task_name=f'task_pond_{get_date_as_string()}', index=evm_id)
+
+    return __bool
+
+def __click_verify_ele(page, window, xpath: str = '', loop: int = 5, must: bool = False, by_jd: bool = True,
+                       find_all: bool = False,
+                       index: int = -1) -> int:
+    loop_count = 1
+    while True:
+        logger.info(f'查找元素{xpath}:{loop_count}')
+        try:
+            if not find_all:
+                # logger.info(f'点击按钮{xpath}:{loop_count}')
+                page.ele(locator=xpath).click(by_js=None)
+            else:
+                page.eles(locator=xpath)[index].click(by_js=None)
+            break
+        except Exception as e:
+            error = e
+            pass
+
+        try:
+            logger.info(f'点击{xpath}:{loop_count}')
+            click_x_y(789 + random.randint(1, 6), 531 + random.randint(1, 6), window)
+        except Exception as e:
+            error = e
+            pass
+
+        if loop_count >= loop:
+            # logger.info(f'---> {xpath} 无法找到元素。。。', str(error)[:100])
+            if must:
+                # page.quit()
+                raise Exception(f'未找到元素:{xpath}')
+            return 0
+        loop_count += 1
+        # time.sleep(1)
+    return 1
 
 def __do_swap_rari_arb_eth_end(page, evm_id):
     try:
@@ -3109,6 +2989,31 @@ def __do_task_molten(page, evm_id, index):
                             time.sleep(5)
                 elif float(_mon_to) > 0:
                     __end = True
+
+                if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Transactions")]',
+                               loop=1):
+                    time.sleep(10)
+                    for i in range(8):
+                        _buttons = main_page.eles(
+                            locator='x://button[.//div[contains(@class,"absolute") and contains(@class,"right-0") and contains(@class,"top-0") and contains(@class,"bg-red-500")]]')
+                        for btn in _buttons:
+                            try:
+                                btn.click()
+                                # 如果点击后页面有变化，适当等待
+                                time.sleep(0.5)
+                                if __click_ele(page=main_page,
+                                               xpath="x://div[@role='menuitem' and contains(normalize-space(.), 'Finalize withdrawal')]"):
+                                    time.sleep(5)
+                                    __handle_signma_popup(page=page, count=1, timeout=30)
+                                    time.sleep(5)
+                            except Exception as e:
+                                print(f"点击按钮时出错：{e}")
+                        if __click_ele(page=main_page,
+                                       xpath='x://button[contains(normalize-space(.), "Next")  and not(@disabled)]',
+                                       loop=1):
+                            logger.info('下一页数据')
+                        else:
+                            break
     except Exception as e:
         logger.info(f"窗口{index}:处理任务: 异常: {e}")
 
@@ -3150,7 +3055,6 @@ if __name__ == '__main__':
         # 过滤：保留“今天及以前”的数据；并排除已完成（end_tasks）之外的行
         filtered = []
         for line in tasks:
-            _task = line
             parts = line.split("||")
             if len(parts) < 3:
                 logger.warning(f"任务行格式不正确，跳过：{line!r}")
@@ -3183,6 +3087,7 @@ if __name__ == '__main__':
                 _task_id = parts[0]
                 _task_type = parts[1]
                 arg = parts[3].split(",")
+                _task = parts[3]
 
                 if len(arg) < 2:
                     logger.warning(f"任务 arg 参数不足，跳过：{parts[3]!r}")
@@ -3190,32 +3095,72 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-                logger.warning(f"启动任务:{part}")
-                # if _type == 'prismax':
-                if _type == 'nexus_joina':
-                # if _type:
-                    #     signma_log(message=part, task_name=f'prismax_task_{get_date_as_string()}', index=_id)
-                    if _type == 'gift':
+                logger.warning(f"启动任务1:{_type}:{part}")
+                if _type == 'pond':
+                    # if _type:
+                    if _type == 'nexus_hz_one_a':
                         evm_id = _id
                         evm_addr = arg[2]
                         amount = arg[3]
-                        _bool = True
-                        # 判断需要转账
-                        if amount is not None and float(amount) > 0:
-                            end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_gift_wallet.txt")
-                            if evm_id not in end_tasks:
-                                _bool = False
-                                if __do_send_wallet('88102', evm_addr, amount):
-                                    append_date_to_file(file_path="/home/ubuntu/task/tasks/end_gift_wallet.txt",
-                                                        data_str=evm_id)
+                        _bool = False
+                        # # 判断需要转账
+                        if platform.system().lower() == "windows":
+                            end_tasks = read_data_list_file("E:/tmp/chrome_data/end_nexus_wallet.txt")
+                        else:
+                            end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_nexus_wallet.txt")
+                        if evm_id not in end_tasks:
+                            ethereum = get_eth_balance("ethereum", evm_addr)
+                            if float(ethereum) >= 0.00047:
+                                if platform.system().lower() == "windows":
+                                    append_date_to_file(file_path="E:/tmp/chrome_data/end_nexus_wallet.txt", data_str=evm_id)
+                                else:
+                                    append_date_to_file(file_path="/home/ubuntu/task/tasks/end_nexus_wallet.txt", data_str=evm_id)
+                                signma_log(message=f"1", task_name=f'end_nexus_wallet_logs', index=evm_id)
+                                _bool = True
+                            else:
+                                if amount is not None and float(amount) > 0:
+                                    __do_send_wallet('88102', evm_addr, amount, 0.1, 'nexus_eth')
+                                else:
+                                    rari = get_eth_balance("rari", evm_addr)
+                                    if 0.0005 <= float(rari):
+                                        _page = __get_page("nexus_joina", _id, None, False)
+                                        __login_wallet(page=_page, evm_id=evm_id)
+                                        __handle_signma_popup(page=_page, count=0)
+                                        __add_net_work(page=_page, coin_name='rari')
+                                        if float(rari) <= 0.0006:
+                                            amount_tmp = random.uniform(0.000501, float(rari) - 0.00002)
+                                        else:
+                                            amount_tmp = random.uniform(0.000511, 0.000620)
+                                        _amount = "{:.5f}".format(amount_tmp)
+                                        __send_end_wallet(_page, evm_id, None, _amount, "https://relay.link/bridge/ethereum?fromChainId=1380012617", 0.1, 0, 'nexus_eth')
+                                ethereum = get_eth_balance("ethereum", evm_addr)
+                                if float(ethereum) >= 0.00047:
+                                    if platform.system().lower() == "windows":
+                                        append_date_to_file(file_path="E:/tmp/chrome_data/end_nexus_wallet.txt", data_str=evm_id)
+                                    else:
+                                        append_date_to_file(file_path="/home/ubuntu/task/tasks/end_nexus_wallet.txt", data_str=evm_id)
+                                    signma_log(message=f"1", task_name=f'end_nexus_wallet_logs', index=evm_id)
                                     _bool = True
-
+                                else:
+                                    _bool = False
+                        else:
+                            _bool = True
                         if _bool:
-                            _page = __get_page(_type, _id, None, False)
+                            if _page is None:
+                                _page = __get_page("nexus_joina", _id, None, False)
+                                __login_wallet(page=_page, evm_id=evm_id)
+                                __handle_signma_popup(page=_page, count=0)
                             if _page is None:
                                 logger.error("浏览器启动失败，跳过该任务")
                                 continue
-                            _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=arg[3])
+                            _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                            if _end:
+                                signma_log(message=f"1", task_name=f'end_nexus_card_logs', index=evm_id)
+                    # if _type == 'nexus_hz_query':
+                    #     _page = __get_page("nexus_joina", _id, None, False)
+                    #     __login_wallet(page=_page, evm_id=evm_id)
+                    #     __handle_signma_popup(page=_page, count=0)
+                    #     _end = __do_task_nexus_hz_qy(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     else:
                         _home_ip = False
                         _dt = False
@@ -3224,36 +3169,25 @@ if __name__ == '__main__':
                             if _id not in prismax_init:
                                 _dt = True
                                 _home_ip = check_available(_id)
+                        if _type == 'nexus_joina':
+                            _home_ip = check_available(_id)
+                            if _home_ip:
+                                logger.info('加载住宅ip')
+                            else:
+                                break
                         _page = __get_page(_type, _id, None, _home_ip)
                         if _page is None:
                             logger.error("浏览器启动失败，跳过该任务")
                             continue
+                        elif _type == 'gift':
+                            _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=0)
+                        elif _type == 'pond':
+                            _end = __do_task_pond(page=_page, index=_window, evm_id=_id)
                         elif _type == 'end_eth':
                             # _end = __do_end_eth(page=_page, evm_id=_id, evm_addr=arg[2], _type=arg[3], _amount=arg[4])
                             _end = True
                         elif _type == 'end_ploy':
-                            _end = __do_end_ploy(page=_page, evm_id=_id, evm_addr=arg[2])
-                        elif _type == 'airdrop':
-                            # __do_airdrop(page=_page, evm_ids=parts[3])
-                            _end = True
-                        elif _type == 'quackai':
-                            # _end = __do_quackai(page=_page, evm_id=_id)
-                            _end = True
-                        elif _type == 'mira':
-                            _end = __do_mira(page=_page, evm_id=_id)
-                        # elif _type == 'linea':
-                        #     _end = __do_task_linea(page=_page, index=_window, evm_id=_id)
-                        #     _end = True
-                        # elif _type == 'portal':
-                        #     _end = __do_task_portal(page=_page, index=_window, evm_id=_id)
-                        #     _end = True
-                        # elif _type == 'towns':
-                        #     _end = __do_task_towns(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                        elif _type == 'logx':
-                            # _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
-                            _end = True
-                        elif _type == 'logx_end':
-                            # _end = __do_task_logx(page=_page, index=_window, evm_id=_id)
+                            # _end = __do_end_ploy(page=_page, evm_id=_id, evm_addr=arg[2])
                             _end = True
                         elif _type == 'nft':
                             _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
@@ -3271,10 +3205,8 @@ if __name__ == '__main__':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                         elif _type == 'nexus_joina':
                             _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
+                            end_available(evm_id=_id)
                             # _end = True
-                        elif _type == 'nexus_joinb':
-                            # _end = __do_task_nexus_pod(page=_page, index=_window, evm_id=_id)
-                            _end = True
                         elif _type == 'prismax':
                             if len(arg) < 3:
                                 logger.warning("prismax 需要助记词/私钥参数，已跳过")
@@ -3296,21 +3228,26 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type == 'nexus_joina':
                 # if _type:
+                if _type == 'pond':
+                    # if _type == 'prismax' or _type == 'nexus_hz_query':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
-                    if _end:
-                        if _task_id and platform.system().lower() != "windows":
-                            if _task_type != '0':
+                    if _end and _task_id:
+                        if _task_type != '0':
+                            if platform.system().lower() != "windows":
                                 append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt", data_str=_task_id)
                             else:
-                                _end_day_task.append(_task_id)
+                                append_date_to_file(file_path="E:/tmp/chrome_data/end_tasks.txt", data_str=_task_id)
+                        else:
+                            _end_day_task.append(_task_id)
                     else:
-                        signma_log(message=_task, task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-            # if len(filtered) > 24:
-            #     time.sleep(600)
-            # elif len(filtered) > 12:
-            #     time.sleep(1800)
-            # else:
-            #     time.sleep(3600)
-        time.sleep(600)
+                        signma_log(message=f"{_type},{_task_id},{_task}", task_name=f'error_task_{get_date_as_string()}', index=evm_id)
+                    if len(filtered) > 48:
+                        time.sleep(600)
+                    elif len(filtered) > 24:
+                        time.sleep(1200)
+                    elif len(filtered) > 12:
+                        time.sleep(1800)
+                    else:
+                        time.sleep(3600)
+        time.sleep(3600)
