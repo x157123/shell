@@ -255,6 +255,9 @@ main() {
 	# 更新软件源并安装 Python 运行时及虚拟环境支持
 	apt-get update \
 		&& apt-get install -y \
+		  fontconfig \
+		  fonts-wqy-zenhei \
+		  fonts-wqy-microhei \
 			python3-pip \
 			python3-venv \
 			python3-tk \
