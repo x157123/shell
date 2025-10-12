@@ -3234,7 +3234,7 @@ if __name__ == '__main__':
                         elif _type == 'gift':
                             _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=0)
                         elif _type == 'airdrop':
-                            _end = __do_task_airdrop(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=0)
+                            _end = __do_task_airdrop(page=_page, index=_window, evm_id=_id)
                         elif _type == 'pond':
                             _end = __do_task_pond(page=_page, index=_window, evm_id=_id)
                         elif _type == 'end_eth':
