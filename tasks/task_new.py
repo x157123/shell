@@ -3171,9 +3171,9 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-                logger.warning(f"启动任务1:{_type}:{part}")
                 if _type == 'nexus_hz':
                 # if _type:
+                    logger.warning(f"启动任务1:{_type}:{part}")
                     if _type == 'nexus_hz_one_a':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -3337,4 +3337,4 @@ if __name__ == '__main__':
         #                 time.sleep(1800)
         #             else:
         #                 time.sleep(1800)
-        time.sleep(1800)
+        time.sleep(20)
