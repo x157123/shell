@@ -810,14 +810,17 @@ def __do_task_quackai(page, evm_id, index):
 
         _id = __get_ele_value(page=main_page, xpath=f"x://span[contains(@class,'font-semibold text-xs md:text-base')]", loop=2)
 
-        if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Eligibility Status')]", loop=2):
-            __bool = True
-            if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Ineligible')]", loop=2):
-                signma_log(message=f"{_id},0", task_name=f'quackai_log', index=evm_id)
-            else:
-                signma_log(message=f"{_id},1", task_name=f'quackai_log', index=evm_id)
-        if main_page is not None:
-            main_page.close()
+        if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Unknown-Connect Wallet to Check')]", loop=1):
+            logger.info('登陆失败')
+        else:
+            if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Eligibility Status')]", loop=2):
+                __bool = True
+                if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Ineligible')]", loop=2):
+                    signma_log(message=f"{_id},0", task_name=f'quackai_log', index=evm_id)
+                else:
+                    signma_log(message=f"{_id},1", task_name=f'quackai_log', index=evm_id)
+            if main_page is not None:
+                main_page.close()
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
