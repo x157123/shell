@@ -790,6 +790,39 @@ def __do_task_airdrop(page, evm_id, index):
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
 
+
+
+def __do_task_quackai(page, evm_id, index):
+    __bool = False
+    try:
+        time.sleep(1)
+        __handle_signma_popup(page=page, count=0)
+        time.sleep(2)
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+        logger.info('已登录钱包')
+        main_page = page.new_tab(url="https://claim.quackai.ai/season-1")
+
+        if __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Connect Wallet"]', loop=2):
+            if __click_ele(page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]'):
+                __handle_signma_popup(page=page, count=2)
+                __handle_signma_popup(page=page, count=0)
+
+        _id = __get_ele_value(page=main_page, xpath=f"x://span[contains(@class,'font-semibold text-xs md:text-base')]", loop=2)
+
+        if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Eligibility Status')]", loop=2):
+            __bool = True
+            if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Ineligible')]", loop=2):
+                signma_log(message=f"{_id},0", task_name=f'quackai_log', index=evm_id)
+            else:
+                signma_log(message=f"{_id},1", task_name=f'quackai_log', index=evm_id)
+        if main_page is not None:
+            main_page.close()
+    except Exception as e:
+        logger.info(f"窗口{index}: 处理任务异常: {e}")
+    return __bool
+
+
 def __quyer_gas():
     params = {
         'module': 'gastracker',
@@ -3148,8 +3181,8 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 logger.warning(f"启动任务1:{_type}:{part}")
-                # if _type == 'nexus':
-                if _type:
+                if _type == 'quackai':
+                    # if _type:
                     if _type == 'nexus_hz_one_a':
                         evm_id = _id
                         evm_addr = arg[2]
@@ -3235,6 +3268,8 @@ if __name__ == '__main__':
                             _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=0)
                         elif _type == 'airdrop':
                             _end = __do_task_airdrop(page=_page, index=_window, evm_id=_id)
+                        elif _type == 'quackai':
+                            _end = __do_task_quackai(page=_page, index=_window, evm_id=_id)
                         elif _type == 'pond':
                             _end = __do_task_pond(page=_page, index=_window, evm_id=_id)
                         elif _type == 'end_eth':
@@ -3283,9 +3318,9 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type:
-                # if _type == 'nexus':
-                # if _type == 'prismax' or _type == 'nexus_hz_query':
+                # if _type:
+                if _type == 'quackai':
+                    # if _type == 'prismax' or _type == 'nexus_hz_query':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
                         if _task_type != '0':
@@ -3297,13 +3332,13 @@ if __name__ == '__main__':
                             _end_day_task.append(_task_id)
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}", task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    # time.sleep(60)
-                    if len(filtered) > 48:
-                        time.sleep(600)
-                    elif len(filtered) > 24:
-                        time.sleep(1200)
-                    elif len(filtered) > 12:
-                        time.sleep(1800)
-                    else:
-                        time.sleep(1800)
+                    time.sleep(60)
+                    # if len(filtered) > 48:
+                    #     time.sleep(600)
+                    # elif len(filtered) > 24:
+                    #     time.sleep(1200)
+                    # elif len(filtered) > 12:
+                    #     time.sleep(1800)
+                    # else:
+                    #     time.sleep(1800)
         time.sleep(1800)
