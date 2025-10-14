@@ -3171,8 +3171,8 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-                if _type == 'nexus_hz':
-                # if _type:
+                # if _type == 'nexus_hz':
+                if _type:
                     logger.warning(f"启动任务1:{_type}:{part}")
                     if _type == 'nexus_hz_one_a':
                         evm_id = _id
@@ -3237,11 +3237,12 @@ if __name__ == '__main__':
                     #     __login_wallet(page=_page, evm_id=evm_id)
                     #     __handle_signma_popup(page=_page, count=0)
                     #     _end = __do_task_nexus_hz_qy(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-
                     if _type == 'nexus_hz':
-                        # _page = __get_page("nexus", _id, None, False)
-                        # _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                         _end = True
+                    if _type == 'nexus_hz_new':
+                        _page = __get_page("nexus", _id, None, False)
+                        _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        # _end = True
                     else:
                         _home_ip = False
                         _dt = False
@@ -3329,12 +3330,10 @@ if __name__ == '__main__':
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}", task_name=f'error_task_{get_date_as_string()}', index=evm_id)
                     # time.sleep(60)
-        #             if len(filtered) > 48:
-        #                 time.sleep(600)
-        #             elif len(filtered) > 24:
-        #                 time.sleep(1200)
-        #             elif len(filtered) > 12:
-        #                 time.sleep(1800)
-        #             else:
-        #                 time.sleep(1800)
-        time.sleep(20)
+                    if len(filtered) > 24:
+                        time.sleep(600)
+                    elif len(filtered) > 12:
+                        time.sleep(1200)
+                    else:
+                        time.sleep(1800)
+        time.sleep(1800)
