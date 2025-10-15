@@ -3241,8 +3241,8 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-                if _type == 'monad' or _type == 'monad_solana':
-                    # if _type:
+                # if _type == 'monad' or _type == 'monad_solana':
+                if _type:
                     logger.warning(f"启动任务1:{_type}:{part}")
                     if _type == 'nexus_hz_one_a':
                         evm_id = _id
@@ -3327,9 +3327,6 @@ if __name__ == '__main__':
                                 logger.info('加载住宅ip')
                             else:
                                 break
-                        if _type == 'monad_solana':
-                            _home_ip = True
-
                         _page = __get_page(_type, _id, None, _home_ip)
                         if _page is None:
                             logger.error("浏览器启动失败，跳过该任务")
@@ -3337,7 +3334,8 @@ if __name__ == '__main__':
                         elif _type == 'gift':
                             _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=0)
                         elif _type == 'monad_solana':
-                            _end = __do_task_monad_solana(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                            # _end = __do_task_monad_solana(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                            _end = True
                         elif _type == 'monad':
                             _end = __do_task_monad(page=_page, index=_window, evm_id=_id)
                         elif _type == 'quackai':
@@ -3391,8 +3389,8 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                # if _type:
-                if _type == 'monad' or _type == 'monad_solana':
+                if _type:
+                # if _type == 'monad' or _type == 'monad_solana':
                     # if _type == 'prismax' or _type == 'nexus_hz_query':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
@@ -3405,22 +3403,11 @@ if __name__ == '__main__':
                             _end_day_task.append(_task_id)
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}", task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    # time.sleep(60)
-                    # if len(filtered) > 24:
-                    #     time.sleep(1200)
-                    # elif len(filtered) > 12:
-                    #     time.sleep(1200)
-                    # else:
-                    #     time.sleep(1800)
-                if _type == 'monad':
-                    if platform.system().lower() == "windows":
-                        shutil.rmtree(f"E:/tmp/chrome_data/monad/")
+                    time.sleep(60)
+                    if len(filtered) > 24:
+                        time.sleep(1200)
+                    elif len(filtered) > 12:
+                        time.sleep(1200)
                     else:
-                        shutil.rmtree(f"/home/ubuntu/task/tasks/monad/")
-                if _type == 'monad_solana':
-                    if platform.system().lower() == "windows":
-                        shutil.rmtree(f"E:/tmp/chrome_data/monad_solana/")
-                    else:
-                        shutil.rmtree(f"/home/ubuntu/task/tasks/monad_solana/")
-
+                        time.sleep(1800)
         time.sleep(1800)
