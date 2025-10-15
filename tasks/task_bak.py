@@ -1519,7 +1519,9 @@ def __do_task_nexus_hz_lq(page ,nexus, nexus_no_bad, _id, name, _evm_addr, _inde
                                             __handle_signma_popup(page=page, count=0)
                                             __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3)
 
-                            __handle_signma_popup(page=page, count=2, timeout=45)
+                            __handle_signma_popup(page=page, count=4, timeout=45)
+                            time.sleep(4)
+                            __handle_signma_popup(page=page, count=0)
                             if __get_ele(page=nexus, xpath='x://h1[contains(text(), "Your purchase succeeded!")]', loop=45):
                                 __bool_ = True
                                 logger.info('成功')

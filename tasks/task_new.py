@@ -1497,11 +1497,31 @@ def __do_task_nexus_hz_lq(page ,nexus, nexus_no_bad, _id, name, _evm_addr, _inde
         if vf_cf(_nexus=nexus, _index=_index):
             _ethereum = get_eth_balance("base", _evm_addr)
             _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
+            time.sleep(8)
             if _amount and float(_amount) > _jf:
                 if __click_ele(page=nexus, xpath=f'x://a[div[div[span[text()="{name}"]]]]', loop=3):
                     if __get_ele(page=nexus, xpath=f'x://h1[contains(text(), "{name}")]'):
                         if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3):
-                            __handle_signma_popup(page=page, count=2, timeout=45)
+                            # 可能出现二次登陆
+                            shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+                            if shadow_host:
+                                shadow_root = shadow_host.shadow_root
+                                if shadow_root:
+                                    continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+                                    if continue_button:
+                                        continue_button.click(by_js=True)
+                                        time.sleep(1)
+                                        signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+                                        if signma_ele:
+                                            signma_ele.click(by_js=True)
+                                            __handle_signma_popup(page=page, count=4, timeout=45)
+                                            time.sleep(4)
+                                            __handle_signma_popup(page=page, count=0)
+                                            __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3)
+
+                            __handle_signma_popup(page=page, count=4, timeout=45)
+                            time.sleep(4)
+                            __handle_signma_popup(page=page, count=0)
                             if __get_ele(page=nexus, xpath='x://h1[contains(text(), "Your purchase succeeded!")]', loop=45):
                                 __bool_ = True
                                 logger.info('成功')
