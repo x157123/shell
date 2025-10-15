@@ -3315,8 +3315,8 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                # if _type:
-                if _type == 'nexus_hz':
+                if _type:
+                # if _type == 'nexus_hz':
                     # if _type == 'prismax' or _type == 'nexus_hz_query':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
