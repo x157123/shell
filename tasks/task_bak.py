@@ -3241,8 +3241,10 @@ if __name__ == '__main__':
                     if _type == 'nexus_hz':
                         _end = True
                     if _type == 'nexus_hz_new':
-                        _page = __get_page("nexus", _id, None, False)
+                        _home_ip = check_available(_id)
+                        _page = __get_page("nexus", _id, None, _home_ip)
                         _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        end_available(evm_id=_id)
                         # _end = True
                     else:
                         _home_ip = False
