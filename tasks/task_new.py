@@ -2229,55 +2229,46 @@ def __do_task_nexus(page, evm_id, index):
             amount = (m.group(1).replace(',', '')) if m else '0'
 
 
-        nexus.get(url='https://quest.nexus.xyz/loyalty')
-        for i in range(5):
-            time.sleep(4)
-            if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
-                time.sleep(5)
-                click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), index)
-                time.sleep(10)
-            else:
-                break
+        # nexus.get(url='https://quest.nexus.xyz/loyalty')
+        # for i in range(5):
+        #     time.sleep(4)
+        #     if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
+        #         time.sleep(5)
+        #         click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), index)
+        #         time.sleep(10)
+        #     else:
+        #         break
+        #
+        # if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=3):
+        #     shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+        #     if shadow_host:
+        #         shadow_root = shadow_host.shadow_root
+        #         if shadow_root:
+        #             continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+        #             if continue_button:
+        #                 continue_button.click(by_js=True)
+        #                 time.sleep(1)
+        #                 signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+        #                 if signma_ele:
+        #                     signma_ele.click(by_js=True)
+        #                     __handle_signma_popup(page=page, count=2, timeout=45)
+        #
+        # __handle_signma_popup(page=page, count=2)
+        #
+        # __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=1)
+        # __click_ele(page=nexus, xpath='x://button[starts-with(@id, "radix-")]')
+        # __click_ele(page=nexus, xpath='x://a//div[@id="connect-wallet-balance-link"]')
+        # _pond = __get_ele_value(page=nexus, xpath='x://span[contains(@class,"font-bold lg:text-xl text-lg")]')
+        #
+        # if amount is not None and _pond is not None:
+        #     signma_log(message=f'{amount},{_pond.replace(",", "")}', task_name=f'nexus_point_{get_date_as_string()}', index=evm_id)
+        #     time.sleep(3)
+        #     __bool = True
 
-        if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=3):
-            shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-            if shadow_host:
-                shadow_root = shadow_host.shadow_root
-                if shadow_root:
-                    continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
-                    if continue_button:
-                        continue_button.click(by_js=True)
-                        time.sleep(1)
-                        signma_ele = shadow_root.ele('x://span[text()="Signma"]')
-                        if signma_ele:
-                            signma_ele.click(by_js=True)
-                            __handle_signma_popup(page=page, count=2, timeout=45)
-
-        __handle_signma_popup(page=page, count=2)
-
-        __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=1)
-        __click_ele(page=nexus, xpath='x://button[starts-with(@id, "radix-")]')
-        __click_ele(page=nexus, xpath='x://a//div[@id="connect-wallet-balance-link"]')
-        _pond = __get_ele_value(page=nexus, xpath='x://span[contains(@class,"font-bold lg:text-xl text-lg")]')
-
-        if amount is not None and _pond is not None:
-            signma_log(message=f'{amount},{_pond.replace(",", "")}', task_name=f'nexus_point_{get_date_as_string()}', index=evm_id)
+        if amount is not None:
+            signma_log(message=f'{amount},-1', task_name=f'nexus_point_{get_date_as_string()}', index=evm_id)
             time.sleep(3)
             __bool = True
-
-        # if random.choice([True, False]):
-        #     if __get_ele(page=nexus, xpath="x://div[contains(., 'Welcome to Camp Nexus')]"):
-        #         __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
-        #         if __get_ele(page=nexus, xpath='x://a[@label="Visit Blog"]', loop=1):
-        #             __click_ele(page=nexus, xpath='x://a[@label="Visit Blog"]')
-        #             twitter_page = __get_popup(page=page, _url='blog.nexus.xyz', timeout=45)
-        #             if twitter_page is not None:
-        #                 time.sleep(10)
-        #                 twitter_page.close()
-        #                 if __click_ele(page=nexus, xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]"):
-        #                     time.sleep(60)
-        #                     if __get_ele(page=nexus, xpath="x://div[contains(., 'Welcome to Camp Nexus')]") is None:
-        #                         signma_log(message=evm_id, task_name=f'nexus_camp', index=evm_id)
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
