@@ -31,7 +31,7 @@ def __get_page(_type, _id, _port, _home_ip):
     if _home_ip:
         num = "23002"
         options.set_proxy(f"43.160.196.49:{num}")
-    if _type == 'prismax':
+    if _type == 'prismax' or _type == 'monad_solana':
         if platform.system().lower() == "windows":
             options.add_extension(f"E:/chrome_tool/phantom")
         else:
@@ -234,6 +234,32 @@ def wait_for_positive_amount(page, xpath, max_attempts=8, interval=1):
                 pass
         time.sleep(interval)
     return 0.0
+
+def __handle_phantom_popup(page, count: int = 1, timeout: int = 15, must: bool = False):
+    """
+    处理 Signma 弹窗，遍历所有 tab。
+    修复：当 count=0 时，表示“尽力清弹窗”，整轮扫描后返回是否处理过。
+    """
+    start_time = time.time()
+    _count = 0
+    processed_any = False
+    while time.time() - start_time < timeout:
+        time.sleep(2)
+        all_tabs = page.get_tabs()
+        for tab in all_tabs:
+            try:
+                if 'bfnaelmomeimhlpmgjnjophhpkkoljpa/notification.html' in tab.url:
+                    __click_ele(page=tab, xpath='x://button[@data-testid="primary-button"]', loop=1)
+
+                time.sleep(1)
+            except Exception as e:
+                logger.debug(f"处理弹窗异常：{e}")
+            # 原逻辑：处理足够数量即返回
+            if count > 0 and _count >= count:
+                return True
+        # count==0：整轮扫描后再返回
+        if count == 0:
+            return processed_any
 
 
 def __handle_signma_popup(page, count: int = 1, timeout: int = 15, must: bool = False):
@@ -738,6 +764,48 @@ def __do_task_gift(page, evm_id, index, evm_addr, amount):
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
 
+
+def __do_task_monad_solana(page, evm_id, evm_addr, index):
+    __bool = False
+    try:
+        __login_new_wallet(page=page, evm_addr=evm_addr)
+        logger.info('已登录钱包')
+        main_page = page.new_tab(url="https://claim.monad.xyz")
+
+        if __click_ele(page=main_page, xpath='x://button[span[normalize-space(.)="Sign in"]]', loop=2):
+            if __click_ele(page=main_page, xpath='x://button[div[normalize-space(.)="Other wallets"]]', loop=2):
+                if __click_ele(page=main_page, xpath='x://button[span[normalize-space(.)="Phantom"]]', loop=2):
+                    __handle_phantom_popup(page=page, count=2, timeout=45)
+
+        for i in range(5):
+            __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Accept"]', loop=1)
+            if __get_ele(page=main_page, xpath="x://span[contains(normalize-space(.),'1/8 connected')]", loop=2):
+                break
+            elif __get_ele(page=main_page, xpath="x://h2[contains(normalize-space(.),'Wallet Not Eligible')]", loop=1):
+                __click_ele(page=main_page, xpath='x://button[span[normalize-space(.)="Close"]]', loop=1)
+                break
+            else:
+                if __get_ele(page=main_page, xpath='x://button[normalize-space(.)="Retry"]', loop=1):
+                    __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Retry"]', loop=1)
+                    __handle_phantom_popup(page=page, count=2, timeout=45)
+
+                elif __click_ele(page=main_page, xpath='x://button[@data-testid="Solana Wallet"]'):
+                    __click_ele(page=main_page, xpath='x://button[div[normalize-space(.)="Other wallets"]]', loop=1)
+                    if __click_ele(page=main_page, xpath='x://button[span[normalize-space(.)="Phantom"]]', loop=2):
+                        __handle_phantom_popup(page=page, count=2, timeout=45)
+
+        if __get_ele(page=main_page, xpath="x://span[contains(normalize-space(.),'1/8 connected')]", loop=2):
+            if __get_ele(page=main_page, xpath="x://div[contains(normalize-space(.),'NOT ELIGIBLE')]", loop=2):
+                signma_log(message=f"0", task_name=f'monad_log', index=evm_id)
+            else:
+                signma_log(message=f"99", task_name=f'monad_log', index=evm_id)
+            __bool = True
+
+        if main_page is not None:
+            main_page.close()
+    except Exception as e:
+        logger.info(f"窗口{index}: 处理任务异常: {e}")
+    return __bool
 
 def __do_task_monad(page, evm_id, index):
     __bool = False
@@ -2362,8 +2430,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
             time.sleep(4)
             if __click_ele(page=main_page,
                            xpath='x://div[contains(@class,"ConnectWalletHeader_connectOption") and .//p[normalize-space()="Phantom Wallet"]]'):
-                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/notification.html',
-                                           timeout=3)
+                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/notification.html', timeout=3)
                 if phantom_page is not None:
                     if __get_ele(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]',
                                  loop=1):
@@ -2388,11 +2455,9 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
             time.sleep(4)
             if __click_ele(page=main_page,
                            xpath='x://div[contains(@class,"ConnectWalletHeader_connectOption") and .//p[normalize-space()="Phantom Wallet"]]'):
-                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/notification.html',
-                                           timeout=3)
+                phantom_page = __get_popup(page=page, _url='bfnaelmomeimhlpmgjnjophhpkkoljpa/notification.html', timeout=3)
                 if phantom_page is not None:
-                    if __get_ele(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]',
-                                 loop=1):
+                    if __get_ele(page=phantom_page, xpath='x://input[@data-testid="unlock-form-password-input"]', loop=1):
                         __input_ele_value(page=phantom_page,
                                           xpath='x://input[@data-testid="unlock-form-password-input"]',
                                           value='sdfasfd#dfff312')
@@ -3176,7 +3241,7 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-                if _type == 'monad':
+                if _type == 'monad' or _type == 'monad_solana':
                     # if _type:
                     logger.warning(f"启动任务1:{_type}:{part}")
                     if _type == 'nexus_hz_one_a':
@@ -3268,6 +3333,8 @@ if __name__ == '__main__':
                             continue
                         elif _type == 'gift':
                             _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=0)
+                        elif _type == 'monad_solana':
+                            _end = __do_task_monad_solana(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                         elif _type == 'monad':
                             _end = __do_task_monad(page=_page, index=_window, evm_id=_id)
                         elif _type == 'quackai':
@@ -3322,7 +3389,7 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 # if _type:
-                if _type == 'monad':
+                if _type == 'monad' or _type == 'monad_solana':
                     # if _type == 'prismax' or _type == 'nexus_hz_query':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
@@ -3347,5 +3414,10 @@ if __name__ == '__main__':
                         shutil.rmtree(f"E:/tmp/chrome_data/monad/")
                     else:
                         shutil.rmtree(f"/home/ubuntu/task/tasks/monad/")
+                if _type == 'monad_solana':
+                    if platform.system().lower() == "windows":
+                        shutil.rmtree(f"E:/tmp/chrome_data/monad_solana/")
+                    else:
+                        shutil.rmtree(f"/home/ubuntu/task/tasks/monad_solana/")
 
         time.sleep(1800)
