@@ -12,6 +12,7 @@ import json
 import string
 from web3 import Web3
 import re
+import shutil
 import pyperclip
 
 # ========== 全局配置 ==========
@@ -738,7 +739,7 @@ def __do_task_gift(page, evm_id, index, evm_addr, amount):
     return __bool
 
 
-def __do_task_airdrop(page, evm_id, index):
+def __do_task_monad(page, evm_id, index):
     __bool = False
     try:
         time.sleep(1)
@@ -747,42 +748,35 @@ def __do_task_airdrop(page, evm_id, index):
         __login_wallet(page=page, evm_id=evm_id)
         __handle_signma_popup(page=page, count=0)
         logger.info('已登录钱包')
-        main_page = page.new_tab(url="https://registration.airdrop.0gfoundation.ai/")
+        main_page = page.new_tab(url="https://claim.monad.xyz")
 
-        __click_ele(page=main_page, xpath='x://a[normalize-space(.)="Enter"]', loop=2)
-        __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Connect Wallet"]', loop=2)
-        el = main_page.ele('x://div[contains(@class,"flex") and contains(@class,"items-center") and contains(@class,"cursor-pointer")]')
-        if el:
-            el.click(by_js=True)
-            if __click_ele(page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]'):
-                __handle_signma_popup(page=page, count=2)
+        if __click_ele(page=main_page, xpath='x://button[span[normalize-space(.)="Sign in"]]', loop=2):
+            if __click_ele(page=main_page, xpath='x://button[div[normalize-space(.)="Other wallets"]]', loop=2):
+                if __click_ele(page=main_page, xpath='x://button[span[normalize-space(.)="Signma"]]', loop=2):
+                    __handle_signma_popup(page=page, count=2, timeout=45)
 
-        scroll_div = main_page.ele(locator='x://div[contains(@class,"overflow-y-auto") and contains(@class,"max-h")]')
-        if scroll_div:
-            # 把鼠标移动到容器上，然后模拟滚轮
-            for i in range(15):
-                scroll_div.scroll.down(1500)  # 移到容器上
-            if __click_ele(page=main_page, xpath="x://button[contains(normalize-space(.),'Accept')]"):
-                __handle_signma_popup(page=page, count=2)
+        for i in range(5):
+            __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Accept"]', loop=1)
+            if __get_ele(page=main_page, xpath="x://h2[contains(normalize-space(.),'Wallet Not Eligible')]", loop=2):
+                __click_ele(page=main_page, xpath='x://button[span[normalize-space(.)="Close"]]', loop=1)
+                break
+            elif __get_ele(page=main_page, xpath="x://span[contains(normalize-space(.),'1/8 connected')]", loop=1):
+                break
+            else:
+                if __get_ele(page=main_page, xpath='x://button[normalize-space(.)="Retry"]', loop=1):
+                    __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Retry"]', loop=1)
+                    __handle_signma_popup(page=page, count=1, timeout=45)
+                elif __click_ele(page=main_page, xpath='x://button[@data-testid="EVM-add-wallet"]'):
+                    __click_ele(page=main_page, xpath='x://button[div[normalize-space(.)="Other wallets"]]', loop=1)
+                    if __click_ele(page=main_page, xpath='x://button[span[normalize-space(.)="Signma"]]', loop=2):
+                        __handle_signma_popup(page=page, count=1, timeout=45)
 
-        if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Registration Complete!')]", loop=2):
-            signma_log(message=f"1", task_name=f'airdrop_log', index=evm_id)
+        if __get_ele(page=main_page, xpath="x://span[contains(normalize-space(.),'1/8 connected')]", loop=2):
+            if __get_ele(page=main_page, xpath="x://div[contains(normalize-space(.),'NOT ELIGIBLE')]", loop=2):
+                signma_log(message=f"0", task_name=f'monad_log', index=evm_id)
+            else:
+                signma_log(message=f"99", task_name=f'monad_log', index=evm_id)
             __bool = True
-        elif __get_ele(page=main_page, xpath="x://button[contains(normalize-space(.),'Next')]"):
-            if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.),"Next")]'):
-                __click_ele(page=main_page, xpath='x://div[div[span[contains(normalize-space(.),"Follow OG X")]]]')
-                time.sleep(1)
-                __click_ele(page=main_page, xpath='x://div[div[span[contains(normalize-space(.),"Join 0G Discord")]]]')
-                time.sleep(1)
-                if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.),"Next")]'):
-                    if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'You are not eligible')]", loop=2):
-                        signma_log(message=f"0", task_name=f'airdrop_log', index=evm_id)
-                        __bool = True
-                    elif __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Registration Complete!')]", loop=2):
-                        signma_log(message=f"1", task_name=f'airdrop_log', index=evm_id)
-                        __bool = True
-                    else:
-                        signma_log(message=f"99", task_name=f'airdrop_log', index=evm_id)
 
         if main_page is not None:
             main_page.close()
@@ -3182,8 +3176,8 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-                # if _type == 'nexus_hz':
-                if _type:
+                if _type == 'monad':
+                    # if _type:
                     logger.warning(f"启动任务1:{_type}:{part}")
                     if _type == 'nexus_hz_one_a':
                         evm_id = _id
@@ -3274,8 +3268,8 @@ if __name__ == '__main__':
                             continue
                         elif _type == 'gift':
                             _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=0)
-                        elif _type == 'airdrop':
-                            _end = __do_task_airdrop(page=_page, index=_window, evm_id=_id)
+                        elif _type == 'monad':
+                            _end = __do_task_monad(page=_page, index=_window, evm_id=_id)
                         elif _type == 'quackai':
                             _end = __do_task_quackai(page=_page, index=_window, evm_id=_id)
                         elif _type == 'pond':
@@ -3327,8 +3321,8 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type:
-                # if _type == 'nexus_hz':
+                # if _type:
+                if _type == 'monad':
                     # if _type == 'prismax' or _type == 'nexus_hz_query':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
@@ -3342,10 +3336,16 @@ if __name__ == '__main__':
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}", task_name=f'error_task_{get_date_as_string()}', index=evm_id)
                     # time.sleep(60)
-                    if len(filtered) > 24:
-                        time.sleep(1200)
-                    elif len(filtered) > 12:
-                        time.sleep(1200)
+                    # if len(filtered) > 24:
+                    #     time.sleep(1200)
+                    # elif len(filtered) > 12:
+                    #     time.sleep(1200)
+                    # else:
+                    #     time.sleep(1800)
+                if _type == 'monad':
+                    if platform.system().lower() == "windows":
+                        shutil.rmtree(f"E:/tmp/chrome_data/monad/")
                     else:
-                        time.sleep(1800)
+                        shutil.rmtree(f"/home/ubuntu/task/tasks/monad/")
+
         time.sleep(1800)
