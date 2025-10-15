@@ -757,10 +757,10 @@ def __do_task_monad(page, evm_id, index):
 
         for i in range(5):
             __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Accept"]', loop=1)
-            if __get_ele(page=main_page, xpath="x://h2[contains(normalize-space(.),'Wallet Not Eligible')]", loop=2):
-                __click_ele(page=main_page, xpath='x://button[span[normalize-space(.)="Close"]]', loop=1)
+            if __get_ele(page=main_page, xpath="x://span[contains(normalize-space(.),'1/8 connected')]", loop=2):
                 break
-            elif __get_ele(page=main_page, xpath="x://span[contains(normalize-space(.),'1/8 connected')]", loop=1):
+            elif __get_ele(page=main_page, xpath="x://h2[contains(normalize-space(.),'Wallet Not Eligible')]", loop=1):
+                __click_ele(page=main_page, xpath='x://button[span[normalize-space(.)="Close"]]', loop=1)
                 break
             else:
                 if __get_ele(page=main_page, xpath='x://button[normalize-space(.)="Retry"]', loop=1):
