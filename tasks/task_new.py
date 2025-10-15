@@ -3327,6 +3327,9 @@ if __name__ == '__main__':
                                 logger.info('加载住宅ip')
                             else:
                                 break
+                        if _type == 'monad_solana':
+                            _home_ip = True
+
                         _page = __get_page(_type, _id, None, _home_ip)
                         if _page is None:
                             logger.error("浏览器启动失败，跳过该任务")
