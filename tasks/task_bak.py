@@ -3242,7 +3242,7 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-                if _type == 'prismax':
+                if _type == 'nexus_hz_new':
                 # if _type:
                     logger.warning(f"启动任务1:{_type}:{part}")
                     if _type == 'nexus_hz_one_a':
@@ -3395,7 +3395,7 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 # if _type:
-                if _type == 'prismax':
+                if _type == 'nexus_hz_new':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
                         if _task_type != '0':
