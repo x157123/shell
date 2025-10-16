@@ -205,7 +205,7 @@ def monitor_switch(pages, profiles):
                                     signma_log(message=f"{points}",
                                                task_name=f'hyper_point_{get_date_as_string()}',
                                                index=tab.page_id)
-                        if (total % 10) == 0:
+                        if (total % 60) == 0:
                             logger.info(f"刷新页面:{total}")
                             tab.refresh()
                 else:
