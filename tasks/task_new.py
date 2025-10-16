@@ -3407,12 +3407,11 @@ if __name__ == '__main__':
                             _end_day_task.append(_task_id)
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}", task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    # time.sleep(60)
-                    if len(filtered) > 24:
-                        time.sleep(600)
-                    elif len(filtered) > 12:
-                        time.sleep(1200)
-                    else:
-                        time.sleep(1800)
-        if len(filtered)<=0:
-            time.sleep(1800)
+                    time.sleep(60)
+                    # if len(filtered) > 24:
+                    #     time.sleep(600)
+                    # elif len(filtered) > 12:
+                    #     time.sleep(1200)
+                    # else:
+                    #     time.sleep(1800)
+        time.sleep(600)
