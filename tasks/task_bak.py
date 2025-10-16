@@ -3317,17 +3317,17 @@ if __name__ == '__main__':
                     else:
                         _home_ip = False
                         _dt = False
-                        # if _type == 'prismax':
-                        #     prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
-                        #     if _id not in prismax_init:
-                        #         _dt = True
-                        #         _home_ip = check_available(_id)
-                        if _type == 'nexus_joina':
-                            _home_ip = check_available(_id)
-                            if _home_ip:
-                                logger.info('加载住宅ip')
-                            else:
-                                break
+                        if _type == 'prismax':
+                            prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
+                            if _id not in prismax_init:
+                                _dt = True
+                                _home_ip = check_available(_id)
+                        # if _type == 'nexus_joina':
+                        #     _home_ip = check_available(_id)
+                        #     if _home_ip:
+                        #         logger.info('加载住宅ip')
+                        #     else:
+                        #         break
                         _page = __get_page(_type, _id, None, _home_ip)
                         if _page is None:
                             logger.error("浏览器启动失败，跳过该任务")
