@@ -1526,7 +1526,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
             __bool_c = False
             __bool_d = False
             if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
-                __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=1)
+                __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=3)
                 __bool_a = __do_task_nexus_hz_lq(page=page, nexus=nexus, nexus_no_bad=nexus_no_bad, _id=_idc, name='Shoulder Blaster Glyph', _evm_addr=evm_addr, _index=index, _jf=12000)
                 if __bool_a:
                     logger.info('第一个徽章领取成功')
