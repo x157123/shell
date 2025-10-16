@@ -1578,6 +1578,7 @@ def __do_task_nexus_hz_lq(page ,nexus, nexus_no_bad, _id, name, _evm_addr, _inde
                                             if signma_ele:
                                                 signma_ele.click(by_js=True)
                                                 __handle_signma_popup(page=page, count=4, timeout=45)
+                                                nexus.refresh()
                                                 time.sleep(4)
                                                 __handle_signma_popup(page=page, count=0)
                                                 __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3)
