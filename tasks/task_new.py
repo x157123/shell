@@ -3241,8 +3241,8 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-                # if _type == 'monad' or _type == 'monad_solana':
-                if _type:
+                if _type == 'nexus_hz_new':
+                # if _type:
                     logger.warning(f"启动任务1:{_type}:{part}")
                     if _type == 'nexus_hz_one_a':
                         evm_id = _id
@@ -3389,9 +3389,8 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type:
-                # if _type == 'monad' or _type == 'monad_solana':
-                    # if _type == 'prismax' or _type == 'nexus_hz_query':
+                # if _type:
+                if _type == 'nexus_hz_new':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
                         if _task_type != '0':
@@ -3404,10 +3403,10 @@ if __name__ == '__main__':
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}", task_name=f'error_task_{get_date_as_string()}', index=evm_id)
                     time.sleep(60)
-                    if len(filtered) > 24:
-                        time.sleep(1200)
-                    elif len(filtered) > 12:
-                        time.sleep(1200)
-                    else:
-                        time.sleep(1800)
+                    # if len(filtered) > 24:
+                    #     time.sleep(1200)
+                    # elif len(filtered) > 12:
+                    #     time.sleep(1200)
+                    # else:
+                    #     time.sleep(1800)
         time.sleep(1800)
