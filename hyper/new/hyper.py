@@ -183,7 +183,7 @@ def restart_browsers(pages: list, profiles: list) -> list:
 # ============== 你的监控循环 + 重启触发 ==============
 
 def monitor_switch(pages, profiles):
-    total = 70
+    total = 71
     last_restart = time.monotonic()  # 用单调时钟计时更稳
     while True:
         try:
@@ -205,6 +205,9 @@ def monitor_switch(pages, profiles):
                                     signma_log(message=f"{points}",
                                                task_name=f'hyper_point_{get_date_as_string()}',
                                                index=tab.page_id)
+                            if total % 20 == 0:
+                                logger.info(f"刷新页面:{total}")
+                                tab.refresh()
                 else:
                     logger.info("刷新页面")
                     tab.refresh()
