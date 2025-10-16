@@ -3394,7 +3394,7 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 # if _type:
-                if _type == 'nexus_hz_new':
+                if _type == 'nexus_hz_new_one':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
                         if _task_type != '0':
