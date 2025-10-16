@@ -1532,6 +1532,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                 if __bool_e:
                     __bool = True
             nexus.refresh()
+            time.sleep(4)
             _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
             ethereum_end = get_eth_balance("base", evm_addr)
             signma_log(message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{__bool_a},{__bool_b},{__bool_c},{__bool_d},{__bool_e},{__bool}", task_name=f'nexus_card_one_info', index=evm_id)
