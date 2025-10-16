@@ -3321,6 +3321,10 @@ if __name__ == '__main__':
                             prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                             if _id not in prismax_init:
                                 _dt = True
+                                # 删除数据
+                                if os.path.exists(f"/home/ubuntu/task/tasks/prismax/chrome_data/{evm_addr}"):
+                                    shutil.rmtree(f"/home/ubuntu/task/tasks/prismax/chrome_data/{evm_addr}")
+                                    time.sleep(1)
                                 _home_ip = check_available(_id)
                         # if _type == 'nexus_joina':
                         #     _home_ip = check_available(_id)
@@ -3410,5 +3414,4 @@ if __name__ == '__main__':
                     #     time.sleep(1200)
                     # else:
                     #     time.sleep(1800)
-        if len(filtered)<=0:
-            time.sleep(1800)
+        time.sleep(600)
