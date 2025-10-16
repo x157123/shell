@@ -3322,9 +3322,9 @@ if __name__ == '__main__':
                             if _id not in prismax_init:
                                 _dt = True
                                 # 删除数据
-                                if os.path.exists(f"/home/ubuntu/task/tasks/prismax/chrome_data/{_id}"):
-                                    shutil.rmtree(f"/home/ubuntu/task/tasks/prismax/chrome_data/{_id}")
-                                    time.sleep(1)
+                                # if os.path.exists(f"/home/ubuntu/task/tasks/prismax/chrome_data/{_id}"):
+                                #     shutil.rmtree(f"/home/ubuntu/task/tasks/prismax/chrome_data/{_id}")
+                                #     time.sleep(1)
                                 _home_ip = check_available(_id)
                         # if _type == 'nexus_joina':
                         #     _home_ip = check_available(_id)
