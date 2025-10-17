@@ -3335,6 +3335,8 @@ if __name__ == '__main__':
                     if _type == 'nexus_hz_new_one':
                         _end = True
                     if _type == 'nexus_hz_base':
+                        _end = True
+                    if _type == 'nexus_hz_base_task':
                         _page = __get_page("nexus", _id, None, False)
                         __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                         _task_type = 0
