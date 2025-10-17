@@ -1514,28 +1514,44 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                             __handle_signma_popup(page=page, count=2, timeout=45)
         __handle_signma_popup(page=page, count=2, timeout=10)
 
-        if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
-            __bool_a = False
-            __bool_b = False
-            __bool_c = False
-            __bool_d = False
-            __bool_e = False
-            if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
-                __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=3)
-                # __bool_a = __do_task_nexus_hz_lq(page=page, nexus=nexus, nexus_no_bad=nexus_no_bad, _id=f'3_{evm_id}', name='Shoulder Blaster Glyph', _evm_addr=evm_addr, _index=index, _jf=12000)
-                # __bool_b = __do_task_nexus_hz_lq(page=page, nexus=nexus, nexus_no_bad=nexus_no_bad, _id=f'4_{evm_id}', name='Sunset Boulevard Glyph', _evm_addr=evm_addr, _index=index, _jf=5000)
-                # __bool_c = __do_task_nexus_hz_lq(page=page, nexus=nexus, nexus_no_bad=nexus_no_bad, _id=f'5_{evm_id}', name='Eat Your Arpeggi-ohs Glyph', _evm_addr=evm_addr, _index=index, _jf=3500)
-                # __bool_d = __do_task_nexus_hz_lq(page=page, nexus=nexus, nexus_no_bad=nexus_no_bad, _id=f'6_{evm_id}', name='Boom Bap Glyph', _evm_addr=evm_addr, _index=index, _jf=3000)
-                __bool_e = __do_task_nexus_hz_lq(page=page, nexus=nexus, nexus_no_bad=nexus_no_bad, _id=f'7_{evm_id}', name='Gamma Genesis Glyph', _evm_addr=evm_addr, _index=index, _jf=1000)
+    if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
+        # 使用配置驱动的方式替代硬编码
+        tasks = [
+            {'id': 3, 'name': 'Shoulder Blaster Glyph', 'jf': 12000},
+            {'id': 4, 'name': 'Sunset Boulevard Glyph', 'jf': 5000},
+            {'id': 5, 'name': 'Eat Your Arpeggi-ohs Glyph', 'jf': 3500},
+            {'id': 6, 'name': 'Boom Bap Glyph', 'jf': 3000},
+            {'id': 7, 'name': 'Gamma Genesis Glyph', 'jf': 1000},
+            {'id': 8, 'name': 'Flesh and Bone Glyph', 'jf': 4500},
+            {'id': 9, 'name': 'Game Pad Glyph', 'jf': 8000},
+            {'id': 10, 'name': 'Arcade Hero Glyph', 'jf': 5500},
+            {'id': 11, 'name': 'Ka-Bling Glyph', 'jf': 3500},
+            {'id': 12, 'name': 'Pixelheart Glyph', 'jf': 3000},
+            {'id': 13, 'name': 'Biometric Glyph', 'jf': 10000},
+            {'id': 14, 'name': 'Question Everything Glyph', 'jf': 3500},
+            {'id': 15, 'name': 'Fawkes Glyph', 'jf': 8000},
+        ]
+        results = {}
+        if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
+            __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=3)
 
-                # if __bool_a and __bool_b and __bool_c and __bool_d and __bool_e:
-                if __bool_e:
-                    __bool = True
-            nexus.refresh()
-            time.sleep(4)
-            _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
-            ethereum_end = get_eth_balance("base", evm_addr)
-            signma_log(message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{__bool_a},{__bool_b},{__bool_c},{__bool_d},{__bool_e},{__bool}", task_name=f'nexus_card_one_info', index=evm_id)
+            # 批量执行任务
+            for task in tasks:
+                task_id = f"{task['id']}_{evm_id}"
+                results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
+
+            # 检查任务是否全部成功
+            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(3, 16))
+
+        nexus.refresh()
+        time.sleep(3)
+        _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
+        ethereum_end = get_eth_balance("base", evm_addr)
+
+        # 构建日志消息
+        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(3, 16)]
+        signma_log(message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{','.join(map(str, result_values))},{__bool}", task_name='nexus_card_one_info', index=evm_id)
+
     return __bool
 
 def vf_cf(_nexus, _index):
@@ -3320,8 +3336,9 @@ if __name__ == '__main__':
                         _end = True
                     if _type == 'nexus_hz_base':
                         _page = __get_page("nexus", _id, None, False)
-                        _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                        # _end = True
+                        __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        _task_type = 0
+                        _end = True
                     else:
                         _home_ip = False
                         _dt = False
@@ -3384,7 +3401,8 @@ if __name__ == '__main__':
                                     logger.info('获取到ip位')
                                 else:
                                     logger.info('未获取到ip位')
-                                _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=True)
+                                __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=True)
+                                _end = True
                                 if _home_ip:
                                     end_available(evm_id=_id)
                         else:
