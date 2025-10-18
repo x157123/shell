@@ -1647,7 +1647,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
             __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(3, 16))
 
         nexus.refresh()
-        time.sleep(3)
+        time.sleep(10)
         _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
         ethereum_end = get_eth_balance("base", evm_addr)
 
