@@ -3391,7 +3391,7 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-                if _type == 'prismax':
+                if _type == 'prismax_new':
                     # if _type:
                     logger.warning(f"启动任务1:{_type}:{part}")
                     # if _type == 'nexus_hz_one_a':
@@ -3470,14 +3470,25 @@ if __name__ == '__main__':
                     if _type == 'nexus_hz_base_t':
                         _page = __get_page("nexus", _id, None, False)
                         _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                    if _type == 'prismax_new':
+                        _home_ip = False
+                        prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
+                        if _id not in prismax_init:
+                            _home_ip = check_available(_id)
+                        if len(arg) < 3:
+                            logger.warning("prismax 需要助记词/私钥参数，已跳过")
+                        else:
+                            if _home_ip:
+                                logger.info('获取到ip位')
+                            else:
+                                logger.info('未获取到ip位')
+                            _page = __get_page("prismax", _id, None, _home_ip)
+                            __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
+                            _end = True
+                            if _home_ip:
+                                end_available(evm_id=_id)
                     else:
                         _home_ip = False
-                        _dt = False
-                        if _type == 'prismax':
-                            prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
-                            if _id not in prismax_init:
-                                _dt = True
-                                _home_ip = check_available(_id)
                         if _type == 'nexus_joina':
                             _home_ip = check_available(_id)
                             if _home_ip:
@@ -3525,17 +3536,7 @@ if __name__ == '__main__':
                             end_available(evm_id=_id)
                             # _end = True
                         elif _type == 'prismax':
-                            if len(arg) < 3:
-                                logger.warning("prismax 需要助记词/私钥参数，已跳过")
-                            else:
-                                if _home_ip:
-                                    logger.info('获取到ip位')
-                                else:
-                                    logger.info('未获取到ip位')
-                                __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
-                                _end = True
-                                if _home_ip:
-                                    end_available(evm_id=_id)
+                            _end = True
                         else:
                             logger.warning(f"未知任务类型：{_type}")
             except Exception as e:
@@ -3547,7 +3548,7 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 # if _type:
-                if _type == 'prismax':
+                if _type == 'prismax_new':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
                         if _task_type != '0':
