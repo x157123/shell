@@ -3532,7 +3532,7 @@ if __name__ == '__main__':
                                     logger.info('获取到ip位')
                                 else:
                                     logger.info('未获取到ip位')
-                                __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=True)
+                                __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
                                 _end = True
                                 if _home_ip:
                                     end_available(evm_id=_id)
