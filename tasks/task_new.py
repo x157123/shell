@@ -1670,7 +1670,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
 
         # 构建日志消息
         result_values = [results.get(f"{i}_{evm_id}", False) for i in range(3, 16)]
-        signma_log(message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{','.join(map(str, result_values))},{__bool}", task_name='nexus_card_base_hz', index=evm_id)
+        signma_log(message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{','.join(map(str, result_values))},{__bool}", task_name='nexus_card_base_hzs', index=evm_id)
 
     return True
 
