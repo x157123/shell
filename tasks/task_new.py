@@ -1691,12 +1691,11 @@ def vf_cf(_nexus, _index):
 def __do_task_nexus_hz_lq(page ,nexus, nexus_no_bad, _id, name, _evm_addr, _index, _jf):
     __bool_ = False
     if _id not in nexus_no_bad:
-        ethereum_start = get_eth_balance("base", _evm_addr)
-        if float(ethereum_start) > 0.000024:
+        _ethereum = get_eth_balance("base", _evm_addr)
+        if float(_ethereum) > 0.000024:
             for i in range(2):
                 nexus.get(url='https://quest.nexus.xyz/loyalty')
                 if vf_cf(_nexus=nexus, _index=_index):
-                    _ethereum = get_eth_balance("base", _evm_addr)
                     _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
                     time.sleep(8)
                     if _amount and float(_amount) > _jf:
@@ -3385,7 +3384,7 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 if _type == 'nexus_hz_base_ts':
-                # if _type:
+                    # if _type:
                     logger.warning(f"启动任务1:{_type}:{part}")
                     # if _type == 'nexus_hz_one_a':
                     #     evm_id = _id
