@@ -12,8 +12,11 @@ import json
 import string
 from web3 import Web3
 import re
-import shutil
-import pyperclip
+import hmac
+import hashlib
+import struct
+import time
+import base64
 
 # ========== 全局配置 ==========
 evm_ext_id = "ohgmkpjifodfiomblclfpdhehohinlnn"
@@ -58,6 +61,46 @@ def __get_page(_type, _id, _port, _home_ip):
                 options.set_local_port(_port)
             else:
                 options.set_local_port(port + offset)
+            # options.set_user_agent(
+            #     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
+
+            _pages = ChromiumPage(options)
+            break
+        except Exception as e:
+            logger.warning(f"端口 {port + offset} 启动失败，重试：{e}")
+            time.sleep(1)
+            _pages = None
+    if _pages is not None:
+        _pages.set.window.max()
+        if _type == 'prismax' and platform.system().lower() != "windows":
+            _pages.set.blocked_urls(r'.*\.(jpg|png|gif|webp|svg)')
+
+    logger.info('初始化结束')
+    return _pages
+
+def __get_page_x(_type, _id, _port, _home_ip):
+    _pages = None
+    logger.info(f"启动类型: {_type}")
+    options = ChromiumOptions()
+    if platform.system().lower() == "windows":
+        options.set_browser_path(r"E:\chrome_tool\127.0.6483.0\chrome.exe")
+    else:
+        options.set_browser_path('/opt/google/chrome')
+
+    # 用户数据目录
+    if platform.system().lower() == "windows":
+        options.set_user_data_path(f"E:/tmp/chrome_data/{_type}/{_id}")
+    else:
+        options.set_user_data_path(f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}")
+    # 端口可能被占用，尝试几次
+    for offset in range(3):
+        try:
+            if _port is not None:
+                options.set_local_port(_port)
+            else:
+                options.set_local_port(port + offset)
+            options.set_user_agent(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
 
             _pages = ChromiumPage(options)
             break
@@ -1420,17 +1463,17 @@ def x_com(page, name, email, pwd, fa, evm_id):
 
         for i in range(3):
             time.sleep(2)
-            if __get_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1):
-                __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1)
+            if __get_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry" or normalize-space(text())="重试"]]', loop=1):
+                __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry" or normalize-space(text())="重试"]]', loop=1)
                 time.sleep(1)
-                if __get_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1):
+                if __get_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry" or normalize-space(text())="重试"]]', loop=1):
                     x_com.refresh()
                 else:
                     break
             else:
                 break
 
-        if __get_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry"]]', loop=1):
+        if __get_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="Retry" or normalize-space(text())="重试"]]]', loop=1):
             signma_log(message=f"{name},{email},{pwd},{fa}", task_name=f'nexus_joina_error_service', index=evm_id)
             x_com.close()
             return None
@@ -1445,18 +1488,28 @@ def x_com(page, name, email, pwd, fa, evm_id):
             __input_ele_value(page=x_com, xpath='x://input[@autocomplete="username"]', value=name)
             if __click_ele(page=x_com,
                            xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
-
-                if __get_ele(page=x_com, xpath='x://input[@data-testid="ocfEnterTextTextInput"]', loop=1):
-                    __input_ele_value(page=x_com, xpath='x://input[@data-testid="ocfEnterTextTextInput"]', value=email)
-                    __click_ele(page=x_com,
-                                xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]')
+                for i in range(3):
+                    if __get_ele(page=x_com, xpath='x://input[@data-testid="ocfEnterTextTextInput"]', loop=1):
+                        __input_ele_value(page=x_com, xpath='x://input[@data-testid="ocfEnterTextTextInput"]', value=email)
+                        __click_ele(page=x_com,
+                                    xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]')
+                        time.sleep(2)
+                    else:
+                        break
 
                 __input_ele_value(page=x_com, xpath='x://input[@autocomplete="current-password"]', value=pwd)
                 if __click_ele(page=x_com,
                                xpath='x://button[.//span[normalize-space(text())="登录" or normalize-space(text())="Log in"]]'):
-                    _code = fa_code(page=page, code=fa)
-                    if _code is not None:
-                        __input_ele_value(page=x_com, xpath='x://input[@inputmode="numeric"]', value=_code)
+                    # 生成验证码
+                    token, remaining = get_totp_token(fa)
+                    # 如果剩余时间小于5秒，等待下一个验证码
+                    if remaining < 5:
+                        print(f"当前验证码剩余时间不足 ({remaining} 秒)，等待下一个...")
+                        time.sleep(remaining + 0.1)  # 等待到下一个周期
+                        token, remaining = get_totp_token(fa)
+
+                    if token is not None:
+                        __input_ele_value(page=x_com, xpath='x://input[@inputmode="numeric"]', value=token)
                         if __click_ele(page=x_com,
                                        xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
                             logger.info('登录')
@@ -1481,6 +1534,51 @@ def fa_code(page, code):
         _code = __get_ele_value(page=fa_page, xpath='x://span[@id="code_js"]')
     fa_page.close()
     return _code
+
+def get_totp_token(secret, time_step=30, digits=6):
+    """
+    生成 TOTP 验证码
+
+    参数:
+        secret: Base32 编码的密钥
+        time_step: 时间步长（秒），默认 30 秒
+        digits: 验证码位数，默认 6 位
+
+    返回:
+        (验证码, 剩余时间)
+    """
+    # 将 Base32 密钥解码为字节
+    try:
+        key = base64.b32decode(secret, casefold=True)
+    except Exception as e:
+        raise ValueError(f"无效的 Base32 密钥: {e}")
+
+    # 获取当前时间戳并计算时间计数器
+    current_time = int(time.time())
+    counter = current_time // time_step
+
+    # 计算剩余时间
+    remaining_time = time_step - (current_time % time_step)
+
+    # 将计数器转换为 8 字节大端序
+    counter_bytes = struct.pack('>Q', counter)
+
+    # 使用 HMAC-SHA1 计算哈希
+    hmac_hash = hmac.new(key, counter_bytes, hashlib.sha1).digest()
+
+    # 动态截断
+    offset = hmac_hash[-1] & 0x0F
+    truncated_hash = hmac_hash[offset:offset + 4]
+
+    # 转换为整数并取模
+    code = struct.unpack('>I', truncated_hash)[0] & 0x7FFFFFFF
+    code = code % (10 ** digits)
+
+    # 格式化为指定位数的字符串（前导零）
+    token = str(code).zfill(digits)
+
+    return token, remaining_time
+
 
 
 def __do_task_nexus_hz(page, evm_id, evm_addr, index):
@@ -1660,8 +1758,12 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                 results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
                 # __c = results[task_id]
 
+            nexus.get('https://quest.nexus.xyz/noderunners')
+            task_id = f"16_{evm_id}"
+            results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, nexus_no_bad=nexus_no_bad, _id=task_id, name='Delta Genesis Glyph', _evm_addr=evm_addr, _index=index, _jf=1000)
+
             # 检查任务是否全部成功
-            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(3, 16))
+            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(3, 17))
 
         nexus.refresh()
         time.sleep(10)
@@ -1669,7 +1771,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
         ethereum_end = get_eth_balance("base", evm_addr)
 
         # 构建日志消息
-        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(3, 16)]
+        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(3, 17)]
         signma_log(message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{','.join(map(str, result_values))},{__bool}", task_name='nexus_card_base_hzsa', index=evm_id)
         __bool= True
     return __bool
@@ -1817,7 +1919,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
         _DEVNET_NEX = None
 
         nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
-        __get_ele(page=nexus, xpath='x://a[contains(text(), "FAQ")]', loop=10)
+        __get_ele(page=nexus, xpath='x://h1[contains(text(), "REWARDS")]', loop=10)
         if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
             __click_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1)
             shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
@@ -1826,7 +1928,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                 if shadow_root:
                     continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
                     if continue_button:
-                        __click_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
+                        __click_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']", loop=1)
                         shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
                         if shadow_host:
                             shadow_root = shadow_host.shadow_root
@@ -1964,22 +2066,22 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 __join = True
                 __join = True
                 if __join:
-                    nexus.get(url='https://app.nexus.xyz/rewards')
-                    if __click_ele(page=nexus, xpath='x://button[text()="PREVIOUS"]'):
-                        time.sleep(2)
-                        _II = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=0)
-                        _I = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=0)
-                        _0 = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=1)
-                        _DEVNET_NEX = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=1)
-
-                        if _DEVNET_NEX is None:
-                            nexus.refresh()
-                            if __click_ele(page=nexus, xpath='x://button[text()="PREVIOUS"]'):
-                                _II = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=0)
-                                _I = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=0)
-                                _0 = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=1)
-                                _DEVNET_NEX = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=1)
-                    time.sleep(2)
+                    # nexus.get(url='https://app.nexus.xyz/rewards')
+                    # if __click_ele(page=nexus, xpath='x://button[text()="PREVIOUS"]'):
+                    #     time.sleep(2)
+                    #     _II = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=0)
+                    #     _I = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=0)
+                    #     _0 = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=1)
+                    #     _DEVNET_NEX = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=1)
+                    #
+                    #     if _DEVNET_NEX is None:
+                    #         nexus.refresh()
+                    #         if __click_ele(page=nexus, xpath='x://button[text()="PREVIOUS"]'):
+                    #             _II = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=0)
+                    #             _I = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=0)
+                    #             _0 = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//span', find_all=True, index=1)
+                    #             _DEVNET_NEX = __get_ele_value(page=nexus, xpath='x://div[contains(@class,"flex justify-between items-center")]//a[@title="View on Devnet Explorer"]', find_all=True, index=1)
+                    # time.sleep(2)
 
                     nexus.get(url='https://quest.nexus.xyz/loyalty')
                     for i in range(5):
@@ -2064,8 +2166,53 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             _l = False
                             _m = False
                             _n = False
+                            _o = False
+                            _p = False
+                            _q = False
+                            _r = False
+                            _s = False
+                            _t = False
 
                             for i in range(2):
+
+                                #新数据
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share Delta Glyphs')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _o = True
+                                    nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'NEW: Share Delta Glyphs', 'Go to Post')
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Inside the Nexus Project')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _p = True
+                                    nex_like_repost_comment(page, nexus, x_name, x_email, x_pwd, x_2fa, 'NEW: Inside the Nexus Project', 'Go to Post', 'good', True)
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 're Doing Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _q = True
+                                    nex_like_repost_comment(page, nexus, x_name, x_email, x_pwd, x_2fa, 're Doing Numbers', 'Go to Post', 'good', True)
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Reshare the Doctor')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _r = True
+                                    nex_like_repost_comment(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Reshare the Doctor', 'Go to Post', 'good', True)
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Gridcrew Roll Call')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _s = True
+                                    nex_like_repost_comment(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Gridcrew Roll Call', 'Go to Post', 'good', True)
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Creator Academy')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _t = True
+                                    nex_like_repost_comment(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Support the Creator Academy', 'Go to Post', 'good', True)
+                                # 结束
+
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]",
                                              loop=1):
@@ -2322,6 +2469,39 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                 else:
                                     _n = False
 
+                                # 新数据
+                                if _o and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share Delta Glyphs')]",
+                                                    loop=1):
+                                    __bool = False
+
+                                if _p and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Inside the Nexus Project')]",
+                                                    loop=1):
+                                    __bool = False
+
+                                if _q and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 're Doing Numbers')]",
+                                                    loop=1):
+                                    __bool = False
+
+                                if _r and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Reshare the Doctor')]",
+                                                    loop=1):
+                                    __bool = False
+
+                                if _s and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Gridcrew Roll Call')]",
+                                                    loop=1):
+                                    __bool = False
+
+                                if _t and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Creator Academy')]",
+                                                    loop=1):
+                                    __bool = False
+                                # 结束
+
+
                                 if __bool:
                                     break
                             _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
@@ -2350,6 +2530,50 @@ def nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
         __click_ele(page=nexus,
                     xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=2)
 
+
+def nex_like_repost_comment(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt, txt, link):
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=1)
+    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]", loop=1)
+    twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
+    if twitter_page:
+        __click_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0)
+        if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
+            __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
+            time.sleep(2)
+        if __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True, index=0):
+            if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
+                signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
+        if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True,
+                       index=0):
+            __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
+            if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
+                signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
+            __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=1)
+
+        if __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0):
+            time.sleep(1)
+            __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value=f'{txt}')
+            # twitter_page.actions.type('I like them all')
+            time.sleep(3)
+            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton" and not(@disabled)]'):
+                url = __get_popup_url(page=_page, _url='x.com', timeout=15)
+                twitter_page.close()
+                if __get_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]", loop=2):
+                    __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]", loop=2)
+                    time.sleep(5)
+                if link:
+                    if __click_ele(page=nexus,
+                                   xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[text()='Enter Link']",
+                                   loop=3):
+                        __input_ele_value(page=nexus,
+                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//input[@name='contentUrl']",
+                                          value=url)
+                        if __get_ele(page=nexus,
+                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]",
+                                     loop=1):
+                            __click_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Claim')]")
+                            time.sleep(2)
 
 def nex_like_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
     __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=1)
@@ -3384,7 +3608,7 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 if _type:
-                # if _type == 'nexus_hz_base_ts':
+                    # if _type == 'nexus_hz_base_ts':
                     logger.warning(f"启动任务1:{_type}:{part}")
                     # if _type == 'nexus_hz_one_a':
                     #     evm_id = _id
@@ -3480,14 +3704,37 @@ if __name__ == '__main__':
                             _end = True
                             if _home_ip:
                                 end_available(evm_id=_id)
+                    elif _type == 'nexus_joina':
+                        if platform.system().lower() == "windows":
+                            init_x = read_data_list_file("E:/tmp/chrome_data/init_x.txt")
+                        else:
+                            init_x = read_data_list_file("/home/ubuntu/task/tasks/init_x.txt")
+                        if arg[3] not in init_x:
+                            _page = __get_page_x("nexus_joina", _id, None, False)
+                            __x_bool = x_com(page=_page, name=arg[3], pwd=arg[4], email=arg[5], fa=arg[6], evm_id=evm_id)
+                            if __x_bool:
+                                if platform.system().lower() == "windows":
+                                    append_date_to_file("E:/tmp/chrome_data/init_x.txt", arg[3])
+                                else:
+                                    append_date_to_file("/home/ubuntu/task/tasks/init_x.txt", arg[3])
+                            try:
+                                _page.quit()
+                            except Exception:
+                                logger.exception("退出错误")
+
+                        _page = __get_page("nexus_joina", _id, None, False)
+                        _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4],
+                                                    x_email=arg[5], x_2fa=arg[6])
+                        # end_available(evm_id=_id)
+                        # _end = True
                     else:
                         _home_ip = False
-                        if _type == 'nexus_joina':
-                            _home_ip = check_available(_id)
-                            if _home_ip:
-                                logger.info('加载住宅ip')
-                            else:
-                                break
+                        # if _type == 'nexus_joina':
+                        #     _home_ip = check_available(_id)
+                        #     if _home_ip:
+                        #         logger.info('加载住宅ip')
+                        #     else:
+                        #         break
                         _page = __get_page(_type, _id, None, _home_ip)
                         if _page is None:
                             logger.error("浏览器启动失败，跳过该任务")
@@ -3524,10 +3771,6 @@ if __name__ == '__main__':
                         elif _type == 'nexus':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                             # _end = True
-                        elif _type == 'nexus_joina':
-                            _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
-                            end_available(evm_id=_id)
-                            # _end = True
                         elif _type == 'prismax':
                             _end = True
                         else:
@@ -3541,7 +3784,7 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 if _type:
-                # if _type == 'nexus_hz_base_ts':
+                    # if _type == 'nexus_hz_base_ts':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
                         if _task_type != '0':
