@@ -1799,7 +1799,7 @@ def __do_task_nexus_hz_lq(page ,nexus, _url, nexus_no_bad, _id, name, _evm_addr,
                 if vf_cf(_nexus=nexus, _index=_index):
                     time.sleep(8)
                     _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
-                    if _amount and float(_amount) > _jf:
+                    if _amount and float(_amount) >= _jf:
                         if __click_ele(page=nexus, xpath=f'x://a[div[div[span[text()="{name}"]]]]', loop=3):
                             vf_cf(_nexus=nexus, _index=_index)
                             if __get_ele(page=nexus, xpath=f'x://h1[contains(text(), "{name}")]'):
