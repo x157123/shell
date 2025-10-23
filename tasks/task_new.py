@@ -1747,23 +1747,22 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
             {'id': 13, 'name': 'Biometric Glyph', 'jf': 10000},
             {'id': 14, 'name': 'Question Everything Glyph', 'jf': 3500},
             {'id': 15, 'name': 'Fawkes Glyph', 'jf': 8000},
+            {'id': 16, 'name': 'Delta Genesis Glyph', 'jf': 1000},
         ]
         results = {}
         if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
             # __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=3)
-
+            _url = 'https://quest.nexus.xyz/loyalty'
             # 批量执行任务
-            for task in tasks:
-                task_id = f"{task['id']}_{evm_id}"
-                results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
-                # __c = results[task_id]
+            # for task in tasks:
+            #     task_id = f"{task['id']}_{evm_id}"
+            #     results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _url=_url, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
 
-            nexus.get('https://quest.nexus.xyz/noderunners')
             task_id = f"16_{evm_id}"
-            results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, nexus_no_bad=nexus_no_bad, _id=task_id, name='Delta Genesis Glyph', _evm_addr=evm_addr, _index=index, _jf=1000)
+            results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _url=_url, nexus_no_bad=nexus_no_bad, _id=task_id, name='Delta Genesis Glyph', _evm_addr=evm_addr, _index=index, _jf=1000)
 
             # 检查任务是否全部成功
-            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(3, 17))
+            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(16, 17))
 
         nexus.refresh()
         time.sleep(10)
@@ -1771,8 +1770,8 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
         ethereum_end = get_eth_balance("base", evm_addr)
 
         # 构建日志消息
-        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(3, 17)]
-        signma_log(message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{','.join(map(str, result_values))},{__bool}", task_name='nexus_card_base_hzsa', index=evm_id)
+        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(16, 17)]
+        signma_log(message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{','.join(map(str, result_values))},{__bool}", task_name='nexus_card_base_hzsb_{get_date_as_string()}', index=evm_id)
         __bool= True
     return __bool
 
@@ -1790,16 +1789,16 @@ def vf_cf(_nexus, _index):
             break
     return _bool
 
-def __do_task_nexus_hz_lq(page ,nexus, nexus_no_bad, _id, name, _evm_addr, _index, _jf):
+def __do_task_nexus_hz_lq(page ,nexus, _url, nexus_no_bad, _id, name, _evm_addr, _index, _jf):
     __bool_ = False
     if _id not in nexus_no_bad:
         _ethereum = get_eth_balance("base", _evm_addr)
-        if float(_ethereum) > 0.000024:
+        if float(_ethereum) > 0.000012:
             for i in range(2):
-                nexus.get(url='https://quest.nexus.xyz/loyalty')
+                nexus.get(url=_url)
                 if vf_cf(_nexus=nexus, _index=_index):
-                    _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
                     time.sleep(8)
+                    _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
                     if _amount and float(_amount) > _jf:
                         if __click_ele(page=nexus, xpath=f'x://a[div[div[span[text()="{name}"]]]]', loop=3):
                             vf_cf(_nexus=nexus, _index=_index)
@@ -3607,8 +3606,8 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-                if _type:
-                    # if _type == 'nexus_hz_base_ts':
+                # if _type:
+                if _type == 'nexus_hz_base_ts':
                     logger.warning(f"启动任务1:{_type}:{part}")
                     # if _type == 'nexus_hz_one_a':
                     #     evm_id = _id
@@ -3783,8 +3782,8 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type:
-                    # if _type == 'nexus_hz_base_ts':
+                # if _type:
+                if _type == 'nexus_hz_base_ts':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
                         if _task_type != '0':
