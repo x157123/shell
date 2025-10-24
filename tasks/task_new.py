@@ -3606,8 +3606,8 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
-                if _type:
-                # if _type == 'nexus_hz_base_ts':
+                # if _type:
+                if _type == 'nexus_hz_base_ts':
                     logger.warning(f"启动任务1:{_type}:{part}")
                     # if _type == 'nexus_hz_one_a':
                     #     evm_id = _id
@@ -3683,9 +3683,9 @@ if __name__ == '__main__':
                     if _type == 'nexus_hz_base_task':
                         _end = True
                     if _type == 'nexus_hz_base_ts':
-                        _end = True
-                        # _page = __get_page("nexus", _id, None, False)
-                        # _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        # _end = True
+                        _page = __get_page("nexus", _id, None, False)
+                        _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     if _type == 'prismax_new':
                         _home_ip = False
                         prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
@@ -3783,8 +3783,8 @@ if __name__ == '__main__':
                         _page.quit()
                     except Exception:
                         logger.exception("退出错误")
-                if _type:
-                # if _type == 'nexus_hz_base_ts':
+                # if _type:
+                if _type == 'nexus_hz_base_ts':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
                         if _task_type != '0':
