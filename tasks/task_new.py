@@ -20,6 +20,7 @@ import base64
 
 # ========== 全局配置 ==========
 evm_ext_id = "gagmhgncmlbekanbimodpmhniibhiiba"
+# evm_ext_id = "noeeboenonakcdjfkknhpjlnhehenhbo"
 ARGS_IP = ""  # 在 main 里赋值
 
 
@@ -28,7 +29,8 @@ def __get_page(_type, _id, _port, _home_ip):
     logger.info(f"启动类型: {_type}")
     options = ChromiumOptions()
     if platform.system().lower() == "windows":
-        options.set_browser_path(r"E:\chrome_tool\127.0.6483.0\chrome.exe")
+        logger.info('')
+        # options.set_browser_path(r"E:\chrome_tool\127.0.6483.0\chrome.exe")
     else:
         options.set_browser_path('/opt/google/chrome')
     if _home_ip:
@@ -1445,19 +1447,22 @@ def __do_hemi(page, evm_id, evm_addr):
 def x_com(page, name, email, pwd, fa, evm_id):
     _bool = False
     x_com = page.new_tab(url='https://x.com')
-
-    for i in range(4):
-        time.sleep(4)
-        if __get_ele(page=x_com, xpath='x://h1[contains(text(), "x.com")]', loop=1):
-            time.sleep(5)
-            click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), 24)
-        else:
-            break
-
     if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2):
-        time.sleep(5)
-        _bool = True
+        if __get_ele(page=x_com, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=2):
+            _bool = None
+        else:
+            _bool = True
+
+    if _bool is None or _bool == True:
+        logger.info('已验证登录')
     else:
+        for i in range(4):
+            time.sleep(4)
+            if __get_ele(page=x_com, xpath='x://h1[contains(text(), "x.com")]', loop=1):
+                time.sleep(5)
+                click_x_y(524 + random.randint(1, 5), 393 + random.randint(1, 5), 24)
+            else:
+                break
         for i in range(2):
             x_com.get(url='https://x.com/i/flow/login')
             for i in range(3):
@@ -1481,7 +1486,7 @@ def x_com(page, name, email, pwd, fa, evm_id):
                     x_com.close()
 
             if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]'):
-                for i in range(3):
+                for i in range(6):
                     if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]', loop=1):
                         __input_ele_value(page=x_com, xpath='x://input[@autocomplete="username"]', value=name)
                         __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]')
@@ -1509,8 +1514,11 @@ def x_com(page, name, email, pwd, fa, evm_id):
                                        xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]'):
                             logger.info('登录')
 
+                if __get_ele(page=x_com, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=2):
+                    _bool = None
+                    break
+
                 if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2):
-                    time.sleep(5)
                     _bool = True
                 elif __get_ele(page=x_com, xpath='x://p[starts-with(normalize-space(.),"Verify you are human") or starts-with(normalize-space(.),"请完成以下操作，验证您是真人")]', loop=2):
                     signma_log(message=f"{name},{email},{pwd},{fa}", task_name=f'nexus_joina_error', index=evm_id)
@@ -2068,7 +2076,9 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
         #                                  loop=2):
         #                         __join = True
         #         __join = True
-        if __x_bool:
+        if __x_bool is None:
+            logger.info('账号错误')
+        elif __x_bool:
             __join = True
             if __join:
                 if __join:
@@ -2090,7 +2100,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                     # time.sleep(2)
 
                     # nexus.get(url='https://quest.nexus.xyz/loyalty')
-                    nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
+                    nexus = page.new_tab(url='https://quest.nexus.xyz/loyalty')
                     for i in range(5):
                         time.sleep(5)
                         if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
@@ -2483,8 +2493,8 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                     __bool = False
                                 # 结束
                                 if _u and __get_ele(page=nexus,
-                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Podcast')]",
-                                             loop=1):
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Podcast')]",
+                                                    loop=1):
                                     __bool = False
 
 
@@ -3809,14 +3819,8 @@ if __name__ == '__main__':
                         ]
 
                         # 调用函数
-                        success = install_chrome_extension(
-                            extension_id=evm_ext_id,
-                            coordinates=COORDINATES,
-                            max_retry_times=MAX_RETRY_TIMES,
-                            page=_page
-                        )
-                        _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4],
-                                                    x_email=arg[5], x_2fa=arg[6])
+                        success = install_chrome_extension(extension_id=evm_ext_id, coordinates=COORDINATES, max_retry_times=MAX_RETRY_TIMES, page=_page)
+                        _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
                         # _end = True
                     else:
                         _home_ip = False
@@ -3894,4 +3898,4 @@ if __name__ == '__main__':
                     #     time.sleep(1200)
                     # else:
                     #     time.sleep(1800)
-        # time.sleep(1800)
+        time.sleep(1800)
