@@ -19,7 +19,7 @@ import time
 import base64
 
 # ========== 全局配置 ==========
-evm_ext_id = "gagmhgncmlbekanbimodpmhniibhiiba"
+evm_ext_id = "ldninhacpndiahonpdbojalkpicbnldj"
 # evm_ext_id = "noeeboenonakcdjfkknhpjlnhehenhbo"
 ARGS_IP = ""  # 在 main 里赋值
 
