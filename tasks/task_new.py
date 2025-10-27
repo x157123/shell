@@ -1489,6 +1489,7 @@ def x_com(page, name, email, pwd, fa, evm_id):
                 for i in range(6):
                     if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]', loop=1):
                         __input_ele_value(page=x_com, xpath='x://input[@autocomplete="username"]', value=name)
+                        time.sleep(4)
                         __click_ele(page=x_com, xpath='x://button[.//span[normalize-space(text())="下一步" or normalize-space(text())="Next"]]')
                         time.sleep(3)
                         if __get_ele(page=x_com, xpath='x://input[@autocomplete="username"]', loop=1):
