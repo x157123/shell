@@ -59,10 +59,10 @@ def __get_page(_type, _id, _port, _home_ip):
     # 端口可能被占用，尝试几次
     for offset in range(3):
         try:
-            # if _port is not None:
-            #     options.set_local_port(_port)
-            # else:
-            #     options.set_local_port(port + offset)
+            if _port is not None:
+                options.set_local_port(_port)
+            else:
+                options.set_local_port(port + offset)
             # options.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
 
             _pages = ChromiumPage(options)
