@@ -1,0 +1,16 @@
+{
+  "etherscan": {
+    "source": "Etherscan",
+    "safe_gas": 1,
+    "standard_gas": 1,
+    "fast_gas": 1,
+    "unit": "Gwei",
+    "timestamp": 1755855452.5120633
+  },
+  "rpc": {
+    "source": "Web3 RPC (ethereum)",
+    "current_gas": 0.26,
+    "unit": "Gwei",
+    "timestamp": 1755855455.6403606
+  }
+}
