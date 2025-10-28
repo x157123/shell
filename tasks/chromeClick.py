@@ -1,3 +1,4 @@
+import os
 import time
 
 def install_chrome_extension(
@@ -46,6 +47,7 @@ def install_chrome_extension(
 
 
 if __name__ == '__main__':
+    os.environ['DISPLAY'] = f':24'
     COORDINATES = [
 
         (66, 15, 3),
