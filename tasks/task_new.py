@@ -1447,12 +1447,14 @@ def __do_hemi(page, evm_id, evm_addr):
 def x_com(page, name, email, pwd, fa, evm_id):
     _bool = False
     x_com = page.new_tab(url='https://x.com')
+    logger.info('十秒准备读取')
+    time.sleep(10)
     if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2):
         if __get_ele(page=x_com, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=2):
             _bool = None
         else:
             _bool = True
-
+    logger.info('已读取页面元素')
     if _bool is None or _bool == True:
         logger.info('已验证登录')
     else:
