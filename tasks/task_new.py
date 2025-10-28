@@ -1446,6 +1446,8 @@ def __do_hemi(page, evm_id, evm_addr):
 
 def x_com(page, name, email, pwd, fa, evm_id):
     _bool = False
+    logger.info('十秒准备访问')
+    time.sleep(10)
     x_com = page.new_tab(url='https://x.com')
     logger.info('十秒准备读取')
     time.sleep(10)
