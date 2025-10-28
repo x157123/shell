@@ -28,11 +28,11 @@ def __get_page(_type, _id, _port, _home_ip):
     _pages = None
     logger.info(f"启动类型: {_type}")
     options = ChromiumOptions()
-    if platform.system().lower() == "windows":
-        logger.info('')
-        # options.set_browser_path(r"E:\chrome_tool\127.0.6483.0\chrome.exe")
-    else:
-        options.set_browser_path('/opt/google/chrome')
+    # if platform.system().lower() == "windows":
+    #     logger.info('')
+    #     # options.set_browser_path(r"E:\chrome_tool\127.0.6483.0\chrome.exe")
+    # else:
+    #     options.set_browser_path('/opt/google/chrome')
     if _home_ip:
         num = "23002"
         options.set_proxy(f"43.160.196.49:{num}")
