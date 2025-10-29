@@ -2625,8 +2625,10 @@ def nex_like_repost_comment(_page, nexus, key, bt, txt, link):
 
         if __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0):
             move(2)
-            __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value=f'{txt}')
+            __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value=f' ')
+            twitter_page.actions.type(get_random_words(2))
             move(2)
+            __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value=f' ')
             twitter_page.actions.type(get_random_words(2))
             move(2)
             __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value=f'.')
