@@ -2220,6 +2220,12 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                         for i in range(2):
 
                             #新数据
+                            
+                            if __get_ele(page=nexus,
+                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Gridcrew Roll Call')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                         loop=1):
+                                _s = True
+                                nex_like_repost_comment(page, nexus, 'Gridcrew Roll Call', 'Go to Post', get_random_words(2), True)
 
                             if __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: The Road we Run')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
@@ -2257,11 +2263,6 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                                 _r = True
                                 nex_like_repost_comment(page, nexus, 'Reshare the Doctor', 'Go to Post', get_random_words(2), True)
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Gridcrew Roll Call')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                _s = True
-                                nex_like_repost_comment(page, nexus, 'Gridcrew Roll Call', 'Go to Post', get_random_words(2), True)
 
                             if __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Creator Academy')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
