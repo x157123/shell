@@ -2232,7 +2232,7 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _k = True
-                                    nex_like_repost_comment(page, nexus, 'Support the Nexus Ecosystem', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'Support the Nexus Ecosystem', 'Go to Post', get_random_words(3), True)
 
                                 #新数据
 
@@ -2240,13 +2240,13 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: The Road we Run')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _v = True
-                                    nex_like_repost_comment(page, nexus, 'NEW: The Road we Run', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'NEW: The Road we Run', 'Go to Post', get_random_words(4), True)
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share the Epsilon Collection')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _w = True
-                                    nex_like_repost_comment(page, nexus, 'NEW: Share the Epsilon Collection', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'NEW: Share the Epsilon Collection', 'Go to Post', get_random_words(4), True)
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share Delta Glyphs')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
@@ -2258,31 +2258,31 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Inside the Nexus Project')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _p = True
-                                    nex_like_repost_comment(page, nexus, 'NEW: Inside the Nexus Project', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'NEW: Inside the Nexus Project', 'Go to Post', get_random_words(4), True)
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 're Doing Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _q = True
-                                    nex_like_repost_comment(page, nexus, 're Doing Numbers', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 're Doing Numbers', 'Go to Post', get_random_words(4), True)
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Reshare the Doctor')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _r = True
-                                    nex_like_repost_comment(page, nexus, 'Reshare the Doctor', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'Reshare the Doctor', 'Go to Post', get_random_words(4), True)
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Gridcrew Roll Call')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _s = True
-                                    nex_like_repost_comment(page, nexus, 'Gridcrew Roll Call', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'Gridcrew Roll Call', 'Go to Post', get_random_words(4), True)
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Creator Academy')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _t = True
-                                    nex_like_repost_comment(page, nexus, 'Support the Creator Academy', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'Support the Creator Academy', 'Go to Post', get_random_words(4), True)
                                 # 结束
 
 
@@ -2392,7 +2392,7 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _j = True
-                                    nex_like_repost_comment(page, nexus, 'Node Runners Assemble', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'Node Runners Assemble', 'Go to Post', get_random_words(4), True)
 
 
                                 if __get_ele(page=nexus,
@@ -2558,6 +2558,28 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
     return __bool
 
 
+def get_random_words(count):
+    # 定义60个单词的列表
+    words = [
+        "apple", "banana", "cat", "dog", "elephant",
+        "flower", "garden", "house", "island", "jungle",
+        "kitchen", "lemon", "mountain", "night", "ocean",
+        "pencil", "queen", "river", "sun", "tree",
+        "umbrella", "valley", "water", "yellow", "zebra",
+        "book", "chair", "door", "engine", "forest",
+        "guitar", "hotel", "iron", "jacket", "key",
+        "lamp", "mirror", "notebook", "orange", "piano",
+        "question", "road", "star", "table", "university",
+        "violin", "window", "xylophone", "yacht", "zoo",
+        "airplane", "bridge", "computer", "diamond", "eagle",
+        "fountain", "globe", "hammer", "ice", "jewel"
+    ]
+
+    # 随机选择指定数量的单词
+    selected_words = random.sample(words, count)
+
+    # 用空格连接并返回
+    return " ".join(selected_words)
 
 def nex_repost(_page, nexus, key, bt):
     __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=2)
@@ -2598,7 +2620,7 @@ def nex_like_repost_comment(_page, nexus, key, bt, txt, link):
         if __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0):
             time.sleep(1)
             __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value=f'{txt}')
-            # twitter_page.actions.type('I like them all')
+            # twitter_page.actions.type(get_random_words(4))
             if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton" and not(@disabled)]'):
                 time.sleep(3)
                 if __get_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton" and not(@disabled)]', loop=3):
