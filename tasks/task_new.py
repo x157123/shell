@@ -2153,39 +2153,39 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
 
                     if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
                         if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
-                            if platform.system().lower() == "windows":
-                                nexus_joinas = read_data_list_file("E:/tmp/chrome_data/nexus_joinas.txt")
-                            else:
-                                nexus_joinas = read_data_list_file("/home/ubuntu/task/tasks/nexus_joinas.txt")
-                            if evm_id not in nexus_joinas:
-                                # 取消 tw关注
-                                nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
-                                if __get_ele(page=nexus,
-                                             xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]', loop=2):
-                                    __click_ele(page=nexus,
-                                                xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]')
-                                    __click_ele(page=nexus, xpath='x://button[text()="Disconnect Twitter"]')
-                                nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
-                                if __get_ele(page=nexus,
-                                             xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]', loop=2):
-                                    __click_ele(page=nexus,
-                                                xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]')
-                                    if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
-                                        logger.info('重新关注')
-                                        time.sleep(10)
-                                        nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
-                                        time.sleep(2)
-                                        if __get_ele(page=nexus,
-                                                     xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]', loop=2):
-                                            logger.info('重新关注成功')
-                                            if platform.system().lower() == "windows":
-                                                logger.info('写入文件0')
-                                                append_date_to_file("E:/tmp/chrome_data/nexus_joinas.txt", evm_id)
-                                            else:
-                                                logger.info('写入文件1')
-                                                append_date_to_file("/home/ubuntu/task/tasks/nexus_joinas.txt", evm_id)
-                                nexus.get(url='https://quest.nexus.xyz/loyalty')
-
+                            # if platform.system().lower() == "windows":
+                            #     nexus_joinas = read_data_list_file("E:/tmp/chrome_data/nexus_joinas.txt")
+                            # else:
+                            #     nexus_joinas = read_data_list_file("/home/ubuntu/task/tasks/nexus_joinas.txt")
+                            # if evm_id not in nexus_joinas:
+                            #     # 取消 tw关注
+                            #     nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
+                            #     if __get_ele(page=nexus,
+                            #                  xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]', loop=2):
+                            #         __click_ele(page=nexus,
+                            #                     xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]')
+                            #         __click_ele(page=nexus, xpath='x://button[text()="Disconnect Twitter"]')
+                            #     nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
+                            #     if __get_ele(page=nexus,
+                            #                  xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]', loop=2):
+                            #         __click_ele(page=nexus,
+                            #                     xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]')
+                            #         if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
+                            #             logger.info('重新关注')
+                            #             time.sleep(10)
+                            #             nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
+                            #             time.sleep(2)
+                            #             if __get_ele(page=nexus,
+                            #                          xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]', loop=2):
+                            #                 logger.info('重新关注成功')
+                            #                 if platform.system().lower() == "windows":
+                            #                     logger.info('写入文件0')
+                            #                     append_date_to_file("E:/tmp/chrome_data/nexus_joinas.txt", evm_id)
+                            #                 else:
+                            #                     logger.info('写入文件1')
+                            #                     append_date_to_file("/home/ubuntu/task/tasks/nexus_joinas.txt", evm_id)
+                            #     nexus.get(url='https://quest.nexus.xyz/loyalty')
+                            time.sleep(30)
 
                             for i in range(2):
                                 nexus.scroll.to_bottom()
