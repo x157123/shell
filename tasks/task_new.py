@@ -2222,18 +2222,6 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
 
                             for i in range(2):
 
-                                if __get_ele(page=nexus,
-                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]",
-                                             loop=1):
-                                    _l = True
-                                    nex_like_repost(page, nexus, 'Shine a Light on the Numbers', 'Like and Share this Post')
-
-                                if __get_ele(page=nexus,
-                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                             loop=1):
-                                    _k = True
-                                    nex_like_repost_comment(page, nexus, 'Support the Nexus Ecosystem', 'Go to Post', get_random_words(3), True)
-
                                 #新数据
 
                                 if __get_ele(page=nexus,
@@ -2303,6 +2291,18 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                                         __click_ele(page=nexus,
                                                     xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Podcast')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
 
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _l = True
+                                    nex_like_repost(page, nexus, 'Shine a Light on the Numbers', 'Like and Share this Post')
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _k = True
+                                    nex_like_repost_comment(page, nexus, 'Support the Nexus Ecosystem', 'Go to Post', get_random_words(3), True)
 
 
                                 if __get_ele(page=nexus, xpath='x://a[@label="Go to Camp Nexus Blog"]', loop=1):
