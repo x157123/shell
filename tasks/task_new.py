@@ -2638,6 +2638,7 @@ def nex_like_repost_comment(_page, nexus, key, bt, txt, link):
                         move(3)
                 url = __get_popup_url(page=_page, _url='x.com', timeout=15)
                 twitter_page.close()
+                twitter_page = None
                 if link:
                     if __click_ele(page=nexus,
                                    xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[text()='Enter Link']",
@@ -2664,6 +2665,12 @@ def nex_like_repost_comment(_page, nexus, key, bt, txt, link):
                         __click_ele(page=nexus,
                                     xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]",
                                     loop=2)
+    if twitter_page:
+        try:
+            twitter_page.close()
+        except Exception as e:
+            logger.info(f"关闭窗口错误: {e}")
+
 
 def nex_like_repost(_page, nexus, key, bt):
     __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=1)
@@ -2683,9 +2690,14 @@ def nex_like_repost(_page, nexus, key, bt):
         __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=1)
         move(5)
         twitter_page.close()
+        twitter_page = None
         if __get_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]", loop=2):
             __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]", loop=2)
-
+    if twitter_page:
+        try:
+            twitter_page.close()
+        except Exception as e:
+            logger.info(f"关闭窗口错误: {e}")
 
 
 def nex_follow(_page, nexus, key, bt):
