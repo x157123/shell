@@ -17,10 +17,10 @@ import hashlib
 import struct
 import time
 import base64
+import ast
 
 # ========== 全局配置 ==========
-evm_ext_id = "ldninhacpndiahonpdbojalkpicbnldj"
-# evm_ext_id = "noeeboenonakcdjfkknhpjlnhehenhbo"
+evm_ext_id = "ohgmkpjifodfiomblclfpdhehohinlnn"
 ARGS_IP = ""  # 在 main 里赋值
 
 
@@ -28,29 +28,28 @@ def __get_page(_type, _id, _port, _home_ip):
     _pages = None
     logger.info(f"启动类型: {_type}")
     options = ChromiumOptions()
-    # if platform.system().lower() == "windows":
-    #     logger.info('')
-    #     # options.set_browser_path(r"E:\chrome_tool\127.0.6483.0\chrome.exe")
-    # else:
-    #     options.set_browser_path('/opt/google/chrome')
+    if platform.system().lower() == "windows":
+        options.set_browser_path(r"E:\chrome_tool\127.0.6483.0\chrome.exe")
+    else:
+        options.set_browser_path('/opt/google/chrome')
     if _home_ip:
         num = "23002"
         options.set_proxy(f"43.160.196.49:{num}")
-    # if _type == 'prismax' or _type == 'monad_solana':
-    #     if platform.system().lower() == "windows":
-    #         options.add_extension(f"E:/chrome_tool/phantom")
-    #     else:
-    #         if _home_ip:
-    #             # signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
-    #             num = "23002"
-    #             options.set_proxy(f"43.160.196.49:{num}")
-    #         options.add_extension(f"/home/ubuntu/extensions/phantom")
-    #         options.set_argument("--blink-settings=imagesEnabled=false")
-    # else:
-    #     if platform.system().lower() == "windows":
-    #         options.add_extension(f"E:/chrome_tool/signma")
-    #     else:
-    #         options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
+    if _type == 'prismax' or _type == 'monad_solana':
+        if platform.system().lower() == "windows":
+            options.add_extension(f"E:/chrome_tool/phantom")
+        else:
+            if _home_ip:
+                # signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
+                num = "23002"
+                options.set_proxy(f"43.160.196.49:{num}")
+            options.add_extension(f"/home/ubuntu/extensions/phantom")
+            options.set_argument("--blink-settings=imagesEnabled=false")
+    else:
+        if platform.system().lower() == "windows":
+            options.add_extension(f"E:/chrome_tool/signma")
+        else:
+            options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
     # 用户数据目录
     if platform.system().lower() == "windows":
         options.set_user_data_path(f"E:/tmp/chrome_data/{_type}/{_id}")
@@ -63,8 +62,6 @@ def __get_page(_type, _id, _port, _home_ip):
                 options.set_local_port(_port)
             else:
                 options.set_local_port(port + offset)
-            # options.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
-
             _pages = ChromiumPage(options)
             break
         except Exception as e:
@@ -1913,12 +1910,39 @@ def __do_task_nexus_hz_qy(page, evm_id, evm_addr, index):
     return __bool
 
 
+def base64_decrypt(encoded_str):
+    # 转换为字节
+    encoded_bytes = encoded_str.encode('utf-8')
+    # Base64 解码
+    json_bytes = base64.b64decode(encoded_bytes)
+    # 转换为字符串
+    json_str = json_bytes.decode('utf-8')
+    # 解析 JSON
+    return json.loads(json_str)
 
-def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
+def x_com_cookies(_page,  cookies):
+    jsonStr = base64_decrypt(cookies)
+    jsonObj = ast.literal_eval(jsonStr)
+    x_com = _page.new_tab(url='https://x.com')
+    if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2):
+        return True
+    else:
+        x_com.set.cookies(jsonObj)
+        time.sleep(5)
+        x_com.refresh()
+    if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2):
+        return True
+    return False
+
+def __do_task_nexus_join(page, evm_id, index, x_cookies):
     __bool = False
     __join = False
     __out_join = False
     try:
+        __handle_signma_popup(page=page, count=0)
+
+        __x_bool = x_com_cookies(_page=page, cookies=x_cookies)
+
         logger.info('登录钱包')
         time.sleep(3)
         __handle_signma_popup(page=page, count=0)
@@ -1929,9 +1953,6 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
         _I = None
         _0 = None
         _DEVNET_NEX = None
-
-
-        __x_bool = x_com(page=page, name=x_name, email=x_email, pwd=x_pwd, fa=x_2fa, evm_id=evm_id)
 
         # nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
         # __get_ele(page=nexus, xpath='x://h1[contains(text(), "REWARDS")]', loop=10)
@@ -2197,56 +2218,72 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                             _t = False
                             _u = False
 
+                            _v = False
+                            _w = False
+
                             for i in range(2):
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _l = True
-                                    nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Shine a Light on the Numbers', 'Like and Share this Post')
+                                    nex_like_repost(page, nexus, 'Shine a Light on the Numbers', 'Like and Share this Post')
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _k = True
-                                    nex_like_repost_comment(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Support the Nexus Ecosystem', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'Support the Nexus Ecosystem', 'Go to Post', 'I like them all', True)
 
                                 #新数据
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: The Road we Run')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _v = True
+                                    nex_like_repost_comment(page, nexus, 'NEW: The Road we Run', 'Go to Post', 'I like them all', True)
+
+                                if __get_ele(page=nexus,
+                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share the Epsilon Collection')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                             loop=1):
+                                    _w = True
+                                    nex_like_repost_comment(page, nexus, 'NEW: Share the Epsilon Collection', 'Go to Post', 'I like them all', True)
+
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share Delta Glyphs')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _o = True
-                                    nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'NEW: Share Delta Glyphs', 'Go to Post')
+                                    nex_like_repost(page, nexus, 'NEW: Share Delta Glyphs', 'Go to Post')
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Inside the Nexus Project')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _p = True
-                                    nex_like_repost_comment(page, nexus, x_name, x_email, x_pwd, x_2fa, 'NEW: Inside the Nexus Project', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'NEW: Inside the Nexus Project', 'Go to Post', 'I like them all', True)
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 're Doing Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _q = True
-                                    nex_like_repost_comment(page, nexus, x_name, x_email, x_pwd, x_2fa, 're Doing Numbers', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 're Doing Numbers', 'Go to Post', 'I like them all', True)
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Reshare the Doctor')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _r = True
-                                    nex_like_repost_comment(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Reshare the Doctor', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'Reshare the Doctor', 'Go to Post', 'I like them all', True)
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Gridcrew Roll Call')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _s = True
-                                    nex_like_repost_comment(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Gridcrew Roll Call', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'Gridcrew Roll Call', 'Go to Post', 'I like them all', True)
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Creator Academy')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _t = True
-                                    nex_like_repost_comment(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Support the Creator Academy', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'Support the Creator Academy', 'Go to Post', 'I like them all', True)
                                 # 结束
 
 
@@ -2304,66 +2341,66 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Follow Nodejox - The Author')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
                                              loop=1):
                                     _b = True
-                                    nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'NEW: Follow Nodejox - The Author', 'Go to Account')
+                                    nex_follow(page, nexus, 'NEW: Follow Nodejox - The Author', 'Go to Account')
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _c = True
-                                    nex_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Celebrate our Snag Partnership', 'Go to Post')
+                                    nex_repost(page, nexus, 'Celebrate our Snag Partnership', 'Go to Post')
 
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _d = True
-                                    nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Like & Share our Testnet III Announcement', 'Go to Post')
+                                    nex_like_repost(page, nexus, 'Like & Share our Testnet III Announcement', 'Go to Post')
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
                                              loop=1):
                                     _e = True
-                                    nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nexus', 'Go to Account')
+                                    nex_follow(page, nexus, 'Follow Nexus', 'Go to Account')
 
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _f = True
-                                    nex_like_repost(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Share Spelunking Badge', 'Go to Post')
+                                    nex_like_repost(page, nexus, 'Share Spelunking Badge', 'Go to Post')
 
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Founder')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
                                              loop=1):
                                     _g = True
-                                    nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nodejox - The Founder', 'Go to Account')
+                                    nex_follow(page, nexus, 'Follow Nodejox - The Founder', 'Go to Account')
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Voice')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
                                              loop=1):
                                     _h = True
-                                    nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nodejox - The Voice', 'Go to Account')
+                                    nex_follow(page, nexus, 'Follow Nodejox - The Voice', 'Go to Account')
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Doctor')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
                                              loop=1):
                                     _i = True
-                                    nex_follow(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Follow Nodejox - The Doctor', 'Go to Account')
+                                    nex_follow(page, nexus, 'Follow Nodejox - The Doctor', 'Go to Account')
 
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _j = True
-                                    nex_like_repost_comment(page, nexus, x_name, x_email, x_pwd, x_2fa, 'Node Runners Assemble', 'Go to Post', 'I like them all', True)
+                                    nex_like_repost_comment(page, nexus, 'Node Runners Assemble', 'Go to Post', 'I like them all', True)
 
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim') or @label='Repost Tweet']",
                                              loop=1):
                                     _n = True
-                                    nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, 'Goodbye Camp Nexus', 'Repost Tweet')
+                                    nex_repost(_page, nexus, 'Goodbye Camp Nexus', 'Repost Tweet')
                                     __click_ele(page=nexus,
                                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim') or @label='Repost Tweet']",
                                                 loop=1)
@@ -2503,6 +2540,16 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
                                     __bool = False
 
 
+                                if _v and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: The Road we Run')]",
+                                                    loop=1):
+                                    __bool = False
+
+                                if _w and __get_ele(page=nexus,
+                                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share the Epsilon Collection')]",
+                                                    loop=1):
+                                    __bool = False
+
                                 if __bool:
                                     break
                             _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
@@ -2513,7 +2560,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_email, x_pwd, x_2fa):
 
 
 
-def nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
+def nex_repost(_page, nexus, key, bt):
     __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=2)
     __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]", loop=2)
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
@@ -2528,7 +2575,7 @@ def nex_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
                     xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=2)
 
 
-def nex_like_repost_comment(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt, txt, link):
+def nex_like_repost_comment(_page, nexus, key, bt, txt, link):
     __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=1)
     __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]", loop=1)
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
@@ -2582,7 +2629,7 @@ def nex_like_repost_comment(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt, t
                                     xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]",
                                     loop=2)
 
-def nex_like_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
+def nex_like_repost(_page, nexus, key, bt):
     __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=1)
     __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]", loop=1)
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
@@ -2604,15 +2651,15 @@ def nex_like_repost(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
             # time.sleep(5)
 
 
-def nex_follow(_page, nexus, x_name,x_email,x_pwd,x_2fa, key, bt):
+def nex_follow(_page, nexus, key, bt):
     __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]", loop=1)
     __click_ele(page=nexus, xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]", loop=1)
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
     if __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Follow"]]'):
-        if __get_ele(page=twitter_page,
-                     xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]',
-                     loop=1):
-            signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
+        # if __get_ele(page=twitter_page,
+        #              xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]',
+        #              loop=1):
+        #     signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
         twitter_page.close()
         if __get_ele(page=nexus,
                      xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]", loop=1):
@@ -3715,7 +3762,7 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 # if _type:
-                if _type == 'nexus_joina_s':
+                if _type == 'nexus_joina_ss':
                     logger.warning(f"启动任务1:{_type}:{part}")
                     # if _type == 'nexus_hz_one_a':
                     #     evm_id = _id
@@ -3811,21 +3858,9 @@ if __name__ == '__main__':
                             _end = True
                             if _home_ip:
                                 end_available(evm_id=_id)
-                    elif _type == 'nexus_joina_s':
-                        _page = __get_page("nexus_joina_s", _id, None, False)
-                        # 定义参数
-                        MAX_RETRY_TIMES = 3
-                        COORDINATES = [
-                            (446, 192, 1),
-                            (628, 225, 1),
-                            (628, 225, 0),  # 双击
-                            (628, 225, 1),
-                            (1471, 128, 1)
-                        ]
-
-                        # 调用函数
-                        success = install_chrome_extension(extension_id=evm_ext_id, coordinates=COORDINATES, max_retry_times=MAX_RETRY_TIMES, page=_page)
-                        _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
+                    elif _type == 'nexus_joina_ss':
+                        _page = __get_page("nexus_joina_ss", _id, None, False)
+                        _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_cookies=arg[3])
                         # _end = True
                     else:
                         _home_ip = False
@@ -3884,7 +3919,7 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 # if _type:
-                if _type == 'nexus_joina_s':
+                if _type == 'nexus_joina_ss':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
                         if _task_type != '0':
