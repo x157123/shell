@@ -2632,7 +2632,7 @@ def nex_like_repost_comment(_page, nexus, key, bt, txt, link):
                 if link:
                     if __click_ele(page=nexus,
                                    xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[text()='Enter Link']",
-                                   loop=3):
+                                   loop=8):
                         __input_ele_value(page=nexus,
                                           xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//input[@name='contentUrl']",
                                           value=url)
