@@ -2228,7 +2228,7 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: The Road we Run')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                              loop=1):
                                     _v = True
-                                    nex_like_repost_comment(page, nexus, 'NEW: The Road we Run', 'Go to Post', get_random_words(2), True)
+                                    nex_like_repost(page, nexus, 'NEW: The Road we Run', 'Go to Post')
 
                                 if __get_ele(page=nexus,
                                              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share the Epsilon Collection')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
