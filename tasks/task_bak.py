@@ -21,6 +21,8 @@ ARGS_IP = ""  # 在 main 里赋值
 
 
 def __get_page(_type, _id, _port, _home_ip):
+    if _type == 'prismax_new':
+        _type = 'prismax'
     _pages = None
     logger.info(f"启动类型: {_type}")
     options = ChromiumOptions()
@@ -3317,7 +3319,7 @@ if __name__ == '__main__':
                     else:
                         _home_ip = False
                         _dt = False
-                        if _type == 'prismax':
+                        if _type == 'prismax_new':
                             prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                             if _id not in prismax_init:
                                 _dt = True
@@ -3372,7 +3374,7 @@ if __name__ == '__main__':
                             _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[3], x_pwd=arg[4], x_email=arg[5], x_2fa=arg[6])
                             end_available(evm_id=_id)
                             # _end = True
-                        elif _type == 'prismax':
+                        elif _type == 'prismax_new':
                             if len(arg) < 3:
                                 logger.warning("prismax 需要助记词/私钥参数，已跳过")
                             else:
