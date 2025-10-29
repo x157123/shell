@@ -3761,6 +3761,7 @@ if __name__ == '__main__':
 
                 _type = arg[0]
                 _id = arg[1]
+                logger.info(f'开始数据:{_task_type}:{_task_id}')
                 # if _type:
                 if _type == 'nexus_joina_ss':
                     logger.warning(f"启动任务1:{_type}:{part}")
@@ -3913,6 +3914,7 @@ if __name__ == '__main__':
             except Exception as e:
                 logger.info(f"任务异常: {e}")
             finally:
+                logger.info(f'结束数据:{_task_type}:{_task_id}')
                 if _page is not None:
                     try:
                         _page.quit()
