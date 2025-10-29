@@ -2600,6 +2600,11 @@ def nex_like_repost_comment(_page, nexus, key, bt, txt, link):
             # twitter_page.actions.type('I like them all')
             if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton" and not(@disabled)]'):
                 time.sleep(3)
+                if __get_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton" and not(@disabled)]', loop=3):
+                    __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value=f'{txt}_123')
+                    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton" and not(@disabled)]'):
+                        time.sleep(3)
+
                 url = __get_popup_url(page=_page, _url='x.com', timeout=15)
                 twitter_page.close()
                 if link:
