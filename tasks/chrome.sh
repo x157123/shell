@@ -4,7 +4,8 @@
 USER="ubuntu"
 PASSWORD="Mmscm716+"
 readonly CHROME_DEB="google-chrome-stable_current_amd64.deb"
-readonly CHROME_URL_OLD="https://github.com/x157123/ACL4SSR/releases/download/chro/google-chrome-stable_120.0.6099.224-1_amd64.deb"
+#readonly CHROME_URL_OLD="https://github.com/x157123/ACL4SSR/releases/download/chro/google-chrome-stable_120.0.6099.224-1_amd64.deb"
+readonly CHROME_URL_OLD="https://github.com/x157123/ACL4SSR/releases/download/v.1.0.15/google-chrome-stable_126.0.6478.126-1_amd64.deb"
 
 # 错误处理函数
 error_exit() {
@@ -154,28 +155,40 @@ install_wallet_phantom() {
 
 
 down_desc() {
-    # 目录路径
-    DIR="/home/$USER/task/tasks/image_descriptions.txt"
-    rm -rf "$DIR"
-    # 目录不存在，创建目录
-    wget -q -O /home/ubuntu/task/tasks/image_descriptions.txt "https://github.com/x157123/ACL4SSR/releases/download/v.1.0.11/image_descriptions.txt" || error_exit "文件下载失败"
-    # 授权给 指定 用户
-    log_info "授权目录 $DIR 给 $USER 用户..."
-    chown -R "$USER":"$USER" "$DIR"
+    # 定义文件路径和下载URL的数组
+    declare -A files=(
+        ["/home/$USER/task/tasks/image_descriptions.txt"]="https://github.com/x157123/ACL4SSR/releases/download/v.1.0.11/image_descriptions.txt"
+        ["/home/$USER/task/tasks/questions.txt"]="https://github.com/x157123/ACL4SSR/releases/download/v.1.0.12/questions.txt"
+        ["/home/$USER/task/tasks/twitter_positive_replies.txt"]="https://github.com/x157123/ACL4SSR/releases/download/v.1.0.16/twitter_positive_replies.txt"
+    )
 
+    # 遍历所有文件
+    for FILE_PATH in "${!files[@]}"; do
+        URL="${files[$FILE_PATH]}"
 
-    # 目录路径
-    DIR_QUES="/home/$USER/task/tasks/questions.txt"
-    rm -rf "$DIR_QUES"
-    # 目录不存在，创建目录
-    wget -q -O /home/ubuntu/task/tasks/questions.txt "https://github.com/x157123/ACL4SSR/releases/download/v.1.0.12/questions.txt" || error_exit "文件下载失败"
-    # 授权给 指定 用户
-    log_info "授权目录 $DIR_QUES 给 $USER 用户..."
-    chown -R "$USER":"$USER" "$DIR_QUES"
+        # 检查文件是否存在
+        if [ -f "$FILE_PATH" ]; then
+            log_info "文件已存在,跳过下载: $FILE_PATH"
+        else
+            log_info "文件不存在,开始下载: $FILE_PATH"
 
-    log_info "授权完成。"
+            # 确保父目录存在
+            DIR_PARENT=$(dirname "$FILE_PATH")
+            mkdir -p "$DIR_PARENT"
 
+            # 下载文件
+            wget -q -O "$FILE_PATH" "$URL" || error_exit "文件下载失败: $FILE_PATH"
+            log_info "下载完成: $FILE_PATH"
+        fi
+
+        # 授权给指定用户
+        log_info "授权文件 $FILE_PATH 给 $USER 用户..."
+        chown "$USER":"$USER" "$FILE_PATH"
+    done
+
+    log_info "所有文件处理完成。"
 }
+
 
 install_wallet_dog() {
   # 目录路径
