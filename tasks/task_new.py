@@ -2642,7 +2642,7 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                     else:
                         __error = True
                     _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
-                    signma_log(message=f'{_amount},{__bool}', task_name=f'nexus_join_d', index=evm_id)
+                    signma_log(message=f'{_amount},{__bool}', task_name=f'nexus_join_sa', index=evm_id)
                     if __error:
                         __bool = True
     except Exception as e:
