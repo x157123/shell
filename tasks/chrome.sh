@@ -226,6 +226,44 @@ install_wallet_dog() {
 }
 
 
+install_edit_cookies() {
+  # 目录路径
+  DIR="/home/$USER/extensions/edit-cookies"
+  # 文件下载地址
+  TARGET_DIR="/home/$USER/extensions/"
+
+#  if [ -d "$DIR" ]; then
+#    log_info "钱包目录 $DIR 已存在，准备删除。"
+#    rm -rf "$DIR"
+#  fi
+
+  # 判断目录是否存在
+  if [ ! -d "$DIR" ]; then
+    # 目录不存在，创建目录
+    mkdir -p "$TARGET_DIR"
+    log_info "钱包目录 $TARGET_DIR 已创建。"
+
+    wget -q -O /tmp/edit-cookies.tar "https://github.com/x157123/ACL4SSR/releases/download/v.1.0.17/edit-cookies.tar" || error_exit "钱包下载失败"
+
+    # 解压文件
+    log_info "解压文件..."
+    tar -xvf /tmp/edit-cookies.tar -C "$TARGET_DIR"
+
+    # 删除下载的 tar 文件
+    rm /tmp/edit-cookies.tar
+
+    # 授权给 指定 用户
+    log_info "授权目录 $DIR 给 $USER 用户..."
+    chown -R "$USER":"$USER" "$DIR"
+
+    log_info "授权完成。"
+
+  fi
+}
+
+
+
+
 # 配置 XRDP
 setup_xrdp() {
     log_info "配置 XRDP..."
@@ -294,6 +332,7 @@ main() {
   # 安装钱包
   install_wallet_dog
   install_wallet_phantom
+  install_edit_cookies
 
   # 循环创建 :23 到 :27 的 VNC 会话
   for display in {23..25}; do
