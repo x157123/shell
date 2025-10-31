@@ -2231,7 +2231,9 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                                 __tw_join = True
                                 break
                             else:
-                                __click_ele(page=nexus, xpath='x://button[text()="Disconnect Twitter"]')
+                                if __click_ele(page=nexus,
+                                            xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]'):
+                                    __click_ele(page=nexus, xpath='x://button[text()="Disconnect Twitter"]')
                                 nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
                                 if __click_ele(page=nexus, xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]'):
                                     if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
