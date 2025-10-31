@@ -2225,7 +2225,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                                 if signma_ele:
                                     signma_ele.click(by_js=True)
                                     __handle_signma_popup(page=page, count=2, timeout=45)
-                # __handle_signma_popup(page=page, count=2)
+                __handle_signma_popup(page=page, count=2, timeout=10)
                 __tw_join = False
                 if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
                     if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
