@@ -1983,9 +1983,10 @@ def x_com_cookies(_page, cookies):
         pyautogui.FAILSAFE = False
         for i in range(5):
             _ed = _page.new_tab(url='chrome-extension://ihfmcbadakjehneaijebhpogkegajgnk/popup.html')
-            click_x_y(1192, 170, 24)
-            for i in range(100):
-                pyautogui.press('backspace')
+            if platform.system().lower() != "windows":
+                click_x_y(1192, 170, 24)
+                for i in range(100):
+                    pyautogui.press('backspace')
             jsonStr = base64_decrypt(cookies)
             __input_ele_value(page=_ed, xpath='x://input[@placeholder="URL"]', value="https://x.com\n")
 
@@ -2015,10 +2016,6 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
             positive_replies = read_data_list_file("E:/chrome_tool/twitter_positive_replies.txt", check_exists=True)
         else:
             positive_replies = read_data_list_file("/home/ubuntu/task/tasks/twitter_positive_replies.txt", check_exists=True)
-        # for i in range(20):
-        #     nex_like_repost_comment_test(_page, random.choice(positive_replies))
-        #     logger.info(f'第{i}次')
-        #     time.sleep(30)
         logger.info('登录钱包')
         time.sleep(3)
         __handle_signma_popup(page=page, count=0)
@@ -2234,7 +2231,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                                 break
                             else:
                                 if __click_ele(page=nexus,
-                                            xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]'):
+                                               xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]'):
                                     __click_ele(page=nexus, xpath='x://button[text()="Disconnect Twitter"]')
                                 nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
                                 if __click_ele(page=nexus, xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]'):
@@ -2677,7 +2674,7 @@ def nex_repost(_page, nexus, key, bt):
         time.sleep(2)
     if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0):
         __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
-        __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=1)
+        __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=2)
         time.sleep(4)
         twitter_page.close()
         __click_ele(page=nexus,
@@ -2806,41 +2803,6 @@ def human_type_advanced(text, wpm=40):
     time.sleep(random.uniform(0.5, 1))
 
 
-def nex_like_repost_comment_test(_page, txt):
-    twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
-    if twitter_page:
-        twitter_page.refresh()
-        move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 1)
-        __click_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0, move_click=True)
-        if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0, move_click=True):
-            __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]', move_click=True)
-        __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True, index=0, move_click=True)
-        # if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
-        #     signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
-        time.sleep(random.uniform(2, 4))
-        if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0, move_click=True):
-            __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]', move_click=True)
-            # if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
-            #     signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
-            __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=1, move_click=True)
-            move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 2)
-
-        if __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0):
-            move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 2)
-            _input_ele = __get_ele(page=twitter_page, xpath='x://div[@aria-label="Post text"]')
-            twitter_page.actions.move_to(_input_ele).click()
-            human_type_advanced(txt)
-            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton" and not(@disabled)]'):
-                move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 2)
-                if __get_ele(page=twitter_page, xpath='x://button[@data-testid="tweetButton" and not(@disabled)]',
-                             loop=3):
-                    __input_ele_value(page=twitter_page, xpath='x://div[@aria-label="Post text"]', value=f'{txt}_123')
-                    if __click_ele(page=twitter_page,
-                                   xpath='x://button[@data-testid="tweetButton" and not(@disabled)]'):
-                        move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 3)
-
-
-
 def nex_like_repost_comment(_page, nexus, key, bt, txt, link):
     __close_popup(page=_page, _url='blog.nexus.xyz', timeout=5)
     __close_popup(page=_page, _url='open.spotify.com', timeout=5)
@@ -2854,19 +2816,15 @@ def nex_like_repost_comment(_page, nexus, key, bt, txt, link):
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
     if twitter_page:
         move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 1)
-        # __click_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0, move_click=True)
-        # if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0, move_click=True):
-        #     __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]', move_click=True)
-        __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True, index=0, move_click=True)
-        # if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
-        #     signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
-        time.sleep(random.uniform(1, 3))
-        if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0, move_click=True):
-            __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
-            # if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
-            #     signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
-            __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=1, move_click=True)
-            move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 2)
+        if not __get_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0):
+            __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True, index=0, move_click=True)
+        if not __get_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
+            time.sleep(random.uniform(1, 3))
+            if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0, move_click=True):
+                __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
+                __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=2, move_click=True)
+                move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 2)
+
 
         if __click_ele(page=twitter_page, xpath='x://button[@data-testid="reply"]', find_all=True, index=0, move_click=True):
             move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 2)
@@ -2919,27 +2877,25 @@ def nex_like_repost(_page, nexus, key, bt):
                 loop=1)
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
     move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 1)
-    # __click_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0, loop=1)
-    # if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
-    #     __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
-    #     move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 2)
-    __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True, index=0)
-    # if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
-    #     signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
-    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0):
-        __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
-        # if __get_ele(page=twitter_page, xpath='x://span[starts-with(normalize-space(.),"Your account is suspended and is not permitted")]', loop=1):
-        #     signma_log(message=f"{x_name},{x_email},{x_pwd},{x_2fa}", task_name=f'nexus_x_error', index=evm_id)
-        __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=1)
-        move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 2)
-        twitter_page.close()
-        twitter_page = None
-        if __get_ele(page=nexus,
-                     xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]",
-                     loop=2):
-            __click_ele(page=nexus,
-                        xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]",
-                        loop=2)
+    if not __get_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0):
+        __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True, index=0,
+                    move_click=True)
+    if not __get_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
+        time.sleep(random.uniform(1, 3))
+        if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0,
+                       move_click=True):
+            __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
+            __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=2,
+                        move_click=True)
+            move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 2)
+            twitter_page.close()
+            twitter_page = None
+            if __get_ele(page=nexus,
+                         xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]",
+                         loop=2):
+                __click_ele(page=nexus,
+                            xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}') or contains(., 'Claim')]",
+                            loop=2)
     if twitter_page:
         try:
             twitter_page.close()
