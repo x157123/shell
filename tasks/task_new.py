@@ -2223,7 +2223,7 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                                     signma_ele.click(by_js=True)
                                     __handle_signma_popup(page=page, count=2, timeout=45)
                 # __handle_signma_popup(page=page, count=2)
-
+                __tw_join = False
                 if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
                     if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
                         if platform.system().lower() == "windows":
@@ -2254,6 +2254,7 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                                                  xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]',
                                                  loop=2):
                                         logger.info('重新关注成功')
+                                        __tw_join = True
                                         if platform.system().lower() == "windows":
                                             logger.info('写入文件0')
                                             append_date_to_file("E:/tmp/chrome_data/nexus_joinas.txt", evm_id)
@@ -2261,7 +2262,8 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                                             logger.info('写入文件1')
                                             append_date_to_file("/home/ubuntu/task/tasks/nexus_joinas.txt", evm_id)
                             nexus.get(url='https://quest.nexus.xyz/loyalty')
-
+                        else:
+                            __tw_join = True
                         for i in range(2):
                             nexus.scroll.to_bottom()
                             time.sleep(1)
@@ -2270,7 +2272,7 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                         nexus.scroll.to_bottom()
                         # scroll_div.scroll.down(1000)  # 滚动页面
                         time.sleep(3)
-                    if __x_bool:
+                    if __x_bool and __tw_join:
                         _a = False
                         _b = False
                         _c = False
