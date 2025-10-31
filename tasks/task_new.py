@@ -1979,8 +1979,13 @@ def x_com_cookies(_page, cookies):
     if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2) and __get_ele(page=x_com, xpath='x://button[@data-testid="like"]', loop=2):
         _bool = True
     else:
+        import pyautogui
+        pyautogui.FAILSAFE = False
         for i in range(5):
             _ed = _page.new_tab(url='chrome-extension://ihfmcbadakjehneaijebhpogkegajgnk/popup.html')
+            click_x_y(1192, 170, 24)
+            for i in range(100):
+                pyautogui.press('backspace')
             jsonStr = base64_decrypt(cookies)
             __input_ele_value(page=_ed, xpath='x://input[@placeholder="URL"]', value="https://x.com\n")
 
