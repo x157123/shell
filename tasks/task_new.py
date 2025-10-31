@@ -1997,12 +1997,9 @@ def x_com_cookies(_page, cookies):
             if _ed:
                 _ed.close()
             x_com.refresh()
-            if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=5 and __get_ele(page=x_com, xpath='x://button[@data-testid="like"]', loop=5)):
+            if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=5) and __get_ele(page=x_com, xpath='x://button[@data-testid="like"]', loop=5):
                 _bool = True
                 break
-
-
-
     return _bool
 
 
