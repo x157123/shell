@@ -1972,10 +1972,11 @@ def base64_decrypt(encoded_str):
 
 
 def x_com_cookies(_page, cookies):
-    __close_popup(page=_page, _url="editthiscookiefork.com", timeout=3)
     _bool = False
+    time.sleep(5)
     x_com = _page.new_tab(url='https://x.com')
-    if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2):
+    __close_popup(page=_page, _url="editthiscookiefork.com", timeout=3)
+    if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2) and __get_ele(page=x_com, xpath='x://button[@data-testid="like"]', loop=2):
         _bool = True
     else:
         for i in range(5):
@@ -1991,7 +1992,7 @@ def x_com_cookies(_page, cookies):
             if _ed:
                 _ed.close()
             x_com.refresh()
-            if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=5):
+            if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=5 and __get_ele(page=x_com, xpath='x://button[@data-testid="like"]', loop=5)):
                 _bool = True
                 break
 
@@ -2627,11 +2628,8 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                     else:
                         __error = True
                     _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
-                    signma_log(message=f'{_amount},{__x_bool},{__bool}', task_name=f'nexus_join_sa', index=evm_id)
-                    if __x_bool:
-                        logger.info('登陆成功')
-                    else:
-                        logger.info('登陆失败')
+                    signma_log(message=f'{_amount},{__bool}', task_name=f'nexus_join_sa', index=evm_id)
+                    if __error:
                         __bool = True
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
