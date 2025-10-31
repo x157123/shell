@@ -1994,6 +1994,12 @@ def x_com_cookies(_page, cookies):
             if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=5):
                 _bool = True
                 break
+
+    if x_com:
+        x_com.close()
+
+    __close_popup(page=_page, _url='x.com', timeout=5)
+
     return _bool
 
 
@@ -2855,6 +2861,7 @@ def nex_like_repost_comment_test(_page, txt):
 def nex_like_repost_comment(_page, nexus, key, bt, txt, link):
     __close_popup(page=_page, _url='blog.nexus.xyz', timeout=5)
     __close_popup(page=_page, _url='open.spotify.com', timeout=5)
+    __close_popup(page=_page, _url='x.com', timeout=5)
     __click_ele(page=nexus,
                 xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]",
                 loop=1)
