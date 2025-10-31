@@ -2395,6 +2395,7 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                                     __click_ele(page=nexus,
                                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
 
+
                             if __get_ele(page=nexus, xpath='x://a[@label="Support the Nexus Podcast"]', loop=1):
                                 _m = True
                                 __click_ele(page=nexus,
@@ -2403,7 +2404,7 @@ def __do_task_nexus_join(page, evm_id, index, x_cookies):
                                 __click_ele(page=nexus,
                                             xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'open.spotify.com')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Follow or Rate on Spotify')]",
                                             loop=1)
-                                twitter_page = __get_popup(page=page, _url='blog.nexus.xyz', timeout=45)
+                                twitter_page = __get_popup(page=page, _url='open.spotify.com', timeout=45)
                                 if twitter_page is not None:
                                     time.sleep(10)
                                     twitter_page.close()
@@ -2852,6 +2853,8 @@ def nex_like_repost_comment_test(_page, txt):
 
 
 def nex_like_repost_comment(_page, nexus, key, bt, txt, link):
+    __close_popup(page=_page, _url='blog.nexus.xyz', timeout=5)
+    __close_popup(page=_page, _url='open.spotify.com', timeout=5)
     __click_ele(page=nexus,
                 xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]",
                 loop=1)
