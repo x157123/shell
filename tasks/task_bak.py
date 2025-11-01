@@ -35,6 +35,8 @@ def __get_page(_type, _id, _port, _home_ip):
         num = "23002"
         options.set_proxy(f"43.160.196.49:{num}")
     if _type == 'prismax' or _type == 'monad_solana':
+        if _type == 'prismax':
+            options.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
         if platform.system().lower() == "windows":
             options.add_extension(f"E:/chrome_tool/phantom")
         else:
@@ -56,6 +58,7 @@ def __get_page(_type, _id, _port, _home_ip):
         options.set_user_data_path(f"E:/tmp/chrome_data/{_type}/{_id}")
     else:
         options.set_user_data_path(f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}")
+
     # 端口可能被占用，尝试几次
     for offset in range(3):
         try:
@@ -98,8 +101,7 @@ def __get_page_x(_type, _id, _port, _home_ip):
                 options.set_local_port(_port)
             else:
                 options.set_local_port(port + offset)
-            options.set_user_agent(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
+            options.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
 
             _pages = ChromiumPage(options)
             break
@@ -4086,7 +4088,7 @@ if __name__ == '__main__':
                     if _type == 'nexus_hz_base_ts':
                         _page = __get_page("nexus", _id, None, False)
                         _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                    if _type == 'prismax_new':
+                    if _type == 'prismax':
                         _home_ip = False
                         prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                         if _id not in prismax_init:
@@ -4154,8 +4156,6 @@ if __name__ == '__main__':
                         elif _type == 'nexus':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                             # _end = True
-                        elif _type == 'prismax':
-                            _end = True
                         else:
                             logger.warning(f"未知任务类型：{_type}")
             except Exception as e:
@@ -4168,7 +4168,7 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 # if _type:
-                if _type == 'prismax_new':
+                if _type == 'prismax':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
                         if _task_type != '0':
