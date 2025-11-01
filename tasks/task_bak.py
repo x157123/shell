@@ -3933,6 +3933,7 @@ def install_chrome_extension(
 
 if __name__ == '__main__':
     _this_day = ''
+    PRISMAX_TYPES = {'prismax', 'prismax_new', 'prismax_new4', 'prismax_new1', 'prismax_new2'}
     _end_day_task = []
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")

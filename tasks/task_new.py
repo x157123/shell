@@ -47,10 +47,12 @@ def __get_page(_type, _id, _port, _home_ip):
     else:
         if platform.system().lower() == "windows":
             options.add_extension(f"E:/chrome_tool/signma")
-            options.add_extension(f"E:/chrome_tool/cookin")
+            if _type == 'nexus_joina_sse':
+                options.add_extension(f"E:/chrome_tool/cookin")
         else:
             options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
-            options.add_extension(f"/home/ubuntu/extensions/edit-cookies")
+            if _type == 'nexus_joina_sse':
+                options.add_extension(f"/home/ubuntu/extensions/edit-cookies")
     # 用户数据目录
     if platform.system().lower() == "windows":
         options.set_user_data_path(f"E:/tmp/chrome_data/{_type}/{_id}")
