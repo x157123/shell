@@ -2099,7 +2099,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                                     __click_ele(page=profile_shadow_root,
                                                 xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]')
                                     time.sleep(5)
-                                    for i in range(5):
+                                    for i in range(2):
                                         if __get_ele(page=profile_shadow_root,
                                                     xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
                                             click_x_y(1067,626, 24)
@@ -2108,10 +2108,9 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                                             time.sleep(random.randint(2, 5))
                                             click_x_y(891,640, 24)
                                             # 891 640
-                                        if __get_ele(page=profile_shadow_root, xpath=f'x://p[contains(text(), "{_name}")]', loop=10):
-                                            break
+
                                 else:
-                                    for i in range(5):
+                                    for i in range(2):
                                         if __get_ele(page=profile_shadow_root,
                                                      xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
                                             click_x_y(1067,626, 24)
@@ -2120,8 +2119,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                                             time.sleep(random.randint(2, 5))
                                             click_x_y(891,640, 24)
                                             # 891 640
-                                        if __get_ele(page=profile_shadow_root, xpath=f'x://p[contains(text(), "{_name}")]', loop=10):
-                                            break
+                                       
             if nexus:
                 try:
                     nexus.close()
