@@ -2133,8 +2133,14 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                             __handle_signma_popup(page=page, count=2, timeout=45)
         __handle_signma_popup(page=page, count=2, timeout=10)
         __tw_join = False
+
+
+
         if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
             if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
+
+                __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=3)
+                
                 # 取消 tw关注
                 for i in range(4):
                     nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
