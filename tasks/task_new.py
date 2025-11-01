@@ -2517,9 +2517,14 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
             if not _amount or float(_amount) <= 0:
                 _amount = '0'
                 __bool = False
-            if __x_bool and not __app_join:
-                __app_join = join(nexus, _name)
-            signma_log(message=f'{_amount},{__x_bool},{__bool},{x_name},{__app_join}', task_name=f'nexus_joina_ssd', index=evm_id)
+            if __x_bool:
+                if not __app_join:
+                    __app_join = join(nexus, _name)
+                if not __app_join:
+                    __bool = False
+            else:
+                __bool = True
+            signma_log(message=f'{_amount},{__x_bool},{__bool},{x_name},{__app_join}', task_name=f'nexus_joina_sse', index=evm_id)
             # if not __x_bool:
             #     __bool = True
     except Exception as e:
@@ -4003,7 +4008,7 @@ if __name__ == '__main__':
                 _id = arg[1]
                 logger.info(f'开始数据:{_task_type}:{_task_id}')
                 # if _type:
-                if _type == 'nexus_joina_ssd':
+                if _type == 'nexus_joina_sse':
                     logger.warning(f"启动任务1:{_type}:{part}")
                     # if _type == 'nexus_hz_one_a':
                     #     evm_id = _id
@@ -4101,7 +4106,7 @@ if __name__ == '__main__':
                                 end_available(evm_id=_id)
                     elif _type == 'nexus_joina_sa':
                         _end = True
-                    elif _type == 'nexus_joina_ssd':
+                    elif _type == 'nexus_joina_sse':
                         _page = __get_page("nexus_joina_sa", _id, None, False)
                         _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[2], x_cookies=arg[3])
                         # _end = True
@@ -4163,7 +4168,7 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 # if _type:
-                if _type == 'nexus_joina_ssd':
+                if _type == 'nexus_joina_sse':
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
                         if _task_type != '0':
