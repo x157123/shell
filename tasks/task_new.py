@@ -2112,7 +2112,11 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                                     if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
                                         __get_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]', loop=10)
                                         time.sleep(10)
-
+            if nexus:
+                try:
+                    nexus.close()
+                except Exception as e:
+                    logger.info(f"任务异常: {e}")
         # nexus.get(url='https://quest.nexus.xyz/loyalty')
         nexus = page.new_tab(url='https://quest.nexus.xyz/loyalty')
         for i in range(5):
