@@ -2075,7 +2075,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                 else:
                     signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
 
-            for i in range(4):
+            for i in range(5):
                 nexus.get(url='https://app.nexus.xyz/rewards')
                 nexus.refresh()
                 time.sleep(3)
@@ -2103,15 +2103,13 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                                                 xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]')
                                     time.sleep(2)
                                     if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
-                                        __get_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]', loop=10)
-                                        time.sleep(10)
+                                        __get_ele(page=profile_shadow_root, xpath=f'x://p[contains(text(), "{_name}")]', loop=10)
                                 else:
                                     __click_ele(page=profile_shadow_root,
                                                 xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]')
                                     time.sleep(2)
                                     if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
-                                        __get_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]', loop=10)
-                                        time.sleep(10)
+                                        __get_ele(page=profile_shadow_root, xpath=f'x://p[contains(text(), "{_name}")]', loop=10)
             if nexus:
                 try:
                     nexus.close()
