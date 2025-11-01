@@ -2555,22 +2555,22 @@ def join(nexus, _name):
                             time.sleep(5)
                             if __get_ele(page=profile_shadow_root,
                                          xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
-                                click_x_y(1067,626, 24)
+                                move_humanly(1067 + random.randint(1, 4), 626 + random.randint(1, 4), 3)
                                 # 1067 626
                             if __get_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
                                 time.sleep(random.randint(2, 5))
-                                click_x_y(891,640, 24)
+                                move_humanly(891 + random.randint(1, 4), 640 + random.randint(1, 4), 3)
                                 # 891 640
                                 time.sleep(10)
 
                         else:
                             if __get_ele(page=profile_shadow_root,
                                          xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
-                                click_x_y(1067,626, 24)
+                                move_humanly(1067 + random.randint(1, 4), 626 + random.randint(1, 4), 3)
                                 # 1067 626
                             if __get_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
                                 time.sleep(random.randint(2, 5))
-                                click_x_y(891,640, 24)
+                                move_humanly(891 + random.randint(1, 4), 640 + random.randint(1, 4), 3)
                                 # 891 640
                                 time.sleep(10)
     if nexus:
