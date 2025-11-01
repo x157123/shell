@@ -4010,7 +4010,7 @@ if __name__ == '__main__':
                 _id = arg[1]
                 logger.info(f'开始数据:{_task_type}:{_task_id}')
                 # if _type:
-                if _type == 'prismax_new':
+                if _type == 'prismax':
                     logger.warning(f"启动任务1:{_type}:{part}")
                     # if _type == 'nexus_hz_one_a':
                     #     evm_id = _id
