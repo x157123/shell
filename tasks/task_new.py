@@ -2519,7 +2519,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                 __bool = False
             if __x_bool and not __app_join:
                 __app_join = join(nexus, _name)
-            signma_log(message=f'{_amount},{__x_bool},{__bool},{_name},{x_name},{__app_join}', task_name=f'nexus_join_ssb', index=evm_id)
+            signma_log(message=f'{_amount},{__x_bool},{__bool},{_name},{x_name},{__app_join}', task_name=f'nexus_join_ssc', index=evm_id)
             # if not __x_bool:
             #     __bool = True
     except Exception as e:
