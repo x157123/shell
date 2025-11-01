@@ -32,18 +32,14 @@ def __get_page(_type, _id, _port, _home_ip):
     else:
         options.set_browser_path('/opt/google/chrome')
     if _home_ip:
-        num = "23002"
-        options.set_proxy(f"43.160.196.49:{num}")
+        num = "28094"
+        options.set_proxy(f"150.109.5.143:{num}")
     if _type == 'prismax' or _type == 'monad_solana':
         if _type == 'prismax':
             options.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
         if platform.system().lower() == "windows":
             options.add_extension(f"E:/chrome_tool/phantom")
         else:
-            if _home_ip:
-                # signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
-                num = "23002"
-                options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
             options.set_argument("--blink-settings=imagesEnabled=false")
     else:
@@ -4089,7 +4085,7 @@ if __name__ == '__main__':
                         _page = __get_page("nexus", _id, None, False)
                         _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     if _type == 'prismax_new':
-                        _home_ip = False
+                        _home_ip = True
                         prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                         # if _id not in prismax_init:
                         #     logger.info('获取ip位')
