@@ -2075,54 +2075,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                 else:
                     signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
 
-            for i in range(5):
-                nexus.get(url='https://app.nexus.xyz/rewards')
-                nexus.refresh()
-                time.sleep(3)
-                if __click_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]'):
-                    pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
-                    if pop_shadow_host[1]:
-                        profile_shadow_root = pop_shadow_host[1].shadow_root
-                        profile = profile_shadow_root.ele(
-                            'x://div[contains(@class,"footer-options-switcher__tab") and .//p[normalize-space(text())="Profile"]]',
-                            timeout=10)
-                        if profile:
-                            profile.click()
-                            if __get_ele(page=profile_shadow_root, xpath=f'x://p[contains(text(), "{_name}")]', loop=2):
-                                __app_join = True
-                                logger.info('已登陆')
-                                break
-                            else:
-                                if __get_ele(page=profile_shadow_root,
-                                             xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]',
-                                             loop=2):
-                                    __click_ele(page=profile_shadow_root,
-                                                xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]')
-                                    time.sleep(5)
-                                    if __get_ele(page=profile_shadow_root,
-                                                xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
-                                        click_x_y(1067,626, 24)
-                                        # 1067 626
-                                    if __get_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
-                                        time.sleep(random.randint(2, 5))
-                                        click_x_y(891,640, 24)
-                                        # 891 640
-
-                                else:
-                                    if __get_ele(page=profile_shadow_root,
-                                                 xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
-                                        click_x_y(1067,626, 24)
-                                        # 1067 626
-                                    if __get_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
-                                        time.sleep(random.randint(2, 5))
-                                        click_x_y(891,640, 24)
-                                        # 891 640
-
-            if nexus:
-                try:
-                    nexus.close()
-                except Exception as e:
-                    logger.info(f"任务异常: {e}")
+            __app_join = join(nexus, _name)
         # nexus.get(url='https://quest.nexus.xyz/loyalty')
         nexus = page.new_tab(url='https://quest.nexus.xyz/loyalty')
         for i in range(5):
@@ -2564,6 +2517,8 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
             if not _amount or float(_amount) <= 0:
                 _amount = '0'
                 __bool = False
+                if not __app_join:
+                    __app_join = join(nexus, _name)
                 signma_log(message=f'{_amount},{__x_bool},{__bool},{_name},{x_name},{__app_join}', task_name=f'nexus_join_ssb', index=evm_id)
             # if not __x_bool:
             #     __bool = True
@@ -2572,6 +2527,58 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
     return __bool
 
 
+def join(nexus, _name):
+    __bool = False
+    for i in range(5):
+        nexus.get(url='https://app.nexus.xyz/rewards')
+        nexus.refresh()
+        time.sleep(3)
+        if __click_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]'):
+            pop_shadow_host = nexus.eles('x://div[@data-testid="dynamic-modal-shadow"]')
+            if pop_shadow_host[1]:
+                profile_shadow_root = pop_shadow_host[1].shadow_root
+                profile = profile_shadow_root.ele(
+                    'x://div[contains(@class,"footer-options-switcher__tab") and .//p[normalize-space(text())="Profile"]]',
+                    timeout=10)
+                if profile:
+                    profile.click()
+                    if __get_ele(page=profile_shadow_root, xpath=f'x://p[contains(text(), "{_name}")]', loop=2):
+                        __bool = True
+                        logger.info('已登陆')
+                        break
+                    else:
+                        if __get_ele(page=profile_shadow_root,
+                                     xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]',
+                                     loop=2):
+                            __click_ele(page=profile_shadow_root,
+                                        xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]')
+                            time.sleep(5)
+                            if __get_ele(page=profile_shadow_root,
+                                         xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
+                                click_x_y(1067,626, 24)
+                                # 1067 626
+                            if __get_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
+                                time.sleep(random.randint(2, 5))
+                                click_x_y(891,640, 24)
+                                # 891 640
+                                time.sleep(10)
+
+                        else:
+                            if __get_ele(page=profile_shadow_root,
+                                         xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]'):
+                                click_x_y(1067,626, 24)
+                                # 1067 626
+                            if __get_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
+                                time.sleep(random.randint(2, 5))
+                                click_x_y(891,640, 24)
+                                # 891 640
+                                time.sleep(10)
+    if nexus:
+        try:
+            nexus.close()
+        except Exception as e:
+            logger.info(f"任务异常: {e}")
+    return __bool
 def get_random_words(count):
     # 定义60个单词的列表
     words = [
