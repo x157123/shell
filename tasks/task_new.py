@@ -2099,6 +2099,12 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                                     __click_ele(page=profile_shadow_root,
                                                 xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-disconnect-button"]')
                                     time.sleep(5)
+                                    __click_ele(page=profile_shadow_root,
+                                                xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]')
+                                    time.sleep(2)
+                                    if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
+                                        __get_ele(page=nexus, xpath='x://button[.//span[contains(text(), "NEX")]]', loop=10)
+                                        time.sleep(10)
                                 else:
                                     __click_ele(page=profile_shadow_root,
                                                 xpath='x://div[@data-testid="social-account-twitter"]//button[@data-testid="social-account-connect-button"]')
@@ -2140,7 +2146,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
             if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
 
                 __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=3)
-                
+
                 # 取消 tw关注
                 for i in range(4):
                     nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
