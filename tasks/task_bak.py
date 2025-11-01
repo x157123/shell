@@ -4085,11 +4085,11 @@ if __name__ == '__main__':
                         _page = __get_page("nexus", _id, None, False)
                         _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     if _type == 'prismax' or _type == 'prismax_new':
-                        _home_ip = True
+                        _home_ip = False
                         prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
-                        # if _id not in prismax_init:
-                        #     logger.info('获取ip位')
-                        #     _home_ip = check_available(_id)
+                        if _id not in prismax_init:
+                            logger.info('获取ip位')
+                            _home_ip = check_available(_id)
                         if len(arg) < 3:
                             logger.warning("prismax 需要助记词/私钥参数，已跳过")
                         else:
