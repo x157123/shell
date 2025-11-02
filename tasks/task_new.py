@@ -1759,7 +1759,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
         signma_log(
             message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{','.join(map(str, result_values))},{__bool}",
             task_name=f'nexus_card_{net_type}_hzsb_{get_date_as_string()}', index=evm_id)
-        __bool = True
+        # __bool = True
     return __bool
 
 
