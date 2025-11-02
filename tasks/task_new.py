@@ -4109,11 +4109,11 @@ if __name__ == '__main__':
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}",
                                    task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    # time.sleep(160)
-                    if len(filtered) > 24:
-                        time.sleep(random.randint(200, 400))
-                    elif len(filtered) > 12:
-                        time.sleep(random.randint(400, 800))
-                    else:
-                        time.sleep(random.randint(600, 1800))
-        time.sleep(1000 + random.randint(200, 800))
+                    time.sleep(160)
+                    # if len(filtered) > 24:
+                    #     time.sleep(random.randint(200, 400))
+                    # elif len(filtered) > 12:
+                    #     time.sleep(random.randint(400, 800))
+                    # else:
+                    #     time.sleep(random.randint(600, 1800))
+        time.sleep(random.randint(200, 800))
