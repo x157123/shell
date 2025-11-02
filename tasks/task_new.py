@@ -17,6 +17,8 @@ import struct
 import time
 import base64
 from typing import Optional
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import List, Dict, Tuple
 
 
 # ========== 全局配置 ==========
@@ -1847,11 +1849,11 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     return __bool
 
 
-def vf_cf(_nexus, _index):
+def vf_cf(_nexus, _index, _name:str = "quest.nexus.xyz"):
     _bool = False
     for i in range(5):
         time.sleep(4)
-        if __get_ele(page=_nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
+        if __get_ele(page=_nexus, xpath=f'x://h1[contains(text(), "{_name}")]', loop=1):
             time.sleep(5)
             click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), _index)
             time.sleep(10)
@@ -2555,6 +2557,146 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
     return __bool
 
 
+
+def check_quest_element(page, task_text: str) -> Tuple[str, bool]:
+    """
+    检查单个任务元素是否存在
+
+    Args:
+        page: DrissionPage 页面对象
+        task_text: 任务文本内容
+
+    Returns:
+        (task_text, exists): 元组，包含任务文本和是否存在
+    """
+    try:
+        # 特殊处理 "Follow Nexus " 使用 text() 精确匹配
+        if task_text == "Follow Nexus ":
+            xpath = f"x://div[contains(@class, 'loyalty-quest')]//div[text()='{task_text}']"
+        else:
+            xpath = f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{task_text}')]"
+
+        # 使用 __get_ele 函数检查元素
+        result = __get_ele(page=page, xpath=xpath, loop=1)
+        return (task_text, bool(result))
+    except Exception as e:
+        print(f"检查任务 '{task_text}' 时出错: {e}")
+        return (task_text, False)
+
+def check_blog_link(page) -> Tuple[str, bool]:
+    """检查博客链接"""
+    try:
+        xpath = 'x://a[@label="Visit Blog"]'
+        result = __get_ele(page=page, xpath=xpath, loop=1)
+        return ("Visit Blog", bool(result))
+    except Exception as e:
+        print(f"检查博客链接时出错: {e}")
+        return ("Visit Blog", False)
+
+def batch_check_quests_concurrent(page, quest_tasks, max_workers: int = 5) -> Dict[str, bool]:
+    """
+    并发批量检查任务元素
+
+    Args:
+        page: DrissionPage 页面对象
+        max_workers: 最大并发线程数（默认5，可根据实际情况调整）
+
+    Returns:
+        字典，key 为任务文本，value 为是否存在
+    """
+    results = {}
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # 提交所有任务
+        futures = []
+
+        # 提交普通任务
+        for task in quest_tasks:
+            future = executor.submit(check_quest_element, page, task)
+            futures.append(future)
+
+        # 提交博客链接检查
+        futures.append(executor.submit(check_blog_link, page))
+
+        # 收集结果（按完成顺序）
+        for future in as_completed(futures):
+            try:
+                task_text, exists = future.result()
+                results[task_text] = exists
+                if exists:
+                    print(f"✓ 找到任务: {task_text}")
+            except Exception as e:
+                print(f"处理任务结果时出错: {e}")
+
+    return results
+
+def query_nexus_x(page, evm_id, evm_addr, index):
+    _bool = False
+    QUEST_TASKS = [
+        "Connect your X to get started",
+        "NEW: Follow Nodejox - The Author",
+        "Celebrate our Snag Partnership",
+        "Like & Share our Testnet III Announcement",
+        "Follow Nexus ",  # 注意：原代码使用 text()='Follow Nexus '
+        "Share Spelunking Badge",
+        "Follow Nodejox - The Founder",
+        "Follow Nodejox - The Voice",
+        "Follow Nodejox - The Doctor",
+        "Node Runners Assemble",
+        "Support the Nexus Ecosystem",
+        "Shine a Light on the Numbers",
+        "Goodbye Camp Nexus",
+        "NEW: Share Delta Glyphs",
+        "Inside the Nexus Project",
+        "re Doing Numbers",
+        "Reshare the Doctor",
+        "Gridcrew Roll Call",
+        "Support the Creator Academy",
+        "Support the Nexus Podcast",
+        "NEW: The Road we Run",
+        "NEW: Share the Epsilon Collection"
+    ]
+    __handle_signma_popup(page=page, count=0)
+    __login_wallet(page=page, evm_id=evm_id)
+    __handle_signma_popup(page=page, count=0)
+    nexus = page.new_tab(url='https://quest.nexus.xyz/loyalty')
+    vf_cf(_nexus=nexus, _index=index)
+
+    if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1):
+        shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+        if shadow_host:
+            shadow_root = shadow_host.shadow_root
+            if shadow_root:
+                continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+                if continue_button:
+                    continue_button.click(by_js=True)
+                    time.sleep(1)
+                    signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+                    if signma_ele:
+                        signma_ele.click(by_js=True)
+                        __handle_signma_popup(page=page, count=2, timeout=45)
+                        nexus.refresh()
+                        vf_cf(_nexus=nexus, _index=index)
+                        for i in range(2):
+                            nexus.scroll.to_bottom()
+                            time.sleep(1)
+    __handle_signma_popup(page=page, count=2, timeout=10)
+    if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
+        _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
+        if _amount:
+            results = batch_check_quests_concurrent(nexus, QUEST_TASKS, max_workers=8)
+            # 打印统计
+            existing_count = sum(results.values())
+            print(f"\n总计: {existing_count}/{len(results)} 个任务存在")
+            all_tasks = QUEST_TASKS + ["Visit Blog"]
+            ordered_results = [results.get(task, False) for task in all_tasks]
+            print(", ".join(str(result) for result in ordered_results))
+            ethereum = get_eth_balance('ethereum', evm_addr)
+            base = get_eth_balance('base', evm_addr)
+            signma_log(message=f"{evm_addr},{ethereum},{base},{_amount},{", ".join(str(result) for result in ordered_results)}", task_name=f'nexus_jifen', index=evm_id)
+            _bool = True
+    return _bool
+
 def join(nexus, _name):
     __bool = False
     for i in range(5):
@@ -2611,6 +2753,8 @@ def join(nexus, _name):
         except Exception as e:
             logger.info(f"任务异常: {e}")
     return __bool
+
+
 def get_random_words(count):
     # 定义60个单词的列表
     words = [
@@ -4102,7 +4246,8 @@ if __name__ == '__main__':
                     #     _end = __do_task_nexus_hz_qy(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     if _type == 'nexus_hz_base_ts':
                         _page = __get_page("nexus", _id, None, False)
-                        _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        # _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        _end = query_nexus_x(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'prismax_new' or _type == 'prismax':
                         _home_ip = False
                         # prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
@@ -4195,11 +4340,11 @@ if __name__ == '__main__':
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}",
                                    task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    time.sleep(60)
+                    time.sleep(10)
                     # if len(filtered) > 24:
                     #     time.sleep(random.randint(200, 400))
                     # elif len(filtered) > 12:
                     #     time.sleep(random.randint(400, 800))
                     # else:
                     #     time.sleep(random.randint(600, 1800))
-        time.sleep(random.randint(200, 800))
+        time.sleep(random.randint(200, 300))
