@@ -4105,7 +4105,8 @@ def install_chrome_extension(
 if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
-    TASK_TYPES = {'nexus_hz_base_ts'}
+    # TASK_TYPES = {'nexus_hz_base_ts'}
+    TASK_TYPES = {'prismax', 'prismax_new', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_hz_base_ts', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
@@ -4340,11 +4341,11 @@ if __name__ == '__main__':
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}",
                                    task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    time.sleep(10)
-                    # if len(filtered) > 24:
-                    #     time.sleep(random.randint(200, 400))
-                    # elif len(filtered) > 12:
-                    #     time.sleep(random.randint(400, 800))
-                    # else:
-                    #     time.sleep(random.randint(600, 1800))
-        time.sleep(random.randint(200, 300))
+                    if len(filtered) > 24:
+                        time.sleep(random.randint(200, 400))
+                    elif len(filtered) > 12:
+                        time.sleep(random.randint(400, 800))
+                    else:
+                        time.sleep(random.randint(600, 1800))
+                    # time.sleep(10)
+        time.sleep(random.randint(600, 1800))
