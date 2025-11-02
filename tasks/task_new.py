@@ -16,6 +16,7 @@ import hashlib
 import struct
 import time
 import base64
+from typing import Optional
 
 
 # ========== 全局配置 ==========
@@ -1631,6 +1632,75 @@ def get_totp_token(secret, time_step=30, digits=6):
 
     return token, remaining_time
 
+def un_eth_call(
+        address: str,
+        value: int,
+        contract_address: str = '0xde63b92033aa77b115db1cec612029625d1c8fa5',
+        rpc_url: str = "https://1rpc.io/eth",
+        method_signature: str = "00fdd58e"
+) -> Optional[bool]:
+    """
+    执行以太坊合约调用并解析结果
+
+    Args:
+        contract_address: 合约地址
+        address: 要查询的地址 (不带0x前缀也可以)
+        value: 整数值
+        rpc_url: RPC节点URL
+        method_signature: 方法签名 (默认为00fdd58e)
+
+    Returns:
+        True: 通过 (result为0x...0001)
+        False: 未通过 (result为0x...0000)
+        None: 其他情况或错误
+    """
+    # 规范化地址格式 (移除0x前缀并转为小写)
+    address = address.lower().replace('0x', '')
+    contract_address = contract_address.lower().replace('0x', '')
+
+    # 构造data字段: 方法签名 + 填充后的地址 + 填充后的值
+    data = (
+        f"0x{method_signature}"
+        f"{address.zfill(64)}"  # 地址填充到64个字符(32字节)
+        f"{value:064x}"  # 值转为16进制并填充到64个字符
+    )
+
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "Referer": "https://mrvoodoonft.github.io/"
+    }
+
+    payload = {
+        "jsonrpc": "2.0",
+        "id": int(time.time() * 1000),
+        "method": "eth_call",
+        "params": [
+            {
+                "to": f"0x{contract_address}",
+                "data": data
+            },
+            "latest"
+        ]
+    }
+
+    try:
+        response = requests.post(rpc_url, headers=headers, data=json.dumps(payload))
+        result = response.json()
+
+        # 提取result字段
+        if "result" in result:
+            result_value = result["result"]
+            # 判断结果
+            if result_value == "0x0000000000000000000000000000000000000000000000000000000000000001":
+                return False
+            elif result_value == "0x0000000000000000000000000000000000000000000000000000000000000000":
+                return True
+        return None
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+
 
 def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     _gas = __quyer_gas()
@@ -1707,11 +1777,11 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
 
         if net_type == 'ethereum':
             tasks = [
-                {'id': 18, 'name': 'Battery Power Glyph', 'jf': 7500},
-                {'id': 19, 'name': 'Big Bolt Glyph', 'jf': 8000},
-                {'id': 20, 'name': 'Plug In Baby Glyph', 'jf': 10000},
-                {'id': 21, 'name': 'Alpha Genesis Glyph', 'jf': 10000},
-                {'id': 22, 'name': 'No Bad Ideas Glyph', 'jf': 10000},
+                {'id': 18, 'name': 'Battery Power Glyph', 'jf': 7500, 'index':1},
+                {'id': 19, 'name': 'Big Bolt Glyph', 'jf': 8000, 'index':2},
+                {'id': 20, 'name': 'Plug In Baby Glyph', 'jf': 10000, 'index':3},
+                {'id': 21, 'name': 'No Bad Ideas Glyph', 'jf': 15000, 'index':4},
+                # {'id': 22, 'name': 'Alpha Genesis Glyph', 'jf': 10000, 'index':0},
             ]
         else:
             tasks = [
@@ -1743,11 +1813,25 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                                                          _index=index, _jf=1000)
             # 批量执行任务
             for task in tasks:
+                _bool_s = True
                 task_id = f"{task['id']}_{evm_id}"
-                results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url=_url, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
-
+                if net_type == 'ethereum':
+                    if task_id not in nexus_no_bad:
+                        _bool_s = un_eth_call(address=evm_addr, value=task['index'])
+                        if _bool_s is False:
+                            results[task_id] = True
+                            if platform.system().lower() == "windows":
+                                append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", task_id)
+                            else:
+                                append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", task_id)
+                if _bool_s:
+                    results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url=_url, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
+                elif _bool_s is None:
+                    results[task_id] = False
+                else:
+                    results[task_id] = True
             # 检查任务是否全部成功
-            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(17, 18))
+            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(18, 22))
 
         nexus.refresh()
         time.sleep(10)
@@ -1755,7 +1839,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
         ethereum_end = get_eth_balance(net_type, evm_addr)
 
         # 构建日志消息
-        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(17, 18)]
+        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(18, 22)]
         signma_log(
             message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{','.join(map(str, result_values))},{__bool}",
             task_name=f'nexus_card_{net_type}_hzsb_{get_date_as_string()}', index=evm_id)
