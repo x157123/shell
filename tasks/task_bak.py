@@ -32,29 +32,32 @@ def __get_page(_type, _id, _port, _home_ip):
     else:
         options.set_browser_path('/opt/google/chrome')
     if _home_ip:
-        num = "28094"
-        options.set_proxy(f"150.109.5.143:{num}")
+        num = "23002"
+        options.set_proxy(f"43.160.196.49:{num}")
     if _type == 'prismax' or _type == 'monad_solana':
-        if _type == 'prismax':
-            options.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
         if platform.system().lower() == "windows":
             options.add_extension(f"E:/chrome_tool/phantom")
         else:
+            if _home_ip:
+                # signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
+                num = "23002"
+                options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
             options.set_argument("--blink-settings=imagesEnabled=false")
     else:
         if platform.system().lower() == "windows":
             options.add_extension(f"E:/chrome_tool/signma")
-            options.add_extension(f"E:/chrome_tool/cookin")
+            if _type == 'nexus_joina_sse':
+                options.add_extension(f"E:/chrome_tool/cookin")
         else:
             options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
-            options.add_extension(f"/home/ubuntu/extensions/edit-cookies")
+            if _type == 'nexus_joina_sse':
+                options.add_extension(f"/home/ubuntu/extensions/edit-cookies")
     # 用户数据目录
     if platform.system().lower() == "windows":
         options.set_user_data_path(f"E:/tmp/chrome_data/{_type}/{_id}")
     else:
         options.set_user_data_path(f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}")
-
     # 端口可能被占用，尝试几次
     for offset in range(3):
         try:
@@ -97,7 +100,8 @@ def __get_page_x(_type, _id, _port, _home_ip):
                 options.set_local_port(_port)
             else:
                 options.set_local_port(port + offset)
-            options.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
+            options.set_user_agent(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
 
             _pages = ChromiumPage(options)
             break
@@ -939,12 +943,13 @@ def __do_task_quackai(page, evm_id, index):
 
 def __quyer_gas():
     params = {
+        'chainid': '1',
         'module': 'gastracker',
         'action': 'gasoracle',
         'apikey': 'XGGFY4ZK56YAWC5U3698BQNH7W8RRHF954'
     }
     try:
-        response = requests.get('https://api.etherscan.io/api', params=params, timeout=10)
+        response = requests.get('https://api.etherscan.io/v2/api', params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
         if data['status'] == '1':
@@ -1628,6 +1633,11 @@ def get_totp_token(secret, time_step=30, digits=6):
 
 
 def __do_task_nexus_hz(page, evm_id, evm_addr, index):
+    _gas = __quyer_gas()
+    if _gas is not None:
+        _low_gas = _gas.get('SafeGasPrice', '99')
+        if _low_gas is not None and float(_low_gas) > 0.8:
+            return False
     __bool = False
     if platform.system().lower() == "windows":
         nexus_no_bad = read_data_list_file("E:/tmp/chrome_data/nexus_card.txt")
@@ -1637,9 +1647,15 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     __handle_signma_popup(page=page, count=0)
     __login_wallet(page=page, evm_id=evm_id)
     __handle_signma_popup(page=page, count=0)
+    net_type = 'base'  # base   ethereum
+    if net_type == 'ethereum':
+        # __add_net_work(page=page, coin_name=add_net)
+        __select_net(page=page, net_name='Ethereum', net_name_t='Ethereum')     #ethereum
+    else:
+        __add_net_work(page=page, coin_name="base")
+        # __select_net(page=page, net_name='Base', net_name_t='Base', add_net="base") # base
 
-    __select_net(page=page, net_name='Base', net_name_t='Base', add_net="base")
-    ethereum_start = get_eth_balance("base", evm_addr)
+    ethereum_start = get_eth_balance(net_type, evm_addr)
 
     nexus = page.new_tab(url='https://quest.nexus.xyz/loyalty')
     if vf_cf(_nexus=nexus, _index=index):
@@ -1667,161 +1683,83 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     nexus.scroll.up(1000)
     time.sleep(5)
 
-    # if __click_ele(page=nexus, xpath="x://a[@label='Pick SYN, ACK, or FIN']", loop=1):
-    #     gridcrew = __get_popup(page=page, _url="gridcrew.nexus.xyz")
-    #     if gridcrew:
-    #         for i in range(2):
-    #             if __click_ele(page=gridcrew, xpath='x://button[contains(text(), "SIGN IN WITH WALLET")]', loop=2):
-    #                 shadow_host = gridcrew.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-    #                 if shadow_host:
-    #                     shadow_root = shadow_host.shadow_root
-    #                     if shadow_root:
-    #                         continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
-    #                         if continue_button:
-    #                             continue_button.click(by_js=True)
-    #                             time.sleep(1)
-    #                             signma_ele = shadow_root.ele('x://span[text()="Signma"]')
-    #                             if signma_ele:
-    #                                 signma_ele.click(by_js=True)
-    #                                 __handle_signma_popup(page=page, count=1, timeout=45)
-    #             net_shadow_host = gridcrew.ele('x://div[@data-testid="dynamic-modal-shadow"]', timeout=3)
-    #             __handle_signma_popup(page=page, count=0)
-    #             if net_shadow_host:
-    #                 net_shadow_root = net_shadow_host.shadow_root
-    #                 if net_shadow_root:
-    #                     newt_work = net_shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]', timeout=3)
-    #                     if newt_work:
-    #                         newt_work.click(by_js=True)
-    #                         __handle_signma_popup(page=page, count=1, timeout=45)
-    #
-    #             _select_div = __get_ele(page=gridcrew, xpath='x://div[div[p[starts-with(normalize-space(.),"SYN are the pulse that")]]]', loop=10)
-    #             if _select_div:
-    #                 break
-    #
-    #         _select_div = None
-    #         if int(evm_id)%3 == 0:
-    #             _select_div = __get_ele(page=gridcrew, xpath='x://div[div[p[starts-with(normalize-space(.),"SYN are the pulse that")]]]', loop=10)
-    #         elif int(evm_id)%3 == 1:
-    #             _select_div = __get_ele(page=gridcrew, xpath='x://div[div[p[starts-with(normalize-space(.),"Keepers of order who ensure")]]]', loop=10)
-    #         elif int(evm_id)%3 == 2:
-    #             _select_div = __get_ele(page=gridcrew, xpath='x://div[div[p[starts-with(normalize-space(.),"The FIN believe freedom begins")]]]', loop=10)
-    #
-    #         if _select_div:
-    #             _select_div.click(by_js=True)
-    #             if __click_ele(page=gridcrew, xpath='x://button[text()="CONFIRM"]'):
-    #                 __get_ele(page=_select_div, xpath='x://div[text()="YOUR GRIDCREW"]', loop=30)
-    #         if gridcrew:
-    #             gridcrew.close()
-    #
-    # if __get_ele(page=nexus,
-    #              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Contribute using app.nexus.xyz')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Contribute')]",
-    #              loop=1):
-    #     _a = True
-    #     __click_ele(page=nexus,
-    #                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Contribute using app.nexus.xyz')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Contribute')]")
-    #     nexus_page = __get_popup(page=page, _url='app.nexus.xyz', timeout=15)
-    #     if nexus_page:
-    #         if __get_ele(page=nexus_page, xpath='x://button[div[contains(text(), "Sign in")]]', loop=5):
-    #             __click_ele(page=nexus_page, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1)
-    #             shadow_host = nexus_page.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-    #             if shadow_host:
-    #                 shadow_root = shadow_host.shadow_root
-    #                 if shadow_root:
-    #                     continue_button = shadow_root.ele(
-    #                         'x://p[contains(text(), "Continue with a wallet")]')
-    #                     if continue_button:
-    #                         continue_button.click(by_js=True)
-    #                         time.sleep(1)
-    #                         signma_ele = shadow_root.ele('x://span[text()="Signma"]')
-    #                         if signma_ele:
-    #                             signma_ele.click(by_js=True)
-    #                             __handle_signma_popup(page=page, count=1, timeout=45)
-    #                             time.sleep(5)
-    #         net_shadow_host = nexus_page.ele('x://div[@data-testid="dynamic-modal-shadow"]', timeout=5)
-    #         __handle_signma_popup(page=page, count=0)
-    #         if net_shadow_host:
-    #             net_shadow_root = net_shadow_host.shadow_root
-    #             if net_shadow_root:
-    #                 newt_work = net_shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]', timeout=5)
-    #                 if newt_work:
-    #                     newt_work.click(by_js=True)
-    #                     __handle_signma_popup(page=page, count=1, timeout=45)
-    #         time.sleep(3)
-    #         checkbox = __get_ele(page=nexus_page, xpath="x://input[@type='checkbox']")
-    #         if checkbox.attr('checked') is not None:
-    #             logger.info("Battery saver 已经勾选，无需操作")
-    #         else:
-    #             logger.info("Battery saver 未勾选，开始点击勾上")
-    #             checkbox.click(by_js=True)
-    #
-    #         _start = __get_ele(page=nexus_page, xpath='x://span[contains(text(), "Connect to earn points")]')
-    #         if _start:
-    #             __click_ele(page=nexus_page, xpath='x://div[@id="connect-toggle-button"]', find_all=True, index=1)
-    #             logger.info("离线，已执行点击操作。")
-    #             time.sleep(90)
-    #         if nexus_page:
-    #             nexus_page.close()
-    # nexus.refresh()
-    # for i in range(2):
-    #     nexus.scroll.to_bottom()
-    #     time.sleep(1)
-    # nexus.scroll.up(1000)
-    # time.sleep(1)
-    # nexus.scroll.up(1000)
-    # time.sleep(5)
-    # if __get_ele(page=nexus, xpath="x://a[@label='Pick SYN, ACK, or FIN']", loop=1):
-    #     __a = False
-    # if __get_ele(page=nexus,
-    #              xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Contribute using app.nexus.xyz')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Contribute')]",
-    #              loop=1):
-    #     __b = False
-
     if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
         # 使用配置驱动的方式替代硬编码
         tasks = [
-            {'id': 3, 'name': 'Shoulder Blaster Glyph', 'jf': 12000},
-            {'id': 4, 'name': 'Sunset Boulevard Glyph', 'jf': 5000},
-            {'id': 5, 'name': 'Eat Your Arpeggi-ohs Glyph', 'jf': 3500},
-            {'id': 6, 'name': 'Boom Bap Glyph', 'jf': 3000},
-            {'id': 7, 'name': 'Gamma Genesis Glyph', 'jf': 1000},
-            {'id': 8, 'name': 'Flesh and Bone Glyph', 'jf': 4500},
-            {'id': 9, 'name': 'Game Pad Glyph', 'jf': 8000},
-            {'id': 10, 'name': 'Arcade Hero Glyph', 'jf': 5500},
-            {'id': 11, 'name': 'Ka-Bling Glyph', 'jf': 3500},
-            {'id': 12, 'name': 'Pixelheart Glyph', 'jf': 3000},
-            {'id': 13, 'name': 'Biometric Glyph', 'jf': 10000},
-            {'id': 14, 'name': 'Question Everything Glyph', 'jf': 3500},
-            {'id': 15, 'name': 'Fawkes Glyph', 'jf': 8000},
-            {'id': 16, 'name': 'Delta Genesis Glyph', 'jf': 1000},
+            # {'id': 3, 'name': 'Shoulder Blaster Glyph', 'jf': 12000},
+            # {'id': 4, 'name': 'Sunset Boulevard Glyph', 'jf': 5000},
+            # {'id': 5, 'name': 'Eat Your Arpeggi-ohs Glyph', 'jf': 3500},
+            # {'id': 6, 'name': 'Boom Bap Glyph', 'jf': 3000},
+            # {'id': 7, 'name': 'Gamma Genesis Glyph', 'jf': 1000},
+            # {'id': 8, 'name': 'Flesh and Bone Glyph', 'jf': 4500},
+            # {'id': 9, 'name': 'Game Pad Glyph', 'jf': 8000},
+            # {'id': 10, 'name': 'Arcade Hero Glyph', 'jf': 5500},
+            # {'id': 11, 'name': 'Ka-Bling Glyph', 'jf': 3500},
+            # {'id': 12, 'name': 'Pixelheart Glyph', 'jf': 3000},
+            # {'id': 13, 'name': 'Biometric Glyph', 'jf': 10000},
+            # {'id': 14, 'name': 'Question Everything Glyph', 'jf': 3500},
+            # {'id': 15, 'name': 'Fawkes Glyph', 'jf': 8000},
+            # {'id': 16, 'name': 'Delta Genesis Glyph', 'jf': 1000},
+            {'id': 18, 'name': 'Battery Power Glyph', 'jf': 7500},
+            {'id': 19, 'name': 'Big Bolt Glyph', 'jf': 8000},
+            {'id': 20, 'name': 'Plug In Baby Glyph', 'jf': 10000},
         ]
+
+        if net_type == 'ethereum':
+            tasks = [
+                {'id': 18, 'name': 'Battery Power Glyph', 'jf': 7500},
+                {'id': 19, 'name': 'Big Bolt Glyph', 'jf': 8000},
+                {'id': 20, 'name': 'Plug In Baby Glyph', 'jf': 10000},
+                {'id': 21, 'name': 'Alpha Genesis Glyph', 'jf': 10000},
+                {'id': 22, 'name': 'No Bad Ideas Glyph', 'jf': 10000},
+            ]
+        else:
+            tasks = [
+                # {'id': 3, 'name': 'Shoulder Blaster Glyph', 'jf': 12000},
+                # {'id': 4, 'name': 'Sunset Boulevard Glyph', 'jf': 5000},
+                # {'id': 5, 'name': 'Eat Your Arpeggi-ohs Glyph', 'jf': 3500},
+                # {'id': 6, 'name': 'Boom Bap Glyph', 'jf': 3000},
+                # {'id': 7, 'name': 'Gamma Genesis Glyph', 'jf': 1000},
+                # {'id': 8, 'name': 'Flesh and Bone Glyph', 'jf': 4500},
+                # {'id': 9, 'name': 'Game Pad Glyph', 'jf': 8000},
+                # {'id': 10, 'name': 'Arcade Hero Glyph', 'jf': 5500},
+                # {'id': 11, 'name': 'Ka-Bling Glyph', 'jf': 3500},
+                # {'id': 12, 'name': 'Pixelheart Glyph', 'jf': 3000},
+                # {'id': 13, 'name': 'Biometric Glyph', 'jf': 10000},
+                # {'id': 14, 'name': 'Question Everything Glyph', 'jf': 3500},
+                # {'id': 15, 'name': 'Fawkes Glyph', 'jf': 8000},
+                # {'id': 16, 'name': 'Delta Genesis Glyph', 'jf': 1000},
+            ]
+
         results = {}
         if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
             # __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=3)
             _url = 'https://quest.nexus.xyz/loyalty'
-            # 批量执行任务
-            # for task in tasks:
-            #     task_id = f"{task['id']}_{evm_id}"
-            #     results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _url=_url, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
 
-            task_id = f"16_{evm_id}"
-            results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _url=_url, nexus_no_bad=nexus_no_bad,
-                                                     _id=task_id, name='Delta Genesis Glyph', _evm_addr=evm_addr,
-                                                     _index=index, _jf=1000)
+            if net_type == 'base':
+                task_id = f"17_{evm_id}"
+                results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url='https://quest.nexus.xyz/noderunners', nexus_no_bad=nexus_no_bad,
+                                                         _id=task_id, name='Epsilon Genesis Glyph', _evm_addr=evm_addr,
+                                                         _index=index, _jf=1000)
+            # 批量执行任务
+            for task in tasks:
+                task_id = f"{task['id']}_{evm_id}"
+                results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url=_url, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
 
             # 检查任务是否全部成功
-            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(16, 17))
+            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(17, 18))
 
         nexus.refresh()
         time.sleep(10)
         _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
-        ethereum_end = get_eth_balance("base", evm_addr)
+        ethereum_end = get_eth_balance(net_type, evm_addr)
 
         # 构建日志消息
-        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(16, 17)]
+        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(17, 18)]
         signma_log(
             message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{','.join(map(str, result_values))},{__bool}",
-            task_name='nexus_card_base_hzsb_{get_date_as_string()}', index=evm_id)
-        __bool = True
+            task_name=f'nexus_card_{net_type}_hzsb_{get_date_as_string()}', index=evm_id)
+        # __bool = True
     return __bool
 
 
@@ -1840,18 +1778,21 @@ def vf_cf(_nexus, _index):
     return _bool
 
 
-def __do_task_nexus_hz_lq(page, nexus, _url, nexus_no_bad, _id, name, _evm_addr, _index, _jf):
+def __do_task_nexus_hz_lq(page, nexus, _net_type, _url, nexus_no_bad, _id, name, _evm_addr, _index, _jf):
     __bool_ = False
     if _id not in nexus_no_bad:
-        _ethereum = get_eth_balance("base", _evm_addr)
+        _ethereum = get_eth_balance(_net_type, _evm_addr)
         if float(_ethereum) > 0.000012:
             for i in range(2):
                 nexus.get(url=_url)
+                nexus.scroll.to_bottom()
                 if vf_cf(_nexus=nexus, _index=_index):
                     time.sleep(8)
                     _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
-                    if _amount and float(_amount) > _jf:
+                    if _amount and float(_amount) >= _jf:
                         if __click_ele(page=nexus, xpath=f'x://a[div[div[span[text()="{name}"]]]]', loop=3):
+                            vf_cf(_nexus=nexus, _index=_index)
+                            nexus.refresh()
                             vf_cf(_nexus=nexus, _index=_index)
                             if __get_ele(page=nexus, xpath=f'x://h1[contains(text(), "{name}")]'):
                                 if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]',
@@ -1876,29 +1817,29 @@ def __do_task_nexus_hz_lq(page, nexus, _url, nexus_no_bad, _id, name, _evm_addr,
                                                     __click_ele(page=nexus,
                                                                 xpath='x://button[contains(@class, "primary-pill-button")]',
                                                                 loop=3)
-
-                                    __handle_signma_popup(page=page, count=4, timeout=45)
-                                    time.sleep(4)
-                                    __handle_signma_popup(page=page, count=0)
-                                    if __get_ele(page=nexus,
-                                                 xpath='x://h1[contains(text(), "Your purchase succeeded!")]', loop=8):
-                                        __bool_ = True
-                                        logger.info('成功')
-                                        if platform.system().lower() == "windows":
-                                            append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _id)
-                                        else:
-                                            append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _id)
-                                    else:
-                                        logger.info('查询余额 当余额变更 说明也成功')
-                                        _ethereum_tmp = get_eth_balance("base", _evm_addr)
-                                        if float(_ethereum) - float(_ethereum_tmp) > 0.000001 and float(
-                                                _ethereum_tmp) > 0:
-                                            _ethereum = _ethereum_tmp
+                                    if __get_ele(page=nexus, xpath=f'x://h2[contains(text(), "Complete your claim")]'):
+                                        __handle_signma_popup(page=page, count=4, timeout=45)
+                                        time.sleep(4)
+                                        __handle_signma_popup(page=page, count=0)
+                                        if __get_ele(page=nexus,
+                                                     xpath='x://h1[contains(text(), "Your purchase succeeded!")]', loop=8):
                                             __bool_ = True
+                                            logger.info('成功')
                                             if platform.system().lower() == "windows":
                                                 append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _id)
                                             else:
                                                 append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _id)
+                                        else:
+                                            logger.info('查询余额 当余额变更 说明也成功')
+                                            _ethereum_tmp = get_eth_balance(_net_type, _evm_addr)
+                                            if float(_ethereum) - float(_ethereum_tmp) > 0.000001 and float(
+                                                    _ethereum_tmp) > 0:
+                                                _ethereum = _ethereum_tmp
+                                                __bool_ = True
+                                                if platform.system().lower() == "windows":
+                                                    append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", _id)
+                                                else:
+                                                    append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", _id)
                 if __bool_:
                     break
     else:
@@ -3444,6 +3385,10 @@ def __do_swap_rari_arb_eth(page, evm_id):
 
 
 def __do_task_pond(page, evm_id, index):
+    if platform.system().lower() == "windows":
+        positive_replies = read_data_list_file("E:/chrome_tool/twitter_positive_replies.txt", check_exists=True)
+    else:
+        positive_replies = read_data_list_file("/home/ubuntu/task/tasks/twitter_positive_replies.txt", check_exists=True)
     __bool = False
     __handle_signma_popup(page=page, count=0)
     time.sleep(2)
@@ -3486,13 +3431,11 @@ def __do_task_pond(page, evm_id, index):
         __click_ele(page=pond_page, xpath='x://button[text()="Discussion"]')
         time.sleep(2)
         __click_ele(page=pond_page, xpath='x://button[text()="New Topic"]')
-        __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter title"]',
-                          value="Intelligent Form Autofill and Data Extraction")
+        __input_ele_value(page=pond_page, xpath='x://input[@placeholder="Enter title"]', value=random.choice(positive_replies))
 
         __click_ele(page=pond_page, xpath='x://div[@class="ProseMirror bn-editor bn-default-styles"]')
-        pond_page.actions.type(
-            "and deep learning-based entity recognition to automatically fill out forms and extract structured information. The model follows these key steps")
-        pond_page.actions.type("Document and Form Detection")
+        pond_page.actions.type(random.choice(positive_replies))
+        pond_page.actions.type(random.choice(positive_replies))
         time.sleep(2)
         __click_ele(page=pond_page, xpath='x://button[text()="Publish Topic"]')
         time.sleep(10)
@@ -3933,8 +3876,9 @@ def install_chrome_extension(
 
 if __name__ == '__main__':
     _this_day = ''
-    PRISMAX_TYPES = {'prismax', 'prismax_new', 'prismax_new4', 'prismax_new1', 'prismax_new2'}
     _end_day_task = []
+    TASK_TYPES = {'nexus_hz_base_ts'}
+    # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_hz_base_ts', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
     parser.add_argument("--display", type=str, help="X11 DISPLAY", default=":24")
@@ -4007,7 +3951,7 @@ if __name__ == '__main__':
                 _id = arg[1]
                 logger.info(f'开始数据:{_task_type}:{_task_id}')
                 # if _type:
-                if _type == 'prismax' or _type == 'prismax_new':
+                if _type in TASK_TYPES:
                     logger.warning(f"启动任务1:{_type}:{part}")
                     # if _type == 'nexus_hz_one_a':
                     #     evm_id = _id
@@ -4072,25 +4016,15 @@ if __name__ == '__main__':
                     #     __login_wallet(page=_page, evm_id=evm_id)
                     #     __handle_signma_popup(page=_page, count=0)
                     #     _end = __do_task_nexus_hz_qy(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                    if _type == 'nexus_hz':
-                        _end = True
-                    if _type == 'nexus_hz_new':
-                        _end = True
-                    if _type == 'nexus_hz_new_one':
-                        _end = True
-                    if _type == 'nexus_hz_base':
-                        _end = True
-                    if _type == 'nexus_hz_base_task':
-                        _end = True
                     if _type == 'nexus_hz_base_ts':
                         _page = __get_page("nexus", _id, None, False)
                         _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                    if _type == 'prismax' or _type == 'prismax_new':
+                    elif _type == 'prismax_new' or _type == 'prismax':
                         _home_ip = False
-                        prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
-                        if _id not in prismax_init:
-                            logger.info('获取ip位')
-                            _home_ip = check_available(_id)
+                        # prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
+                        # if _id not in prismax_init:
+                        #     logger.info('获取ip位')
+                        #     _home_ip = check_available(_id)
                         if len(arg) < 3:
                             logger.warning("prismax 需要助记词/私钥参数，已跳过")
                         else:
@@ -4103,8 +4037,6 @@ if __name__ == '__main__':
                             _end = True
                             if _home_ip:
                                 end_available(evm_id=_id)
-                    elif _type == 'nexus_joina_sa':
-                        _end = True
                     elif _type == 'nexus_joina_sse':
                         _page = __get_page("nexus_joina_sa", _id, None, False)
                         _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[2], x_cookies=arg[3])
@@ -4165,7 +4097,7 @@ if __name__ == '__main__':
                     except Exception:
                         logger.exception("退出错误")
                 # if _type:
-                if _type == 'prismax' or _type == 'prismax_new':
+                if _type in TASK_TYPES:
                     logger.info(f'数据{_end}:{_task_type}:{_task_id}')
                     if _end and _task_id:
                         if _task_type != '0':
@@ -4179,11 +4111,11 @@ if __name__ == '__main__':
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}",
                                    task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    time.sleep(160)
+                    time.sleep(60)
                     # if len(filtered) > 24:
-                    #     time.sleep(600)
+                    #     time.sleep(random.randint(200, 400))
                     # elif len(filtered) > 12:
-                    #     time.sleep(1200)
+                    #     time.sleep(random.randint(400, 800))
                     # else:
-                    #     time.sleep(1800)
-        time.sleep(1000 + random.randint(200, 800))
+                    #     time.sleep(random.randint(600, 1800))
+        time.sleep(random.randint(200, 800))

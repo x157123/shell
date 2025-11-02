@@ -1647,7 +1647,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     __handle_signma_popup(page=page, count=0)
     __login_wallet(page=page, evm_id=evm_id)
     __handle_signma_popup(page=page, count=0)
-    net_type = 'base'  # base   ethereum
+    net_type = 'ethereum'  # base   ethereum
     if net_type == 'ethereum':
         # __add_net_work(page=page, coin_name=add_net)
         __select_net(page=page, net_name='Ethereum', net_name_t='Ethereum')     #ethereum
