@@ -41,10 +41,6 @@ def __get_page(_type, _id, _port, _home_ip):
         if platform.system().lower() == "windows":
             options.add_extension(f"E:/chrome_tool/phantom")
         else:
-            if _home_ip:
-                # signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
-                num = "23002"
-                options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
             options.set_argument("--blink-settings=imagesEnabled=false")
     else:
@@ -4251,7 +4247,7 @@ if __name__ == '__main__':
                         # _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                         _end = query_nexus_x(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'prismax_new' or _type == 'prismax':
-                        _home_ip = False
+                        _home_ip = True
                         # prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                         # if _id not in prismax_init:
                         #     logger.info('获取ip位')
@@ -4342,11 +4338,11 @@ if __name__ == '__main__':
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}",
                                    task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    if len(filtered) > 24:
-                        time.sleep(random.randint(200, 400))
-                    elif len(filtered) > 12:
-                        time.sleep(random.randint(400, 800))
-                    else:
-                        time.sleep(random.randint(600, 1800))
-                    # time.sleep(10)
+                    # if len(filtered) > 24:
+                    #     time.sleep(random.randint(200, 400))
+                    # elif len(filtered) > 12:
+                    #     time.sleep(random.randint(400, 800))
+                    # else:
+                    #     time.sleep(random.randint(600, 1800))
+                    time.sleep(10)
         time.sleep(random.randint(600, 1800))
