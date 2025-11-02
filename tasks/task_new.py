@@ -4102,8 +4102,8 @@ if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
     # TASK_TYPES = {'nexus_hz_base_ts'}
-    TASK_TYPES = {'prismax', 'prismax_new'}
-    # TASK_TYPES = {'prismax', 'prismax_new', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
+    # TASK_TYPES = {'prismax', 'prismax_new'}
+    TASK_TYPES = {'prismax', 'prismax_new', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_hz_base_ts', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
@@ -4247,7 +4247,7 @@ if __name__ == '__main__':
                         # _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                         _end = query_nexus_x(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'prismax_new' or _type == 'prismax':
-                        _home_ip = True
+                        _home_ip = False
                         # prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                         # if _id not in prismax_init:
                         #     logger.info('获取ip位')
@@ -4338,11 +4338,11 @@ if __name__ == '__main__':
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}",
                                    task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                    # if len(filtered) > 24:
-                    #     time.sleep(random.randint(200, 400))
-                    # elif len(filtered) > 12:
-                    #     time.sleep(random.randint(400, 800))
-                    # else:
-                    #     time.sleep(random.randint(600, 1800))
+                    if len(filtered) > 24:
+                        time.sleep(random.randint(200, 400))
+                    elif len(filtered) > 12:
+                        time.sleep(random.randint(400, 800))
+                    else:
+                        time.sleep(random.randint(600, 1800))
                     time.sleep(10)
         time.sleep(random.randint(600, 1800))
