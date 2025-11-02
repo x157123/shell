@@ -1636,7 +1636,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     _gas = __quyer_gas()
     if _gas is not None:
         _low_gas = _gas.get('SafeGasPrice', '99')
-        if _low_gas is not None and float(_low_gas) > 0.1:
+        if _low_gas is not None and float(_low_gas) > 0.8:
             return False
     __bool = False
     if platform.system().lower() == "windows":
@@ -1647,7 +1647,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     __handle_signma_popup(page=page, count=0)
     __login_wallet(page=page, evm_id=evm_id)
     __handle_signma_popup(page=page, count=0)
-    net_type = 'ethereum'  # base
+    net_type = 'base'  # base   ethereum
     if net_type == 'ethereum':
         __select_net(page=page, net_name='Ethereum', net_name_t='Ethereum')     #ethereum
     else:
@@ -1708,23 +1708,25 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                 {'id': 18, 'name': 'Battery Power Glyph', 'jf': 7500},
                 {'id': 19, 'name': 'Big Bolt Glyph', 'jf': 8000},
                 {'id': 20, 'name': 'Plug In Baby Glyph', 'jf': 10000},
+                {'id': 21, 'name': 'Alpha Genesis Glyph', 'jf': 10000},
+                {'id': 22, 'name': 'No Bad Ideas Glyph', 'jf': 10000},
             ]
         else:
             tasks = [
-                {'id': 3, 'name': 'Shoulder Blaster Glyph', 'jf': 12000},
-                {'id': 4, 'name': 'Sunset Boulevard Glyph', 'jf': 5000},
-                {'id': 5, 'name': 'Eat Your Arpeggi-ohs Glyph', 'jf': 3500},
-                {'id': 6, 'name': 'Boom Bap Glyph', 'jf': 3000},
-                {'id': 7, 'name': 'Gamma Genesis Glyph', 'jf': 1000},
-                {'id': 8, 'name': 'Flesh and Bone Glyph', 'jf': 4500},
-                {'id': 9, 'name': 'Game Pad Glyph', 'jf': 8000},
-                {'id': 10, 'name': 'Arcade Hero Glyph', 'jf': 5500},
-                {'id': 11, 'name': 'Ka-Bling Glyph', 'jf': 3500},
-                {'id': 12, 'name': 'Pixelheart Glyph', 'jf': 3000},
-                {'id': 13, 'name': 'Biometric Glyph', 'jf': 10000},
-                {'id': 14, 'name': 'Question Everything Glyph', 'jf': 3500},
-                {'id': 15, 'name': 'Fawkes Glyph', 'jf': 8000},
-                {'id': 16, 'name': 'Delta Genesis Glyph', 'jf': 1000},
+                # {'id': 3, 'name': 'Shoulder Blaster Glyph', 'jf': 12000},
+                # {'id': 4, 'name': 'Sunset Boulevard Glyph', 'jf': 5000},
+                # {'id': 5, 'name': 'Eat Your Arpeggi-ohs Glyph', 'jf': 3500},
+                # {'id': 6, 'name': 'Boom Bap Glyph', 'jf': 3000},
+                # {'id': 7, 'name': 'Gamma Genesis Glyph', 'jf': 1000},
+                # {'id': 8, 'name': 'Flesh and Bone Glyph', 'jf': 4500},
+                # {'id': 9, 'name': 'Game Pad Glyph', 'jf': 8000},
+                # {'id': 10, 'name': 'Arcade Hero Glyph', 'jf': 5500},
+                # {'id': 11, 'name': 'Ka-Bling Glyph', 'jf': 3500},
+                # {'id': 12, 'name': 'Pixelheart Glyph', 'jf': 3000},
+                # {'id': 13, 'name': 'Biometric Glyph', 'jf': 10000},
+                # {'id': 14, 'name': 'Question Everything Glyph', 'jf': 3500},
+                # {'id': 15, 'name': 'Fawkes Glyph', 'jf': 8000},
+                # {'id': 16, 'name': 'Delta Genesis Glyph', 'jf': 1000},
             ]
 
         results = {}
@@ -1743,7 +1745,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                 results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url=_url, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
 
             # 检查任务是否全部成功
-            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(18, 21))
+            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(17, 18))
 
         nexus.refresh()
         time.sleep(10)
@@ -1751,7 +1753,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
         ethereum_end = get_eth_balance(net_type, evm_addr)
 
         # 构建日志消息
-        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(16, 17)]
+        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(17, 18)]
         signma_log(
             message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{','.join(map(str, result_values))},{__bool}",
             task_name=f'nexus_card_{net_type}_hzsb_{get_date_as_string()}', index=evm_id)
@@ -3873,7 +3875,8 @@ def install_chrome_extension(
 if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
-    TASK_TYPES = {'prismax', 'prismax_new', 'nexus_hz_base_ts', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
+    TASK_TYPES = {'nexus_hz_base_ts'}
+    # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_hz_base_ts', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
     parser.add_argument("--display", type=str, help="X11 DISPLAY", default=":24")
