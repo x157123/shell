@@ -2167,7 +2167,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                         results = batch_check_quests_concurrent(nexus, QUEST_TASKS, max_workers=8)
                         existing_count = sum(results.values())
                         if existing_count <= 0:
-                            __bool = True
+                            logger.info('没有可选项')
                         else:
                             # 新数据
                             if __get_ele(page=nexus,
