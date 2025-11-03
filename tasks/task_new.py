@@ -2673,6 +2673,14 @@ def query_nexus_x(page, evm_id, evm_addr, index):
     for i in range(3):
         time.sleep(1)
         nexus.scroll.up(1000)
+    nexus.refresh()
+    vf_cf(_nexus=nexus, _index=index)
+    for i in range(2):
+        nexus.scroll.to_bottom()
+        time.sleep(1)
+    for i in range(3):
+        time.sleep(1)
+        nexus.scroll.up(1000)
     if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
         _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
         if _amount:
@@ -2685,7 +2693,7 @@ def query_nexus_x(page, evm_id, evm_addr, index):
             print(", ".join(str(result) for result in ordered_results))
             ethereum = get_eth_balance('ethereum', evm_addr)
             base = get_eth_balance('base', evm_addr)
-            signma_log(message=f"{evm_addr},{ethereum},{base},{_amount},{existing_count},{','.join(str(result) for result in ordered_results)}", task_name=f'nexus_jifen_{get_date_as_string()}', index=evm_id)
+            signma_log(message=f"{evm_addr},{ethereum},{base},{_amount},{existing_count},{','.join(str(result) for result in ordered_results)}", task_name=f'nexus_jifen_1', index=evm_id)
             _bool = True
     return _bool
 
