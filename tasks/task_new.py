@@ -4247,7 +4247,7 @@ if __name__ == '__main__':
                         # _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                         _end = query_nexus_x(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'prismax_new' or _type == 'prismax':
-                        _home_ip = True
+                        _home_ip = False
                         # prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
                         # if _id not in prismax_init:
                         #     logger.info('获取ip位')
