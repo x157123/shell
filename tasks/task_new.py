@@ -2685,7 +2685,7 @@ def query_nexus_x(page, evm_id, evm_addr, index):
             print(", ".join(str(result) for result in ordered_results))
             ethereum = get_eth_balance('ethereum', evm_addr)
             base = get_eth_balance('base', evm_addr)
-            signma_log(message=f"{evm_addr},{ethereum},{base},{_amount},{existing_count},{','.join(str(result) for result in ordered_results)}", task_name=f'nexus_jifen_1', index=evm_id)
+            signma_log(message=f"{evm_addr},{ethereum},{base},{_amount},{existing_count},{','.join(str(result) for result in ordered_results)}", task_name=f'nexus_jifen_{get_date_as_string()}', index=evm_id)
             _bool = True
     return _bool
 
