@@ -2353,7 +2353,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                 __bool = True
             existing_count = sum(results.values())
             ordered_results = [results.get(task, False) for task in QUEST_TASKS]
-            signma_log(message=f'{_amount},{__x_bool},{__bool},{x_name},{__app_join},{existing_count},{','.join(str(result) for result in ordered_results)}', task_name=f'nexus_joina_sse', index=evm_id)
+            signma_log(message=f"{_amount},{__x_bool},{__bool},{x_name},{__app_join},{existing_count},{','.join(str(result) for result in ordered_results)}", task_name=f'nexus_joina_sse', index=evm_id)
             # if not __x_bool:
             #     __bool = True
     except Exception as e:
