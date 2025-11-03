@@ -2017,7 +2017,7 @@ def x_com_cookies(_page, cookies):
     else:
         import pyautogui
         pyautogui.FAILSAFE = False
-        for i in range(5):
+        for i in range(2):
             _ed = _page.new_tab(url='chrome-extension://ihfmcbadakjehneaijebhpogkegajgnk/popup.html')
             if platform.system().lower() != "windows":
                 click_x_y(1192, 170, 24)
@@ -2034,7 +2034,7 @@ def x_com_cookies(_page, cookies):
             if _ed:
                 _ed.close()
             x_com.refresh()
-            if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=5) and __get_ele(page=x_com, xpath='x://button[@data-testid="like"]', loop=5):
+            if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=3) and __get_ele(page=x_com, xpath='x://button[@data-testid="like"]', loop=5):
                 _bool = True
                 break
     if _bool:
@@ -2067,60 +2067,53 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
         _0 = None
         _DEVNET_NEX = None
 
-        if __x_bool:
-            nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
-            __get_ele(page=nexus, xpath='x://h1[contains(text(), "REWARDS")]', loop=10)
-            if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
-                __click_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1)
-                shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
-                if shadow_host:
-                    shadow_root = shadow_host.shadow_root
-                    if shadow_root:
-                        continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
-                        if continue_button:
-                            __click_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']", loop=1)
-                            shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-                            if shadow_host:
-                                shadow_root = shadow_host.shadow_root
-                                if shadow_root:
-                                    continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
-                                    if continue_button:
-                                        continue_button.click(by_js=True)
-                                        time.sleep(1)
-                                        signma_ele = shadow_root.ele('x://span[text()="Signma"]')
-                                        if signma_ele:
-                                            signma_ele.click(by_js=True)
-                                            __handle_signma_popup(page=page, count=1, timeout=45)
-
-                __handle_signma_popup(page=page, count=0)
-                net_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]', timeout=5)
-                if net_shadow_host:
-                    net_shadow_root = net_shadow_host.shadow_root
-                    if net_shadow_root:
-                        newt_work = net_shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]', timeout=3)
-                        if newt_work:
-                            newt_work.click(by_js=True)
-                            __handle_signma_popup(page=page, count=1, timeout=15)
-                            time.sleep(3)
-                            __handle_signma_popup(page=page, count=0)
-                        else:
-                            signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
-                    else:
-                        signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
-                else:
-                    signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
-
-            __app_join = join(nexus, _name)
+        # if __x_bool:
+        #     nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
+        #     __get_ele(page=nexus, xpath='x://h1[contains(text(), "REWARDS")]', loop=10)
+        #     if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
+        #         __click_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1)
+        #         shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
+        #         if shadow_host:
+        #             shadow_root = shadow_host.shadow_root
+        #             if shadow_root:
+        #                 continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
+        #                 if continue_button:
+        #                     __click_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']", loop=1)
+        #                     shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+        #                     if shadow_host:
+        #                         shadow_root = shadow_host.shadow_root
+        #                         if shadow_root:
+        #                             continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+        #                             if continue_button:
+        #                                 continue_button.click(by_js=True)
+        #                                 time.sleep(1)
+        #                                 signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+        #                                 if signma_ele:
+        #                                     signma_ele.click(by_js=True)
+        #                                     __handle_signma_popup(page=page, count=1, timeout=45)
+        #
+        #         __handle_signma_popup(page=page, count=0)
+        #         net_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]', timeout=5)
+        #         if net_shadow_host:
+        #             net_shadow_root = net_shadow_host.shadow_root
+        #             if net_shadow_root:
+        #                 newt_work = net_shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]', timeout=3)
+        #                 if newt_work:
+        #                     newt_work.click(by_js=True)
+        #                     __handle_signma_popup(page=page, count=1, timeout=15)
+        #                     time.sleep(3)
+        #                     __handle_signma_popup(page=page, count=0)
+        #                 else:
+        #                     signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
+        #             else:
+        #                 signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
+        #         else:
+        #             signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
+        #
+        #     __app_join = join(nexus, _name)
         # nexus.get(url='https://quest.nexus.xyz/loyalty')
         nexus = page.new_tab(url='https://quest.nexus.xyz/loyalty')
-        for i in range(5):
-            time.sleep(5)
-            if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
-                time.sleep(5)
-                click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), index)
-                time.sleep(10)
-            else:
-                break
+        vf_cf(_nexus=nexus, _index=index)
         if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1):
             shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
             if shadow_host:
@@ -2138,7 +2131,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
         __tw_join = False
         if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
             if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
-                __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=3)
+                __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=1)
                 if __x_bool:
                     # 取消 tw关注
                     for i in range(4):
@@ -2334,28 +2327,23 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim') or @label='Repost Tweet']",
                                         loop=1)
 
-                        results = batch_check_quests_concurrent(nexus, QUEST_TASKS, max_workers=8)
-                        existing_count = sum(results.values())
+                results = batch_check_quests_concurrent(nexus, QUEST_TASKS, max_workers=8)
+                existing_count = sum(results.values())
+                if existing_count > 0:
+                    __bool = False
 
-                        if existing_count > 0:
-                            __bool = False
-
-                        if __bool:
-                            break
+                    # if __bool:
+                    #     break
                 _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
                 if not _amount or float(_amount) <= 0:
                     _amount = '0'
                     __bool = False
                 if __x_bool:
-                    if not __app_join:
-                        __app_join = join(nexus, _name)
-                    if not __app_join:
-                        __bool = False
-                else:
+                    logger.info('tw登陆成功')
+                else :
                     __bool = True
-                existing_count = sum(results.values())
                 ordered_results = [results.get(task, False) for task in QUEST_TASKS]
-                signma_log(message=f"{_amount},{__x_bool},{__bool},{x_name},{__app_join},{existing_count},{','.join(str(result) for result in ordered_results)}", task_name=f'nexus_joina_sse', index=evm_id)
+                signma_log(message=f"{_amount},{__x_bool},{__bool},{x_name},{__app_join},{existing_count},{','.join(str(result) for result in ordered_results)}", task_name=f'nexus_joina_ssea', index=evm_id)
                 # if not __x_bool:
                 #     __bool = True
     except Exception as e:
