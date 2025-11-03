@@ -4270,7 +4270,7 @@ if __name__ == '__main__':
                             if _home_ip:
                                 end_available(evm_id=_id)
                     elif _type == 'nexus_joina_sse':
-                        _page = __get_page("nexus_joina_sa", _id, None, False)
+                        _page = __get_page("nexus_joina_sse", _id, None, False)
                         _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[2], x_cookies=arg[3])
                         # _end = True
                     else:
