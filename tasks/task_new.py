@@ -3950,8 +3950,9 @@ if __name__ == '__main__':
             if (parts[1] == '0' and parts[0] not in _end_day_task) or (
                     parts[1] != '0' and date_obj <= today and parts[0] not in end_tasks):
                 # if parts[1] == '0' or (parts[0] not in end_tasks):
-                _args = parts[3].split(",")
-                if _args[0] in TASK_TYPES:
+                _argsa = parts[3].split(",")
+                logger.info(f'添加执行今日任务leix :{_argsa[0]}')
+                if _argsa[0] in TASK_TYPES:
                     logger.info(f'添加执行今日任务:{line}')
                     filtered.append(line)
         random.shuffle(filtered)
