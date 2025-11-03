@@ -3911,7 +3911,7 @@ if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
     # TASK_TYPES = {'nexus_hz_base_ts'}
-    TASK_TYPES = {'nexus_joina_new_a'}
+    TASK_TYPES = {'nexus_joina_new_b'}
     # TASK_TYPES = {'prismax', 'prismax_new'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_hz_base_ts', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
@@ -4074,7 +4074,7 @@ if __name__ == '__main__':
                             _end = True
                             if _home_ip:
                                 end_available(evm_id=_id)
-                    elif _type == 'nexus_joina_new_a':
+                    elif _type == 'nexus_joina_new_b':
                         _page = __get_page("nexus_joina_sse", _id, None, False)
                         _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[2], x_cookies=arg[3])
                         # _end = True
