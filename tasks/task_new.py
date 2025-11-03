@@ -1998,6 +1998,7 @@ def x_com_cookies(_page, cookies):
     time.sleep(5)
     x_com = _page.new_tab(url='https://x.com')
     __close_popup(page=_page, _url="editthiscookiefork.com", timeout=3)
+    x_com.refresh()
     if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2) and __get_ele(page=x_com, xpath='x://button[@data-testid="like"]', loop=2):
         _bool = True
     else:
