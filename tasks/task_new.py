@@ -4247,7 +4247,7 @@ if __name__ == '__main__':
                     #     __handle_signma_popup(page=_page, count=0)
                     #     _end = __do_task_nexus_hz_qy(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     if _type == 'nexus_hz_base_ts':
-                        _page = __get_page("nexus", _id, None, False)
+                        _page = __get_page("nexus_1", _id, None, False)
                         # _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                         _end = query_nexus_x(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'prismax_new' or _type == 'prismax':
