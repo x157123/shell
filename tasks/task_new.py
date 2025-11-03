@@ -3959,8 +3959,10 @@ if __name__ == '__main__':
             if (parts[1] == '0' and parts[0] not in _end_day_task) or (
                     parts[1] != '0' and date_obj <= today and parts[0] not in end_tasks):
                 # if parts[1] == '0' or (parts[0] not in end_tasks):
-                logger.info(f'添加执行今日任务:{line}')
-                filtered.append(line)
+                args = parts[3].split(",")
+                if args[0] in TASK_TYPES:
+                    logger.info(f'添加执行今日任务:{line}')
+                    filtered.append(line)
         random.shuffle(filtered)
         for part in filtered:
             _page = None
@@ -4155,4 +4157,4 @@ if __name__ == '__main__':
                     # else:
                     #     time.sleep(random.randint(600, 1800))
                     time.sleep(10)
-        time.sleep(random.randint(600, 1800))
+        time.sleep(random.randint(500, 600))
