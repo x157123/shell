@@ -16,9 +16,6 @@ import hashlib
 import struct
 import time
 import base64
-from typing import Optional
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import List, Dict, Tuple
 
 
 # ========== 全局配置 ==========
@@ -41,6 +38,10 @@ def __get_page(_type, _id, _port, _home_ip):
         if platform.system().lower() == "windows":
             options.add_extension(f"E:/chrome_tool/phantom")
         else:
+            if _home_ip:
+                # signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
+                num = "23002"
+                options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
             options.set_argument("--blink-settings=imagesEnabled=false")
     else:
@@ -1630,75 +1631,6 @@ def get_totp_token(secret, time_step=30, digits=6):
 
     return token, remaining_time
 
-def un_eth_call(
-        address: str,
-        value: int,
-        contract_address: str = '0xde63b92033aa77b115db1cec612029625d1c8fa5',
-        rpc_url: str = "https://1rpc.io/eth",
-        method_signature: str = "00fdd58e"
-) -> Optional[bool]:
-    """
-    执行以太坊合约调用并解析结果
-
-    Args:
-        contract_address: 合约地址
-        address: 要查询的地址 (不带0x前缀也可以)
-        value: 整数值
-        rpc_url: RPC节点URL
-        method_signature: 方法签名 (默认为00fdd58e)
-
-    Returns:
-        True: 通过 (result为0x...0001)
-        False: 未通过 (result为0x...0000)
-        None: 其他情况或错误
-    """
-    # 规范化地址格式 (移除0x前缀并转为小写)
-    address = address.lower().replace('0x', '')
-    contract_address = contract_address.lower().replace('0x', '')
-
-    # 构造data字段: 方法签名 + 填充后的地址 + 填充后的值
-    data = (
-        f"0x{method_signature}"
-        f"{address.zfill(64)}"  # 地址填充到64个字符(32字节)
-        f"{value:064x}"  # 值转为16进制并填充到64个字符
-    )
-
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "Referer": "https://mrvoodoonft.github.io/"
-    }
-
-    payload = {
-        "jsonrpc": "2.0",
-        "id": int(time.time() * 1000),
-        "method": "eth_call",
-        "params": [
-            {
-                "to": f"0x{contract_address}",
-                "data": data
-            },
-            "latest"
-        ]
-    }
-
-    try:
-        response = requests.post(rpc_url, headers=headers, data=json.dumps(payload))
-        result = response.json()
-
-        # 提取result字段
-        if "result" in result:
-            result_value = result["result"]
-            # 判断结果
-            if result_value == "0x0000000000000000000000000000000000000000000000000000000000000001":
-                return False
-            elif result_value == "0x0000000000000000000000000000000000000000000000000000000000000000":
-                return True
-        return None
-    except Exception as e:
-        print(f"Error: {e}")
-        return None
-
 
 def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     _gas = __quyer_gas()
@@ -1715,7 +1647,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     __handle_signma_popup(page=page, count=0)
     __login_wallet(page=page, evm_id=evm_id)
     __handle_signma_popup(page=page, count=0)
-    net_type = 'ethereum'  # base   ethereum
+    net_type = 'base'  # base   ethereum
     if net_type == 'ethereum':
         # __add_net_work(page=page, coin_name=add_net)
         __select_net(page=page, net_name='Ethereum', net_name_t='Ethereum')     #ethereum
@@ -1775,11 +1707,11 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
 
         if net_type == 'ethereum':
             tasks = [
-                {'id': 18, 'name': 'Battery Power Glyph', 'jf': 7500, 'index':1},
-                {'id': 19, 'name': 'Big Bolt Glyph', 'jf': 8000, 'index':2},
-                {'id': 20, 'name': 'Plug In Baby Glyph', 'jf': 10000, 'index':3},
-                {'id': 21, 'name': 'No Bad Ideas Glyph', 'jf': 15000, 'index':4},
-                # {'id': 22, 'name': 'Alpha Genesis Glyph', 'jf': 10000, 'index':0},
+                {'id': 18, 'name': 'Battery Power Glyph', 'jf': 7500},
+                {'id': 19, 'name': 'Big Bolt Glyph', 'jf': 8000},
+                {'id': 20, 'name': 'Plug In Baby Glyph', 'jf': 10000},
+                {'id': 21, 'name': 'Alpha Genesis Glyph', 'jf': 10000},
+                {'id': 22, 'name': 'No Bad Ideas Glyph', 'jf': 10000},
             ]
         else:
             tasks = [
@@ -1811,25 +1743,11 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                                                          _index=index, _jf=1000)
             # 批量执行任务
             for task in tasks:
-                _bool_s = True
                 task_id = f"{task['id']}_{evm_id}"
-                if net_type == 'ethereum':
-                    if task_id not in nexus_no_bad:
-                        _bool_s = un_eth_call(address=evm_addr, value=task['index'])
-                        if _bool_s is False:
-                            results[task_id] = True
-                            if platform.system().lower() == "windows":
-                                append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", task_id)
-                            else:
-                                append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", task_id)
-                if _bool_s:
-                    results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url=_url, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
-                elif _bool_s is None:
-                    results[task_id] = False
-                else:
-                    results[task_id] = True
+                results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url=_url, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
+
             # 检查任务是否全部成功
-            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(18, 22))
+            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(17, 18))
 
         nexus.refresh()
         time.sleep(10)
@@ -1837,7 +1755,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
         ethereum_end = get_eth_balance(net_type, evm_addr)
 
         # 构建日志消息
-        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(18, 22)]
+        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(17, 18)]
         signma_log(
             message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{','.join(map(str, result_values))},{__bool}",
             task_name=f'nexus_card_{net_type}_hzsb_{get_date_as_string()}', index=evm_id)
@@ -1845,11 +1763,11 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     return __bool
 
 
-def vf_cf(_nexus, _index, _name:str = "quest.nexus.xyz"):
+def vf_cf(_nexus, _index):
     _bool = False
     for i in range(5):
         time.sleep(4)
-        if __get_ele(page=_nexus, xpath=f'x://h1[contains(text(), "{_name}")]', loop=1):
+        if __get_ele(page=_nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
             time.sleep(5)
             click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), _index)
             time.sleep(10)
@@ -2553,146 +2471,6 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
     return __bool
 
 
-
-def check_quest_element(page, task_text: str) -> Tuple[str, bool]:
-    """
-    检查单个任务元素是否存在
-
-    Args:
-        page: DrissionPage 页面对象
-        task_text: 任务文本内容
-
-    Returns:
-        (task_text, exists): 元组，包含任务文本和是否存在
-    """
-    try:
-        # 特殊处理 "Follow Nexus " 使用 text() 精确匹配
-        if task_text == "Follow Nexus ":
-            xpath = f"x://div[contains(@class, 'loyalty-quest')]//div[text()='{task_text}']"
-        else:
-            xpath = f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{task_text}')]"
-
-        # 使用 __get_ele 函数检查元素
-        result = __get_ele(page=page, xpath=xpath, loop=1)
-        return (task_text, bool(result))
-    except Exception as e:
-        print(f"检查任务 '{task_text}' 时出错: {e}")
-        return (task_text, False)
-
-def check_blog_link(page) -> Tuple[str, bool]:
-    """检查博客链接"""
-    try:
-        xpath = 'x://a[@label="Visit Blog"]'
-        result = __get_ele(page=page, xpath=xpath, loop=1)
-        return ("Visit Blog", bool(result))
-    except Exception as e:
-        print(f"检查博客链接时出错: {e}")
-        return ("Visit Blog", False)
-
-def batch_check_quests_concurrent(page, quest_tasks, max_workers: int = 5) -> Dict[str, bool]:
-    """
-    并发批量检查任务元素
-
-    Args:
-        page: DrissionPage 页面对象
-        max_workers: 最大并发线程数（默认5，可根据实际情况调整）
-
-    Returns:
-        字典，key 为任务文本，value 为是否存在
-    """
-    results = {}
-
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # 提交所有任务
-        futures = []
-
-        # 提交普通任务
-        for task in quest_tasks:
-            future = executor.submit(check_quest_element, page, task)
-            futures.append(future)
-
-        # 提交博客链接检查
-        futures.append(executor.submit(check_blog_link, page))
-
-        # 收集结果（按完成顺序）
-        for future in as_completed(futures):
-            try:
-                task_text, exists = future.result()
-                results[task_text] = exists
-                if exists:
-                    print(f"✓ 找到任务: {task_text}")
-            except Exception as e:
-                print(f"处理任务结果时出错: {e}")
-
-    return results
-
-def query_nexus_x(page, evm_id, evm_addr, index):
-    _bool = False
-    QUEST_TASKS = [
-        "Connect your X to get started",
-        "NEW: Follow Nodejox - The Author",
-        "Celebrate our Snag Partnership",
-        "Like & Share our Testnet III Announcement",
-        "Follow Nexus ",  # 注意：原代码使用 text()='Follow Nexus '
-        "Share Spelunking Badge",
-        "Follow Nodejox - The Founder",
-        "Follow Nodejox - The Voice",
-        "Follow Nodejox - The Doctor",
-        "Node Runners Assemble",
-        "Support the Nexus Ecosystem",
-        "Shine a Light on the Numbers",
-        "Goodbye Camp Nexus",
-        "NEW: Share Delta Glyphs",
-        "Inside the Nexus Project",
-        "re Doing Numbers",
-        "Reshare the Doctor",
-        "Gridcrew Roll Call",
-        "Support the Creator Academy",
-        "Support the Nexus Podcast",
-        "NEW: The Road we Run",
-        "NEW: Share the Epsilon Collection"
-    ]
-    __handle_signma_popup(page=page, count=0)
-    __login_wallet(page=page, evm_id=evm_id)
-    __handle_signma_popup(page=page, count=0)
-    nexus = page.new_tab(url='https://quest.nexus.xyz/loyalty')
-    vf_cf(_nexus=nexus, _index=index)
-
-    if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1):
-        shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-        if shadow_host:
-            shadow_root = shadow_host.shadow_root
-            if shadow_root:
-                continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
-                if continue_button:
-                    continue_button.click(by_js=True)
-                    time.sleep(1)
-                    signma_ele = shadow_root.ele('x://span[text()="Signma"]')
-                    if signma_ele:
-                        signma_ele.click(by_js=True)
-                        __handle_signma_popup(page=page, count=2, timeout=45)
-                        nexus.refresh()
-                        vf_cf(_nexus=nexus, _index=index)
-                        for i in range(2):
-                            nexus.scroll.to_bottom()
-                            time.sleep(1)
-    __handle_signma_popup(page=page, count=2, timeout=10)
-    if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
-        _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
-        if _amount:
-            results = batch_check_quests_concurrent(nexus, QUEST_TASKS, max_workers=8)
-            # 打印统计
-            existing_count = sum(results.values())
-            print(f"\n总计: {existing_count}/{len(results)} 个任务存在")
-            all_tasks = QUEST_TASKS + ["Visit Blog"]
-            ordered_results = [results.get(task, False) for task in all_tasks]
-            print(", ".join(str(result) for result in ordered_results))
-            ethereum = get_eth_balance('ethereum', evm_addr)
-            base = get_eth_balance('base', evm_addr)
-            signma_log(message=f"{evm_addr},{ethereum},{base},{_amount},{','.join(str(result) for result in ordered_results)}", task_name=f'nexus_jifen', index=evm_id)
-            _bool = True
-    return _bool
-
 def join(nexus, _name):
     __bool = False
     for i in range(5):
@@ -2749,8 +2527,6 @@ def join(nexus, _name):
         except Exception as e:
             logger.info(f"任务异常: {e}")
     return __bool
-
-
 def get_random_words(count):
     # 定义60个单词的列表
     words = [
@@ -4101,9 +3877,7 @@ def install_chrome_extension(
 if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
-    # TASK_TYPES = {'nexus_hz_base_ts'}
-    TASK_TYPES = {'prismax', 'prismax_new'}
-    # TASK_TYPES = {'prismax', 'prismax_new', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
+    TASK_TYPES = {'nexus_hz_base_ts'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_hz_base_ts', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
@@ -4244,8 +4018,7 @@ if __name__ == '__main__':
                     #     _end = __do_task_nexus_hz_qy(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     if _type == 'nexus_hz_base_ts':
                         _page = __get_page("nexus", _id, None, False)
-                        # _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                        _end = query_nexus_x(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'prismax_new' or _type == 'prismax':
                         _home_ip = False
                         # prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
@@ -4338,11 +4111,11 @@ if __name__ == '__main__':
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}",
                                    task_name=f'error_task_{get_date_as_string()}', index=evm_id)
+                    time.sleep(60)
                     # if len(filtered) > 24:
                     #     time.sleep(random.randint(200, 400))
                     # elif len(filtered) > 12:
                     #     time.sleep(random.randint(400, 800))
                     # else:
                     #     time.sleep(random.randint(600, 1800))
-                    time.sleep(10)
-        time.sleep(random.randint(600, 1800))
+        time.sleep(random.randint(200, 800))
