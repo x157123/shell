@@ -2334,23 +2334,14 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
 
                 results = batch_check_quests_concurrent(nexus, QUEST_TASKS, max_workers=8)
                 existing_count = sum(results.values())
+                ordered_results = [results.get(task, False) for task in QUEST_TASKS]
+                _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
+                if not __x_bool:
+                    __bool = True
                 if existing_count <= 0:
                     __bool = True
+                signma_log(message=f"{_amount},{__x_bool},{__bool},{x_name},{__app_join},{existing_count},{','.join(str(result) for result in ordered_results)}", task_name=f'nexus_joina_sseb', index=evm_id)
 
-                    # if __bool:
-                    #     break
-                _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
-                if not _amount or float(_amount) <= 0:
-                    _amount = '0'
-                    __bool = False
-                if __x_bool:
-                    logger.info('tw登陆成功')
-                else :
-                    __bool = True
-                ordered_results = [results.get(task, False) for task in QUEST_TASKS]
-                signma_log(message=f"{_amount},{__x_bool},{__bool},{x_name},{__app_join},{existing_count},{','.join(str(result) for result in ordered_results)}", task_name=f'nexus_joina_ssea', index=evm_id)
-                # if not __x_bool:
-                #     __bool = True
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
