@@ -19,6 +19,7 @@ import base64
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Dict, Tuple
+import shutil
 
 
 # ========== 全局配置 ==========
@@ -27,6 +28,18 @@ ARGS_IP = ""  # 在 main 里赋值
 
 
 def __get_page(_type, _id, _port, _home_ip):
+    if _type == 'nexus_joina_sse':
+        if platform.system().lower() == "windows":
+            logger.info('跳过删除')
+        else:
+            try:
+                # 删除临时文件
+                dir_path = f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}"
+                if os.path.isdir(dir_path):
+                    shutil .rmtree(dir_path)
+                    time.sleep(1)
+            except Exception as e:
+                logger.info("删除临时文件错误")
     _pages = None
     logger.info(f"启动类型: {_type}")
     options = ChromiumOptions()
@@ -2161,7 +2174,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                     nexus.scroll.to_bottom()
                     time.sleep(1)
 
-                for i in range(4):
+                for i in range(1):
                     results = []
                     __close_popup(page=_page, _url='x.com', timeout=5)
                     # 新数据
