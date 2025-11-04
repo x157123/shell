@@ -16,10 +16,6 @@ import hashlib
 import struct
 import time
 import base64
-from typing import Optional
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import List, Dict, Tuple
-import shutil
 
 
 # ========== 全局配置 ==========
@@ -28,18 +24,6 @@ ARGS_IP = ""  # 在 main 里赋值
 
 
 def __get_page(_type, _id, _port, _home_ip):
-    if _type == 'nexus_joina_sse':
-        if platform.system().lower() == "windows":
-            logger.info('跳过删除')
-        else:
-            try:
-                # 删除临时文件
-                dir_path = f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}"
-                if os.path.isdir(dir_path):
-                    shutil .rmtree(dir_path)
-                    time.sleep(1)
-            except Exception as e:
-                logger.info("删除临时文件错误")
     _pages = None
     logger.info(f"启动类型: {_type}")
     options = ChromiumOptions()
@@ -48,11 +32,16 @@ def __get_page(_type, _id, _port, _home_ip):
     else:
         options.set_browser_path('/opt/google/chrome')
     if _home_ip:
-        options.set_proxy(f"{_home_ip}:47163")
+        num = "23002"
+        options.set_proxy(f"43.160.196.49:{num}")
     if _type == 'prismax' or _type == 'monad_solana':
         if platform.system().lower() == "windows":
             options.add_extension(f"E:/chrome_tool/phantom")
         else:
+            if _home_ip:
+                # signma_log(message='1', task_name=f'prismax_point_net_{get_date_as_string()}', index=_id)
+                num = "23002"
+                options.set_proxy(f"43.160.196.49:{num}")
             options.add_extension(f"/home/ubuntu/extensions/phantom")
             options.set_argument("--blink-settings=imagesEnabled=false")
     else:
@@ -129,23 +118,20 @@ def __get_page_x(_type, _id, _port, _home_ip):
     return _pages
 
 
-def check_available() -> Optional[Tuple[str, str]]:
-    url = "http://43.163.232.251:22300/api/ip/get"
+def check_available(evm_id: str = '0000') -> bool:
+    url = f"http://43.160.196.49:7890/api/check?client_id={evm_id}"
     try:
-        response = requests.get(url, timeout=15)
-        response.raise_for_status()
+        response = requests.get(url, timeout=15)  # 设置超时 5 秒
+        response.raise_for_status()  # 如果响应状态码不是 200 会抛异常
         data = response.json()
-        # 检查 success 字段和必需的 id、ip 字段
-        if data.get("success") and data.get("id") and data.get("ip"):
-            return (data["id"], data["ip"])
-        return None
+        return data.get("available", False)
     except Exception as e:
-        print(f"请求失败: {e}")
-        return None
+        print("请求失败:", e)
+        return False
 
 
-def end_available(_key: str = '0000') -> bool:
-    url = f"http://43.163.232.251:22300/api/ip/return?id={_key}"
+def end_available(evm_id: str = '0000') -> bool:
+    url = f"http://43.160.196.49:7890/api/release?client_id={evm_id}"
     try:
         response = requests.get(url, timeout=15)  # 设置超时 5 秒
         response.raise_for_status()  # 如果响应状态码不是 200 会抛异常
@@ -1645,75 +1631,6 @@ def get_totp_token(secret, time_step=30, digits=6):
 
     return token, remaining_time
 
-def un_eth_call(
-        address: str,
-        value: int,
-        contract_address: str = '0xde63b92033aa77b115db1cec612029625d1c8fa5',
-        rpc_url: str = "https://1rpc.io/eth",
-        method_signature: str = "00fdd58e"
-) -> Optional[bool]:
-    """
-    执行以太坊合约调用并解析结果
-
-    Args:
-        contract_address: 合约地址
-        address: 要查询的地址 (不带0x前缀也可以)
-        value: 整数值
-        rpc_url: RPC节点URL
-        method_signature: 方法签名 (默认为00fdd58e)
-
-    Returns:
-        True: 通过 (result为0x...0001)
-        False: 未通过 (result为0x...0000)
-        None: 其他情况或错误
-    """
-    # 规范化地址格式 (移除0x前缀并转为小写)
-    address = address.lower().replace('0x', '')
-    contract_address = contract_address.lower().replace('0x', '')
-
-    # 构造data字段: 方法签名 + 填充后的地址 + 填充后的值
-    data = (
-        f"0x{method_signature}"
-        f"{address.zfill(64)}"  # 地址填充到64个字符(32字节)
-        f"{value:064x}"  # 值转为16进制并填充到64个字符
-    )
-
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "Referer": "https://mrvoodoonft.github.io/"
-    }
-
-    payload = {
-        "jsonrpc": "2.0",
-        "id": int(time.time() * 1000),
-        "method": "eth_call",
-        "params": [
-            {
-                "to": f"0x{contract_address}",
-                "data": data
-            },
-            "latest"
-        ]
-    }
-
-    try:
-        response = requests.post(rpc_url, headers=headers, data=json.dumps(payload))
-        result = response.json()
-
-        # 提取result字段
-        if "result" in result:
-            result_value = result["result"]
-            # 判断结果
-            if result_value == "0x0000000000000000000000000000000000000000000000000000000000000001":
-                return False
-            elif result_value == "0x0000000000000000000000000000000000000000000000000000000000000000":
-                return True
-        return None
-    except Exception as e:
-        print(f"Error: {e}")
-        return None
-
 
 def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     _gas = __quyer_gas()
@@ -1730,7 +1647,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     __handle_signma_popup(page=page, count=0)
     __login_wallet(page=page, evm_id=evm_id)
     __handle_signma_popup(page=page, count=0)
-    net_type = 'ethereum'  # base   ethereum
+    net_type = 'base'  # base   ethereum
     if net_type == 'ethereum':
         # __add_net_work(page=page, coin_name=add_net)
         __select_net(page=page, net_name='Ethereum', net_name_t='Ethereum')     #ethereum
@@ -1790,11 +1707,11 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
 
         if net_type == 'ethereum':
             tasks = [
-                {'id': 18, 'name': 'Battery Power Glyph', 'jf': 7500, 'index':1},
-                {'id': 19, 'name': 'Big Bolt Glyph', 'jf': 8000, 'index':2},
-                {'id': 20, 'name': 'Plug In Baby Glyph', 'jf': 10000, 'index':3},
-                {'id': 21, 'name': 'No Bad Ideas Glyph', 'jf': 15000, 'index':4},
-                # {'id': 22, 'name': 'Alpha Genesis Glyph', 'jf': 10000, 'index':0},
+                {'id': 18, 'name': 'Battery Power Glyph', 'jf': 7500},
+                {'id': 19, 'name': 'Big Bolt Glyph', 'jf': 8000},
+                {'id': 20, 'name': 'Plug In Baby Glyph', 'jf': 10000},
+                {'id': 21, 'name': 'Alpha Genesis Glyph', 'jf': 10000},
+                {'id': 22, 'name': 'No Bad Ideas Glyph', 'jf': 10000},
             ]
         else:
             tasks = [
@@ -1826,25 +1743,11 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                                                          _index=index, _jf=1000)
             # 批量执行任务
             for task in tasks:
-                _bool_s = True
                 task_id = f"{task['id']}_{evm_id}"
-                if net_type == 'ethereum':
-                    if task_id not in nexus_no_bad:
-                        _bool_s = un_eth_call(address=evm_addr, value=task['index'])
-                        if _bool_s is False:
-                            results[task_id] = True
-                            if platform.system().lower() == "windows":
-                                append_date_to_file("E:/tmp/chrome_data/nexus_card.txt", task_id)
-                            else:
-                                append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", task_id)
-                if _bool_s:
-                    results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url=_url, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
-                elif _bool_s is None:
-                    results[task_id] = False
-                else:
-                    results[task_id] = True
+                results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url=_url, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
+
             # 检查任务是否全部成功
-            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(18, 22))
+            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(17, 18))
 
         nexus.refresh()
         time.sleep(10)
@@ -1852,7 +1755,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
         ethereum_end = get_eth_balance(net_type, evm_addr)
 
         # 构建日志消息
-        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(18, 22)]
+        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(17, 18)]
         signma_log(
             message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{','.join(map(str, result_values))},{__bool}",
             task_name=f'nexus_card_{net_type}_hzsb_{get_date_as_string()}', index=evm_id)
@@ -1860,11 +1763,11 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     return __bool
 
 
-def vf_cf(_nexus, _index, _name:str = "quest.nexus.xyz"):
+def vf_cf(_nexus, _index):
     _bool = False
     for i in range(5):
         time.sleep(4)
-        if __get_ele(page=_nexus, xpath=f'x://h1[contains(text(), "{_name}")]', loop=1):
+        if __get_ele(page=_nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
             time.sleep(5)
             click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), _index)
             time.sleep(10)
@@ -2013,13 +1916,12 @@ def x_com_cookies(_page, cookies):
     time.sleep(5)
     x_com = _page.new_tab(url='https://x.com')
     __close_popup(page=_page, _url="editthiscookiefork.com", timeout=3)
-    x_com.refresh()
     if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=2) and __get_ele(page=x_com, xpath='x://button[@data-testid="like"]', loop=2):
         _bool = True
     else:
         import pyautogui
         pyautogui.FAILSAFE = False
-        for i in range(2):
+        for i in range(5):
             _ed = _page.new_tab(url='chrome-extension://ihfmcbadakjehneaijebhpogkegajgnk/popup.html')
             if platform.system().lower() != "windows":
                 click_x_y(1192, 170, 24)
@@ -2036,7 +1938,7 @@ def x_com_cookies(_page, cookies):
             if _ed:
                 _ed.close()
             x_com.refresh()
-            if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=3) and __get_ele(page=x_com, xpath='x://button[@data-testid="like"]', loop=5):
+            if __get_ele(page=x_com, xpath='x://span[normalize-space(text())="For you"]', loop=5) and __get_ele(page=x_com, xpath='x://button[@data-testid="like"]', loop=5):
                 _bool = True
                 break
     if _bool:
@@ -2069,53 +1971,61 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
         _0 = None
         _DEVNET_NEX = None
 
-        # if __x_bool:
-        #     nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
-        #     __get_ele(page=nexus, xpath='x://h1[contains(text(), "REWARDS")]', loop=10)
-        #     if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
-        #         __click_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1)
-        #         shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
-        #         if shadow_host:
-        #             shadow_root = shadow_host.shadow_root
-        #             if shadow_root:
-        #                 continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
-        #                 if continue_button:
-        #                     __click_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']", loop=1)
-        #                     shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-        #                     if shadow_host:
-        #                         shadow_root = shadow_host.shadow_root
-        #                         if shadow_root:
-        #                             continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
-        #                             if continue_button:
-        #                                 continue_button.click(by_js=True)
-        #                                 time.sleep(1)
-        #                                 signma_ele = shadow_root.ele('x://span[text()="Signma"]')
-        #                                 if signma_ele:
-        #                                     signma_ele.click(by_js=True)
-        #                                     __handle_signma_popup(page=page, count=1, timeout=45)
-        #
-        #         __handle_signma_popup(page=page, count=0)
-        #         net_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]', timeout=5)
-        #         if net_shadow_host:
-        #             net_shadow_root = net_shadow_host.shadow_root
-        #             if net_shadow_root:
-        #                 newt_work = net_shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]', timeout=3)
-        #                 if newt_work:
-        #                     newt_work.click(by_js=True)
-        #                     __handle_signma_popup(page=page, count=1, timeout=15)
-        #                     time.sleep(3)
-        #                     __handle_signma_popup(page=page, count=0)
-        #                 else:
-        #                     signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
-        #             else:
-        #                 signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
-        #         else:
-        #             signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
-        #
-        #     __app_join = join(nexus, _name)
+        if __x_bool:
+            nexus = page.new_tab(url='https://app.nexus.xyz/rewards')
+            __get_ele(page=nexus, xpath='x://h1[contains(text(), "REWARDS")]', loop=10)
+            if __get_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1):
+                __click_ele(page=nexus, xpath='x://button[div[contains(text(), "Sign in")]]', loop=1)
+                shadow_host = nexus.ele('x://div[@id="dynamic-widget"]')
+                if shadow_host:
+                    shadow_root = shadow_host.shadow_root
+                    if shadow_root:
+                        continue_button = __get_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']")
+                        if continue_button:
+                            __click_ele(page=shadow_root, xpath="x://button[@data-testid='ConnectButton']", loop=1)
+                            shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
+                            if shadow_host:
+                                shadow_root = shadow_host.shadow_root
+                                if shadow_root:
+                                    continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
+                                    if continue_button:
+                                        continue_button.click(by_js=True)
+                                        time.sleep(1)
+                                        signma_ele = shadow_root.ele('x://span[text()="Signma"]')
+                                        if signma_ele:
+                                            signma_ele.click(by_js=True)
+                                            __handle_signma_popup(page=page, count=1, timeout=45)
+
+                __handle_signma_popup(page=page, count=0)
+                net_shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]', timeout=5)
+                if net_shadow_host:
+                    net_shadow_root = net_shadow_host.shadow_root
+                    if net_shadow_root:
+                        newt_work = net_shadow_root.ele('x://button[@data-testid="SelectNetworkButton"]', timeout=3)
+                        if newt_work:
+                            newt_work.click(by_js=True)
+                            __handle_signma_popup(page=page, count=1, timeout=15)
+                            time.sleep(3)
+                            __handle_signma_popup(page=page, count=0)
+                        else:
+                            signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
+                    else:
+                        signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
+                else:
+                    signma_log(message=f'error', task_name=f'nexus_error_a', index=evm_id)
+
+            __app_join = join(nexus, _name)
         # nexus.get(url='https://quest.nexus.xyz/loyalty')
         nexus = page.new_tab(url='https://quest.nexus.xyz/loyalty')
-        vf_cf(_nexus=nexus, _index=index)
+        for i in range(5):
+            time.sleep(5)
+            if __get_ele(page=nexus, xpath='x://h1[contains(text(), "quest.nexus.xyz")]', loop=1):
+                time.sleep(5)
+                click_x_y(524 + random.randint(1, 28), 393 + random.randint(1, 8), index)
+                time.sleep(10)
+            else:
+                break
+
         if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1):
             shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
             if shadow_host:
@@ -2131,374 +2041,435 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                             __handle_signma_popup(page=page, count=2, timeout=45)
         __handle_signma_popup(page=page, count=2, timeout=10)
         __tw_join = False
+
+
+
         if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
             if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
-                __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=1)
-                if __x_bool:
-                    # 取消 tw关注
-                    for i in range(4):
+
+                __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=3)
+
+                # 取消 tw关注
+                for i in range(4):
+                    nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
+                    if __get_ele(page=nexus, xpath=f'x://p[text()="{x_name}"]', loop=5):
+                        __tw_join = True
+                        break
+                    else:
+                        if __click_ele(page=nexus,
+                                       xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]'):
+                            __click_ele(page=nexus, xpath='x://button[text()="Disconnect Twitter"]')
                         nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
-                        if __get_ele(page=nexus, xpath=f'x://p[text()="{x_name}"]', loop=5):
-                            __tw_join = True
-                            break
-                        else:
-                            if __click_ele(page=nexus,
-                                           xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Disconnect"]'):
-                                __click_ele(page=nexus, xpath='x://button[text()="Disconnect Twitter"]')
-                            nexus.get('https://quest.nexus.xyz/loyalty?editProfile=1&modalTab=social')
-                            if __click_ele(page=nexus, xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]'):
-                                if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
-                                    logger.info('重新关注')
-                                    time.sleep(10)
-                QUEST_TASKS = getKey()
-                results = []
-                if __x_bool and __tw_join:
-                    nexus.get(url='https://quest.nexus.xyz/loyalty')
-                    time.sleep(3)
-                    nexus.refresh()
+                        if __click_ele(page=nexus, xpath='x://i[contains(@class,"fi-brands-twitter-alt")]/ancestor::div[contains(@class,"provider-button__container")]//p[text()="Connect"]'):
+                            if __click_ele(page=nexus, xpath='x://button[.//span[text()="Authorize app"]]'):
+                                logger.info('重新关注')
+                                time.sleep(10)
+
+            if __x_bool and __tw_join:
+                nexus.get(url='https://quest.nexus.xyz/loyalty')
+                time.sleep(3)
+                nexus.refresh()
+                nexus.scroll.to_bottom()
+                # scroll_div.scroll.down(1000)  # 滚动页面
+                time.sleep(3)
+                for i in range(2):
                     nexus.scroll.to_bottom()
-                    # scroll_div.scroll.down(1000)  # 滚动页面
-                    time.sleep(3)
-                    for i in range(2):
-                        nexus.scroll.to_bottom()
-                        time.sleep(1)
+                    time.sleep(1)
 
-                    for i in range(1):
-                        results = []
-                        __close_popup(page=_page, _url='x.com', timeout=5)
-                        results = batch_check_quests_concurrent(nexus, QUEST_TASKS, max_workers=8)
-                        existing_count = sum(results.values())
-                        if existing_count <= 0:
-                            logger.info('没有可选项')
-                        else:
+                _a = False
+                _b = False
+                _c = False
+                _d = False
+                _e = False
+                _f = False
+                _g = False
+                _h = False
+                _i = False
+                _j = False
+                _k = False
+                _l = False
+                _m = False
+                _n = False
+                _o = False
+                _p = False
+                _q = False
+                _r = False
+                _s = False
+                _t = False
+                _u = False
 
-                            # 新数据
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share the Zeta Collection')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost_comment(page, nexus, 'NEW: Share the Zeta Collection', 'Go to Post', random.choice(positive_replies), True)
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Gridcrew Roll Call')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost_comment(page, nexus, 'Gridcrew Roll Call', 'Go to Post', random.choice(positive_replies), True)
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: The Road we Run')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost_comment(page, nexus, 'NEW: The Road we Run', 'Go to Post',
-                                                        random.choice(positive_replies), True)
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share the Epsilon Collection')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost_comment(page, nexus, 'NEW: Share the Epsilon Collection', 'Go to Post',
-                                                        random.choice(positive_replies), True)
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share Delta Glyphs')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost(page, nexus, 'NEW: Share Delta Glyphs', 'Go to Post')
+                _v = False
+                _w = False
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Inside the Nexus Project')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost_comment(page, nexus, 'Inside the Nexus Project', 'Go to Post',
-                                                        random.choice(positive_replies), True)
+                for i in range(4):
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 're Doing Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost_comment(page, nexus, 're Doing Numbers', 'Go to Post',
-                                                        random.choice(positive_replies), True)
+                    __close_popup(page=_page, _url='x.com', timeout=5)
+                    # 新数据
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Reshare the Doctor')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost_comment(page, nexus, 'Reshare the Doctor', 'Go to Post',
-                                                        random.choice(positive_replies), True)
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Gridcrew Roll Call')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _s = True
+                        nex_like_repost_comment(page, nexus, 'Gridcrew Roll Call', 'Go to Post',
+                                                random.choice(positive_replies), True)
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Creator Academy')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost_comment(page, nexus, 'Support the Creator Academy', 'Go to Post',
-                                                        random.choice(positive_replies), True)
-                            # 结束
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Podcast')]",
-                                         loop=1):
-                                __click_ele(page=nexus,
-                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Podcast')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]",
-                                            loop=1)
-                                __click_ele(page=nexus,
-                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Podcast')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Follow or Rate on Spotify')]",
-                                            loop=1)
-                                twitter_page = __get_popup(page=page, _url='open.spotify.com', timeout=45)
-                                if twitter_page is not None:
-                                    time.sleep(10)
-                                    twitter_page.close()
-                                    __click_ele(page=nexus,
-                                                xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Podcast')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: The Road we Run')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _v = True
+                        nex_like_repost_comment(page, nexus, 'NEW: The Road we Run', 'Go to Post',
+                                                random.choice(positive_replies), True)
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost(page, nexus, 'Shine a Light on the Numbers', 'Like and Share this Post')
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share the Epsilon Collection')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _w = True
+                        nex_like_repost_comment(page, nexus, 'NEW: Share the Epsilon Collection', 'Go to Post',
+                                                random.choice(positive_replies), True)
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost_comment(page, nexus, 'Support the Nexus Ecosystem', 'Go to Post',
-                                                        random.choice(positive_replies), True)
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share Delta Glyphs')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _o = True
+                        nex_like_repost(page, nexus, 'NEW: Share Delta Glyphs', 'Go to Post')
 
-                            if __get_ele(page=nexus, xpath='x://a[@label="Go to Camp Nexus Blog"]', loop=1):
-                                __click_ele(page=nexus,
-                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]",
-                                            loop=1)
-                                __click_ele(page=nexus,
-                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Camp Nexus Blog')]",
-                                            loop=1)
-                                twitter_page = __get_popup(page=page, _url='blog.nexus.xyz', timeout=45)
-                                if twitter_page is not None:
-                                    time.sleep(10)
-                                    twitter_page.close()
-                                    __click_ele(page=nexus,
-                                                xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Inside the Nexus Project')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _p = True
+                        nex_like_repost_comment(page, nexus, 'Inside the Nexus Project', 'Go to Post',
+                                                random.choice(positive_replies), True)
 
-                            if __get_ele(page=nexus, xpath='x://a[@label="Support the Nexus Podcast"]', loop=1):
-                                __click_ele(page=nexus,
-                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'open.spotify.com')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]",
-                                            loop=1)
-                                __click_ele(page=nexus,
-                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'open.spotify.com')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Follow or Rate on Spotify')]",
-                                            loop=1)
-                                twitter_page = __get_popup(page=page, _url='open.spotify.com', timeout=45)
-                                if twitter_page is not None:
-                                    time.sleep(10)
-                                    twitter_page.close()
-                                    __click_ele(page=nexus,
-                                                xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'open.spotify.com')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 're Doing Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _q = True
+                        nex_like_repost_comment(page, nexus, 're Doing Numbers', 'Go to Post',
+                                                random.choice(positive_replies), True)
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]",
-                                         loop=1):
-                                __click_ele(page=nexus,
-                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]")
-                                twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
-                                if __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Authorize app"]]'):
-                                    time.sleep(5)
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Reshare the Doctor')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _r = True
+                        nex_like_repost_comment(page, nexus, 'Reshare the Doctor', 'Go to Post',
+                                                random.choice(positive_replies), True)
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Follow Nodejox - The Author')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_follow(page, nexus, 'NEW: Follow Nodejox - The Author', 'Go to Account')
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Creator Academy')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _t = True
+                        nex_like_repost_comment(page, nexus, 'Support the Creator Academy', 'Go to Post',
+                                                random.choice(positive_replies), True)
+                    # 结束
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_repost(page, nexus, 'Celebrate our Snag Partnership', 'Go to Post')
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Podcast')]",
+                                 loop=1):
+                        _u = True
+                        __click_ele(page=nexus,
+                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Podcast')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]",
+                                    loop=1)
+                        __click_ele(page=nexus,
+                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Podcast')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Follow or Rate on Spotify')]",
+                                    loop=1)
+                        twitter_page = __get_popup(page=page, _url='open.spotify.com', timeout=45)
+                        if twitter_page is not None:
+                            time.sleep(10)
+                            twitter_page.close()
+                            __click_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Podcast')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost(page, nexus, 'Like & Share our Testnet III Announcement', 'Go to Post')
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Like and Share this Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _l = True
+                        nex_like_repost(page, nexus, 'Shine a Light on the Numbers', 'Like and Share this Post')
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_follow(page, nexus, 'Follow Nexus', 'Go to Account')
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _k = True
+                        nex_like_repost_comment(page, nexus, 'Support the Nexus Ecosystem', 'Go to Post',
+                                                random.choice(positive_replies), True)
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost(page, nexus, 'Share Spelunking Badge', 'Go to Post')
+                    if __get_ele(page=nexus, xpath='x://a[@label="Go to Camp Nexus Blog"]', loop=1):
+                        _m = True
+                        __click_ele(page=nexus,
+                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]",
+                                    loop=1)
+                        __click_ele(page=nexus,
+                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Camp Nexus Blog')]",
+                                    loop=1)
+                        twitter_page = __get_popup(page=page, _url='blog.nexus.xyz', timeout=45)
+                        if twitter_page is not None:
+                            time.sleep(10)
+                            twitter_page.close()
+                            __click_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Welcome to Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Founder')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_follow(page, nexus, 'Follow Nodejox - The Founder', 'Go to Account')
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Voice')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_follow(page, nexus, 'Follow Nodejox - The Voice', 'Go to Account')
+                    if __get_ele(page=nexus, xpath='x://a[@label="Support the Nexus Podcast"]', loop=1):
+                        _m = True
+                        __click_ele(page=nexus,
+                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'open.spotify.com')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]",
+                                    loop=1)
+                        __click_ele(page=nexus,
+                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'open.spotify.com')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Follow or Rate on Spotify')]",
+                                    loop=1)
+                        twitter_page = __get_popup(page=page, _url='open.spotify.com', timeout=45)
+                        if twitter_page is not None:
+                            time.sleep(10)
+                            twitter_page.close()
+                            __click_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'open.spotify.com')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Claim')]")
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Doctor')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_follow(page, nexus, 'Follow Nodejox - The Doctor', 'Go to Account')
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]",
+                                 loop=1):
+                        _a = True
+                        __click_ele(page=nexus,
+                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]/ancestor::div[contains(@class, 'loyalty-quest')]//button[contains(., 'Connect X')]")
+                        twitter_page = __get_popup(page=page, _url='x.com', timeout=15)
+                        if __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Authorize app"]]'):
+                            time.sleep(5)
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
-                                         loop=1):
-                                nex_like_repost_comment(page, nexus, 'Node Runners Assemble', 'Go to Post',
-                                                        random.choice(positive_replies), True)
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Follow Nodejox - The Author')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                 loop=1):
+                        _b = True
+                        nex_follow(page, nexus, 'NEW: Follow Nodejox - The Author', 'Go to Account')
 
-                            if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim') or @label='Repost Tweet']",
-                                         loop=1):
-                                nex_repost(_page, nexus, 'Goodbye Camp Nexus', 'Repost Tweet')
-                                __click_ele(page=nexus,
-                                            xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim') or @label='Repost Tweet']",
-                                            loop=1)
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _c = True
+                        nex_repost(page, nexus, 'Celebrate our Snag Partnership', 'Go to Post')
 
-                results = batch_check_quests_concurrent(nexus, QUEST_TASKS, max_workers=8)
-                existing_count = sum(results.values())
-                ordered_results = [results.get(task, False) for task in QUEST_TASKS]
-                _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
-                if not __x_bool:
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _d = True
+                        nex_like_repost(page, nexus, 'Like & Share our Testnet III Announcement', 'Go to Post')
+
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                 loop=1):
+                        _e = True
+                        nex_follow(page, nexus, 'Follow Nexus', 'Go to Account')
+
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _f = True
+                        nex_like_repost(page, nexus, 'Share Spelunking Badge', 'Go to Post')
+
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Founder')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                 loop=1):
+                        _g = True
+                        nex_follow(page, nexus, 'Follow Nodejox - The Founder', 'Go to Account')
+
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Voice')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                 loop=1):
+                        _h = True
+                        nex_follow(page, nexus, 'Follow Nodejox - The Voice', 'Go to Account')
+
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Doctor')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Account') or contains(., 'Claim')]",
+                                 loop=1):
+                        _i = True
+                        nex_follow(page, nexus, 'Follow Nodejox - The Doctor', 'Go to Account')
+
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                 loop=1):
+                        _j = True
+                        nex_like_repost_comment(page, nexus, 'Node Runners Assemble', 'Go to Post',
+                                                random.choice(positive_replies), True)
+
+                    if __get_ele(page=nexus,
+                                 xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim') or @label='Repost Tweet']",
+                                 loop=1):
+                        _n = True
+                        nex_repost(_page, nexus, 'Goodbye Camp Nexus', 'Repost Tweet')
+                        __click_ele(page=nexus,
+                                    xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Repost Tweet') or contains(., 'Claim') or @label='Repost Tweet']",
+                                    loop=1)
+
+                    # <h1 class="text-2xl font-bold">Your purchase succeeded!</h1>
                     __bool = True
-                if existing_count <= 0:
-                    __bool = True
-                signma_log(message=f"{_amount},{__x_bool},{__bool},{x_name},{__app_join},{existing_count},{','.join(str(result) for result in ordered_results)}", task_name=f'nexus_joina_sseb', index=evm_id)
+                    if _a and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Connect your X to get started')]",
+                                        loop=1):
+                        __bool = False
+                    else:
+                        _a = False
 
+                    if _b and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Follow Nodejox - The Author')]",
+                                        loop=1):
+                        __bool = False
+                    else:
+                        _b = False
+
+                    if _c and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Celebrate our Snag Partnership')]",
+                                        loop=1):
+                        __bool = False
+                    else:
+                        _c = False
+
+                    if _d and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Like & Share our Testnet III Announcement')]",
+                                        loop=1):
+                        __bool = False
+                    else:
+                        _d = False
+
+                    if _e and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[text()='Follow Nexus ']",
+                                        loop=1):
+                        __bool = False
+                    else:
+                        _e = False
+
+                    if _f and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share Spelunking Badge')]",
+                                        loop=1):
+                        __bool = False
+                    else:
+                        _f = False
+
+                    if _g and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Founder')]",
+                                        loop=1):
+                        __bool = False
+                    else:
+                        _g = False
+
+                    if _h and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Voice')]",
+                                        loop=1):
+                        __bool = False
+                    else:
+                        _h = False
+
+                    if _i and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Follow Nodejox - The Doctor')]",
+                                        loop=1):
+                        __bool = False
+                    else:
+                        _i = False
+
+                    if _j and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Node Runners Assemble')]",
+                                        loop=1):
+                        __bool = False
+                    else:
+                        _j = False
+
+                    if _k and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Ecosystem')]",
+                                        loop=1):
+                        __bool = False
+                    else:
+                        _k = False
+
+                    if _l and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Shine a Light on the Numbers')]",
+                                        loop=1):
+                        __bool = False
+                    else:
+                        _l = False
+
+                    if _m and __get_ele(page=nexus, xpath='x://a[@label="Visit Blog"]', loop=1):
+                        __bool = False
+                    else:
+                        _m = False
+
+                    if _n and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Goodbye Camp Nexus')]",
+                                        loop=1):
+                        __bool = False
+                    else:
+                        _n = False
+
+                    # 新数据
+                    if _o and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share Delta Glyphs')]",
+                                        loop=1):
+                        __bool = False
+                        break
+
+                    if _p and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Inside the Nexus Project')]",
+                                        loop=1):
+                        __bool = False
+                        break
+
+                    if _q and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 're Doing Numbers')]",
+                                        loop=1):
+                        __bool = False
+                        break
+
+                    if _r and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Reshare the Doctor')]",
+                                        loop=1):
+                        __bool = False
+                        break
+
+                    if _s and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Gridcrew Roll Call')]",
+                                        loop=1):
+                        __bool = False
+                        break
+
+                    if _t and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Creator Academy')]",
+                                        loop=1):
+                        __bool = False
+                        break
+                    # 结束
+                    if _u and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Support the Nexus Podcast')]",
+                                        loop=1):
+                        __bool = False
+                        break
+
+                    if _v and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: The Road we Run')]",
+                                        loop=1):
+                        __bool = False
+                        break
+
+                    if _w and __get_ele(page=nexus,
+                                        xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share the Epsilon Collection')]",
+                                        loop=1):
+                        __bool = False
+                        break
+
+                    if __bool:
+                        break
+            _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
+            if not _amount or float(_amount) <= 0:
+                _amount = '0'
+                __bool = False
+            if __x_bool:
+                if not __app_join:
+                    __app_join = join(nexus, _name)
+                if not __app_join:
+                    __bool = False
+            else:
+                __bool = True
+            signma_log(message=f'{_amount},{__x_bool},{__bool},{x_name},{__app_join}', task_name=f'nexus_joina_sse', index=evm_id)
+            # if not __x_bool:
+            #     __bool = True
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
 
-def getKey():
-    QUEST_TASKS = [
-        "NEW: Share the Zeta Collection",
-        "Connect your X to get started",
-        "NEW: Follow Nodejox - The Author",
-        "Celebrate our Snag Partnership",
-        "Like & Share our Testnet III Announcement",
-        "Follow Nexus ",
-        "Share Spelunking Badge",
-        "Follow Nodejox - The Founder",
-        "Follow Nodejox - The Voice",
-        "Follow Nodejox - The Doctor",
-        "Node Runners Assemble",
-        "Support the Nexus Ecosystem",
-        "Shine a Light on the Numbers",
-        "Goodbye Camp Nexus",
-        "NEW: Share Delta Glyphs",
-        "Inside the Nexus Project",
-        "re Doing Numbers",
-        "Reshare the Doctor",
-        "Gridcrew Roll Call",
-        "Support the Creator Academy",
-        "Support the Nexus Podcast",
-        "NEW: The Road we Run",
-        "NEW: Share the Epsilon Collection"
-    ]
-    return QUEST_TASKS
-
-def check_quest_element(page, task_text: str) -> Tuple[str, bool]:
-    """
-    检查单个任务元素是否存在
-
-    Args:
-        page: DrissionPage 页面对象
-        task_text: 任务文本内容
-
-    Returns:
-        (task_text, exists): 元组，包含任务文本和是否存在
-    """
-    try:
-        # 特殊处理 "Follow Nexus " 使用 text() 精确匹配
-        if task_text == "Follow Nexus ":
-            xpath = f"x://div[contains(@class, 'loyalty-quest')]//div[text()='{task_text}']"
-        else:
-            xpath = f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{task_text}')]"
-
-        # 使用 __get_ele 函数检查元素
-        result = __get_ele(page=page, xpath=xpath, loop=1)
-        return (task_text, bool(result))
-    except Exception as e:
-        print(f"检查任务 '{task_text}' 时出错: {e}")
-        return (task_text, False)
-
-
-def batch_check_quests_concurrent(page, quest_tasks, max_workers: int = 5) -> Dict[str, bool]:
-    """
-    并发批量检查任务元素
-
-    Args:
-        page: DrissionPage 页面对象
-        max_workers: 最大并发线程数（默认5，可根据实际情况调整）
-
-    Returns:
-        字典，key 为任务文本，value 为是否存在
-    """
-    results = {}
-
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # 提交所有任务
-        futures = []
-
-        # 提交普通任务
-        for task in quest_tasks:
-            future = executor.submit(check_quest_element, page, task)
-            futures.append(future)
-
-        # 收集结果（按完成顺序）
-        for future in as_completed(futures):
-            try:
-                task_text, exists = future.result()
-                results[task_text] = exists
-                if exists:
-                    print(f"✓ 找到任务: {task_text}")
-            except Exception as e:
-                print(f"处理任务结果时出错: {e}")
-
-    return results
-
-def query_nexus_x(page, evm_id, evm_addr, index):
-    _bool = False
-    QUEST_TASKS = getKey()
-    __handle_signma_popup(page=page, count=0)
-    __login_wallet(page=page, evm_id=evm_id)
-    __handle_signma_popup(page=page, count=0)
-    __login_wallet(page=page, evm_id=evm_id)
-    __handle_signma_popup(page=page, count=0)
-    nexus = page.new_tab(url='https://quest.nexus.xyz/loyalty')
-    vf_cf(_nexus=nexus, _index=index)
-
-    if __click_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1):
-        shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
-        if shadow_host:
-            shadow_root = shadow_host.shadow_root
-            if shadow_root:
-                continue_button = shadow_root.ele('x://p[contains(text(), "Continue with a wallet")]')
-                if continue_button:
-                    continue_button.click(by_js=True)
-                    time.sleep(1)
-                    signma_ele = shadow_root.ele('x://span[text()="Signma"]')
-                    if signma_ele:
-                        signma_ele.click(by_js=True)
-                        __handle_signma_popup(page=page, count=2, timeout=45)
-                        nexus.refresh()
-                        vf_cf(_nexus=nexus, _index=index)
-                        for i in range(2):
-                            nexus.scroll.to_bottom()
-                            time.sleep(1)
-    __handle_signma_popup(page=page, count=2, timeout=10)
-    for i in range(2):
-        nexus.scroll.to_bottom()
-        time.sleep(1)
-    for i in range(3):
-        time.sleep(1)
-        nexus.scroll.up(1000)
-    nexus.refresh()
-    vf_cf(_nexus=nexus, _index=index)
-    for i in range(2):
-        nexus.scroll.to_bottom()
-        time.sleep(1)
-    for i in range(3):
-        time.sleep(1)
-        nexus.scroll.up(1000)
-    if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
-        _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
-        if _amount:
-            results = batch_check_quests_concurrent(nexus, QUEST_TASKS, max_workers=8)
-            # 打印统计
-            existing_count = sum(results.values())
-            print(f"\n总计: {existing_count}/{len(results)} 个任务存在")
-            ordered_results = [results.get(task, False) for task in QUEST_TASKS]
-            print(", ".join(str(result) for result in QUEST_TASKS))
-            print(", ".join(str(result) for result in ordered_results))
-            ethereum = get_eth_balance('ethereum', evm_addr)
-            base = get_eth_balance('base', evm_addr)
-            signma_log(message=f"{evm_addr},{ethereum},{base},{_amount},{existing_count},{','.join(str(result) for result in ordered_results)}", task_name=f'nexus_jifen_1', index=evm_id)
-            _bool = True
-    return _bool
 
 def join(nexus, _name):
     __bool = False
@@ -2556,8 +2527,6 @@ def join(nexus, _name):
         except Exception as e:
             logger.info(f"任务异常: {e}")
     return __bool
-
-
 def get_random_words(count):
     # 定义60个单词的列表
     words = [
@@ -2590,10 +2559,10 @@ def nex_repost(_page, nexus, key, bt):
                 xpath=f"x://div[contains(@class, 'loyalty-quest')]//div[contains(., '{key}')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., '{bt}')]",
                 loop=2)
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
-    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0, loop=2):
+    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
         __click_ele(page=twitter_page, xpath='x://div[@data-testid="unretweetConfirm"]')
         time.sleep(2)
-    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0, loop=2):
+    if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0):
         __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
         __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=2)
         time.sleep(4)
@@ -2737,9 +2706,9 @@ def nex_like_repost_comment(_page, nexus, key, bt, txt, link):
     twitter_page = __get_popup(page=_page, _url='x.com', timeout=15)
     if twitter_page:
         move_humanly(500 + random.randint(1, 100), 600 + random.randint(1, 100), 1)
-        if not __get_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0, loop=2):
+        if not __get_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0):
             __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True, index=0, move_click=True)
-        if not __get_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0, loop=2):
+        if not __get_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
             time.sleep(random.uniform(1, 3))
             if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0, move_click=True):
                 __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
@@ -2801,9 +2770,9 @@ def nex_like_repost(_page, nexus, key, bt):
     if not __get_ele(page=twitter_page, xpath='x://button[@data-testid="unlike"]', find_all=True, index=0):
         __click_ele(page=twitter_page, xpath='x://button[@data-testid="like"]', find_all=True, index=0,
                     move_click=True)
-    if not __get_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0, loop=2):
+    if not __get_ele(page=twitter_page, xpath='x://button[@data-testid="unretweet"]', find_all=True, index=0):
         time.sleep(random.uniform(1, 3))
-        if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0, loop=2,
+        if __click_ele(page=twitter_page, xpath='x://button[@data-testid="retweet"]', find_all=True, index=0,
                        move_click=True):
             __click_ele(page=twitter_page, xpath='x://div[@data-testid="retweetConfirm"]')
             __click_ele(page=twitter_page, xpath='x://button[.//span[text()="Got it"]]', loop=2,
@@ -3908,16 +3877,12 @@ def install_chrome_extension(
 if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
-    # TASK_TYPES = {'nexus_hz_base_ts'}
-    # TASK_TYPES = {'nexus_joina_new_c'}
-    TASK_TYPES = {'prismax', 'prismax_new'}
-    # TASK_TYPES = {'prismax', 'prismax_new', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
+    TASK_TYPES = {'nexus_hz_base_ts'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_hz_base_ts', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
     parser.add_argument("--display", type=str, help="X11 DISPLAY", default=":24")
     parser.add_argument("--base-port", type=int, help="本地调试端口", default=29541)
-    TASK_TYPES_PRISMAX = {'prismax', 'prismax_new'}
     args = parser.parse_args()
     ARGS_IP = args.ip or ""
     _window = args.display.lstrip(':')
@@ -3943,7 +3908,6 @@ if __name__ == '__main__':
 
         # 过滤：保留“今天及以前”的数据；并排除已完成（end_tasks）之外的行
         filtered = []
-        filtered_paismax = []
         for line in tasks:
             parts = line.split("||")
             if len(parts) < 3:
@@ -3959,72 +3923,9 @@ if __name__ == '__main__':
             if (parts[1] == '0' and parts[0] not in _end_day_task) or (
                     parts[1] != '0' and date_obj <= today and parts[0] not in end_tasks):
                 # if parts[1] == '0' or (parts[0] not in end_tasks):
-                _argsa = parts[3].split(",")
-                # logger.info(f'添加执行今日任务leix :{_argsa[0]}')
-                if _argsa[0] in TASK_TYPES:
-                    if _argsa[0] in TASK_TYPES_PRISMAX:
-                        logger.info(f'添加执行今日机器人任务:{line}')
-                        filtered_paismax.append(line)
-                    else:
-                        logger.info(f'添加执行今日任务:{line}')
-                        filtered.append(line)
-
+                logger.info(f'添加执行今日任务:{line}')
+                filtered.append(line)
         random.shuffle(filtered)
-        if len(filtered_paismax) > 0:
-            result  = check_available()
-            if result:
-                _home_ip, _key = result
-                for part in filtered_paismax:
-                    _page = None
-                    _end = False
-                    _task_id = ''
-                    _task_type = ''
-                    try:
-                        parts = part.split("||")
-                        if len(parts) < 4:
-                            logger.warning(f"任务参数不足，跳过：{part!r}")
-                            continue
-                        port = args.base_port
-                        _task_id = parts[0]
-                        _task_type = parts[1]
-                        arg = parts[3].split(",")
-                        _task = parts[3]
-                        if len(arg) < 2:
-                            logger.warning(f"任务 arg 参数不足，跳过：{parts[3]!r}")
-                            continue
-                        _type = arg[0]
-                        _id = arg[1]
-                        logger.warning(f"启动任务1:{_type}:{part}")
-                        if len(arg) < 3:
-                            logger.warning("prismax 需要助记词/私钥参数，已跳过")
-                        else:
-                            _page = __get_page("prismax", _id, None, _home_ip)
-                            __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
-                            _end = True
-                    except Exception as e:
-                        logger.info(f"任务异常: {e}")
-                    finally:
-                        logger.info(f'结束数据:{_task_type}:{_task_id}')
-                        if _page is not None:
-                            try:
-                                _page.quit()
-                            except Exception:
-                                logger.exception("退出错误")
-                        logger.info(f'数据{_end}:{_task_type}:{_task_id}')
-                        if _end and _task_id:
-                            if _task_type != '0':
-                                if platform.system().lower() != "windows":
-                                    append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt",
-                                                        data_str=_task_id)
-                                else:
-                                    append_date_to_file(file_path="E:/tmp/chrome_data/end_tasks.txt", data_str=_task_id)
-                            else:
-                                _end_day_task.append(_task_id)
-                        else:
-                            signma_log(message=f"{_type},{_task_id},{_task}",
-                                       task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                end_available(_key=_key)
-
         for part in filtered:
             _page = None
             _end = False
@@ -4116,9 +4017,8 @@ if __name__ == '__main__':
                     #     __handle_signma_popup(page=_page, count=0)
                     #     _end = __do_task_nexus_hz_qy(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     if _type == 'nexus_hz_base_ts':
-                        _page = __get_page("nexus_1", _id, None, False)
-                        # _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                        _end = query_nexus_x(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        _page = __get_page("nexus", _id, None, False)
+                        _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'prismax_new' or _type == 'prismax':
                         _home_ip = False
                         # prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
@@ -4137,8 +4037,8 @@ if __name__ == '__main__':
                             _end = True
                             if _home_ip:
                                 end_available(evm_id=_id)
-                    elif _type == 'nexus_joina_new_c':
-                        _page = __get_page("nexus_joina_sse", _id, None, False)
+                    elif _type == 'nexus_joina_sse':
+                        _page = __get_page("nexus_joina_sa", _id, None, False)
                         _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[2], x_cookies=arg[3])
                         # _end = True
                     else:
@@ -4211,11 +4111,11 @@ if __name__ == '__main__':
                     else:
                         signma_log(message=f"{_type},{_task_id},{_task}",
                                    task_name=f'error_task_{get_date_as_string()}', index=evm_id)
+                    time.sleep(60)
                     # if len(filtered) > 24:
                     #     time.sleep(random.randint(200, 400))
                     # elif len(filtered) > 12:
                     #     time.sleep(random.randint(400, 800))
                     # else:
                     #     time.sleep(random.randint(600, 1800))
-                    time.sleep(10)
-        time.sleep(random.randint(500, 600))
+        time.sleep(random.randint(200, 800))
