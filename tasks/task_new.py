@@ -2169,12 +2169,16 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
                         if existing_count <= 0:
                             logger.info('没有可选项')
                         else:
+
                             # 新数据
+                            if __get_ele(page=nexus,
+                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share the Zeta Collection')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                         loop=1):
+                                nex_like_repost_comment(page, nexus, 'NEW: Share the Zeta Collection', 'Go to Post', random.choice(positive_replies), True)
                             if __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Gridcrew Roll Call')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                          loop=1):
-                                nex_like_repost_comment(page, nexus, 'Gridcrew Roll Call', 'Go to Post',
-                                                        random.choice(positive_replies), True)
+                                nex_like_repost_comment(page, nexus, 'Gridcrew Roll Call', 'Go to Post', random.choice(positive_replies), True)
                             if __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: The Road we Run')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                          loop=1):
@@ -2348,6 +2352,7 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
 
 def getKey():
     QUEST_TASKS = [
+        "NEW: Share the Zeta Collection",
         "Connect your X to get started",
         "NEW: Follow Nodejox - The Author",
         "Celebrate our Snag Partnership",
