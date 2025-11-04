@@ -55,6 +55,11 @@ def __get_page(_type, _id, _port, _home_ip):
         else:
             options.add_extension(f"/home/ubuntu/extensions/phantom")
             options.set_argument("--blink-settings=imagesEnabled=false")
+    elif _type == 'manifesto':
+        if platform.system().lower() == "windows":
+            options.add_extension(f"E:/chrome_tool/okx")
+        else:
+            options.add_extension(f"/home/ubuntu/extensions/okx")
     else:
         if platform.system().lower() == "windows":
             options.add_extension(f"E:/chrome_tool/signma")
@@ -919,37 +924,104 @@ def __do_task_monad(page, evm_id, index):
     return __bool
 
 
-def __do_task_quackai(page, evm_id, index):
+def shorten_address(address, prefix_len=6, suffix_len=4):
+    if len(address) <= prefix_len + suffix_len:
+        return address
+
+    return f"{address[:prefix_len]}...{address[-suffix_len:]}"
+
+#·ok钱包
+def login_ok(page, evm_addr, evm_keys):
+    _ok = False
+    ok_page = None
+    un_error = True
+    try:
+        # chrome-extension://mcohilncbfahbmgdjkbpemcciiolgcge/notification.html  访问ok钱包
+        ok_page = __get_popup(page=page, _url='mcohilncbfahbmgdjkbpemcciiolgcge/notification.html')
+        if ok_page is None:
+            ok_page = page.new_tab(url='chrome-extension://mcohilncbfahbmgdjkbpemcciiolgcge/notification.html')
+        if __get_ele(page=ok_page, xpath='x://button[@data-testid="onboard-page-import-wallet-button"]', loop=2):
+            #   button      data-testid="onboard-page-import-wallet-button"   导入钱包
+            __click_ele(page=ok_page, xpath='x://button[@data-testid="onboard-page-import-wallet-button"]', loop=2)
+            #   div         data-testid="onboard-page-import-seed-phrase-or-private-key"  选中助记词或私钥
+            __click_ele(page=ok_page, xpath='x://div[@data-testid="onboard-page-import-seed-phrase-or-private-key"]', loop=2)
+
+            # #   div         data-pane-id="2"  选中私钥
+            # __click_ele(page=ok_page, xpath='x://div[@data-pane-id="2"]', loop=2)
+            # #   textarea    data-testid="okd-input" 输入私钥  L4YoXLRw7rqXNEH5pgup6bTAEdc8JwyTiztc7Hi7RdsjP5J7ujfr
+            # __input_ele_value(page=ok_page, xpath='x://textarea[@data-testid="okd-input"]', value=evm_key)
+            #
+            # time.sleep(2)
+            # __click_ele(page=ok_page, xpath='x://button[@data-testid="okd-button"]', loop=2)
+
+            # 输入助剂词
+            words = evm_keys.split()
+            # 循环并显示序号（从1开始）
+            for index, word in enumerate(words, start=0):
+                print(f"{index}. {word}")
+                __input_ele_value(page=ok_page, xpath='x://input[@data-testid="import-seed-phrase-or-private-key-page-seed-phrase-input"]', find_all=True, index=index, value=word)
+            #   button      data-testid="import-seed-phrase-or-private-key-page-confirm-button"  确定输入助剂词
+            time.sleep(2)
+            __click_ele(page=ok_page, xpath='x://button[@data-testid="import-seed-phrase-or-private-key-page-confirm-button"]', loop=2)
+
+            #   button      data-testid="okd-button"  确定网络
+            time.sleep(2)
+            __click_ele(page=ok_page, xpath='x://button[@data-testid="okd-button"]', loop=2)
+            #   div         class="_item_1cywj_22" 第二框   密码验证
+            time.sleep(2)
+            __click_ele(page=ok_page, xpath='x://div[@class="_item_1cywj_22"]', find_all=True, index=2, loop=2)
+            #   button      data-testid="okd-button"  密码验证确定
+            time.sleep(2)
+            __click_ele(page=ok_page, xpath='x://button[@data-testid="okd-button"]', loop=2)
+            #   input       data-testid="okd-input"  密码1
+            time.sleep(2)
+            pwd_eles = ok_page.eles('x://input[@data-testid="okd-input"]')
+            logger.info('设置密码')
+            if len(pwd_eles) >= 2:
+                for pwd in pwd_eles:
+                    pwd.input('Tangerang321',clear=True)
+            #   button      data-testid="okd-button"  确定钱包导入
+            __click_ele(page=ok_page, xpath='x://button[@data-testid="okd-button"]', loop=2)
+            #   buttondata-testid="onboarding-success-page-confirm-button"  开启web3
+            __click_ele(page=ok_page, xpath='x://button[@data-testid="onboarding-success-page-confirm-button"]', loop=2)
+        elif __get_ele(page=ok_page, xpath='x://input[@data-testid="okd-input"]', loop=2):
+            __input_ele_value(page=ok_page, xpath='x://input[@data-testid="okd-input"]', value='Tangerang321')
+            time.sleep(2)
+            __click_ele(page=ok_page, xpath='x://button[@data-testid="okd-button" and not(@disabled)]', loop=2)
+        if __get_ele(page=ok_page, xpath=f'x://div[normalize-space(text())="NFT"]', loop=3):
+            _ok = True
+    except Exception as e:
+        error = e
+        pass
+    finally:
+        if ok_page is not None:
+            ok_page.close()
+    return _ok
+
+
+def __do_task_manifesto(page, evm_id, index, evm_addr, evm_key):
     __bool = False
     try:
-        time.sleep(1)
-        __handle_signma_popup(page=page, count=0)
         time.sleep(2)
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
+        login_ok(page=page, evm_addr=evm_addr, evm_keys=evm_key)
         logger.info('已登录钱包')
-        main_page = page.new_tab(url="https://claim.quackai.ai/season-1")
+        main_page = page.new_tab(url="https://manifesto.arch.network/")
+        __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Join the movement"]')
+        if __click_ele(page=main_page, xpath='x://button[@aria-label="Connect OKX"]'):
+            time.sleep(2)
+            ok_page = __get_popup(page=page, _url='mcohilncbfahbmgdjkbpemcciiolgcge/notification.html')
+            if ok_page is not None:
+                __click_ele(page=ok_page, xpath='x://button[@data-testid="okd-button"]', find_all=True, index=1, loop=2)
+        if __click_ele(page=main_page, xpath='x://button[@data-join-btn="true" and normalize-space(.)="Join the movement"]'):
+            ok_page = __get_popup(page=page, _url='mcohilncbfahbmgdjkbpemcciiolgcge/notification.html')
+            if ok_page is not None:
+                __click_ele(page=ok_page, xpath='x://button[@data-testid="okd-button"]', find_all=True, index=1, loop=2)
 
-        if __click_ele(page=main_page, xpath='x://button[normalize-space(.)="Connect Wallet"]', loop=2):
-            if __click_ele(page=main_page, xpath='x://button[@data-testid="rk-wallet-option-xyz.signma"]'):
-                __handle_signma_popup(page=page, count=2)
-                __handle_signma_popup(page=page, count=0)
-
-        _id = __get_ele_value(page=main_page, xpath=f"x://span[contains(@class,'font-semibold text-xs md:text-base')]",
-                              loop=2)
-
-        if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Unknown-Connect Wallet to Check')]",
-                     loop=1):
-            logger.info('登陆失败')
+        if __get_ele(page=main_page, xpath="x://h1[contains(normalize-space(.),'Welcome to the movement.')]", loop=1):
+            signma_log(message=f"{_id},1", task_name=f'task_manifesto_{get_date_as_string()}', index=evm_id)
+            __bool = True
         else:
-            if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Eligibility Status')]", loop=2):
-                __bool = True
-                if __get_ele(page=main_page, xpath="x://p[contains(normalize-space(.),'Ineligible')]", loop=2):
-                    signma_log(message=f"{_id},0", task_name=f'quackai_log', index=evm_id)
-                else:
-                    signma_log(message=f"{_id},1", task_name=f'quackai_log', index=evm_id)
-            if main_page is not None:
-                main_page.close()
+            signma_log(message=f"{_id},0", task_name=f'task_manifesto_{get_date_as_string()}', index=evm_id)
     except Exception as e:
         logger.info(f"窗口{index}: 处理任务异常: {e}")
     return __bool
@@ -3918,7 +3990,7 @@ if __name__ == '__main__':
     # TASK_TYPES = {'nexus_joina_new_c'}
     # TASK_TYPES = {'prismax', 'prismax_new'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c', 'rari_arb', 'molten', 'gift'}
-    TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c','nexus_hz_base_ts', 'rari_arb', 'molten', 'gift'}
+    TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c','nexus_hz_base_ts', 'rari_arb', 'molten', 'gift', 'manifesto'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_hz_base_ts', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     parser = argparse.ArgumentParser(description="获取应用信息")
@@ -4149,8 +4221,8 @@ if __name__ == '__main__':
                             _end = True
                         elif _type == 'monad':
                             _end = __do_task_monad(page=_page, index=_window, evm_id=_id)
-                        elif _type == 'quackai':
-                            _end = __do_task_quackai(page=_page, index=_window, evm_id=_id)
+                        elif _type == 'manifesto':
+                            _end = __do_task_manifesto(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], evm_key=arg[3])
                         elif _type == 'pond':
                             _end = __do_task_pond(page=_page, index=_window, evm_id=_id)
                         elif _type == 'end_eth':
