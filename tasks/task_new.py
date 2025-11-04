@@ -1847,6 +1847,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
             __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(18, 22))
 
         nexus.refresh()
+        vf_cf(_nexus=nexus, _index=index)
         time.sleep(10)
         _amount = __get_ele_value(page=nexus, xpath="x://span[contains(@class, 'text-sm font-normal')]")
         ethereum_end = get_eth_balance(net_type, evm_addr)
@@ -1891,9 +1892,14 @@ def __do_task_nexus_hz_lq(page, nexus, _net_type, _url, nexus_no_bad, _id, name,
                             vf_cf(_nexus=nexus, _index=_index)
                             nexus.refresh()
                             vf_cf(_nexus=nexus, _index=_index)
+                            # 点击提交前 获取gas
+                            _gas = __quyer_gas()
+                            if _gas is not None:
+                                _low_gas = _gas.get('SafeGasPrice', '99')
+                                if _low_gas is not None and float(_low_gas) > 0.8:
+                                    return False
                             if __get_ele(page=nexus, xpath=f'x://h1[contains(text(), "{name}")]'):
-                                if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]',
-                                               loop=3):
+                                if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3):
                                     # 可能出现二次登陆
                                     shadow_host = nexus.ele('x://div[@data-testid="dynamic-modal-shadow"]')
                                     if shadow_host:
@@ -3911,7 +3917,8 @@ if __name__ == '__main__':
     # TASK_TYPES = {'nexus_hz_base_ts'}
     # TASK_TYPES = {'nexus_joina_new_c'}
     # TASK_TYPES = {'prismax', 'prismax_new'}
-    TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c', 'rari_arb', 'molten', 'gift'}
+    # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c', 'rari_arb', 'molten', 'gift'}
+    TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c','nexus_hz_base_ts', 'rari_arb', 'molten', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_hz_base_ts', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     parser = argparse.ArgumentParser(description="获取应用信息")
@@ -4117,8 +4124,8 @@ if __name__ == '__main__':
                     #     _end = __do_task_nexus_hz_qy(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     if _type == 'nexus_hz_base_ts':
                         _page = __get_page("nexus_1", _id, None, False)
-                        # _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                        _end = query_nexus_x(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
+                        # _end = query_nexus_x(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'nexus_joina_new_c':
                         _page = __get_page("nexus_joina_sse", _id, None, False)
                         _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[2], x_cookies=arg[3])
