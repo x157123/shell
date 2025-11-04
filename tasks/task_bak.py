@@ -4119,24 +4119,6 @@ if __name__ == '__main__':
                         _page = __get_page("nexus_1", _id, None, False)
                         # _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                         _end = query_nexus_x(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                    elif _type == 'prismax_new' or _type == 'prismax':
-                        _home_ip = False
-                        # prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
-                        # if _id not in prismax_init:
-                        #     logger.info('获取ip位')
-                        #     _home_ip = check_available(_id)
-                        if len(arg) < 3:
-                            logger.warning("prismax 需要助记词/私钥参数，已跳过")
-                        else:
-                            if _home_ip:
-                                logger.info('获取到ip位')
-                            else:
-                                logger.info('未获取到ip位')
-                            _page = __get_page("prismax", _id, None, _home_ip)
-                            __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
-                            _end = True
-                            if _home_ip:
-                                end_available(evm_id=_id)
                     elif _type == 'nexus_joina_new_c':
                         _page = __get_page("nexus_joina_sse", _id, None, False)
                         _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[2], x_cookies=arg[3])
