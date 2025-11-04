@@ -48,8 +48,7 @@ def __get_page(_type, _id, _port, _home_ip):
     else:
         options.set_browser_path('/opt/google/chrome')
     if _home_ip:
-        num = "23002"
-        options.set_proxy(f"43.160.196.49:{num}")
+        options.set_proxy(f"{_home_ip}:47163")
     if _type == 'prismax' or _type == 'monad_solana':
         if platform.system().lower() == "windows":
             options.add_extension(f"E:/chrome_tool/phantom")
@@ -130,20 +129,23 @@ def __get_page_x(_type, _id, _port, _home_ip):
     return _pages
 
 
-def check_available(evm_id: str = '0000') -> bool:
-    url = f"http://43.160.196.49:7890/api/check?client_id={evm_id}"
+def check_available() -> Optional[Tuple[str, str]]:
+    url = "http://43.163.232.251:22300/api/ip/get"
     try:
-        response = requests.get(url, timeout=15)  # 设置超时 5 秒
-        response.raise_for_status()  # 如果响应状态码不是 200 会抛异常
+        response = requests.get(url, timeout=15)
+        response.raise_for_status()
         data = response.json()
-        return data.get("available", False)
+        # 检查 success 字段和必需的 id、ip 字段
+        if data.get("success") and data.get("id") and data.get("ip"):
+            return (data["id"], data["ip"])
+        return None
     except Exception as e:
-        print("请求失败:", e)
-        return False
+        print(f"请求失败: {e}")
+        return None
 
 
-def end_available(evm_id: str = '0000') -> bool:
-    url = f"http://43.160.196.49:7890/api/release?client_id={evm_id}"
+def end_available(_key: str = '0000') -> bool:
+    url = f"http://43.163.232.251:22300/api/ip/return?id={_key}"
     try:
         response = requests.get(url, timeout=15)  # 设置超时 5 秒
         response.raise_for_status()  # 如果响应状态码不是 200 会抛异常
@@ -3907,14 +3909,16 @@ if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
     # TASK_TYPES = {'nexus_hz_base_ts'}
-    TASK_TYPES = {'nexus_joina_new_c'}
+    # TASK_TYPES = {'nexus_joina_new_c'}
     # TASK_TYPES = {'prismax', 'prismax_new'}
+    TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c', 'rari_arb', 'molten', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_hz_base_ts', 'nexus', 'rari_arb', 'rari_arb_end', 'molten', 'pond', 'gift'}
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
     parser.add_argument("--display", type=str, help="X11 DISPLAY", default=":24")
     parser.add_argument("--base-port", type=int, help="本地调试端口", default=29541)
+    TASK_TYPES_PRISMAX = {'prismax', 'prismax_new'}
     args = parser.parse_args()
     ARGS_IP = args.ip or ""
     _window = args.display.lstrip(':')
@@ -3940,6 +3944,7 @@ if __name__ == '__main__':
 
         # 过滤：保留“今天及以前”的数据；并排除已完成（end_tasks）之外的行
         filtered = []
+        filtered_paismax = []
         for line in tasks:
             parts = line.split("||")
             if len(parts) < 3:
@@ -3958,9 +3963,68 @@ if __name__ == '__main__':
                 _argsa = parts[3].split(",")
                 # logger.info(f'添加执行今日任务leix :{_argsa[0]}')
                 if _argsa[0] in TASK_TYPES:
-                    logger.info(f'添加执行今日任务:{line}')
-                    filtered.append(line)
+                    if _argsa[0] in TASK_TYPES_PRISMAX:
+                        logger.info(f'添加执行今日机器人任务:{line}')
+                        filtered_paismax.append(line)
+                    else:
+                        logger.info(f'添加执行今日任务:{line}')
+                        filtered.append(line)
+
         random.shuffle(filtered)
+        if len(filtered_paismax) > 0:
+            result  = check_available()
+            if result:
+                _key, _home_ip= result
+                for part in filtered_paismax:
+                    _page = None
+                    _end = False
+                    _task_id = ''
+                    _task_type = ''
+                    try:
+                        parts = part.split("||")
+                        if len(parts) < 4:
+                            logger.warning(f"任务参数不足，跳过：{part!r}")
+                            continue
+                        port = args.base_port
+                        _task_id = parts[0]
+                        _task_type = parts[1]
+                        arg = parts[3].split(",")
+                        _task = parts[3]
+                        if len(arg) < 2:
+                            logger.warning(f"任务 arg 参数不足，跳过：{parts[3]!r}")
+                            continue
+                        _type = arg[0]
+                        _id = arg[1]
+                        logger.warning(f"启动任务1:{_type}:{part}")
+                        if len(arg) < 3:
+                            logger.warning("prismax 需要助记词/私钥参数，已跳过")
+                        else:
+                            _page = __get_page("prismax", _id, None, _home_ip)
+                            __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
+                    except Exception as e:
+                        logger.info(f"任务异常: {e}")
+                    finally:
+                        logger.info(f'结束数据:{_task_type}:{_task_id}')
+                        if _page is not None:
+                            try:
+                                _page.quit()
+                            except Exception:
+                                logger.exception("退出错误")
+                        logger.info(f'数据{_end}:{_task_type}:{_task_id}')
+                        if _end and _task_id:
+                            if _task_type != '0':
+                                if platform.system().lower() != "windows":
+                                    append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt",
+                                                        data_str=_task_id)
+                                else:
+                                    append_date_to_file(file_path="E:/tmp/chrome_data/end_tasks.txt", data_str=_task_id)
+                            else:
+                                _end_day_task.append(_task_id)
+                        else:
+                            signma_log(message=f"{_type},{_task_id},{_task}",
+                                       task_name=f'error_task_{get_date_as_string()}', index=evm_id)
+                end_available(_key=_key)
+
         for part in filtered:
             _page = None
             _end = False
@@ -4055,24 +4119,6 @@ if __name__ == '__main__':
                         _page = __get_page("nexus_1", _id, None, False)
                         # _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                         _end = query_nexus_x(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                    elif _type == 'prismax_new' or _type == 'prismax':
-                        _home_ip = False
-                        # prismax_init = read_data_list_file("/home/ubuntu/task/tasks/prismax_init.txt")
-                        # if _id not in prismax_init:
-                        #     logger.info('获取ip位')
-                        #     _home_ip = check_available(_id)
-                        if len(arg) < 3:
-                            logger.warning("prismax 需要助记词/私钥参数，已跳过")
-                        else:
-                            if _home_ip:
-                                logger.info('获取到ip位')
-                            else:
-                                logger.info('未获取到ip位')
-                            _page = __get_page("prismax", _id, None, _home_ip)
-                            __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
-                            _end = True
-                            if _home_ip:
-                                end_available(evm_id=_id)
                     elif _type == 'nexus_joina_new_c':
                         _page = __get_page("nexus_joina_sse", _id, None, False)
                         _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[2], x_cookies=arg[3])
