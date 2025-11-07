@@ -813,7 +813,9 @@ def __task_ta3rn(page, evm_id, evm_addr):
         if _run_type < 4:
             _url_nft = 'https://magiceden.io/collections/apechain/openpage-badges'
         _page_main = page.new_tab('https://magiceden.io/apechain')
-        time.sleep(30)
+        time.sleep(60)
+        _page_main.refresh()
+        time.sleep(20)
         if __click_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2, move_click=True):
             els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
             if els and els.shadow_root:
