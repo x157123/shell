@@ -669,7 +669,7 @@ def __eth_to_op_arb_base(page, evm_id, evm_addr):
     _gas = __quyer_gas()
     if _gas is not None:
         _low_gas = _gas.get('SafeGasPrice', '99')
-        if _low_gas is not None and float(_low_gas) < 0.2:
+        if _low_gas is not None and float(_low_gas) < 0.3:
             ethereum = get_eth_balance("ethereum", evm_addr)
             if ethereum is not None and float(ethereum) > 0.00004:
                 _type = int(evm_id) % 3
@@ -694,7 +694,7 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
     _gas = __quyer_gas()
     if _gas is not None:
         _low_gas = _gas.get('SafeGasPrice', '99')
-        if _low_gas is not None and float(_low_gas) < 0.4:
+        if _low_gas is not None and float(_low_gas) < 0.3:
             _base = get_eth_balance("base", evm_addr)
             _op = get_eth_balance("opt", evm_addr)
             _arb = get_eth_balance("arb", evm_addr)
@@ -785,7 +785,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
         _gas = __quyer_gas()
         if _gas is not None:
             _low_gas = _gas.get('SafeGasPrice', '99')
-            if _low_gas is not None and float(_low_gas) < 0.5:
+            if _low_gas is not None and float(_low_gas) < 0.3:
                 _base = get_eth_balance("base", evm_addr)
                 _op = get_eth_balance("opt", evm_addr)
                 _arb = get_eth_balance("arb", evm_addr)
@@ -3961,7 +3961,7 @@ def __do_task_molten(page, evm_id, index):
                     #     # _dt = float(_mon_from_tmp) * pct
                     _dt = random.uniform(1.001, 1.502)
                     if _dt > float(_mon_from):
-                        _mon_from_tmp = f"{(float(_mon_from)):.3f}"
+                        _mon_from_tmp = f"{(float(_mon_from) - 0.001):.3f}"
                         # _mon_from_tmp = f"{Decimal(str(_mon_from)).quantize(Decimal('0.00'), rounding=ROUND_DOWN)}"
                     else:
                         _mon_from_tmp = f"{_dt:.3f}"
