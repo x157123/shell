@@ -72,8 +72,8 @@ def __get_page(_type, _id, _port, _home_ip):
             options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
             if _type == 'nexus_joina_sse':
                 options.add_extension(f"/home/ubuntu/extensions/edit-cookies")
-    if _type == 'task_ta3rn':
-        options.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
+    # if _type == 'task_ta3rn':
+    #     options.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
 
     # 用户数据目录
     if platform.system().lower() == "windows":
@@ -817,17 +817,18 @@ def __task_ta3rn(page, evm_id, evm_addr):
         if __click_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2, move_click=True):
             els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
             if els and els.shadow_root:
-                if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=5):
+                if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=10):
                     __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5)
                     __handle_signma_popup(page=page, count=2)
                 else:
-                    click_x_y(1850 + random.randint(1, 6), 145 + random.randint(1, 6), 24)
+                    _page_main.refresh()
                     time.sleep(5)
-                    els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
-                    if els and els.shadow_root:
-                        if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=5):
-                            __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5)
-                            __handle_signma_popup(page=page, count=2)
+                    if __click_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2, move_click=True):
+                        els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
+                        if els and els.shadow_root:
+                            if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=5):
+                                __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5)
+                                __handle_signma_popup(page=page, count=2)
 
 
             els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
