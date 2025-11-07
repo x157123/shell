@@ -785,7 +785,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
         _gas = __quyer_gas()
         if _gas is not None:
             _low_gas = _gas.get('SafeGasPrice', '99')
-            if _low_gas is not None and float(_low_gas) < 0.4:
+            if _low_gas is not None and float(_low_gas) < 0.5:
                 _base = get_eth_balance("base", evm_addr)
                 _op = get_eth_balance("opt", evm_addr)
                 _arb = get_eth_balance("arb", evm_addr)
