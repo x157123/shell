@@ -1916,7 +1916,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     _gas = __quyer_gas()
     if _gas is not None:
         _low_gas = _gas.get('SafeGasPrice', '99')
-        if _low_gas is not None and float(_low_gas) > 0.4:
+        if _low_gas is not None and float(_low_gas) > 0.5:
             return False
     __bool = False
     if platform.system().lower() == "windows":
@@ -2093,7 +2093,7 @@ def __do_task_nexus_hz_lq(page, nexus, _net_type, _url, nexus_no_bad, _id, name,
                             _gas = __quyer_gas()
                             if _gas is not None:
                                 _low_gas = _gas.get('SafeGasPrice', '99')
-                                if _low_gas is not None and float(_low_gas) > 0.4:
+                                if _low_gas is not None and float(_low_gas) > 0.5:
                                     return False
                             if __get_ele(page=nexus, xpath=f'x://h1[contains(text(), "{name}")]'):
                                 if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3):
