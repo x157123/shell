@@ -3953,7 +3953,7 @@ def __do_task_molten(page, evm_id, index):
                 #                                 xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
                 #     _mon_to = __get_ele_value(page=main_page,
                 #                               xpath='x://span[normalize-space(text())="To"]/parent::div/parent::div/parent::div/div[2]/span[2]')
-                if float(_mon_from) > 0.1:
+                if float(_mon_from) > 0.01:
                     _mon_from_tmp = _mon_from
                     # if float(_mon_from) > 1:
                     #     # percentages = [0.30, 0.35, 0.40]
@@ -3961,7 +3961,7 @@ def __do_task_molten(page, evm_id, index):
                     #     # _dt = float(_mon_from_tmp) * pct
                     _dt = random.uniform(1.001, 1.502)
                     if _dt > float(_mon_from):
-                        _mon_from_tmp = f"{(float(_mon_from) - 0.1):.3f}"
+                        _mon_from_tmp = f"{(float(_mon_from)):.3f}"
                         # _mon_from_tmp = f"{Decimal(str(_mon_from)).quantize(Decimal('0.00'), rounding=ROUND_DOWN)}"
                     else:
                         _mon_from_tmp = f"{_dt:.3f}"
