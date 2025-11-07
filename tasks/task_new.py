@@ -3923,7 +3923,7 @@ def __do_task_molten(page, evm_id, index):
                     __input_ele_value(page=main_page, xpath='x://input[@placeholder="Amount"]', value=_mon_from_tmp)
                     if __click_ele(page=main_page,
                                    xpath='x://button[contains(text(), "Transfer Tokens") and not(@disabled)]'):
-                        __handle_signma_popup(page=page, count=3, timeout=60)
+                        __handle_signma_popup(page=page, count=3, timeout=45)
                         time.sleep(2)
                         __handle_signma_popup(page=page, count=0)
                         _mon_new_from = __get_ele_value(page=main_page,
