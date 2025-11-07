@@ -851,7 +851,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
             _page_main.get(_url_nft)
             time.sleep(30 + (10 * i))
             if __click_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2, move_click=True):
-            # click_x_y(1782 + random.randint(1, 6), 1021 + random.randint(1, 6), 24)
+                # click_x_y(1782 + random.randint(1, 6), 1021 + random.randint(1, 6), 24)
                 time.sleep(5)
                 els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
                 if els and els.shadow_root:
@@ -863,7 +863,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
                         time.sleep(10)
                         __handle_signma_popup(page=page, count=1)
             else:
-                 break
+                break
 
 
         _run_index = random.randint(1, 30)
@@ -3933,6 +3933,10 @@ def __do_task_molten(page, evm_id, index):
                                        xpath='x://button[@data-testid="rk-wallet-option-xyz.signma" or @data-testid="rk-wallet-option-metaMask"]'):
                             __handle_signma_popup(page=page, count=1)
                 time.sleep(5)
+
+                if __get_ele(page=main_page, xpath='x://div[span[text()="From"] and span[text()="Arbitrum One"]]') is not None:
+                    __click_ele(page=main_page, xpath='x://button[contains(text(), "Swap")]')
+
                 _mon_from = __get_ele_value(page=main_page,
                                             xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
                 if float(_mon_from) <= 0:
@@ -3942,14 +3946,14 @@ def __do_task_molten(page, evm_id, index):
                 _mon_to = __get_ele_value(page=main_page,
                                           xpath='x://span[normalize-space(text())="To"]/parent::div/parent::div/parent::div/div[2]/span[2]')
 
-                if float(_mon_from) < 0.3 and float(_mon_to) > 0.3:
-                    __click_ele(page=main_page, xpath='x://button[contains(text(), "Swap")]')
-                    time.sleep(3)
-                    _mon_from = __get_ele_value(page=main_page,
-                                                xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
-                    _mon_to = __get_ele_value(page=main_page,
-                                              xpath='x://span[normalize-space(text())="To"]/parent::div/parent::div/parent::div/div[2]/span[2]')
-                if float(_mon_from) > 0.3:
+                # if float(_mon_from) < 0.3 and float(_mon_to) > 0.3:
+                #     __click_ele(page=main_page, xpath='x://button[contains(text(), "Swap")]')
+                #     time.sleep(3)
+                #     _mon_from = __get_ele_value(page=main_page,
+                #                                 xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
+                #     _mon_to = __get_ele_value(page=main_page,
+                #                               xpath='x://span[normalize-space(text())="To"]/parent::div/parent::div/parent::div/div[2]/span[2]')
+                if float(_mon_from) > 0.1:
                     _mon_from_tmp = _mon_from
                     # if float(_mon_from) > 1:
                     #     # percentages = [0.30, 0.35, 0.40]
