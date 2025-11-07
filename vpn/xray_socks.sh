@@ -53,8 +53,7 @@ install_xray() {
     yum install -y unzip wget
   fi
 
-  wget -qO /tmp/xray.zip \
-    https://github.com/XTLS/Xray-core/releases/download/v25.5.16/Xray-linux-64.zip
+  wget -qO /tmp/xray.zip  https://github.com/XTLS/Xray-core/releases/download/v25.5.16/Xray-linux-64.zip
   unzip -o /tmp/xray.zip -d /usr/local/bin
   chmod +x "$XRAY_BIN"
 }
