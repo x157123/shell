@@ -835,6 +835,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
 
         _page_main.get(_url_nft)
         if __get_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2):
+            time.sleep(15)
             click_x_y(1782 + random.randint(1, 6), 1021 + random.randint(1, 6), 24)
             time.sleep(5)
             els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
