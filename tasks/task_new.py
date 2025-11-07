@@ -850,19 +850,18 @@ def __task_ta3rn(page, evm_id, evm_addr):
         for i in range(5):
             _page_main.get(_url_nft)
             time.sleep(30 + (10 * i))
-            if __get_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2, move_click=True):
-                time.sleep(30)
-                if __click_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2, move_click=True):
-                # click_x_y(1782 + random.randint(1, 6), 1021 + random.randint(1, 6), 24)
-                    time.sleep(5)
-                    els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
-                    if els and els.shadow_root:
-                        if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=5):
-                            __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5)
-                            time.sleep(10)
-                            __handle_signma_popup(page=page, count=1)
-                            time.sleep(10)
-                            __handle_signma_popup(page=page, count=1)
+            if __click_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2, move_click=True):
+            # click_x_y(1782 + random.randint(1, 6), 1021 + random.randint(1, 6), 24)
+                time.sleep(5)
+                els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
+                if els and els.shadow_root:
+                    if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=5, move_click=True):
+                        time.sleep(10)
+                        __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5, move_click=True)
+                        time.sleep(10)
+                        __handle_signma_popup(page=page, count=1)
+                        time.sleep(10)
+                        __handle_signma_popup(page=page, count=1)
             else:
                  break
 
