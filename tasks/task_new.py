@@ -774,7 +774,7 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
 
 
 def __task_ta3rn(page, evm_id, evm_addr):
-    _bool = False
+    ___bool = False
     result = get_ape_balance(evm_addr)
     __login_wallet(page=page, evm_id=evm_id)
     __handle_signma_popup(page=page, count=0)
@@ -825,7 +825,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
                         __handle_signma_popup(page=page, count=2)
 
         _page_main.get(_url_nft)
-        if __click_ele(page=_page_main, xpath='x://button[text()="Connect wallet to buy"]', loop=2):
+        if __click_ele(page=_page_main, xpath='x://button[text()="Connect Wallet"]', loop=2):
             els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
             if els and els.shadow_root:
                 __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=5)
@@ -843,8 +843,8 @@ def __task_ta3rn(page, evm_id, evm_addr):
             __click_ele(page=_page_main, xpath='x://button[starts-with(normalize-space(.),"Buy for")]')
             __handle_signma_popup(page=page, count=2)
             if __get_ele(page=_page_main, xpath='x://button[starts-with(normalize-space(.),"Transfer")]', loop=10):
-                _bool = True
-    return _bool
+                ___bool = True
+    return ___bool
 
 
 def get_max_from_map(data_map):
