@@ -685,6 +685,8 @@ def __eth_to_op_arb_base(page, evm_id, evm_addr):
                 _bool = __send_end_wallet(page, evm_id, None, 'Max', _url, 0.05, 0.00003, f'eth_{_type_str}')
             elif ethereum is not None and float(ethereum) < 0.00004:
                 _bool = True
+            if _bool:
+                signma_log(message=f"{evm_addr},{_low_gas},{ethereum}", task_name=f'wallet_eth_to_op_arb_base', index=evm_id)
     return _bool
 
 def __swap_op_arb_base(page, evm_id, evm_addr):
@@ -772,6 +774,8 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
                         _mon_end = get_eth_balance(key, evm_addr)
                         if float(_mon_end) < float(value):
                             _bool = True
+                if _bool:
+                    signma_log(message=f"send,{evm_addr},{_amount}", task_name=f'wallet_swap_op_arb_base', index=evm_id)
     return _bool
 
 
@@ -4119,8 +4123,8 @@ def install_chrome_extension(
 if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
-    # TASK_TYPES = {'task_ta3rn', 'eth_end', 'swap_op_arb_base', 'molten', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
-    TASK_TYPES = {'manifesto'}
+    TASK_TYPES = {'task_ta3rn', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
+    # TASK_TYPES = {'manifesto'}
     # TASK_TYPES = {'prismax', 'prismax_new'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c', 'rari_arb', 'molten', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c','nexus_hz_base_ts', 'rari_arb', 'molten', 'gift', 'manifesto'}
@@ -4414,5 +4418,5 @@ if __name__ == '__main__':
                     #     time.sleep(random.randint(400, 800))
                     # else:
                     #     time.sleep(random.randint(600, 1800))
-                    # time.sleep(10)
+                    time.sleep(random.randint(10, 40))
         time.sleep(random.randint(500, 600))
