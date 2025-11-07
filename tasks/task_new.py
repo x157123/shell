@@ -822,7 +822,9 @@ def __task_ta3rn(page, evm_id, evm_addr):
                     time.sleep(10)
                     __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5)
                     time.sleep(10)
-                    __handle_signma_popup(page=page, count=2)
+                    __handle_signma_popup(page=page, count=1)
+                    time.sleep(10)
+                    __handle_signma_popup(page=page, count=1)
                 else:
                     _page_main.refresh()
                     time.sleep(30)
@@ -833,7 +835,9 @@ def __task_ta3rn(page, evm_id, evm_addr):
                             if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=5):
                                 time.sleep(10)
                                 __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5)
-                                __handle_signma_popup(page=page, count=2)
+                                __handle_signma_popup(page=page, count=1)
+                                time.sleep(10)
+                                __handle_signma_popup(page=page, count=1)
 
 
             els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
@@ -851,13 +855,17 @@ def __task_ta3rn(page, evm_id, evm_addr):
             if els and els.shadow_root:
                 if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=5):
                     __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5)
-                    __handle_signma_popup(page=page, count=2)
+                    __handle_signma_popup(page=page, count=1)
+                    time.sleep(10)
+                    __handle_signma_popup(page=page, count=1)
 
             els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
             if els and els.shadow_root:
                 if __click_ele(page=els.shadow_root, xpath='x://button[@data-testid="NetworkSwitchControl"]', loop=5):
                     if __click_ele(page=els.shadow_root, xpath='x://div[@data-testid="network-action" and .//span[text()="ApeChain"]]', loop=5):
-                        __handle_signma_popup(page=page, count=2)
+                        __handle_signma_popup(page=page, count=1)
+                        time.sleep(10)
+                        __handle_signma_popup(page=page, count=1)
 
         _run_index = random.randint(1, 30)
         if __click_ele(page=_page_main, xpath=f'x://div[@data-index="{_run_index}" and @class="pb-2"]'):
