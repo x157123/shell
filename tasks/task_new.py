@@ -72,6 +72,9 @@ def __get_page(_type, _id, _port, _home_ip):
             options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
             if _type == 'nexus_joina_sse':
                 options.add_extension(f"/home/ubuntu/extensions/edit-cookies")
+    if _type == 'task_ta3rn':
+        options.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
+
     # 用户数据目录
     if platform.system().lower() == "windows":
         options.set_user_data_path(f"E:/tmp/chrome_data/{_type}/{_id}")
