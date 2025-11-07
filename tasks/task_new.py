@@ -4241,7 +4241,7 @@ if __name__ == '__main__':
                 end_available(_key=_key)
 
         # 打乱顺序
-        # random.shuffle(filtered)
+        random.shuffle(filtered)
         for part in filtered:
             _page = None
             _end = False
