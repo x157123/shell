@@ -825,6 +825,19 @@ def __task_ta3rn(page, evm_id, evm_addr):
                         __handle_signma_popup(page=page, count=2)
 
         _page_main.get(_url_nft)
+        if __click_ele(page=_page_main, xpath='x://button[text()="Connect wallet to buy"]', loop=2):
+            els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
+            if els and els.shadow_root:
+                __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=5)
+                __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5)
+                __handle_signma_popup(page=page, count=2)
+
+            els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
+            if els and els.shadow_root:
+                if __click_ele(page=els.shadow_root, xpath='x://button[@data-testid="NetworkSwitchControl"]', loop=5):
+                    if __click_ele(page=els.shadow_root, xpath='x://div[@data-testid="network-action" and .//span[text()="ApeChain"]]', loop=5):
+                        __handle_signma_popup(page=page, count=2)
+
         _run_index = random.randint(1, 30)
         if __click_ele(page=_page_main, xpath=f'x://div[@data-index="{_run_index}" and @class="pb-2"]'):
             __click_ele(page=_page_main, xpath='x://button[starts-with(normalize-space(.),"Buy for")]')
