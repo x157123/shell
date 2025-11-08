@@ -2058,17 +2058,19 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
             ]
 
         results = {}
-        tasks = []
+        task_ids = [task['id'] for task in tasks]
         if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
             # __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=3)
             _url = 'https://quest.nexus.xyz/loyalty'
+            _url_main = 'https://quest.nexus.xyz/noderunners'
 
-            if net_type == 'base':
 
-                task_id = f"31_{evm_id}"
-                results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url='https://quest.nexus.xyz/noderunners', nexus_no_bad=nexus_no_bad,
-                                                         _id=task_id, name='Zeta Genesis Glyph', _evm_addr=evm_addr,
-                                                         _index=index, _jf=1000)
+            # if net_type == 'base':
+            #
+            #     task_id = f"31_{evm_id}"
+            #     results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url='https://quest.nexus.xyz/noderunners', nexus_no_bad=nexus_no_bad,
+            #                                              _id=task_id, name='Zeta Genesis Glyph', _evm_addr=evm_addr,
+            #                                              _index=index, _jf=1000)
             # 批量执行任务
             for task in tasks:
                 _bool_s = True
@@ -2083,13 +2085,16 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                             else:
                                 append_date_to_file("/home/ubuntu/task/tasks/nexus_card.txt", task_id)
                 if _bool_s:
-                    results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url=_url, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
+                    if 23 <= task['id'] <= 35:
+                        results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url=_url_main, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
+                    else:
+                        results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url=_url, nexus_no_bad=nexus_no_bad, _id=task_id, name=task['name'], _evm_addr=evm_addr, _index=index, _jf=task['jf'])
                 elif _bool_s is None:
                     results[task_id] = False
                 else:
                     results[task_id] = True
             # 检查任务是否全部成功
-            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(31, 32))
+            __bool = all(results.get(f"{i}_{evm_id}", False) for i in task_ids)
 
         nexus.refresh()
         vf_cf(_nexus=nexus, _index=index)
@@ -2098,9 +2103,9 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
         ethereum_end = get_eth_balance(net_type, evm_addr)
 
         # 构建日志消息
-        result_values = [results.get(f"{i}_{evm_id}", False) for i in range(31, 32)]
+        result_values = [results.get(f"{i}_{evm_id}", False) for i in task_ids]
         signma_log(
-            message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{','.join(map(str, result_values))},{__bool}",
+            message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{__bool},{','.join(map(str, result_values))}",
             task_name=f'nexus_card_{net_type}_hzsb_{get_date_as_string()}', index=evm_id)
         # __bool = True
     return __bool
@@ -4167,8 +4172,9 @@ def install_chrome_extension(
 if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
+    TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
-    TASK_TYPES = {'task_ta3rn_new'}
+    # TASK_TYPES = {'nexus_hz_base_ts'}
     # TASK_TYPES = {'prismax', 'prismax_new'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c', 'rari_arb', 'molten', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c','nexus_hz_base_ts', 'rari_arb', 'molten', 'gift', 'manifesto'}
