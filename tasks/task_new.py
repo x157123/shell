@@ -814,8 +814,8 @@ def __task_ta3rn(page, evm_id, evm_addr):
         __add_net_work(page=page, coin_name='apechain')
         _run_type = random.randint(1, 10)
         _url_nft = 'https://magiceden.io/collections/apechain/re-imagined-'
-        if _run_type < 4:
-            _url_nft = 'https://magiceden.io/collections/apechain/openpage-badges'
+        # if _run_type < 4:
+        #     _url_nft = 'https://magiceden.io/collections/apechain/openpage-badges'
         _page_main = page.new_tab('https://magiceden.io/apechain')
         time.sleep(60)
         _page_main.refresh()
@@ -870,12 +870,17 @@ def __task_ta3rn(page, evm_id, evm_addr):
                 break
 
 
-        _run_index = random.randint(1, 30)
-        if __click_ele(page=_page_main, xpath=f'x://div[@data-index="{_run_index}" and @class="pb-2"]'):
+        # _run_index = random.randint(1, 30)
+        _els = _page_main.eles(f'x://div[@class="pb-2" and .//span[text()="< 0.01"]]')
+        if _els:
+            _el = random.choice(_els)  # 从列表中随机选一个
+            _el.click()  # 点击它
             __click_ele(page=_page_main, xpath='x://button[starts-with(normalize-space(.),"Buy for")]')
             __handle_signma_popup(page=page, count=2)
             if __get_ele(page=_page_main, xpath='x://button[starts-with(normalize-space(.),"Transfer")]', loop=10):
                 ___bool = True
+    signma_log(message=f"{evm_addr},{___bool}", task_name=f'task_task_ta3rn_{get_date_as_string()}', index=evm_id)
+
     return ___bool
 
 
@@ -2009,21 +2014,43 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                 {'id': 10, 'name': 'Arcade Hero Glyph', 'jf': 5500},
                 {'id': 11, 'name': 'Ka-Bling Glyph', 'jf': 3500},
                 {'id': 12, 'name': 'Pixelheart Glyph', 'jf': 3000},
+
                 {'id': 13, 'name': 'Biometric Glyph', 'jf': 10000},
                 {'id': 14, 'name': 'Question Everything Glyph', 'jf': 3500},
                 {'id': 15, 'name': 'Fawkes Glyph', 'jf': 8000},
+
                 {'id': 16, 'name': 'Delta Genesis Glyph', 'jf': 1000},
+                # 已单独跑 {'id': 17, 'name': 'Epsilon Genesis Glyph', 'jf': 1000},
+
+
+                {'id': 23, 'name': 'Sakura Blossom Glyph', 'jf': 5000},
+                {'id': 24, 'name': 'Cyber Samurai Glyph', 'jf': 3000},
+                {'id': 25, 'name': 'Masamune Glyph', 'jf': 3500},
+                {'id': 26, 'name': 'Torii Ascended Glyph', 'jf': 8500},
+
+                {'id': 27, 'name': 'Infinite Loop Glyph', 'jf': 3000},
+                {'id': 28, 'name': 'Go Go Atomic Glyph', 'jf': 5000},
+                {'id': 29, 'name': 'Orbital Glyph', 'jf': 7000},
+                {'id': 30, 'name': 'GATTACA Glyph', 'jf': 8500},
+
+                {'id': 31, 'name': 'Zeta Genesis Glyph', 'jf': 1000},
+                {'id': 32, 'name': 'Dinosaur Juice Glyph', 'jf': 8000},
+                {'id': 33, 'name': 'Airtight Garage Glyph', 'jf': 3500},
+                {'id': 34, 'name': 'Megamegaphone Glyph', 'jf': 5500},
+                {'id': 35, 'name': 'Revolution Glyph', 'jf': 4000},
             ]
 
         results = {}
+        tasks = []
         if __get_ele(page=nexus, xpath='x://button[@data-testid="ConnectButton"]', loop=1) is None:
             # __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=3)
             _url = 'https://quest.nexus.xyz/loyalty'
 
             if net_type == 'base':
-                task_id = f"17_{evm_id}"
+
+                task_id = f"31_{evm_id}"
                 results[task_id] = __do_task_nexus_hz_lq(page=page, nexus=nexus, _net_type=net_type, _url='https://quest.nexus.xyz/noderunners', nexus_no_bad=nexus_no_bad,
-                                                         _id=task_id, name='Epsilon Genesis Glyph', _evm_addr=evm_addr,
+                                                         _id=task_id, name='Zeta Genesis Glyph', _evm_addr=evm_addr,
                                                          _index=index, _jf=1000)
             # 批量执行任务
             for task in tasks:
@@ -2045,7 +2072,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                 else:
                     results[task_id] = True
             # 检查任务是否全部成功
-            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(3, 17))
+            __bool = all(results.get(f"{i}_{evm_id}", False) for i in range(31, 32))
 
         nexus.refresh()
         vf_cf(_nexus=nexus, _index=index)
