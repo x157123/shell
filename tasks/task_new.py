@@ -813,7 +813,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
                     result = get_ape_balance(evm_addr)
                 _max_value = value
 
-    if result and result['success'] and float(result['balance_eth']) > 0.00001:
+    if result and result['success'] and float(result['balance_eth']) > 0.0001:
         __add_net_work(page=page, coin_name='apechain')
         _run_type = random.randint(1, 10)
         _url_nft = 'https://magiceden.io/collections/apechain/re-imagined-'
@@ -887,7 +887,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
                         __start = False
                         _num += 1
                     _page_main.get(_url_nft)
-    if result and result['success'] and float(result["balance_eth"]) < 0.01:
+    if result and result['success'] and float(result["balance_eth"]) < 0.0001:
         ___bool = True
 
     signma_log(message=f"{evm_addr},{_max_value},{result['balance_eth']},{___bool}, {_num}", task_name=f'task_task_ta3rn_{get_date_as_string()}', index=evm_id)
