@@ -786,6 +786,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
     result = get_ape_balance(evm_addr)
     __login_wallet(page=page, evm_id=evm_id)
     __handle_signma_popup(page=page, count=0)
+    _max_value = '0'
     if result and result['success'] and float(result['balance_eth']) <= 0:
         _gas = __quyer_gas()
         if _gas is not None:
@@ -795,7 +796,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
                 _op = get_eth_balance("opt", evm_addr)
                 _arb = get_eth_balance("arb", evm_addr)
                 key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb})
-                if value is not None and float(value) > 0.0002:
+                if value is not None and float(value) > 0.00015:
                     __add_net_work(page=page, coin_name=key)
                     _url = ''
                     if key == 'base':
@@ -810,6 +811,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
                     # 0.0001207 0.0001425   0.05
                     time.sleep(3)
                     result = get_ape_balance(evm_addr)
+                _max_value = value
 
     if result and result['success'] and float(result['balance_eth']) > 0.00001:
         __add_net_work(page=page, coin_name='apechain')
@@ -888,7 +890,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
     if result and result['success'] and float(result["balance_eth"]) < 0.01:
         ___bool = True
 
-    signma_log(message=f"{evm_addr},{result['balance_eth']},{___bool}, {_num}", task_name=f'task_task_ta3rn_{get_date_as_string()}', index=evm_id)
+    signma_log(message=f"{evm_addr},{_max_value},{result['balance_eth']},{___bool}, {_num}", task_name=f'task_task_ta3rn_{get_date_as_string()}', index=evm_id)
     return ___bool
 
 
