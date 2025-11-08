@@ -871,8 +871,9 @@ def __task_ta3rn(page, evm_id, evm_addr):
                 break
 
         # _run_index = random.randint(1, 30)
-        for i in range(5):
-            if random.choice([True, False]):
+        __start = True
+        for i in range(4):
+            if __start or random.choice([True, False]):
                 _els = _page_main.eles(f'x://div[@class="pb-2" and .//span[text()="< 0.01"]]')
                 if _els:
                     _el = random.choice(_els)  # 从列表中随机选一个
@@ -881,6 +882,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
                     __handle_signma_popup(page=page, count=2)
                     if __get_ele(page=_page_main, xpath='x://button[starts-with(normalize-space(.),"Transfer")]', loop=10):
                         ___bool = True
+                        __start = False
                         _num += 1
                     _page_main.get(_url_nft)
 
@@ -4155,7 +4157,7 @@ if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
-    TASK_TYPES = {'nexus_hz_base_ts'}
+    TASK_TYPES = {'task_ta3rn_new'}
     # TASK_TYPES = {'prismax', 'prismax_new'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c', 'rari_arb', 'molten', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c','nexus_hz_base_ts', 'rari_arb', 'molten', 'gift', 'manifesto'}
@@ -4371,6 +4373,9 @@ if __name__ == '__main__':
                         _page = __get_page("nexus_joina_sse", _id, None, False)
                         _end = __do_task_nexus_join(page=_page, index=_window, evm_id=_id, x_name=arg[2], x_cookies=arg[3])
                         # _end = True
+                    elif _type == 'task_ta3rn_new':
+                        _page = __get_page("task_ta3rn", _id, None, False)
+                        _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
                     else:
                         _home_ip = False
                         # if _type == 'nexus_joina':
@@ -4387,8 +4392,6 @@ if __name__ == '__main__':
                             _end = __eth_to_op_arb_base(page=_page , evm_id=_id, evm_addr=arg[2])
                         elif _type == 'swap_op_arb_base':
                             _end = __swap_op_arb_base(page=_page , evm_id=_id, evm_addr=arg[2])
-                        elif _type == 'task_ta3rn_new':
-                            _end = __task_ta3rn(page=_page , evm_id=_id, evm_addr=arg[2])
                         elif _type == 'gift':
                             _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=0)
                         elif _type == 'monad_solana':
