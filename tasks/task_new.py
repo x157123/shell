@@ -782,6 +782,7 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
 
 def __task_ta3rn(page, evm_id, evm_addr):
     ___bool = False
+    _num = 0
     result = get_ape_balance(evm_addr)
     __login_wallet(page=page, evm_id=evm_id)
     __handle_signma_popup(page=page, count=0)
@@ -869,18 +870,21 @@ def __task_ta3rn(page, evm_id, evm_addr):
             else:
                 break
 
-
         # _run_index = random.randint(1, 30)
-        _els = _page_main.eles(f'x://div[@class="pb-2" and .//span[text()="< 0.01"]]')
-        if _els:
-            _el = random.choice(_els)  # 从列表中随机选一个
-            _el.click()  # 点击它
-            __click_ele(page=_page_main, xpath='x://button[starts-with(normalize-space(.),"Buy for")]')
-            __handle_signma_popup(page=page, count=2)
-            if __get_ele(page=_page_main, xpath='x://button[starts-with(normalize-space(.),"Transfer")]', loop=10):
-                ___bool = True
-    signma_log(message=f"{evm_addr},{___bool}", task_name=f'task_task_ta3rn_{get_date_as_string()}', index=evm_id)
+        for i in range(5):
+            if random.choice([True, False]):
+                _els = _page_main.eles(f'x://div[@class="pb-2" and .//span[text()="< 0.01"]]')
+                if _els:
+                    _el = random.choice(_els)  # 从列表中随机选一个
+                    _el.click()  # 点击它
+                    __click_ele(page=_page_main, xpath='x://button[starts-with(normalize-space(.),"Buy for")]')
+                    __handle_signma_popup(page=page, count=2)
+                    if __get_ele(page=_page_main, xpath='x://button[starts-with(normalize-space(.),"Transfer")]', loop=10):
+                        ___bool = True
+                        _num += 1
+                    _page_main.get(_url_nft)
 
+    signma_log(message=f"{evm_addr},{result['balance_wei']},{___bool}, {_num}", task_name=f'task_task_ta3rn_{get_date_as_string()}', index=evm_id)
     return ___bool
 
 
@@ -4150,8 +4154,8 @@ def install_chrome_extension(
 if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
-    TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
-    # TASK_TYPES = {'manifesto'}
+    # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
+    TASK_TYPES = {'nexus_hz_base_ts'}
     # TASK_TYPES = {'prismax', 'prismax_new'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c', 'rari_arb', 'molten', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c','nexus_hz_base_ts', 'rari_arb', 'molten', 'gift', 'manifesto'}
@@ -4383,7 +4387,7 @@ if __name__ == '__main__':
                             _end = __eth_to_op_arb_base(page=_page , evm_id=_id, evm_addr=arg[2])
                         elif _type == 'swap_op_arb_base':
                             _end = __swap_op_arb_base(page=_page , evm_id=_id, evm_addr=arg[2])
-                        elif _type == 'task_ta3rn':
+                        elif _type == 'task_ta3rn_new':
                             _end = __task_ta3rn(page=_page , evm_id=_id, evm_addr=arg[2])
                         elif _type == 'gift':
                             _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=0)
