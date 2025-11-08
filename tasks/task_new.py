@@ -820,63 +820,67 @@ def __task_ta3rn(page, evm_id, evm_addr):
         # if _run_type < 4:
         #     _url_nft = 'https://magiceden.io/collections/apechain/openpage-badges'
         _page_main = page.new_tab('https://magiceden.io/apechain')
-        time.sleep(60)
-        _page_main.refresh()
-        time.sleep(20)
-        if __click_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2, move_click=True):
-            els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
-            if els and els.shadow_root:
-                time.sleep(10)
-                if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=10):
-                    time.sleep(10)
-                    __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5)
-                    time.sleep(10)
-                    __handle_signma_popup(page=page, count=1)
-                    time.sleep(10)
-                    __handle_signma_popup(page=page, count=1)
-                else:
-                    _page_main.refresh()
-                    time.sleep(30)
-                    if __click_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2, move_click=True):
-                        els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
-                        if els and els.shadow_root:
-                            time.sleep(10)
-                            if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=5):
-                                time.sleep(10)
-                                __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5)
-                                time.sleep(10)
-                                __handle_signma_popup(page=page, count=1)
-                                time.sleep(10)
-                                __handle_signma_popup(page=page, count=1)
-
-            els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
-            if els and els.shadow_root:
-                if __click_ele(page=els.shadow_root, xpath='x://button[@data-testid="NetworkSwitchControl"]', loop=5):
-                    if __click_ele(page=els.shadow_root, xpath='x://div[@data-testid="network-action" and .//span[text()="ApeChain"]]', loop=5):
-                        __handle_signma_popup(page=page, count=2)
-        for i in range(5):
-            _page_main.get(_url_nft)
-            time.sleep(30 + (10 * i))
+        time.sleep(10)
+        if __get_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2):
+            time.sleep(60)
+            _page_main.refresh()
+            time.sleep(20)
             if __click_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2, move_click=True):
-                # click_x_y(1782 + random.randint(1, 6), 1021 + random.randint(1, 6), 24)
-                time.sleep(5)
                 els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
                 if els and els.shadow_root:
-                    if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=5):
+                    time.sleep(10)
+                    if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=10):
                         time.sleep(10)
                         __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5)
                         time.sleep(10)
                         __handle_signma_popup(page=page, count=1)
                         time.sleep(10)
                         __handle_signma_popup(page=page, count=1)
-            else:
-                break
+                    else:
+                        _page_main.refresh()
+                        time.sleep(30)
+                        if __click_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2, move_click=True):
+                            els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
+                            if els and els.shadow_root:
+                                time.sleep(10)
+                                if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=5):
+                                    time.sleep(10)
+                                    __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5)
+                                    time.sleep(10)
+                                    __handle_signma_popup(page=page, count=1)
+                                    time.sleep(10)
+                                    __handle_signma_popup(page=page, count=1)
 
+                els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
+                if els and els.shadow_root:
+                    if __click_ele(page=els.shadow_root, xpath='x://button[@data-testid="NetworkSwitchControl"]', loop=5):
+                        if __click_ele(page=els.shadow_root, xpath='x://div[@data-testid="network-action" and .//span[text()="ApeChain"]]', loop=5):
+                            __handle_signma_popup(page=page, count=2)
+
+            for i in range(5):
+                _page_main.get(_url_nft)
+                time.sleep(30 + (10 * i))
+                if __click_ele(page=_page_main, xpath='x://button[@data-test-id="wallet-connect-button"]', loop=2, move_click=True):
+                    # click_x_y(1782 + random.randint(1, 6), 1021 + random.randint(1, 6), 24)
+                    time.sleep(5)
+                    els = __get_ele(page=_page_main, xpath='x://div[@data-testid="dynamic-modal-shadow"]')
+                    if els and els.shadow_root:
+                        if __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="View all wallets"]]', loop=5):
+                            time.sleep(10)
+                            __click_ele(page=els.shadow_root, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=5)
+                            time.sleep(10)
+                            __handle_signma_popup(page=page, count=1)
+                            time.sleep(10)
+                            __handle_signma_popup(page=page, count=1)
+                else:
+                    break
+
+        _page_main.get(_url_nft)
         # _run_index = random.randint(1, 30)
         __start = True
         for i in range(4):
             if __start or random.choice([True, False]):
-                _els = _page_main.eles(f'x://div[@class="pb-2" and .//span[text()="< 0.01"]]')
+                _els = _page_main.eles(f'x://div[@class="pb-2" and .//span[@class="text" and text()="< 0.01"] and not(.//div[contains(@class, "relative w-fit cursor-default")])]')
                 if _els:
                     _el = random.choice(_els)  # 从列表中随机选一个
                     _el.click()  # 点击它
@@ -886,7 +890,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
                         ___bool = True
                         __start = False
                         _num += 1
-                    _page_main.get(_url_nft)
+                _page_main.get(_url_nft)
     if result and result['success'] and float(result["balance_eth"]) < 0.0001:
         ___bool = True
 
