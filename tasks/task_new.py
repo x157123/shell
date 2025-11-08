@@ -885,6 +885,8 @@ def __task_ta3rn(page, evm_id, evm_addr):
                         __start = False
                         _num += 1
                     _page_main.get(_url_nft)
+    if result and result['success'] and float(result["balance_wei"]) < 0.01:
+        ___bool = True
 
     signma_log(message=f"{evm_addr},{result['balance_wei']},{___bool}, {_num}", task_name=f'task_task_ta3rn_{get_date_as_string()}', index=evm_id)
     return ___bool
