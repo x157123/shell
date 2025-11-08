@@ -786,7 +786,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
     result = get_ape_balance(evm_addr)
     __login_wallet(page=page, evm_id=evm_id)
     __handle_signma_popup(page=page, count=0)
-    if result and result['success'] and float(result['balance_wei']) <= 0:
+    if result and result['success'] and float(result['balance_eth']) <= 0:
         _gas = __quyer_gas()
         if _gas is not None:
             _low_gas = _gas.get('SafeGasPrice', '99')
@@ -811,7 +811,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
                     time.sleep(3)
                     result = get_ape_balance(evm_addr)
 
-    if result and result['success'] and float(result['balance_wei']) > 0.00001:
+    if result and result['success'] and float(result['balance_eth']) > 0.00001:
         __add_net_work(page=page, coin_name='apechain')
         _run_type = random.randint(1, 10)
         _url_nft = 'https://magiceden.io/collections/apechain/re-imagined-'
@@ -885,10 +885,10 @@ def __task_ta3rn(page, evm_id, evm_addr):
                         __start = False
                         _num += 1
                     _page_main.get(_url_nft)
-    if result and result['success'] and float(result["balance_wei"]) < 0.01:
+    if result and result['success'] and float(result["balance_eth"]) < 0.01:
         ___bool = True
 
-    signma_log(message=f"{evm_addr},{result['balance_wei']},{___bool}, {_num}", task_name=f'task_task_ta3rn_{get_date_as_string()}', index=evm_id)
+    signma_log(message=f"{evm_addr},{result['balance_eth']},{___bool}, {_num}", task_name=f'task_task_ta3rn_{get_date_as_string()}', index=evm_id)
     return ___bool
 
 
@@ -1293,6 +1293,13 @@ def __quyer_gas():
         'action': 'gasoracle',
         'apikey': 'XGGFY4ZK56YAWC5U3698BQNH7W8RRHF954'
     }
+    if random.choice([True, False]):
+        params = {
+            'chainid': '1',
+            'module': 'gastracker',
+            'action': 'gasoracle',
+            'apikey': 'H34QCVHTSYNSYH9FNNJWVWQBDBH7WFYV5W'
+        }
     try:
         response = requests.get('https://api.etherscan.io/v2/api', params=params, timeout=10)
         response.raise_for_status()
