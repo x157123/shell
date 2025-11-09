@@ -796,72 +796,82 @@ def __relay_link(page, evm_id, evm_addr):
     key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb, 'rari': _rari})
     _sw = False
     if not (4291 <= emv_id_int <= 9290):
+        if result and result['success'] and float(result['balance_eth']) >= 0.7:
+            emd_w = 0.0005
         if _sum < emd_w:
-            _sw = True
-            wallet_page = __get_page('wallet', '88102', '34533', False)
-            __handle_signma_popup(page=wallet_page, count=0)
-            __login_wallet(page=wallet_page, evm_id='88102')
-            __handle_signma_popup(page=wallet_page, count=0)
-            __add_net_work(page=wallet_page, coin_name='base')
-            __handle_signma_popup(page=wallet_page, count=0)
-            _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
-            _run_mon = round(random.uniform(0.000611, 0.000652), 6)
-            if result and result['success'] and float(result['balance_eth']) >= 0.7:
-                _run_mon = round(random.uniform(0.000511, 0.000552), 6)
-            _send_mon  = _run_mon - _sum
-            if _send_mon <= 0.00005:
-                _send_mon += 0.00005
+            _gas = __quyer_gas()
+            if _gas is not None:
+                _low_gas = _gas.get('SafeGasPrice', '99')
+                if _low_gas is not None and float(_low_gas) < 0.3:
+                    _sw = True
+                    wallet_page = __get_page('wallet', '88102', '34533', False)
+                    __handle_signma_popup(page=wallet_page, count=0)
+                    __login_wallet(page=wallet_page, evm_id='88102')
+                    __handle_signma_popup(page=wallet_page, count=0)
+                    __add_net_work(page=wallet_page, coin_name='base')
+                    __handle_signma_popup(page=wallet_page, count=0)
+                    _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
+                    _run_mon = round(random.uniform(0.000611, 0.000652), 6)
+                    if result and result['success'] and float(result['balance_eth']) >= 0.7:
+                        _run_mon = round(random.uniform(0.000511, 0.000552), 6)
+                    _send_mon  = _run_mon - _sum
+                    if _send_mon <= 0.00005:
+                        _send_mon += 0.00005
 
-            elif key == 'opt':
-                _url = 'https://relay.link/bridge/optimism?fromChainId=8453'
-            else:
-                _url = 'https://relay.link/bridge/arbitrum?fromChainId=8453'
+                    elif key == 'opt':
+                        _url = 'https://relay.link/bridge/optimism?fromChainId=8453'
+                    else:
+                        _url = 'https://relay.link/bridge/arbitrum?fromChainId=8453'
 
-            _bool = __send_end_wallet(wallet_page, '88102', evm_addr, round(_send_mon, 6), _url, 0.06, 0, f'eth_88102_apechain')
-            if wallet_page is not None:
-                try:
-                    wallet_page.quit()
-                except Exception:
-                    logger.exception("退出错误")
-            _base = get_eth_balance("base", evm_addr)
-            _op = get_eth_balance("opt", evm_addr)
-            _arb = get_eth_balance("arb", evm_addr)
-            _rari = get_eth_balance("rari", evm_addr)
-            _sum = float(_base) + float(_op) + float(_arb) + float(_rari)
-            key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb, 'rari': _rari})
+                    _bool = __send_end_wallet(wallet_page, '88102', evm_addr, round(_send_mon, 6), _url, 0.06, 0, f'eth_88102_apechain')
+                    if wallet_page is not None:
+                        try:
+                            wallet_page.quit()
+                        except Exception:
+                            logger.exception("退出错误")
+                    _base = get_eth_balance("base", evm_addr)
+                    _op = get_eth_balance("opt", evm_addr)
+                    _arb = get_eth_balance("arb", evm_addr)
+                    _rari = get_eth_balance("rari", evm_addr)
+                    _sum = float(_base) + float(_op) + float(_arb) + float(_rari)
+                    key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb, 'rari': _rari})
 
     if result and result['success'] and float(result['balance_eth']) <= 0.7:
-        _sw = True
-        if not (4291 <= emv_id_int <= 9290):
-            __add_net_work(page=page, coin_name=key)
-            _url = ''
-            if key == 'base':
-                _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
-            elif key == 'opt':
-                _url = 'https://relay.link/bridge/apechain?fromChainId=10'
-            elif key == 'arb':
-                _url = 'https://relay.link/bridge/apechain?fromChainId=42161'
-            elif key == 'rari':
-                _url = 'https://relay.link/bridge/apechain?fromChainId=1380012617'
+        _gas = __quyer_gas()
+        if _gas is not None:
+            _low_gas = _gas.get('SafeGasPrice', '99')
+            if _low_gas is not None and float(_low_gas) < 0.3:
+                _sw = True
+                if not (4291 <= emv_id_int <= 9290):
+                    __add_net_work(page=page, coin_name=key)
+                    _url = ''
+                    if key == 'base':
+                        _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
+                    elif key == 'opt':
+                        _url = 'https://relay.link/bridge/apechain?fromChainId=10'
+                    elif key == 'arb':
+                        _url = 'https://relay.link/bridge/apechain?fromChainId=42161'
+                    elif key == 'rari':
+                        _url = 'https://relay.link/bridge/apechain?fromChainId=1380012617'
 
-            _end_mon = round(random.uniform(0.0001207, 0.0001425), 6)
-            __send_end_wallet(page, evm_id, None, _end_mon, _url, 0.06, 0, f'eth_apechain')
-            # 0.0001207 0.0001425   0.05
-        else:
-            wallet_page = __get_page('wallet', '88102', '34533', False)
-            __handle_signma_popup(page=wallet_page, count=0)
-            __login_wallet(page=wallet_page, evm_id='88102')
-            __handle_signma_popup(page=wallet_page, count=0)
-            __add_net_work(page=wallet_page, coin_name='base')
-            __handle_signma_popup(page=wallet_page, count=0)
-            _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
-            _send_mon = round(random.uniform(0.0001207, 0.0001425), 6)
-            __send_end_wallet(wallet_page, '88102', evm_addr, _send_mon, _url, 0.06, 0, f'eth_88102_apechain')
-            if wallet_page is not None:
-                try:
-                    wallet_page.quit()
-                except Exception:
-                    logger.exception("退出错误")
+                    _end_mon = round(random.uniform(0.0001207, 0.0001425), 6)
+                    __send_end_wallet(page, evm_id, None, _end_mon, _url, 0.06, 0, f'eth_apechain')
+                    # 0.0001207 0.0001425   0.05
+                else:
+                    wallet_page = __get_page('wallet', '88102', '34533', False)
+                    __handle_signma_popup(page=wallet_page, count=0)
+                    __login_wallet(page=wallet_page, evm_id='88102')
+                    __handle_signma_popup(page=wallet_page, count=0)
+                    __add_net_work(page=wallet_page, coin_name='base')
+                    __handle_signma_popup(page=wallet_page, count=0)
+                    _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
+                    _send_mon = round(random.uniform(0.0001207, 0.0001425), 6)
+                    __send_end_wallet(wallet_page, '88102', evm_addr, _send_mon, _url, 0.06, 0, f'eth_88102_apechain')
+                    if wallet_page is not None:
+                        try:
+                            wallet_page.quit()
+                        except Exception:
+                            logger.exception("退出错误")
     if _sw:
         result = get_ape_balance(evm_addr)
         _base = get_eth_balance("base", evm_addr)
