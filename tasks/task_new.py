@@ -779,6 +779,98 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
     return _bool
 
 
+def __task_camelot_apechain(page, evm_id, evm_addr):
+    camelot_page = None
+    __bool_2 = False
+    try:
+        _bool = False
+        __handle_signma_popup(page=page, count=0)
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+
+        __add_net_work(page=page, coin_name='apechain')
+
+        camelot_page = page.new_tab(url='https://app.camelot.exchange/')
+        if __click_ele(page=camelot_page, xpath="x://button[contains(text(), 'Connect')]", loop=1):
+            shadow_host = camelot_page.ele('x://onboard-v2')  # 定位到 shadow-host
+            shadow_root = shadow_host.shadow_root
+            __click_ele(page=shadow_root, xpath='x://div[text()="MetaMask"]', loop=2)
+            # 确定钱包  初次钱包确认4次， 通过之后只有两次
+            __handle_signma_popup(page=page, count=4, timeout=20)
+
+        __click_ele(page=camelot_page, xpath='x://div[contains(@class, "nav-link d-flex align-items-center")]')
+        __click_ele(page=camelot_page, xpath='x://div[div[p[contains(text(), "ApeChain")]]]')
+        __click_ele(page=camelot_page, xpath="x://button[contains(@class, 'btn btn-unstyled')]", loop=1)
+
+        if __click_ele(page=camelot_page, xpath='x://div[contains(@class, "nav-link d-flex align-items-center")]'):
+            if __click_ele(page=camelot_page, xpath='x://div[div[p[contains(text(), "ApeChain")]]]'):
+                __click_ele(page=camelot_page, xpath="x://button[contains(@class, 'btn btn-unstyled')]", loop=1)
+                for i in range(5):
+                    result = get_ape_balance(evm_addr)
+                    if result and result['success'] and float(result['balance_eth']) >= 0.2:
+                        # 交换金额
+                        __click_ele(page=camelot_page, xpath='x://div[div[div[text()="From"]]]', loop=2)
+                        __click_ele(page=camelot_page, xpath='x://button[span[text()="APE"]]', loop=2)
+                        __click_ele(page=camelot_page, xpath='x://div[div[div[text()="To"]]]', loop=2)
+                        __click_ele(page=camelot_page, xpath='x://button[span[text()="apeETH"]]', loop=2)
+                        # _text = __get_ele_value(page=camelot_page, xpath='x://div[contains(@class, "text-secondary") and contains(., "balance") and contains(., "Max")]')
+                        # if _text:
+                        #     # 提取金额部分
+                        #     match = re.search(r'balance:\s*([\d.]+)', _text)
+                        #     if match:
+                        #         value = match.group(1)
+                        _run_mon = round(float(result['balance_eth'] - 0.1), 6)
+                        # 输入金额
+                        __input_ele_value(page=camelot_page,
+                                          xpath="x://a[contains(text(), 'Max')]/ancestor::div[@class='text-secondary text-small text-right']/preceding-sibling::input",
+                                          value=str(_run_mon))
+                        __get_ele(page=camelot_page, xpath='x://button[span[contains(text(), "Swap")]]', loop=3)
+                        __do_swap(page=camelot_page, loop=3, cont="Add apeETH to Wallet", conts="Add APE to Wallet")
+                    else:
+                        # 交换金额
+                        __click_ele(page=camelot_page, xpath='x://div[div[div[text()="From"]]]', loop=2)
+                        __click_ele(page=camelot_page, xpath='x://button[span[text()="apeETH"]]', loop=2)
+                        __click_ele(page=camelot_page, xpath='x://div[div[div[text()="To"]]]', loop=2)
+                        __click_ele(page=camelot_page, xpath='x://button[span[text()="APE"]]', loop=2)
+                        __click_ele(page=camelot_page, xpath='x://a[contains(text(), "Max")]')
+                        __get_ele(page=camelot_page, xpath='x://button[span[contains(text(), "Swap")]]', loop=3)
+                        __bool_2 = __do_swap(page=camelot_page, loop=3, cont="Add apeETH to Wallet", conts= "Add APE to Wallet")
+                    if __bool_2:
+                        break
+    except Exception as e:
+        logger.info(f'异常数据：{e}')
+        pass
+    finally:
+        if camelot_page is not None:
+            try:
+                camelot_page.close()
+            except Exception:
+                logger.info('关闭异常')
+    return __bool_2
+
+
+def __do_swap(page, loop: int = 3, cont: str = 'cont', conts: str = 'cont'):
+    attempts = 0
+    for i in range(loop):
+        # 点击 swap 按钮
+        __click_ele(page=page, xpath='x://button[span[span[contains(text(), "Swap")]]]', loop=1)
+        __click_ele(page=page, xpath='x://button[span[contains(text(), "Swap")]]', loop=1)
+        __click_ele(page=page, xpath='x://button[span[contains(text(), "Approve apeETH")]]', loop=1)
+        __click_ele(page=page, xpath='x://button[span[contains(text(), "Approve APE")]]', loop=1)
+        # 处理钱包确认框 一次
+        __handle_signma_popup(page=page.browser, count=1, timeout=25)
+        # 检查是否发生错误
+        if __get_ele(page=page,
+                     xpath='x://h4[contains(text(), "Error while swapping. If the issue persists, please contact our support.") '
+                           'or contains(text(), "Insufficient token allowance, please close this modal and try to increase your tokens approval amount.")]',
+                     loop=1):
+            logger.info(f'转账错误提示，尝试次数 {attempts + 1}')
+            __click_ele(page=page, xpath='x://button[i[contains(@class, "mdi-close")]]', loop=5)
+        elif __get_ele(page=page, xpath=f'x://button[span[contains(text(), "{cont}") or contains(text(), "{conts}")]]', loop=1):
+            return True
+        __close_popup(page=page.browser, _url=f'{evm_ext_id}', timeout=5)
+    return False
+
 
 def __relay_link(page, evm_id, evm_addr):
     _bool = False
@@ -4261,7 +4353,7 @@ def install_chrome_extension(
 if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
-    TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end'}
+    TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'camelot_apechain'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
     # TASK_TYPES = {'nexus_hz_base_ts'}
@@ -4483,6 +4575,10 @@ if __name__ == '__main__':
                     elif _type == 'task_ta3rn_new':
                         _page = __get_page("task_ta3rn", _id, None, False)
                         _end = __relay_link(page=_page, evm_id=_id, evm_addr=arg[2])
+                        # _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
+                    elif _type == 'camelot_apechain':
+                        _page = __get_page("camelot_apechain", _id, None, False)
+                        _end = __task_camelot_apechain(page=_page, evm_id=_id, evm_addr=arg[2])
                         # _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
                     else:
                         _home_ip = False
