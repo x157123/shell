@@ -887,7 +887,7 @@ def __relay_link(page, evm_id, evm_addr):
             _bool = True
 
     signma_log(message=f"{evm_addr},{_bool},{_base},{_op},{_arb},{_rari},{result['balance_eth']},{_sum:.18f}", task_name=f'ape_task_{get_date_as_string()}', index=evm_id)
-
+    return _bool
 
 
 def __task_ta3rn(page, evm_id, evm_addr):
