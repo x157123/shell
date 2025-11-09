@@ -815,7 +815,7 @@ def __relay_link(page, evm_id, evm_addr):
             else:
                 _url = 'https://relay.link/bridge/arbitrum?fromChainId=8453'
 
-            _bool = __send_end_wallet(wallet_page, '88102', evm_addr, _send_mon, _url, 0.06, 0, f'eth_88102_apechain')
+            _bool = __send_end_wallet(wallet_page, '88102', evm_addr, round(_send_mon, 6), _url, 0.06, 0, f'eth_88102_apechain')
             if wallet_page is not None:
                 try:
                     wallet_page.quit()
