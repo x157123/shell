@@ -806,6 +806,8 @@ def __relay_link(page, evm_id, evm_addr):
             __handle_signma_popup(page=wallet_page, count=0)
             _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
             _run_mon = round(random.uniform(0.000611, 0.000652), 6)
+            if result and result['success'] and float(result['balance_eth']) >= 0.7:
+                _run_mon = round(random.uniform(0.000511, 0.000552), 6)
             _send_mon  = _run_mon - _sum
             if _send_mon <= 0.00005:
                 _send_mon += 0.00005
