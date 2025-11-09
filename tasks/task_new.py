@@ -31,18 +31,18 @@ ARGS_IP = ""  # 在 main 里赋值
 
 
 def __get_page(_type, _id, _port, _home_ip):
-    if _type == 'nexus_joina_sse':
-        if platform.system().lower() == "windows":
-            logger.info('跳过删除')
-        else:
-            try:
-                # 删除临时文件
-                dir_path = f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}"
-                if os.path.isdir(dir_path):
-                    shutil .rmtree(dir_path)
-                    time.sleep(1)
-            except Exception as e:
-                logger.info("删除临时文件错误")
+    # if _type == 'nexus_joina_sse':
+    #     if platform.system().lower() == "windows":
+    #         logger.info('跳过删除')
+    #     else:
+    #         try:
+    #             # 删除临时文件
+    #             dir_path = f"/home/ubuntu/task/tasks/{_type}/chrome_data/{_id}"
+    #             if os.path.isdir(dir_path):
+    #                 shutil .rmtree(dir_path)
+    #                 time.sleep(1)
+    #         except Exception as e:
+    #             logger.info("删除临时文件错误")
     _pages = None
     logger.info(f"启动类型: {_type}")
     options = ChromiumOptions()
@@ -631,7 +631,7 @@ def __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_
             gas_fee = round(float(send_amount) - float(receive_amount), 3)
             if float(gas_fee) > max_gas_fee:
                 logger.error(f'{gas_fee} 地址 {send_evm_addr}')
-                signma_log(message=f"gas_fee,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
+                signma_log(message=f"gas_fee,{send_evm_addr},{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}', index=evm_id)
 
             elif __click_ele(page=w_page, xpath='x://button[text()="Review" or text()="Swap" or text()="Send"]'):
                 __handle_signma_popup(page=wallet_page, count=3)
@@ -640,7 +640,7 @@ def __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_
                     if __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1):
                         if __click_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
                             time.sleep(2)
-                            signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}',
+                            signma_log(message=f"send,{send_evm_addr},{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}',
                                        index=evm_id)
                             _bool = True
                     else:
@@ -652,7 +652,7 @@ def __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_
                                 if __get_ele(page=w_page, xpath='x://button[text()="Done"]', loop=5):
                                     __get_ele(page=w_page, xpath='x://button[text()="View Details"]', loop=1)
                                     time.sleep(2)
-                                    signma_log(message=f"send,{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}',
+                                    signma_log(message=f"send,{send_evm_addr},{amount},{amount},{gas_fee},{_url}", task_name=f'wallet_{_type}',
                                                index=evm_id)
                                     _bool = True
     except Exception as e:
@@ -780,6 +780,104 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
 
 
 
+def __relay_link(page, evm_id, evm_addr):
+    _bool = False
+    __handle_signma_popup(page=page, count=0)
+    __login_wallet(page=page, evm_id=evm_id)
+    __handle_signma_popup(page=page, count=0)
+    emv_id_int = int(evm_id)
+    emd_w = 0.0006
+    result = get_ape_balance(evm_addr)
+    _base = get_eth_balance("base", evm_addr)
+    _op = get_eth_balance("opt", evm_addr)
+    _arb = get_eth_balance("arb", evm_addr)
+    _rari = get_eth_balance("rari", evm_addr)
+    _sum = float(_base) + float(_op) + float(_arb) + float(_rari)
+    key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb, 'rari': _rari})
+    _sw = False
+    if not (4291 <= emv_id_int <= 9290):
+        if _sum < emd_w:
+            _sw = True
+            wallet_page = __get_page('wallet', '88102', '34533', False)
+            __handle_signma_popup(page=wallet_page, count=0)
+            __login_wallet(page=wallet_page, evm_id='88102')
+            __handle_signma_popup(page=wallet_page, count=0)
+            __add_net_work(page=wallet_page, coin_name='base')
+            __handle_signma_popup(page=wallet_page, count=0)
+            _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
+            _run_mon = round(random.uniform(0.000611, 0.000652), 6)
+            _send_mon  = _run_mon - _sum
+            if _send_mon <= 0.00005:
+                _send_mon += 0.00005
+
+            elif key == 'opt':
+                _url = 'https://relay.link/bridge/optimism?fromChainId=8453'
+            else:
+                _url = 'https://relay.link/bridge/arbitrum?fromChainId=8453'
+
+            _bool = __send_end_wallet(wallet_page, '88102', evm_addr, _send_mon, _url, 0.06, 0, f'eth_88102_apechain')
+            if wallet_page is not None:
+                try:
+                    wallet_page.quit()
+                except Exception:
+                    logger.exception("退出错误")
+            _base = get_eth_balance("base", evm_addr)
+            _op = get_eth_balance("opt", evm_addr)
+            _arb = get_eth_balance("arb", evm_addr)
+            _rari = get_eth_balance("rari", evm_addr)
+            _sum = float(_base) + float(_op) + float(_arb) + float(_rari)
+            key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb, 'rari': _rari})
+
+    if result and result['success'] and float(result['balance_eth']) <= 0.7:
+        _sw = True
+        if not (4291 <= emv_id_int <= 9290):
+            __add_net_work(page=page, coin_name=key)
+            _url = ''
+            if key == 'base':
+                _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
+            elif key == 'opt':
+                _url = 'https://relay.link/bridge/apechain?fromChainId=10'
+            elif key == 'arb':
+                _url = 'https://relay.link/bridge/apechain?fromChainId=42161'
+            elif key == 'rari':
+                _url = 'https://relay.link/bridge/apechain?fromChainId=1380012617'
+
+            _end_mon = round(random.uniform(0.0001207, 0.0001425), 6)
+            __send_end_wallet(page, evm_id, None, _end_mon, _url, 0.06, 0, f'eth_apechain')
+            # 0.0001207 0.0001425   0.05
+        else:
+            wallet_page = __get_page('wallet', '88102', '34533', False)
+            __handle_signma_popup(page=wallet_page, count=0)
+            __login_wallet(page=wallet_page, evm_id='88102')
+            __handle_signma_popup(page=wallet_page, count=0)
+            __add_net_work(page=wallet_page, coin_name='base')
+            __handle_signma_popup(page=wallet_page, count=0)
+            _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
+            _send_mon = round(random.uniform(0.0001207, 0.0001425), 6)
+            __send_end_wallet(wallet_page, '88102', evm_addr, _send_mon, _url, 0.06, 0, f'eth_88102_apechain')
+            if wallet_page is not None:
+                try:
+                    wallet_page.quit()
+                except Exception:
+                    logger.exception("退出错误")
+    if _sw:
+        result = get_ape_balance(evm_addr)
+        _base = get_eth_balance("base", evm_addr)
+        _op = get_eth_balance("opt", evm_addr)
+        _arb = get_eth_balance("arb", evm_addr)
+        _rari = get_eth_balance("rari", evm_addr)
+        _sum = float(_base) + float(_op) + float(_arb) + float(_rari)
+    if 4291 <= emv_id_int <= 9290:
+        if result and result['success'] and float(result['balance_eth']) >= 0.7:
+            _bool = True
+    else:
+        if _sum >= emd_w and result and result['success'] and float(result['balance_eth']) >= 0.7:
+            _bool = True
+
+    signma_log(message=f"{evm_addr},{_bool},{_base},{_op},{_arb},{_rari},{result['balance_eth']},{_sum:.18f}", task_name=f'ape_task_{get_date_as_string()}', index=evm_id)
+
+
+
 def __task_ta3rn(page, evm_id, evm_addr):
     ___bool = False
     _num = 0
@@ -787,33 +885,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
     __login_wallet(page=page, evm_id=evm_id)
     __handle_signma_popup(page=page, count=0)
     _max_value = '0'
-    if result and result['success'] and float(result['balance_eth']) <= 0:
-        _gas = __quyer_gas()
-        if _gas is not None:
-            _low_gas = _gas.get('SafeGasPrice', '99')
-            if _low_gas is not None and float(_low_gas) < 0.3:
-                _base = get_eth_balance("base", evm_addr)
-                _op = get_eth_balance("opt", evm_addr)
-                _arb = get_eth_balance("arb", evm_addr)
-                key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb})
-                if value is not None and float(value) > 0.00015:
-                    __add_net_work(page=page, coin_name=key)
-                    _url = ''
-                    if key == 'base':
-                        _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
-                    elif key == 'opt':
-                        _url = 'https://relay.link/bridge/apechain?fromChainId=10'
-                    elif key == 'arb':
-                        _url = 'https://relay.link/bridge/apechain?fromChainId=42161'
-
-                    _end_mon = random.uniform(0.0001207, 0.0001425)
-                    _bool = __send_end_wallet(page, evm_id, None, _end_mon, _url, 0.06, 0, f'eth_apechain')
-                    # 0.0001207 0.0001425   0.05
-                    time.sleep(3)
-                    result = get_ape_balance(evm_addr)
-                _max_value = value
-
-    if result and result['success'] and float(result['balance_eth']) > 0.0001:
+    if result and result['success'] and float(result['balance_eth']) > 0.001:
         __add_net_work(page=page, coin_name='apechain')
         _run_type = random.randint(1, 10)
         _url_nft = 'https://magiceden.io/collections/apechain/re-imagined-'
@@ -4177,7 +4249,8 @@ def install_chrome_extension(
 if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
-    TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
+    TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end'}
+    # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
     # TASK_TYPES = {'nexus_hz_base_ts'}
     # TASK_TYPES = {'prismax', 'prismax_new'}
@@ -4397,7 +4470,8 @@ if __name__ == '__main__':
                         # _end = True
                     elif _type == 'task_ta3rn_new':
                         _page = __get_page("task_ta3rn", _id, None, False)
-                        _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
+                        _end = __relay_link(page=_page, evm_id=_id, evm_addr=arg[2])
+                        # _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
                     else:
                         _home_ip = False
                         # if _type == 'nexus_joina':
