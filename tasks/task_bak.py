@@ -4678,5 +4678,5 @@ if __name__ == '__main__':
                     #     time.sleep(random.randint(400, 800))
                     # else:
                     #     time.sleep(random.randint(600, 1800))
-                    time.sleep(random.randint(30, 60))
+                    time.sleep(random.randint(10, 20))
         time.sleep(random.randint(600, 1800))
