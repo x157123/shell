@@ -814,6 +814,7 @@ def __task_camelot_apechain(page, evm_id, evm_addr):
             if __click_ele(page=camelot_page, xpath='x://div[div[p[contains(text(), "ApeChain")]]]'):
                 __click_ele(page=camelot_page, xpath="x://button[contains(@class, 'btn btn-unstyled')]", loop=1)
                 for i in range(5):
+                    camelot_page.refresh()
                     result = get_ape_balance(evm_addr)
                     if result and result['success'] and float(result['balance_eth']) >= 0.2:
                         # 交换金额
@@ -879,8 +880,8 @@ def __do_swap(page, loop: int = 3, cont: str = 'cont', conts: str = 'cont'):
             __click_ele(page=page, xpath='x://button[i[contains(@class, "mdi-close")]]', loop=5)
         elif __get_ele(page=page, xpath=f'x://button[span[contains(text(), "{cont}") or contains(text(), "{conts}")]]', loop=1):
             return True
-        if __close_popup(page=page.browser, _url=f'{evm_ext_id}', timeout=5):
-            __click_ele(page=page, xpath='x://button[i[contains(@class, "mdi-close")]]', loop=2)
+        __close_popup(page=page.browser, _url=f'{evm_ext_id}', timeout=5)
+        __click_ele(page=page, xpath='x://button[i[contains(@class, "mdi-close")]]', loop=1)
     return False
 
 
