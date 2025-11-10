@@ -4359,8 +4359,8 @@ def install_chrome_extension(
 if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
-    TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'camelot_apechain'}
-    # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end'}
+    # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'camelot_apechain'}
+    TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end', 'camelot_apechain'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
     # TASK_TYPES = {'nexus_hz_base_ts'}
     # TASK_TYPES = {'prismax', 'prismax_new'}
@@ -4425,7 +4425,7 @@ if __name__ == '__main__':
                             filtered.append(line)
                             if random.choice([True, False]):
                                 filtered.append(line)
-                        if _argsa[0] == 'task_ta3rn_new':
+                        if _argsa[0] == 'swap_op_arb_base':
                             if random.choice([True, False]):
                                 filtered.append(line)
                         logger.info(f'添加执行今日任务:{line}')
@@ -4587,10 +4587,10 @@ if __name__ == '__main__':
                         # _end = True
                     elif _type == 'task_ta3rn_new':
                         _page = __get_page("task_ta3rn", _id, None, False)
-                        _end = __relay_link(page=_page, evm_id=_id, evm_addr=arg[2])
-                        # _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
+                        # _end = __relay_link(page=_page, evm_id=_id, evm_addr=arg[2])
+                        _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'camelot_apechain':
-                        _page = __get_page("camelot_apechain", _id, None, False)
+                        _page = __get_page("task_ta3rn", _id, None, False)
                         _end = __task_camelot_apechain(page=_page, evm_id=_id, evm_addr=arg[2])
                         # _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
                     else:
