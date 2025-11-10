@@ -702,7 +702,7 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
             _op = get_eth_balance("opt", evm_addr)
             _arb = get_eth_balance("arb", evm_addr)
             _rari = get_eth_balance("rari", evm_addr)
-            if _rari is not None and float(_rari) > 0.00001:
+            if _rari is not None and float(_rari) > 0.00002:
                 __add_net_work(page=page, coin_name='rari')
                 key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb})
                 if key == 'base':
@@ -711,7 +711,7 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
                     _url = 'https://relay.link/bridge/optimism?fromChainId=1380012617'
                 else :
                     _url = 'https://relay.link/bridge/arbitrum?fromChainId=1380012617'
-                __send_end_wallet(page, evm_id, None, 'Max', _url, 0.05, 0.00006, f'rari_{key}')
+                __send_end_wallet(page, evm_id, None, 'Max', _url, 0.05, 0.00002, f'rari_{key}')
 
                 _base = get_eth_balance("base", evm_addr)
                 _op = get_eth_balance("opt", evm_addr)
@@ -720,8 +720,8 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
 
             key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb})
 
-            if value is not None and float(value) > 0.0001:
-
+            if value is not None and float(value) > 0.00005:
+                _end_net = ''
                 __add_net_work(page=page, coin_name=key)
 
                 _page_main = page.new_tab('https://bridge.t3rn.io/')
@@ -738,12 +738,14 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
                     __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Base"]]', loop=1)
                     __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network-and-asset" and .//span[text()="to"]]', loop=4)
                     if random.choice([True, False]):
+                        _end_net = 'Arbitrum One'
                         __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Arbitrum One"]]', loop=5)
                     else:
+                        _end_net = 'Optimism'
                         __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Optimism"]]', loop=5)
                     evm_id_int = int(evm_id)
                     if 30005 <= evm_id_int <=30304 or 30405 <= evm_id_int <=30504 or 37826 <= evm_id_int <=39425 or 77338 <= evm_id_int <=77837:
-                        _amount = "{:.5f}".format(float(value) - 0.00008)
+                        _amount = "{:.5f}".format(float(value) - 0.00004)
 
                 elif key == 'opt':
                     __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network-and-asset" and .//span[text()="from"]]', loop=4)
@@ -751,7 +753,9 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
                     __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network-and-asset" and .//span[text()="to"]]', loop=4)
                     if random.choice([True, False]):
                         __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Arbitrum One"]]', loop=5)
+                        _end_net = 'Arbitrum One'
                     else:
+                        _end_net = 'Base'
                         __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Base"]]', loop=5)
 
                 elif key == 'arb':
@@ -759,8 +763,10 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
                     __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Arbitrum One"]]', loop=1)
                     __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network-and-asset" and .//span[text()="to"]]', loop=4)
                     if random.choice([True, False]):
+                        _end_net = 'Base'
                         __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Base"]]', loop=5)
                     else:
+                        _end_net = 'Optimism'
                         __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Optimism"]]', loop=5)
 
                 __input_ele_value(page=_page_main, xpath='x://input[@data-testid="ui-max-reward-input"]', loop=5, value=_amount)
@@ -776,7 +782,7 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
                         if float(_mon_end) < float(value):
                             _bool = True
                 if _bool:
-                    signma_log(message=f"send,{evm_addr},{_amount}", task_name=f'wallet_swap_op_arb_base', index=evm_id)
+                    signma_log(message=f"{evm_addr},{key}.{_end_net},{_amount}", task_name=f'wallet_swap_op_arb_base', index=evm_id)
     return _bool
 
 
