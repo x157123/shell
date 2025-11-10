@@ -702,7 +702,7 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
             _op = get_eth_balance("opt", evm_addr)
             _arb = get_eth_balance("arb", evm_addr)
             _rari = get_eth_balance("rari", evm_addr)
-            if _rari is not None and float(_rari) > 0.00002:
+            if _rari is not None and float(_rari) > 0.000025:
                 __add_net_work(page=page, coin_name='rari')
                 key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb})
                 if key == 'base':
@@ -4431,9 +4431,9 @@ if __name__ == '__main__':
                             filtered.append(line)
                             if random.choice([True, False]):
                                 filtered.append(line)
-                        if _argsa[0] == 'swap_op_arb_base':
-                            if random.choice([True, False]):
-                                filtered.append(line)
+                        # if _argsa[0] == 'swap_op_arb_base':
+                        #     if random.choice([True, False]):
+                        #         filtered.append(line)
                         logger.info(f'添加执行今日任务:{line}')
                         filtered.append(line)
 
