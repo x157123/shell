@@ -4600,6 +4600,14 @@ if __name__ == '__main__':
                         _page = __get_page("task_ta3rn", _id, None, False)
                         _end = __task_camelot_apechain(page=_page, evm_id=_id, evm_addr=arg[2])
                         # _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
+                    elif _type == 'rari_arb':
+                        _page = __get_page("rari_arb", _id, None, False)
+                        _end = __do_swap_rari_arb_eth(page=_page, evm_id=_id)
+                        _end = True
+                    elif _type == 'rari_arb_end':
+                        _page = __get_page("rari_arb", _id, None, False)
+                        _end = __do_swap_rari_arb_eth_end(page=_page, evm_id=_id)
+                        _end = True
                     else:
                         _home_ip = False
                         # if _type == 'nexus_joina':
@@ -4635,12 +4643,6 @@ if __name__ == '__main__':
                             _end = True
                         elif _type == 'molten':
                             _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
-                        elif _type == 'rari_arb':
-                            _end = __do_swap_rari_arb_eth(page=_page, evm_id=_id)
-                            _end = True
-                        elif _type == 'rari_arb_end':
-                            _end = __do_swap_rari_arb_eth_end(page=_page, evm_id=_id)
-                            _end = True
                         elif _type == 'nexus':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                             # _end = True
