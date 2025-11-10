@@ -436,9 +436,10 @@ def __close_popup(page, _url: str = '', timeout: int = 15):
             if _url in tab.url:
                 try:
                     tab.close()
+                    return True
                 except Exception as e:
                     logger.debug(f"关闭弹窗失败：{e}")
-
+    return False
 
 # ========== 业务函数 ==========
 
@@ -782,6 +783,7 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
 def __task_camelot_apechain(page, evm_id, evm_addr):
     camelot_page = None
     __bool_2 = False
+    result = {}
     try:
         _bool = False
         __handle_signma_popup(page=page, count=0)
@@ -824,7 +826,7 @@ def __task_camelot_apechain(page, evm_id, evm_addr):
                         __input_ele_value(page=camelot_page,
                                           xpath="x://a[contains(text(), 'Max')]/ancestor::div[@class='text-secondary text-small text-right']/preceding-sibling::input",
                                           value=str(_run_mon))
-                        __get_ele(page=camelot_page, xpath='x://button[span[contains(text(), "Swap")]]', loop=3)
+                        __get_ele(page=camelot_page, xpath='x://button[.//span[contains(text(), "Swap")] and not(@disabled)]', loop=3)
                         __do_swap(page=camelot_page, loop=3, cont="Add apeETH to Wallet", conts="Add APE to Wallet")
                     else:
                         # 交换金额
@@ -833,7 +835,7 @@ def __task_camelot_apechain(page, evm_id, evm_addr):
                         __click_ele(page=camelot_page, xpath='x://div[div[div[text()="To"]]]', loop=2)
                         __click_ele(page=camelot_page, xpath='x://button[span[text()="APE"]]', loop=2)
                         __click_ele(page=camelot_page, xpath='x://a[contains(text(), "Max")]')
-                        __get_ele(page=camelot_page, xpath='x://button[span[contains(text(), "Swap")]]', loop=3)
+                        __get_ele(page=camelot_page, xpath='x://button[.//span[contains(text(), "Swap")] and not(@disabled)]', loop=3)
                         __bool_2 = __do_swap(page=camelot_page, loop=3, cont="Add apeETH to Wallet", conts= "Add APE to Wallet")
                     if __bool_2:
                         break
@@ -846,19 +848,22 @@ def __task_camelot_apechain(page, evm_id, evm_addr):
                 camelot_page.close()
             except Exception:
                 logger.info('关闭异常')
+    _result = get_ape_balance(evm_addr)
+    signma_log(message=f"{evm_addr},{__bool_2},{result['balance_eth']},{_result['balance_eth']}", task_name=f'camelot_apechain_{get_date_as_string()}', index=evm_id)
     return __bool_2
 
 
 def __do_swap(page, loop: int = 3, cont: str = 'cont', conts: str = 'cont'):
     attempts = 0
+    time.sleep(3)
     for i in range(loop):
         # 点击 swap 按钮
-        __click_ele(page=page, xpath='x://button[span[span[contains(text(), "Swap")]]]', loop=1)
-        __click_ele(page=page, xpath='x://button[span[contains(text(), "Swap")]]', loop=1)
+        __click_ele(page=page, xpath='x://button[span[span[contains(text(), "Swap")]] and not(@disabled)]', loop=1)
+        __click_ele(page=page, xpath='x://button[span[contains(text(), "Swap")] and not(@disabled)]', loop=1)
         __click_ele(page=page, xpath='x://button[span[contains(text(), "Approve apeETH")]]', loop=1)
         __click_ele(page=page, xpath='x://button[span[contains(text(), "Approve APE")]]', loop=1)
         # 处理钱包确认框 一次
-        __handle_signma_popup(page=page.browser, count=1, timeout=25)
+        __handle_signma_popup(page=page.browser, count=2, timeout=25)
         # 检查是否发生错误
         if __get_ele(page=page,
                      xpath='x://h4[contains(text(), "Error while swapping. If the issue persists, please contact our support.") '
@@ -868,7 +873,8 @@ def __do_swap(page, loop: int = 3, cont: str = 'cont', conts: str = 'cont'):
             __click_ele(page=page, xpath='x://button[i[contains(@class, "mdi-close")]]', loop=5)
         elif __get_ele(page=page, xpath=f'x://button[span[contains(text(), "{cont}") or contains(text(), "{conts}")]]', loop=1):
             return True
-        __close_popup(page=page.browser, _url=f'{evm_ext_id}', timeout=5)
+        if __close_popup(page=page.browser, _url=f'{evm_ext_id}', timeout=5):
+            __click_ele(page=page, xpath='x://button[i[contains(@class, "mdi-close")]]', loop=2)
     return False
 
 
@@ -4415,6 +4421,13 @@ if __name__ == '__main__':
                         logger.info(f'添加执行今日机器人任务:{line}')
                         filtered_paismax.append(line)
                     else:
+                        if _argsa[0] == 'camelot_apechain':
+                            filtered.append(line)
+                            if random.choice([True, False]):
+                                filtered.append(line)
+                        if _argsa[0] == 'task_ta3rn_new':
+                            if random.choice([True, False]):
+                                filtered.append(line)
                         logger.info(f'添加执行今日任务:{line}')
                         filtered.append(line)
 
