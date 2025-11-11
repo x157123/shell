@@ -816,7 +816,7 @@ def __task_camelot_apechain(page, evm_id, evm_addr):
                 for i in range(5):
                     camelot_page.refresh()
                     result = get_ape_balance(evm_addr)
-                    if result and result['success'] and float(result['balance_eth']) >= 0.2:
+                    if result and result['success'] and float(result['balance_eth']) >= 0.3:
                         # 交换金额
                         __click_ele(page=camelot_page, xpath='x://div[div[div[text()="From"]]]', loop=2)
                         __click_ele(page=camelot_page, xpath='x://button[span[text()="APE"]]', loop=2)
@@ -828,7 +828,7 @@ def __task_camelot_apechain(page, evm_id, evm_addr):
                         #     match = re.search(r'balance:\s*([\d.]+)', _text)
                         #     if match:
                         #         value = match.group(1)
-                        _run_mon = round(float(result['balance_eth'] - 0.1), 6)
+                        _run_mon = round(float(result['balance_eth'] - 0.2), 6)
                         # 输入金额
                         __input_ele_value(page=camelot_page,
                                           xpath="x://a[contains(text(), 'Max')]/ancestor::div[@class='text-secondary text-small text-right']/preceding-sibling::input",
