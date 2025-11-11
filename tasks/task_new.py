@@ -4406,9 +4406,9 @@ if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'camelot_apechain'}
-    # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end', 'camelot_apechain'}
+    TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end', 'camelot_apechain'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
-    TASK_TYPES = {'task_ta3rn_new'}
+    # TASK_TYPES = {'task_ta3rn_new'}
     # TASK_TYPES = {'prismax', 'prismax_new'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c', 'rari_arb', 'molten', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c','nexus_hz_base_ts', 'rari_arb', 'molten', 'gift', 'manifesto'}
@@ -4478,59 +4478,7 @@ if __name__ == '__main__':
                         filtered.append(line)
 
         if len(filtered_paismax) > 0:
-            result  = check_available()
-            if result:
-                _key, _home_ip= result
-                for part in filtered_paismax:
-                    _page = None
-                    _end = False
-                    _task_id = ''
-                    _task_type = ''
-                    try:
-                        parts = part.split("||")
-                        if len(parts) < 4:
-                            logger.warning(f"任务参数不足，跳过：{part!r}")
-                            continue
-                        port = args.base_port
-                        _task_id = parts[0]
-                        _task_type = parts[1]
-                        arg = parts[3].split(",")
-                        _task = parts[3]
-                        if len(arg) < 2:
-                            logger.warning(f"任务 arg 参数不足，跳过：{parts[3]!r}")
-                            continue
-                        _type = arg[0]
-                        _id = arg[1]
-                        logger.warning(f"启动任务1:{_type}:{part}")
-                        if len(arg) < 3:
-                            logger.warning("prismax 需要助记词/私钥参数，已跳过")
-                        else:
-                            _page = __get_page("prismax", _id, None, _home_ip)
-                            __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
-                    except Exception as e:
-                        logger.info(f"任务异常: {e}")
-                    finally:
-                        logger.info(f'结束数据:{_task_type}:{_task_id}')
-                        if _page is not None:
-                            try:
-                                _page.quit()
-                            except Exception:
-                                logger.exception("退出错误")
-                        logger.info(f'数据{_end}:{_task_type}:{_task_id}')
-                        if _end and _task_id:
-                            if _task_type != '0':
-                                if platform.system().lower() != "windows":
-                                    append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt",
-                                                        data_str=_task_id)
-                                else:
-                                    append_date_to_file(file_path="E:/tmp/chrome_data/end_tasks.txt", data_str=_task_id)
-                            else:
-                                _end_day_task.append(_task_id)
-                        else:
-                            signma_log(message=f"{_type},{_task_id},{_task}",
-                                       task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                end_available(_key=_key)
-
+            filtered.append('2913444||0||2025-08-15||prismax,49360,screen')
         # 打乱顺序
         random.shuffle(filtered)
         for part in filtered:
@@ -4557,73 +4505,62 @@ if __name__ == '__main__':
                 _type = arg[0]
                 _id = arg[1]
                 logger.info(f'开始数据:{_task_type}:{_task_id}')
-                # if _type:
                 if _type in TASK_TYPES:
                     logger.warning(f"启动任务1:{_type}:{part}")
-                    # if _type == 'nexus_hz_one_a':
-                    #     evm_id = _id
-                    #     evm_addr = arg[2]
-                    #     amount = arg[3]
-                    #     _bool = False
-                    #     # # 判断需要转账
-                    #     if platform.system().lower() == "windows":
-                    #         end_tasks = read_data_list_file("E:/tmp/chrome_data/end_nexus_wallet.txt")
-                    #     else:
-                    #         end_tasks = read_data_list_file("/home/ubuntu/task/tasks/end_nexus_wallet.txt")
-                    #     if evm_id not in end_tasks:
-                    #         ethereum = get_eth_balance("ethereum", evm_addr)
-                    #         if float(ethereum) >= 0.00047:
-                    #             if platform.system().lower() == "windows":
-                    #                 append_date_to_file(file_path="E:/tmp/chrome_data/end_nexus_wallet.txt", data_str=evm_id)
-                    #             else:
-                    #                 append_date_to_file(file_path="/home/ubuntu/task/tasks/end_nexus_wallet.txt", data_str=evm_id)
-                    #             signma_log(message=f"1", task_name=f'end_nexus_wallet_logs', index=evm_id)
-                    #             _bool = True
-                    #         else:
-                    #             if amount is not None and float(amount) > 0:
-                    #                 __do_send_wallet('88102', evm_addr, amount, 0.1, 'nexus_eth')
-                    #             else:
-                    #                 rari = get_eth_balance("rari", evm_addr)
-                    #                 if 0.0005 <= float(rari):
-                    #                     _page = __get_page("nexus_joina", _id, None, False)
-                    #                     __login_wallet(page=_page, evm_id=evm_id)
-                    #                     __handle_signma_popup(page=_page, count=0)
-                    #                     __add_net_work(page=_page, coin_name='rari')
-                    #                     if float(rari) <= 0.0006:
-                    #                         amount_tmp = random.uniform(0.000501, float(rari) - 0.00002)
-                    #                     else:
-                    #                         amount_tmp = random.uniform(0.000511, 0.000620)
-                    #                     _amount = "{:.5f}".format(amount_tmp)
-                    #                     __send_end_wallet(_page, evm_id, None, _amount, "https://relay.link/bridge/ethereum?fromChainId=1380012617", 0.1, 0, 'nexus_eth')
-                    #             ethereum = get_eth_balance("ethereum", evm_addr)
-                    #             if float(ethereum) >= 0.00047:
-                    #                 if platform.system().lower() == "windows":
-                    #                     append_date_to_file(file_path="E:/tmp/chrome_data/end_nexus_wallet.txt", data_str=evm_id)
-                    #                 else:
-                    #                     append_date_to_file(file_path="/home/ubuntu/task/tasks/end_nexus_wallet.txt", data_str=evm_id)
-                    #                 signma_log(message=f"1", task_name=f'end_nexus_wallet_logs', index=evm_id)
-                    #                 _bool = True
-                    #             else:
-                    #                 _bool = False
-                    #     else:
-                    #         _bool = True
-                    #     if _bool:
-                    #         if _page is None:
-                    #             _page = __get_page("nexus_joina", _id, None, False)
-                    #             __login_wallet(page=_page, evm_id=evm_id)
-                    #             __handle_signma_popup(page=_page, count=0)
-                    #         if _page is None:
-                    #             logger.error("浏览器启动失败，跳过该任务")
-                    #             continue
-                    #         _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                    #         if _end:
-                    #             signma_log(message=f"1", task_name=f'end_nexus_card_logs', index=evm_id)
-                    # if _type == 'nexus_hz_query':
-                    #     _page = __get_page("nexus_joina", _id, None, False)
-                    #     __login_wallet(page=_page, evm_id=evm_id)
-                    #     __handle_signma_popup(page=_page, count=0)
-                    #     _end = __do_task_nexus_hz_qy(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
-                    if _type == 'nexus_hz_base_ts':
+                    if _type == 'prismax':
+                        result  = check_available()
+                        if result:
+                            _key, _home_ip= result
+                            for part in filtered_paismax:
+                                _page = None
+                                _end = False
+                                _task_id = ''
+                                _task_type = ''
+                                try:
+                                    parts = part.split("||")
+                                    if len(parts) < 4:
+                                        logger.warning(f"任务参数不足，跳过：{part!r}")
+                                        continue
+                                    port = args.base_port
+                                    _task_id = parts[0]
+                                    _task_type = parts[1]
+                                    arg = parts[3].split(",")
+                                    _task = parts[3]
+                                    if len(arg) < 2:
+                                        logger.warning(f"任务 arg 参数不足，跳过：{parts[3]!r}")
+                                        continue
+                                    _type = arg[0]
+                                    _id = arg[1]
+                                    logger.warning(f"启动任务1:{_type}:{part}")
+                                    if len(arg) < 3:
+                                        logger.warning("prismax 需要助记词/私钥参数，已跳过")
+                                    else:
+                                        _page = __get_page("prismax", _id, None, _home_ip)
+                                        __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
+                                except Exception as e:
+                                    logger.info(f"任务异常: {e}")
+                                finally:
+                                    logger.info(f'结束数据:{_task_type}:{_task_id}')
+                                    if _page is not None:
+                                        try:
+                                            _page.quit()
+                                        except Exception:
+                                            logger.exception("退出错误")
+                                    logger.info(f'数据{_end}:{_task_type}:{_task_id}')
+                                    if _end and _task_id:
+                                        if _task_type != '0':
+                                            if platform.system().lower() != "windows":
+                                                append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt",
+                                                                    data_str=_task_id)
+                                            else:
+                                                append_date_to_file(file_path="E:/tmp/chrome_data/end_tasks.txt", data_str=_task_id)
+                                        else:
+                                            _end_day_task.append(_task_id)
+                                    else:
+                                        signma_log(message=f"{_type},{_task_id},{_task}",
+                                                   task_name=f'error_task_{get_date_as_string()}', index=evm_id)
+                            end_available(_key=_key)
+                    elif _type == 'nexus_hz_base_ts':
                         _page = __get_page("nexus_1", _id, None, False)
                         _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                         # _end = query_nexus_x(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
@@ -4634,8 +4571,8 @@ if __name__ == '__main__':
                     elif _type == 'task_ta3rn_new':
                         _page = __get_page("task_ta3rn", _id, None, False)
                         # _end = __relay_link(page=_page, evm_id=_id, evm_addr=arg[2])
-                        _end = __task_opensea(page=_page, evm_id=_id, evm_addr=arg[2])
-                        # _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
+                        # _end = __task_opensea(page=_page, evm_id=_id, evm_addr=arg[2])
+                        _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'camelot_apechain':
                         _page = __get_page("task_ta3rn", _id, None, False)
                         _end = __task_camelot_apechain(page=_page, evm_id=_id, evm_addr=arg[2])
@@ -4683,6 +4620,7 @@ if __name__ == '__main__':
                             _end = True
                         elif _type == 'molten':
                             _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
+                            _end = True
                         elif _type == 'nexus':
                             _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                             # _end = True
