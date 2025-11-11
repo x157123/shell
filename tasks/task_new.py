@@ -1085,7 +1085,7 @@ def __task_ta3rn(page, evm_id, evm_addr):
     #     ___bool = True
 
     signma_log(message=f"{evm_addr},{_max_value},{result['balance_eth']},{___bool}, {_num}", task_name=f'task_task_ta3rn_{get_date_as_string()}', index=evm_id)
-    return ___bool
+    return True
 
 
 def get_max_from_map(data_map):
