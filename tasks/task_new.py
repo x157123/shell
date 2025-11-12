@@ -1022,6 +1022,7 @@ def __task_opensea(page, evm_id, evm_addr):
             __handle_signma_popup(page=page, count=2)
         _page_main.refresh()
 
+        time.sleep(5)
         _val = __get_ele_value(page=_page_main, xpath='x://div[div[span[text()="Limit 1 per wallet"]]]//div//span//div//span[@class="font-mono text-text-primary"]', loop=2)
         if float(_val) <= 0.01:
             if __click_ele(page=_page_main, xpath='x://button[@type="button" and text()="Mint" and not(@disabled)]', loop=5):
