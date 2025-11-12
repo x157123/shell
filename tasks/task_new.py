@@ -1028,8 +1028,14 @@ def __task_opensea(page, evm_id, evm_addr):
             if __click_ele(page=_page_main, xpath='x://button[@type="button" and text()="Mint" and not(@disabled)]', loop=5):
                 __handle_signma_popup(page=page, count=1)
 
-            if __get_ele(page=_page_main, xpath='x://h2[text()="Congrats! You got it!"]', loop=2):
-                ___bool = True
+                if __get_ele(page=_page_main, xpath='x://h2[text()="Congrats! You got it!"]', loop=2):
+                    ___bool = True
+
+        if not ___bool:
+            if __click_ele(page=_page_main, xpath='x://button[@aria-haspopup="dialog"]', loop=5):
+                if __get_ele(page=_page_main, xpath='x://span[text()="You minted 1 item from Arbinaut"]', loop=2):
+                    ___bool = True
+
 
     signma_log(message=f"{evm_addr},{_max_value},{result['balance_eth']},{___bool}", task_name=f'task_opensea_{get_date_as_string()}', index=evm_id)
     return ___bool
