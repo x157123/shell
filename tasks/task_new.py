@@ -1014,12 +1014,16 @@ def __task_opensea(page, evm_id, evm_addr):
                 if __get_ele(page=_page_main, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=2):
                     __click_ele(page=_page_main, xpath='x://button[@type="button" and .//span[text()="Signma"]]', loop=1)
                     __handle_signma_popup(page=page, count=1)
+                    time.sleep(5)
+                    __handle_signma_popup(page=page, count=0)
                 else:
                     break
 
         if __click_ele(page=_page_main, xpath='x://button[@id="agreed-to-terms"]', loop=2):
             __click_ele(page=_page_main, xpath='x://button[text()="Continue"]', loop=2)
             __handle_signma_popup(page=page, count=2)
+            time.sleep(5)
+            __handle_signma_popup(page=page, count=0)
         _page_main.refresh()
 
         time.sleep(5)
