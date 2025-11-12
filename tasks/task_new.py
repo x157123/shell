@@ -4613,6 +4613,7 @@ if __name__ == '__main__':
                             _end = __swap_op_arb_base(page=_page , evm_id=_id, evm_addr=arg[2])
                         elif _type == 'gift':
                             _end = __do_task_gift(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], amount=0)
+                            _end = True
                         elif _type == 'monad_solana':
                             # _end = __do_task_monad_solana(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                             _end = True
