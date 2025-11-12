@@ -2677,9 +2677,13 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
 
                             # 新数据
                             if __get_ele(page=nexus,
-                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share the Zeta Collection')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'NEW: Share the Season One Wrap-Up')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                          loop=1):
-                                nex_like_repost_comment(page, nexus, 'NEW: Share the Zeta Collection', 'Go to Post', random.choice(positive_replies), True)
+                                nex_like_repost_comment(page, nexus, 'NEW: Share the Season One Wrap-Up', 'Go to Post', random.choice(positive_replies), True)
+                            if __get_ele(page=nexus,
+                                         xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Share the Zeta Collection')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
+                                         loop=1):
+                                nex_like_repost_comment(page, nexus, 'Share the Zeta Collection', 'Go to Post', random.choice(positive_replies), True)
                             if __get_ele(page=nexus,
                                          xpath="x://div[contains(@class, 'loyalty-quest')]//div[contains(., 'Gridcrew Roll Call')]/ancestor::div[contains(@class, 'loyalty-quest')]//a[contains(., 'Go to Post') or contains(., 'Claim')]",
                                          loop=1):
@@ -2857,7 +2861,8 @@ def __do_task_nexus_join(page, evm_id, index, x_name, x_cookies):
 
 def getKey():
     QUEST_TASKS = [
-        "NEW: Share the Zeta Collection",
+        "NEW: Share the Season One Wrap-Up",
+        "Share the Zeta Collection",
         "Connect your X to get started",
         "NEW: Follow Nodejox - The Author",
         "Celebrate our Snag Partnership",
@@ -4420,9 +4425,9 @@ if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'camelot_apechain'}
-    # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end', 'camelot_apechain'}
+    TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end', 'camelot_apechain', 'nexus_joina_new_c'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
-    TASK_TYPES = {'swap_openseaa'}
+    # TASK_TYPES = {'swap_openseaa'}
     # TASK_TYPES = {'prismax', 'prismax_new'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c', 'rari_arb', 'molten', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c','nexus_hz_base_ts', 'rari_arb', 'molten', 'gift', 'manifesto'}
