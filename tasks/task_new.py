@@ -4594,7 +4594,7 @@ if __name__ == '__main__':
                         _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'camelot_apechain':
                         _page = __get_page("task_ta3rn", _id, None, False)
-                        _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
+                        _end = __task_camelot_apechain(page=_page, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'swap_openseaa':
                         _page = __get_page("task_ta3rns", _id, None, False)
                         _end = __task_opensea(page=_page, evm_id=_id, evm_addr=arg[2])
