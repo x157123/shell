@@ -1024,6 +1024,8 @@ def __task_opensea(page, evm_id, evm_addr):
             __handle_signma_popup(page=page, count=2)
             time.sleep(5)
             __handle_signma_popup(page=page, count=0)
+
+        __handle_signma_popup(page=page, count=1, timeout=5)
         _page_main.refresh()
 
         time.sleep(5)
