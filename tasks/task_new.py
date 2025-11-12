@@ -4406,9 +4406,9 @@ if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'camelot_apechain'}
-    TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end', 'camelot_apechain'}
+    # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end', 'camelot_apechain'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
-    # TASK_TYPES = {'task_ta3rn_new'}
+    TASK_TYPES = {'swap_opensea'}
     # TASK_TYPES = {'prismax', 'prismax_new'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c', 'rari_arb', 'molten', 'gift'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'nexus_joina_new_c','nexus_hz_base_ts', 'rari_arb', 'molten', 'gift', 'manifesto'}
@@ -4575,8 +4575,10 @@ if __name__ == '__main__':
                         _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'camelot_apechain':
                         _page = __get_page("task_ta3rn", _id, None, False)
+                        _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
+                    elif _type == 'swap_opensea':
+                        _page = __get_page("task_ta3rn", _id, None, False)
                         _end = __task_camelot_apechain(page=_page, evm_id=_id, evm_addr=arg[2])
-                        # _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'rari_arb':
                         _page = __get_page("rari_arb", _id, None, False)
                         _end = __do_swap_rari_arb_eth(page=_page, evm_id=_id)
