@@ -4578,7 +4578,7 @@ if __name__ == '__main__':
                         _end = __task_ta3rn(page=_page, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'swap_opensea':
                         _page = __get_page("task_ta3rn", _id, None, False)
-                        _end = __task_camelot_apechain(page=_page, evm_id=_id, evm_addr=arg[2])
+                        _end = __task_opensea(page=_page, evm_id=_id, evm_addr=arg[2])
                     elif _type == 'rari_arb':
                         _page = __get_page("rari_arb", _id, None, False)
                         _end = __do_swap_rari_arb_eth(page=_page, evm_id=_id)
