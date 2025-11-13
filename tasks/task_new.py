@@ -4425,7 +4425,7 @@ if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'camelot_apechain'}
-    TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end', 'camelot_apechain', 'nexus_joina_new_c'}
+    TASK_TYPES = {'prismax_home', 'eth_end',  'nexus', 'camelot_apechain', 'nexus_joina_new_c', 'rari_arb', 'rari_arb_end'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end', 'camelot_apechain', 'nexus_joina_new_c'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
     # TASK_TYPES = {'swap_openseaa'}
@@ -4433,7 +4433,7 @@ if __name__ == '__main__':
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
     parser.add_argument("--display", type=str, help="X11 DISPLAY", default=":24")
     parser.add_argument("--base-port", type=int, help="本地调试端口", default=29541)
-    TASK_TYPES_PRISMAX = {'prismax', 'prismax_new'}
+    TASK_TYPES_PRISMAX = {'prismax_home'}
     args = parser.parse_args()
     ARGS_IP = args.ip or ""
     _window = args.display.lstrip(':')
