@@ -4493,7 +4493,7 @@ if __name__ == '__main__':
                         filtered.append(line)
 
         if len(filtered_paismax) > 0:
-            filtered.append('2913444||0||2025-08-15||prismax,49360,screen')
+            filtered.append('2913444||0||2025-08-15||prismax_home,49360,screen')
         # 打乱顺序
         random.shuffle(filtered)
         for part in filtered:
@@ -4522,7 +4522,7 @@ if __name__ == '__main__':
                 logger.info(f'开始数据:{_task_type}:{_task_id}')
                 if _type in TASK_TYPES:
                     logger.warning(f"启动任务1:{_type}:{part}")
-                    if _type == 'prismax':
+                    if _type == 'prismax_home':
                         result  = check_available()
                         if result:
                             _key, _home_ip= result
