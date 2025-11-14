@@ -2363,40 +2363,44 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
             ]
         else:
             tasks = [
-                {'id': 3, 'name': 'Shoulder Blaster Glyph', 'jf': 12000},
-                {'id': 4, 'name': 'Sunset Boulevard Glyph', 'jf': 5000},
-                {'id': 5, 'name': 'Eat Your Arpeggi-ohs Glyph', 'jf': 3500},
-                {'id': 6, 'name': 'Boom Bap Glyph', 'jf': 3000},
-                {'id': 7, 'name': 'Gamma Genesis Glyph', 'jf': 1000},
-                {'id': 8, 'name': 'Flesh and Bone Glyph', 'jf': 4500},
-                {'id': 9, 'name': 'Game Pad Glyph', 'jf': 8000},
-                {'id': 10, 'name': 'Arcade Hero Glyph', 'jf': 5500},
-                {'id': 11, 'name': 'Ka-Bling Glyph', 'jf': 3500},
-                {'id': 12, 'name': 'Pixelheart Glyph', 'jf': 3000},
+                # {'id': 3, 'name': 'Shoulder Blaster Glyph', 'jf': 12000},
+                # {'id': 4, 'name': 'Sunset Boulevard Glyph', 'jf': 5000},
+                # {'id': 5, 'name': 'Eat Your Arpeggi-ohs Glyph', 'jf': 3500},
+                # {'id': 6, 'name': 'Boom Bap Glyph', 'jf': 3000},
+                # {'id': 7, 'name': 'Gamma Genesis Glyph', 'jf': 1000},
+                # {'id': 8, 'name': 'Flesh and Bone Glyph', 'jf': 4500},
+                # {'id': 9, 'name': 'Game Pad Glyph', 'jf': 8000},
+                # {'id': 10, 'name': 'Arcade Hero Glyph', 'jf': 5500},
+                # {'id': 11, 'name': 'Ka-Bling Glyph', 'jf': 3500},
+                # {'id': 12, 'name': 'Pixelheart Glyph', 'jf': 3000},
+                #
+                # {'id': 13, 'name': 'Biometric Glyph', 'jf': 10000},
+                # {'id': 14, 'name': 'Question Everything Glyph', 'jf': 3500},
+                # {'id': 15, 'name': 'Fawkes Glyph', 'jf': 8000},
+                #
+                # {'id': 16, 'name': 'Delta Genesis Glyph', 'jf': 1000},
+                # # 已单独跑 {'id': 17, 'name': 'Epsilon Genesis Glyph', 'jf': 1000},
+                #
+                #
+                # {'id': 23, 'name': 'Sakura Blossom Glyph', 'jf': 5000},
+                # {'id': 24, 'name': 'Cyber Samurai Glyph', 'jf': 3000},
+                # {'id': 25, 'name': 'Masamune Glyph', 'jf': 3500},
+                # {'id': 26, 'name': 'Torii Ascended Glyph', 'jf': 8500},
+                #
+                # {'id': 27, 'name': 'Infinite Loop Glyph', 'jf': 3000},
+                # {'id': 28, 'name': 'Go Go Atomic Glyph', 'jf': 5000},
+                # {'id': 29, 'name': 'Orbital Glyph', 'jf': 7000},
+                # {'id': 30, 'name': 'GATTACA Glyph', 'jf': 8500},
+                #
+                # {'id': 31, 'name': 'Zeta Genesis Glyph', 'jf': 1000},
+                # {'id': 32, 'name': 'Dinosaur Juice Glyph', 'jf': 8000},
+                # {'id': 33, 'name': 'Airtight Garage Glyph', 'jf': 3500},
+                # {'id': 34, 'name': 'Megamegaphone Glyph', 'jf': 5500},
+                # {'id': 35, 'name': 'Revolution Glyph', 'jf': 4000},
 
-                {'id': 13, 'name': 'Biometric Glyph', 'jf': 10000},
-                {'id': 14, 'name': 'Question Everything Glyph', 'jf': 3500},
-                {'id': 15, 'name': 'Fawkes Glyph', 'jf': 8000},
-
-                {'id': 16, 'name': 'Delta Genesis Glyph', 'jf': 1000},
-                # 已单独跑 {'id': 17, 'name': 'Epsilon Genesis Glyph', 'jf': 1000},
-
-
-                {'id': 23, 'name': 'Sakura Blossom Glyph', 'jf': 5000},
-                {'id': 24, 'name': 'Cyber Samurai Glyph', 'jf': 3000},
-                {'id': 25, 'name': 'Masamune Glyph', 'jf': 3500},
-                {'id': 26, 'name': 'Torii Ascended Glyph', 'jf': 8500},
-
-                {'id': 27, 'name': 'Infinite Loop Glyph', 'jf': 3000},
-                {'id': 28, 'name': 'Go Go Atomic Glyph', 'jf': 5000},
-                {'id': 29, 'name': 'Orbital Glyph', 'jf': 7000},
-                {'id': 30, 'name': 'GATTACA Glyph', 'jf': 8500},
-
-                {'id': 31, 'name': 'Zeta Genesis Glyph', 'jf': 1000},
-                {'id': 32, 'name': 'Dinosaur Juice Glyph', 'jf': 8000},
-                {'id': 33, 'name': 'Airtight Garage Glyph', 'jf': 3500},
-                {'id': 34, 'name': 'Megamegaphone Glyph', 'jf': 5500},
-                {'id': 35, 'name': 'Revolution Glyph', 'jf': 4000},
+                {'id': 36, 'name': 'FIN', 'jf': 1000},
+                {'id': 37, 'name': 'SYN', 'jf': 1000},
+                {'id': 38, 'name': 'ACK', 'jf': 1000},
             ]
 
         results = {}
@@ -4520,10 +4524,10 @@ if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'camelot_apechain'}
-    TASK_TYPES = {'prismax_home', 'eth_end',  'nexus', 'camelot_apechain', 'nexus_joina_new_c', 'rari_arb', 'rari_arb_end'}
+    # TASK_TYPES = {'prismax_home', 'eth_end',  'nexus', 'camelot_apechain', 'nexus_joina_new_c', 'rari_arb', 'rari_arb_end', 'nexus_hz_base_ts'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end', 'camelot_apechain', 'nexus_joina_new_c'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
-    # TASK_TYPES = {'swap_openseaa'}
+    TASK_TYPES = {'nexus_hz_base_ts'}
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
     parser.add_argument("--display", type=str, help="X11 DISPLAY", default=":24")
