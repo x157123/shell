@@ -2281,12 +2281,12 @@ def un_eth_call(
 
 
 def __do_task_nexus_hz(page, evm_id, evm_addr, index):
+    __bool = False
     _gas = __quyer_gas()
     if _gas is not None:
         _low_gas = _gas.get('SafeGasPrice', '99')
-        if _low_gas is not None and float(_low_gas) > 0.8:
-            return False
-    __bool = False
+        if _low_gas is not None and float(_low_gas) > 0.5:
+            return __bool
     if platform.system().lower() == "windows":
         nexus_no_bad = read_data_list_file("E:/tmp/chrome_data/nexus_card.txt")
     else:
@@ -2453,6 +2453,8 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
         signma_log(
             message=f"{evm_addr},{ethereum_start},{ethereum_end},{_amount},{__bool},{','.join(map(str, result_values))}",
             task_name=f'nexus_card_{net_type}_hzsb_{get_date_as_string()}', index=evm_id)
+        if _amount and float(_amount) < 1000:
+            __bool = True
         # __bool = True
     return __bool
 
@@ -2492,7 +2494,7 @@ def __do_task_nexus_hz_lq(page, nexus, _net_type, _url, nexus_no_bad, _id, name,
                             _gas = __quyer_gas()
                             if _gas is not None:
                                 _low_gas = _gas.get('SafeGasPrice', '99')
-                                if _low_gas is not None and float(_low_gas) > 0.8:
+                                if _low_gas is not None and float(_low_gas) > 0.5:
                                     return False
                             if __get_ele(page=nexus, xpath=f'x://h1[contains(text(), "{name}")]'):
                                 if __click_ele(page=nexus, xpath='x://button[contains(@class, "primary-pill-button")]', loop=3):
@@ -4524,10 +4526,10 @@ if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'camelot_apechain'}
-    # TASK_TYPES = {'prismax_home', 'eth_end',  'nexus', 'camelot_apechain', 'nexus_joina_new_c', 'rari_arb', 'rari_arb_end', 'nexus_hz_base_ts'}
+    TASK_TYPES = {'prismax_home', 'eth_end',  'nexus', 'camelot_apechain', 'nexus_joina_new_c', 'rari_arb', 'rari_arb_end', 'nexus_hz_base_ts'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end', 'camelot_apechain', 'nexus_joina_new_c'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
-    TASK_TYPES = {'nexus_hz_base_ts'}
+    # TASK_TYPES = {'nexus_hz_base_ts'}
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
     parser.add_argument("--display", type=str, help="X11 DISPLAY", default=":24")
