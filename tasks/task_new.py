@@ -789,7 +789,7 @@ def __swap_op_arb_base(page, evm_id, evm_addr):
 def __task_camelot_apechain(page, evm_id, evm_addr):
     camelot_page = None
     __bool_2 = False
-    result = {}
+    result = get_ape_balance(evm_addr)
     try:
         _bool = False
         __handle_signma_popup(page=page, count=0)
@@ -819,8 +819,33 @@ def __task_camelot_apechain(page, evm_id, evm_addr):
                         __click_ele(page=camelot_page, xpath="x://button[contains(@class, 'btn btn-unstyled')]", loop=1)
                         for i in range(5):
                             camelot_page.refresh()
-                            result = get_ape_balance(evm_addr)
-                            if result and result['success'] and float(result['balance_eth']) >= 0.3:
+                            # 示例 : 自定义代币列表
+                            custom_tokens = [
+                                {"key": "APE", "decimals": 18, "is_native": True},
+                                {"key": "APEETH", "contract": "0xcF800F4948D16F23333508191B1B1591daF70438", "decimals": 18},
+                                {"key": "APEUSD", "contract": "0xa2235d059f80e176d931ef76b6c51953eb3fbef4", "decimals": 18},
+                            ]
+                            url = 'https://apechain.calderachain.xyz/http'
+                            result_type = get_wallet_balance_type(url, evm_addr, custom_tokens)
+                            print("自定义配置查询结果:")
+                            ape = result_type.get("APE", Decimal(0))
+                            apeeth = result_type.get("APEETH", Decimal(0))
+                            apeusd = result_type.get("APEUSD", Decimal(0))
+
+                            print(f"ape: {ape}")
+                            print(f"apeeth: {apeeth}")
+                            print(f"apeusd: {apeusd}")
+
+                            if apeusd >= Decimal("0.02"):
+                                __click_ele(page=camelot_page, xpath='x://div[div[div[text()="From"]]]', loop=2)
+                                __click_ele(page=camelot_page, xpath='x://button[span[text()="apeUSD"]]', loop=2)
+                                __click_ele(page=camelot_page, xpath='x://div[div[div[text()="To"]]]', loop=2)
+                                __click_ele(page=camelot_page, xpath='x://button[span[text()="APE"]]', loop=2)
+                                time.sleep(2)
+                                __click_ele(page=camelot_page, xpath='x://a[contains(text(), "Max")]', loop=2)
+                                __get_ele(page=camelot_page, xpath='x://button[.//span[contains(text(), "Approve apeUSD")] and not(@disabled)]', loop=3)
+                                __do_swap(page=camelot_page, loop=3, cont="Add apeUSD to Wallet", conts="Add APE to Wallet", swap_txt="Approve apeUSD")
+                            elif ape >= Decimal("0.3"):
                                 # 交换金额
                                 __click_ele(page=camelot_page, xpath='x://div[div[div[text()="From"]]]', loop=2)
                                 __click_ele(page=camelot_page, xpath='x://button[span[text()="APE"]]', loop=2)
@@ -832,20 +857,21 @@ def __task_camelot_apechain(page, evm_id, evm_addr):
                                 #     match = re.search(r'balance:\s*([\d.]+)', _text)
                                 #     if match:
                                 #         value = match.group(1)
-                                _run_mon = round(float(result['balance_eth'] - 0.2), 6)
+                                _run_mon = round(float(ape - Decimal("0.2")), 6)
                                 # 输入金额
                                 __input_ele_value(page=camelot_page,
                                                   xpath="x://a[contains(text(), 'Max')]/ancestor::div[@class='text-secondary text-small text-right']/preceding-sibling::input",
                                                   value=str(_run_mon))
                                 __get_ele(page=camelot_page, xpath='x://button[.//span[contains(text(), "Swap")] and not(@disabled)]', loop=3)
                                 __do_swap(page=camelot_page, loop=3, cont="Add apeETH to Wallet", conts="Add APE to Wallet")
-                            else:
+                            elif apeeth > Decimal("0"):
                                 # 交换金额
                                 __click_ele(page=camelot_page, xpath='x://div[div[div[text()="From"]]]', loop=2)
                                 __click_ele(page=camelot_page, xpath='x://button[span[text()="apeETH"]]', loop=2)
                                 __click_ele(page=camelot_page, xpath='x://div[div[div[text()="To"]]]', loop=2)
                                 __click_ele(page=camelot_page, xpath='x://button[span[text()="APE"]]', loop=2)
-                                __click_ele(page=camelot_page, xpath='x://a[contains(text(), "Max")]')
+                                time.sleep(2)
+                                __click_ele(page=camelot_page, xpath='x://a[contains(text(), "Max")]', loop=2)
                                 __get_ele(page=camelot_page, xpath='x://button[.//span[contains(text(), "Swap")] and not(@disabled)]', loop=3)
                                 __bool_2 = __do_swap(page=camelot_page, loop=3, cont="Add apeETH to Wallet", conts= "Add APE to Wallet")
                             if __bool_2:
@@ -864,15 +890,14 @@ def __task_camelot_apechain(page, evm_id, evm_addr):
     return __bool_2
 
 
-def __do_swap(page, loop: int = 3, cont: str = 'cont', conts: str = 'cont'):
+def __do_swap(page, loop: int = 3, cont: str = 'cont', conts: str = 'cont', swap_txt: str = 'swap'):
     attempts = 0
     time.sleep(3)
     for i in range(loop):
         # 点击 swap 按钮
-        __click_ele(page=page, xpath='x://button[span[span[contains(text(), "Swap")]] and not(@disabled)]', loop=1)
-        __click_ele(page=page, xpath='x://button[span[contains(text(), "Swap")] and not(@disabled)]', loop=1)
-        __click_ele(page=page, xpath='x://button[span[contains(text(), "Approve apeETH")]]', loop=1)
-        __click_ele(page=page, xpath='x://button[span[contains(text(), "Approve APE")]]', loop=1)
+        __click_ele(page=page, xpath=f'x://button[span[span[contains(text(), "Swap") or contains(text(), "{swap_txt}")]] and not(@disabled)]', loop=1)
+        __click_ele(page=page, xpath=f'x://button[span[contains(text(), "Swap") or contains(text(), "{swap_txt}")] and not(@disabled)]', loop=1)
+        __click_ele(page=page, xpath='x://button[span[contains(text(), "Approve apeETH") or contains(text(), "Approve APE") or contains(text(), "Approve apeUSD")]]', loop=1)
         # 处理钱包确认框 一次
         __handle_signma_popup(page=page.browser, count=2, timeout=25)
         # 检查是否发生错误
@@ -1611,6 +1636,8 @@ def get_polygon_balance(address):
             "params": [address, "latest"]
         },
         {
+            "id": 2,
+            "jsonrpc": "2.0",
             "method": "eth_call",
             "params": [
                 {
@@ -1618,9 +1645,7 @@ def get_polygon_balance(address):
                     "data": f"0x70a08231000000000000000000000000{address[2:].lower()}"
                 },
                 "latest"
-            ],
-            "id": 2,
-            "jsonrpc": "2.0"
+            ]
         },
         {
             "method": "eth_call",
@@ -1707,6 +1732,76 @@ def get_polygon_balance(address):
     else:
         print(f"请求失败，状态码: {response.status_code}")
         return None, None
+
+
+def get_wallet_balance_type(
+        rpc_url: str,
+        address: str,
+        tokens: Optional[List[Dict[str, any]]] = None,
+) -> Dict[str, Decimal]:
+
+    headers = {"content-type": "application/json"}
+
+    # 构建批量请求
+    requests_data = []
+    id_to_token = {}  # 映射 request id 到 token 配置
+
+    for idx, token in enumerate(tokens, start=1):
+        id_to_token[idx] = token
+
+        if token.get("is_native", False):
+            # 原生代币余额查询
+            requests_data.append({
+                "id": idx,
+                "jsonrpc": "2.0",
+                "method": "eth_getBalance",
+                "params": [address, "latest"]
+            })
+        else:
+            # ERC20 代币余额查询
+            # balanceOf(address) 方法签名的前 4 字节 + 填充到 32 字节的地址
+            data = f"0x70a08231000000000000000000000000{address[2:].lower()}"
+            requests_data.append({
+                "id": idx,
+                "jsonrpc": "2.0",
+                "method": "eth_call",
+                "params": [
+                    {
+                        "to": token["contract"],
+                        "data": data
+                    },
+                    "latest"
+                ]
+            })
+    # 发送批量请求
+    response = requests.post(rpc_url, headers=headers, json=requests_data)
+
+    if response.status_code != 200:
+        print(f"请求失败，状态码: {response.status_code}")
+        return {}
+
+    # 解析响应
+    results = response.json()
+    balances = {}
+
+    for result in results:
+        request_id = result.get("id")
+        if request_id not in id_to_token:
+            continue
+
+        token = id_to_token[request_id]
+
+        try:
+            # 将十六进制结果转换为整数
+            raw_balance = int(result.get("result", "0x0"), 16)
+            # 根据精度转换为实际余额
+            balance = Decimal(raw_balance) / Decimal(10 ** token["decimals"])
+            balances[token["key"]] = balance
+        except (ValueError, KeyError) as e:
+            print(f"解析 {token['key']} 余额失败: {e}")
+            balances[token["key"]] = Decimal(0)
+
+    return balances
 
 
 def format_balance(balance, decimals=18):
