@@ -845,7 +845,7 @@ def __task_camelot_apechain(page, evm_id, evm_addr):
                                 __click_ele(page=camelot_page, xpath='x://a[contains(text(), "Max")]', loop=2)
                                 __get_ele(page=camelot_page, xpath='x://button[.//span[contains(text(), "Approve apeUSD")] and not(@disabled)]', loop=3)
                                 __do_swap(page=camelot_page, loop=3, cont="Add apeUSD to Wallet", conts="Add APE to Wallet", swap_txt="Approve apeUSD")
-                            elif ape >= Decimal("0.3"):
+                            elif ape >= Decimal("0.2"):
                                 # 交换金额
                                 __click_ele(page=camelot_page, xpath='x://div[div[div[text()="From"]]]', loop=2)
                                 __click_ele(page=camelot_page, xpath='x://button[span[text()="APE"]]', loop=2)
@@ -857,7 +857,7 @@ def __task_camelot_apechain(page, evm_id, evm_addr):
                                 #     match = re.search(r'balance:\s*([\d.]+)', _text)
                                 #     if match:
                                 #         value = match.group(1)
-                                _run_mon = round(float(ape - Decimal("0.2")), 6)
+                                _run_mon = round(float(ape - Decimal("0.1")), 6)
                                 # 输入金额
                                 __input_ele_value(page=camelot_page,
                                                   xpath="x://a[contains(text(), 'Max')]/ancestor::div[@class='text-secondary text-small text-right']/preceding-sibling::input",
@@ -874,6 +874,8 @@ def __task_camelot_apechain(page, evm_id, evm_addr):
                                 __click_ele(page=camelot_page, xpath='x://a[contains(text(), "Max")]', loop=2)
                                 __get_ele(page=camelot_page, xpath='x://button[.//span[contains(text(), "Swap")] and not(@disabled)]', loop=3)
                                 __bool_2 = __do_swap(page=camelot_page, loop=3, cont="Add apeETH to Wallet", conts= "Add APE to Wallet")
+                            else:
+                                __bool_2 = True
                             if __bool_2:
                                 break
     except Exception as e:
@@ -4594,7 +4596,7 @@ if __name__ == '__main__':
                         filtered.append(line)
 
         if len(filtered_paismax) > 0:
-            filtered.append('2913444||0||2025-08-15||prismax_home,49360,screen')
+            filtered.append('0||0||2025-08-15||prismax_home,49360,screen')
         # 打乱顺序
         random.shuffle(filtered)
         for part in filtered:
@@ -4623,60 +4625,8 @@ if __name__ == '__main__':
                 logger.info(f'开始数据:{_task_type}:{_task_id}')
                 if _type in TASK_TYPES:
                     logger.warning(f"启动任务1:{_type}:{part}")
-                    if _type == 'prismax_home':
-                        result  = check_available()
-                        if result:
-                            _key, _home_ip= result
-                            for part in filtered_paismax:
-                                _page = None
-                                _end = False
-                                _task_id = ''
-                                _task_type = ''
-                                try:
-                                    parts = part.split("||")
-                                    if len(parts) < 4:
-                                        logger.warning(f"任务参数不足，跳过：{part!r}")
-                                        continue
-                                    port = args.base_port
-                                    _task_id = parts[0]
-                                    _task_type = parts[1]
-                                    arg = parts[3].split(",")
-                                    _task = parts[3]
-                                    if len(arg) < 2:
-                                        logger.warning(f"任务 arg 参数不足，跳过：{parts[3]!r}")
-                                        continue
-                                    _type = arg[0]
-                                    _id = arg[1]
-                                    logger.warning(f"启动任务1:{_type}:{part}")
-                                    if len(arg) < 3:
-                                        logger.warning("prismax 需要助记词/私钥参数，已跳过")
-                                    else:
-                                        _page = __get_page("prismax", _id, None, _home_ip)
-                                        _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
-                                except Exception as e:
-                                    logger.info(f"任务异常: {e}")
-                                finally:
-                                    logger.info(f'结束数据:{_task_type}:{_task_id}')
-                                    if _page is not None:
-                                        try:
-                                            _page.quit()
-                                        except Exception:
-                                            logger.exception("退出错误")
-                                    logger.info(f'数据{_end}:{_task_type}:{_task_id}')
-                                    if _end and _task_id:
-                                        if _task_type != '0':
-                                            if platform.system().lower() != "windows":
-                                                append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt",
-                                                                    data_str=_task_id)
-                                            else:
-                                                append_date_to_file(file_path="E:/tmp/chrome_data/end_tasks.txt", data_str=_task_id)
-                                        else:
-                                            _end_day_task.append(_task_id)
-                                    else:
-                                        signma_log(message=f"{_type},{_task_id},{_task}",
-                                                   task_name=f'error_task_{get_date_as_string()}', index=evm_id)
-                            end_available(_key=_key)
-                    elif _type == 'nexus_hz_base_ts':
+
+                    if _type == 'nexus_hz_base_ts':
                         _page = __get_page("nexus_1", _id, None, False)
                         _end = __do_task_nexus_hz(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
                         # _end = query_nexus_x(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
@@ -4702,6 +4652,8 @@ if __name__ == '__main__':
                     elif _type == 'rari_arb_end':
                         _page = __get_page("rari_arb", _id, None, False)
                         _end = __do_swap_rari_arb_eth_end(page=_page, evm_id=_id)
+                        _end = True
+                    elif _type == 'prismax_home':
                         _end = True
                     else:
                         _home_ip = False
@@ -4776,4 +4728,69 @@ if __name__ == '__main__':
                     # else:
                     #     time.sleep(random.randint(600, 1800))
                     time.sleep(random.randint(30, 60))
+
+            if len(filtered_paismax) > 0:
+                __ends = False
+                try:
+                    result  = check_available()
+                    if result:
+                        _key, _home_ip= result
+                        for part in filtered_paismax:
+                            _page = None
+                            _end = False
+                            _task_id = ''
+                            _task_type = ''
+                            try:
+                                parts = part.split("||")
+                                if len(parts) < 4:
+                                    logger.warning(f"任务参数不足，跳过：{part!r}")
+                                    continue
+                                port = args.base_port
+                                _task_id = parts[0]
+                                _task_type = parts[1]
+                                arg = parts[3].split(",")
+                                _task = parts[3]
+                                if len(arg) < 2:
+                                    logger.warning(f"任务 arg 参数不足，跳过：{parts[3]!r}")
+                                    continue
+                                _type = arg[0]
+                                _id = arg[1]
+                                logger.warning(f"启动任务1:{_type}:{part}")
+                                if len(arg) < 3:
+                                    logger.warning("prismax 需要助记词/私钥参数，已跳过")
+                                else:
+                                    _page = __get_page("prismax", _id, None, _home_ip)
+                                    _end = __do_task_prismax(page=_page, index=_window, evm_id=_id, evm_addr=arg[2], _home_ip=_home_ip)
+                                    if _end:
+                                        __ends = True
+                            except Exception as e:
+                                logger.info(f"任务异常: {e}")
+                            finally:
+                                logger.info(f'结束数据:{_task_type}:{_task_id}')
+                                if _page is not None:
+                                    try:
+                                        _page.quit()
+                                    except Exception:
+                                        logger.exception("退出错误")
+                                logger.info(f'数据{_end}:{_task_type}:{_task_id}')
+                                if _end and _task_id:
+                                    if _task_type != '0':
+                                        if platform.system().lower() != "windows":
+                                            append_date_to_file(file_path="/home/ubuntu/task/tasks/end_tasks.txt",
+                                                                data_str=_task_id)
+                                        else:
+                                            append_date_to_file(file_path="E:/tmp/chrome_data/end_tasks.txt", data_str=_task_id)
+                                    else:
+                                        _end_day_task.append(_task_id)
+                                else:
+                                    signma_log(message=f"{_type},{_task_id},{_task}",
+                                               task_name=f'error_task_{get_date_as_string()}', index=evm_id)
+                        end_available(_key=_key)
+                except Exception as e:
+                    logger.info(f"任务异常: {e}")
+                finally:
+                    logger.info(f'结束数据:{_task_type}:{_task_id}')
+                if __ends:
+                    logger.info(f"清空任务")
+                    filtered_paismax = []
         time.sleep(random.randint(600, 1200))
