@@ -2037,8 +2037,7 @@ def __do_hemi(page, evm_id, evm_addr):
                                                          xpath='x://a[starts-with(normalize-space(.),"You sold")]')
                                 if _value is not None:
                                     signma_log(message=f"{evm_addr},{_value}", task_name=f'hemia', index=evm_id)
-                                    append_date_to_file(file_path="/home/ubuntu/task/tasks/hemi_endb.txt",
-                                                        data_str=evm_id)
+                                    append_date_to_file(file_path="/home/ubuntu/task/tasks/hemi_endb.txt", data_str=evm_id)
                                     __bool = True
                     else:
                         append_date_to_file(file_path="/home/ubuntu/task/tasks/hemi_endb.txt", data_str=evm_id)
@@ -3651,7 +3650,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
         __login_new_wallet(page=page, evm_addr=evm_addr)
         main_page = page.new_tab(url='https://app.prismax.ai/')
         _login = True
-        __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
+        # __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
         _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
         if _wallet_but:
             main_page.actions.move_to(_wallet_but).click()
@@ -4382,18 +4381,19 @@ def __do_task_molten(page, evm_id, index):
                 #                                 xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
                 #     _mon_to = __get_ele_value(page=main_page,
                 #                               xpath='x://span[normalize-space(text())="To"]/parent::div/parent::div/parent::div/div[2]/span[2]')
-                if float(_mon_from) > 0.01:
+                if float(_mon_from) > 0.001:
                     _mon_from_tmp = _mon_from
                     # if float(_mon_from) > 1:
                     #     # percentages = [0.30, 0.35, 0.40]
                     #     # pct = random.choice(percentages)
                     #     # _dt = float(_mon_from_tmp) * pct
-                    _dt = random.uniform(1.001, 1.502)
-                    if _dt > float(_mon_from):
-                        _mon_from_tmp = f"{(float(_mon_from) - 0.001):.3f}"
-                        # _mon_from_tmp = f"{Decimal(str(_mon_from)).quantize(Decimal('0.00'), rounding=ROUND_DOWN)}"
-                    else:
-                        _mon_from_tmp = f"{_dt:.3f}"
+                    # _dt = random.uniform(1.001, 1.502)
+                    # if _dt > float(_mon_from):
+                    #     _mon_from_tmp = f"{(float(_mon_from) - 0.0005):.3f}"
+                    #     # _mon_from_tmp = f"{Decimal(str(_mon_from)).quantize(Decimal('0.00'), rounding=ROUND_DOWN)}"
+                    # else:
+                    #     _mon_from_tmp = f"{_dt:.3f}"
+                    _mon_from_tmp = f"{(float(_mon_from) - 0.0005):.4f}"
                     __input_ele_value(page=main_page, xpath='x://input[@placeholder="Amount"]', value=_mon_from_tmp)
                     if __click_ele(page=main_page,
                                    xpath='x://button[contains(text(), "Transfer Tokens") and not(@disabled)]'):
@@ -4548,7 +4548,7 @@ def install_chrome_extension(
 if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
-    TASK_TYPES = {'prismax_home', 'nexus_joina_new_c', 'nexus'}
+    TASK_TYPES = {'prismax_home', 'nexus_joina_new_c', 'nexus', 'molten_new'}
     # TASK_TYPES = {'prismax_home', 'eth_end',  'nexus', 'camelot_apechain', 'nexus_joina_new_c', 'rari_arb', 'rari_arb_end', 'nexus_hz_base_ts'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end', 'camelot_apechain', 'nexus_joina_new_c'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
@@ -4710,7 +4710,7 @@ if __name__ == '__main__':
                         elif _type == 'nft':
                             _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
                             _end = True
-                        elif _type == 'molten':
+                        elif _type == 'molten_new':
                             _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
                             _end = True
                         elif _type == 'nexus':
