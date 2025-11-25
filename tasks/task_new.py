@@ -4258,7 +4258,7 @@ def __do_swap_rari_arb_eth_end(page, evm_id):
     return True
 
 
-def __do_task_molten(page, evm_id, index):
+def __do_task_molten(page, evm_id, evm_addr, index):
     __end = False
     __bool = True
     try:
@@ -4404,11 +4404,10 @@ def __do_task_molten(page, evm_id, index):
                                                         xpath='x://span[normalize-space(text())="From"]/parent::div/parent::div/parent::div/div[2]/span[2]')
                         if float(_mon_from) > float(_mon_new_from):
                             __end = True
-                            signma_log(message=f"molten", task_name=f'task_{get_date_as_string()}', index=evm_id)
-                            time.sleep(5)
                 elif float(_mon_to) > 0:
                     __end = True
 
+                signma_log(message=f"{evm_addr},{_mon_to},{_mon_from}", task_name=f'task_molten_new_{get_date_as_string()}', index=evm_id)
                 if __click_ele(page=main_page, xpath='x://button[contains(normalize-space(.), "Transactions")]',
                                loop=1):
                     time.sleep(10)
@@ -4711,7 +4710,7 @@ if __name__ == '__main__':
                             _end = __do_task_nft(page=_page, index=_window, evm_id=_id)
                             _end = True
                         elif _type == 'molten_new':
-                            _end = __do_task_molten(page=_page, evm_id=_id, index=_window)
+                            _end = __do_task_molten(page=_page, evm_id=_id, evm_addr=arg[2], index=_window)
                             _end = True
                         elif _type == 'nexus':
                             if random.choice([True, False]):
