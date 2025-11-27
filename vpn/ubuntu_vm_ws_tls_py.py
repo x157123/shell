@@ -60,7 +60,7 @@ def in_node():
 
     # # 1. 安装依赖
     # run("apt update")
-    # run("apt install -y curl socat")
+    run("apt install -y curl socat")
 
     # 定义脚本路径和参数列表
     script_path = './xray_vmess.sh'
@@ -77,33 +77,33 @@ def in_node():
         f.write(resp.text)
 
 
-    # private_key = os.path.join(X_RAY_DIR, 'private.key')
-    #
-    # if os.path.exists(private_key):
-    #     logger.info('跳过安装证书')
-    # else:
-    #
-    #     # 2. 安装 acme.sh（如果已安装则跳过）
-    #     if not os.path.isfile(ACME):
-    #         run("curl https://get.acme.sh | sh")
-    #     else:
-    #         logger.info(f"[INFO] acme.sh 已存在：{ACME}")
-    #
-    #     # 3. 注册账户
-    #     run(f"{ACME} --register-account -m {EMAIL}")
-    #
-    #     logger.info(f'领取证书{domain}')
-    #
-    #     # 4. 签发证书，失败时重试
-    #     issue_with_retry(domain, ACME, retry_interval=5)
-    #
-    #     # 5. 安装证书到 Xray 目录
-    #     os.makedirs(X_RAY_DIR, exist_ok=True)
-    #     run(
-    #         f"{ACME} --installcert -d {domain} "
-    #         f"--key-file      {X_RAY_DIR}/private.key "
-    #         f"--fullchain-file {X_RAY_DIR}/cert.crt"
-    #     )
+    private_key = os.path.join(X_RAY_DIR, 'private.key')
+
+    if os.path.exists(private_key):
+        logger.info('跳过安装证书')
+    else:
+
+        # 2. 安装 acme.sh（如果已安装则跳过）
+        if not os.path.isfile(ACME):
+            run("curl https://get.acme.sh | sh")
+        else:
+            logger.info(f"[INFO] acme.sh 已存在：{ACME}")
+
+        # 3. 注册账户
+        run(f"{ACME} --register-account -m {EMAIL}")
+
+        logger.info(f'领取证书{domain}')
+
+        # 4. 签发证书，失败时重试
+        issue_with_retry(domain, ACME, retry_interval=5)
+
+        # 5. 安装证书到 Xray 目录
+        os.makedirs(X_RAY_DIR, exist_ok=True)
+        run(
+            f"{ACME} --installcert -d {domain} "
+            f"--key-file      {X_RAY_DIR}/private.key "
+            f"--fullchain-file {X_RAY_DIR}/cert.crt"
+        )
 
     # 6. 打印安装结果
     logger.info("\n====== 证书安装完成 ======")

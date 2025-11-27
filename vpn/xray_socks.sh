@@ -17,7 +17,7 @@ SOCKS_PASS=${3:-KU6L2u3T86}
 
 # ---- 固定变量 ----
 XRAY_BIN="/usr/local/bin/xray"
-SERVICE_NAME="xray-socks"
+SERVICE_NAME="xrayL"
 CONFIG_DIR="/etc/xray"
 CONFIG_FILE="${CONFIG_DIR}/config.toml"
 CERT_DIR="/etc/xray"
