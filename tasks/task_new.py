@@ -2364,10 +2364,10 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
             ]
         else:
             tasks = [
-
                 {'id': 36, 'name': 'FIN', 'jf': 1000},
                 {'id': 37, 'name': 'SYN', 'jf': 1000},
                 {'id': 38, 'name': 'ACK', 'jf': 1000},
+
                 {'id': 3, 'name': 'Shoulder Blaster Glyph', 'jf': 12000},
                 {'id': 4, 'name': 'Sunset Boulevard Glyph', 'jf': 5000},
                 {'id': 5, 'name': 'Eat Your Arpeggi-ohs Glyph', 'jf': 3500},
