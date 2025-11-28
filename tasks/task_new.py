@@ -2323,7 +2323,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
                             __handle_signma_popup(page=page, count=2, timeout=45)
         __handle_signma_popup(page=page, count=2, timeout=10)
 
-    __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=3)
+    __click_ele(page=nexus, xpath='x://button[contains(text(), "Done")]', loop=1)
     for i in range(2):
         nexus.scroll.to_bottom()
         time.sleep(1)
@@ -2332,7 +2332,7 @@ def __do_task_nexus_hz(page, evm_id, evm_addr, index):
     nexus.scroll.up(1000)
     time.sleep(5)
 
-    if __get_ele(page=nexus, xpath='x://span[text()="Balance"]'):
+    if True:
         # 使用配置驱动的方式替代硬编码
         tasks = [
             # {'id': 3, 'name': 'Shoulder Blaster Glyph', 'jf': 12000},
