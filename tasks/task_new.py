@@ -3673,12 +3673,12 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
                     __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
             time.sleep(5)
 
-        _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
+        _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet" or text()="Connect"]', loop=1)
         if _wallet_but:
             main_page.get(url='https://app.prismax.ai/')
             __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
             time.sleep(5)
-            _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
+            _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet" or text()="Connect"]', loop=1)
             main_page.actions.move_to(_wallet_but).click()
             time.sleep(4)
             if __click_ele(page=main_page,
@@ -3699,7 +3699,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
                     __click_ele(page=phantom_page, xpath='x://button[@data-testid="primary-button"]', loop=1)
             time.sleep(5)
 
-            if __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1):
+            if __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet" or text()="Connect"]', loop=1):
                 _login = False
 
         if _login:
