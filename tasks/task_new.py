@@ -4751,6 +4751,7 @@ if __name__ == '__main__':
                     time.sleep(random.randint(30, 60))
 
             if len(filtered_paismax) > 0:
+                random.shuffle(filtered_paismax)
                 __ends = False
                 try:
                     result  = check_available()
