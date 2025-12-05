@@ -3651,7 +3651,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
         main_page = page.new_tab(url='https://app.prismax.ai/')
         _login = True
         # __get_ele(page=main_page, xpath='x://h3[contains(normalize-space(.), "Earnings")]')
-        _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet"]', loop=1)
+        _wallet_but = __get_ele(page=main_page, xpath='x://div[text()="Connect Wallet" or text()="Connect"]', loop=1)
         if _wallet_but:
             main_page.actions.move_to(_wallet_but).click()
             time.sleep(4)
