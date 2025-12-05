@@ -4756,7 +4756,7 @@ if __name__ == '__main__':
                     result  = check_available()
                     if result:
                         _key, _home_ip= result
-                        for part in filtered_paismax:
+                        for part in filtered_paismax[:5]:
                             _page = None
                             _end = False
                             _task_id = ''
