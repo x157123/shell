@@ -4547,7 +4547,7 @@ def install_chrome_extension(
 if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
-    TASK_TYPES = {'prismax_home'}
+    TASK_TYPES = {'prismax_home', 'nexus_joina_new_c', 'nexus', 'molten_new'}
     # TASK_TYPES = {'prismax_home', 'eth_end',  'nexus', 'camelot_apechain', 'nexus_joina_new_c', 'rari_arb', 'rari_arb_end', 'nexus_hz_base_ts'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'molten', 'nexus', 'manifesto', 'gift', 'rari_arb', 'rari_arb_end', 'camelot_apechain', 'nexus_joina_new_c'}
     # TASK_TYPES = {'prismax', 'prismax_new', 'task_ta3rn_new', 'eth_end', 'swap_op_arb_base', 'molten', 'pond', 'nexus', 'manifesto', 'gift', 'nexus_hz_base_ts', 'rari_arb', 'rari_arb_end'}
