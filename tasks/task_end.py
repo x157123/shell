@@ -780,10 +780,7 @@ def __do_task_espresso(page, evm_id, index, evm_addr):
                 if __click_ele(page=authena_page, xpath='x=//article[contains(@class,"_main_container") and .//h5[normalize-space(.)="Metamask"]]', loop=1):
                     __handle_signma_popup(page=page, count=2)
                     __click_ele(page=authena_page, xpath='x://button[contains(.,"Skip")]', loop=1)
-            if __get_ele(page=authena_page,
-                         xpath=f"x://span[translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='{short_address(evm_addr,6,2,join='....').lower()}']",
-                         loop=2):
-
+            if __get_ele(page=authena_page, xpath='x://button[contains(.,"Connect") and contains(@class,"navMenu_connectButton__9aYV7")]', loop=3) is None:
                 jf_ele = __get_ele(page=authena_page, xpath='x://div[normalize-space()="Humanity Points"]/ancestor::div[contains(@class,"min-w-0")][1]//number-flow-react', loop=1)
                 value_jf = jf_ele.attr('aria-label')
 
