@@ -54,11 +54,11 @@ def __get_page(_type, _id, _port, _home_ip):
         options.set_proxy(f"{_home_ip}:47163")
 
     if platform.system().lower() == "windows":
-        options.add_extension(f"E:/chrome_tool/signma")
+        options.add_extension(f"E:/chrome_tool/chrome-cloud-v3")
         if _type == 'nexus_joina_sse':
             options.add_extension(f"E:/chrome_tool/cookin")
     else:
-        options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
+        options.add_extension(f"/home/ubuntu/extensions/chrome-cloud-v3")
 
     if _type == 'prismax':
         options.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
@@ -296,7 +296,8 @@ def __handle_signma_popup(page, count: int = 1, timeout: int = 15, must: bool = 
     _count = 0
     processed_any = False
     while time.time() - start_time < timeout:
-        time.sleep(2)
+        if timeout > 0:
+            time.sleep(2)
         all_tabs = page.get_tabs()
         for tab in all_tabs:
             try:
@@ -650,235 +651,6 @@ def __send_end_wallet(wallet_page, evm_id, send_evm_addr, amount, _url, max_gas_
     return _bool
 
 
-def __eth_to_op_arb_base(page, evm_id, evm_addr):
-    _bool = False
-    __login_wallet(page=page, evm_id=evm_id)
-    __handle_signma_popup(page=page, count=0)
-    _gas = __quyer_gas()
-    if _gas is not None:
-        _low_gas = _gas.get('SafeGasPrice', '99')
-        if _low_gas is not None and float(_low_gas) < 0.3:
-            ethereum = get_eth_balance("ethereum", evm_addr)
-            if ethereum is not None and float(ethereum) > 0.00004:
-                _type = int(evm_id) % 3
-                if _type == 0:
-                    _type_str = 'op'
-                    _url = "https://relay.link/bridge/optimism?fromChainId=1"
-                elif _type == 1:
-                    _type_str = 'base'
-                    _url = "https://relay.link/bridge/base?fromChainId=1"
-                else:
-                    _type_str = 'arb'
-                    _url = "https://relay.link/bridge/arbitrum?fromChainId=1"
-                _bool = __send_end_wallet(page, evm_id, None, 'Max', _url, 0.05, 0.00003, f'eth_{_type_str}')
-            elif ethereum is not None and float(ethereum) < 0.00004:
-                _bool = True
-            if _bool:
-                signma_log(message=f"{evm_addr},{_low_gas},{ethereum}", task_name=f'wallet_eth_to_op_arb_base', index=evm_id)
-    return _bool
-
-def __swap_op_arb_base(page, evm_id, evm_addr):
-    _bool = False
-    __login_wallet(page=page, evm_id=evm_id)
-    __handle_signma_popup(page=page, count=0)
-    _gas = __quyer_gas()
-    if _gas is not None:
-        _low_gas = _gas.get('SafeGasPrice', '99')
-        if _low_gas is not None and float(_low_gas) < 0.3:
-            _base = get_eth_balance("base", evm_addr)
-            _op = get_eth_balance("opt", evm_addr)
-            _arb = get_eth_balance("arb", evm_addr)
-            _rari = get_eth_balance("rari", evm_addr)
-            if _rari is not None and float(_rari) > 0.000025:
-                __add_net_work(page=page, coin_name='rari')
-                key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb})
-                if key == 'base':
-                    _url = 'https://relay.link/bridge/base?fromChainId=1380012617'
-                elif key == 'opt':
-                    _url = 'https://relay.link/bridge/optimism?fromChainId=1380012617'
-                else :
-                    _url = 'https://relay.link/bridge/arbitrum?fromChainId=1380012617'
-                __send_end_wallet(page, evm_id, None, 'Max', _url, 0.05, 0.00002, f'rari_{key}')
-
-                _base = get_eth_balance("base", evm_addr)
-                _op = get_eth_balance("opt", evm_addr)
-                _arb = get_eth_balance("arb", evm_addr)
-
-
-            key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb})
-
-            if value is not None and float(value) > 0.00005:
-                _end_net = ''
-                __add_net_work(page=page, coin_name=key)
-
-                _page_main = page.new_tab('https://bridge.t3rn.io/')
-                if __click_ele(page=_page_main, xpath='x://button[text()="Connect wallet"]', loop=2):
-                    __click_ele(page=_page_main, xpath='x://button/div/div/div/div[text()="Signma"]', loop=1)
-                    __handle_signma_popup(page=page, count=1)
-                if __click_ele(page=_page_main, xpath='x://button[text()="Connect wallet"]', loop=1):
-                    if __click_ele(page=_page_main, xpath='x://button/div/div/div/div[text()="Signma"]', loop=1):
-                        __handle_signma_popup(page=page, count=1)
-
-                _amount = "{:.5f}".format(float(value) - 0.00003)
-                if key == 'base':
-                    __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network-and-asset" and .//span[text()="from"]]', loop=4)
-                    __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Base"]]', loop=1)
-                    __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network-and-asset" and .//span[text()="to"]]', loop=4)
-                    if random.choice([True, False]):
-                        _end_net = 'Arbitrum One'
-                        __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Arbitrum One"]]', loop=5)
-                    else:
-                        _end_net = 'Optimism'
-                        __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Optimism"]]', loop=5)
-                    evm_id_int = int(evm_id)
-                    if 30005 <= evm_id_int <=30304 or 30405 <= evm_id_int <=30504 or 37826 <= evm_id_int <=39425 or 77338 <= evm_id_int <=77837:
-                        _amount = "{:.5f}".format(float(value) - 0.00004)
-
-                elif key == 'opt':
-                    __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network-and-asset" and .//span[text()="from"]]', loop=4)
-                    __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Optimism"]]', loop=1)
-                    __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network-and-asset" and .//span[text()="to"]]', loop=4)
-                    if random.choice([True, False]):
-                        __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Arbitrum One"]]', loop=5)
-                        _end_net = 'Arbitrum One'
-                    else:
-                        _end_net = 'Base'
-                        __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Base"]]', loop=5)
-
-                elif key == 'arb':
-                    __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network-and-asset" and .//span[text()="from"]]', loop=4)
-                    __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Arbitrum One"]]', loop=1)
-                    __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network-and-asset" and .//span[text()="to"]]', loop=4)
-                    if random.choice([True, False]):
-                        _end_net = 'Base'
-                        __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Base"]]', loop=5)
-                    else:
-                        _end_net = 'Optimism'
-                        __click_ele(page=_page_main, xpath='x://button[@data-testid="ui-select-network" and .//span[text()="Optimism"]]', loop=5)
-
-                __input_ele_value(page=_page_main, xpath='x://input[@data-testid="ui-max-reward-input"]', loop=5, value=_amount)
-                __click_ele(page=_page_main, xpath='x://button[text()="text()="Connect to Arbitrum One" or "text()="Connect to Base" or text()="Connect to Optimism"]', loop=3)
-                if __click_ele(page=_page_main, xpath='x://button[text()="Confirm transaction"]', loop=5):
-                    __handle_signma_popup(page=page, count=1)
-                    time.sleep(5)
-                    __handle_signma_popup(page=page, count=0)
-                    if __get_ele(page=_page_main, xpath='x://a[text()="Submit a new order"]', loop=25):
-                        _bool = True
-                    else:
-                        _mon_end = get_eth_balance(key, evm_addr)
-                        if float(_mon_end) < float(value):
-                            _bool = True
-                if _bool:
-                    signma_log(message=f"{evm_addr},{key}.{_end_net},{_amount}", task_name=f'wallet_swap_op_arb_base', index=evm_id)
-    return _bool
-
-
-def __task_camelot_apechain(page, evm_id, evm_addr):
-    camelot_page = None
-    __bool_2 = False
-    result = get_ape_balance(evm_addr)
-    try:
-        _bool = False
-        __handle_signma_popup(page=page, count=0)
-        __login_wallet(page=page, evm_id=evm_id)
-        __handle_signma_popup(page=page, count=0)
-
-        __add_net_work(page=page, coin_name='apechain')
-
-        camelot_page = page.new_tab(url='https://app.camelot.exchange/')
-        if __click_ele(page=camelot_page, xpath="x://button[contains(text(), 'Connect')]", loop=1):
-            shadow_host = camelot_page.ele('x://onboard-v2')  # 定位到 shadow-host
-            shadow_root = shadow_host.shadow_root
-            __click_ele(page=shadow_root, xpath='x://div[text()="MetaMask"]', loop=2)
-            # 确定钱包  初次钱包确认4次， 通过之后只有两次
-            __handle_signma_popup(page=page, count=4, timeout=20)
-
-        __click_ele(page=camelot_page, xpath='x://div[contains(@class, "nav-link d-flex align-items-center")]')
-        __click_ele(page=camelot_page, xpath='x://div[div[p[contains(text(), "ApeChain")]]]')
-        __click_ele(page=camelot_page, xpath="x://button[contains(@class, 'btn btn-unstyled')]", loop=1)
-
-        _gas = __quyer_gas()
-        if _gas is not None:
-            _low_gas = _gas.get('SafeGasPrice', '99')
-            if _low_gas is not None and float(_low_gas) < 0.3:
-                if __click_ele(page=camelot_page, xpath='x://div[contains(@class, "nav-link d-flex align-items-center")]'):
-                    if __click_ele(page=camelot_page, xpath='x://div[div[p[contains(text(), "ApeChain")]]]'):
-                        __click_ele(page=camelot_page, xpath="x://button[contains(@class, 'btn btn-unstyled')]", loop=1)
-                        for i in range(5):
-                            camelot_page.refresh()
-                            # 示例 : 自定义代币列表
-                            custom_tokens = [
-                                {"key": "APE", "decimals": 18, "is_native": True},
-                                {"key": "APEETH", "contract": "0xcF800F4948D16F23333508191B1B1591daF70438", "decimals": 18},
-                                {"key": "APEUSD", "contract": "0xa2235d059f80e176d931ef76b6c51953eb3fbef4", "decimals": 18},
-                            ]
-                            url = 'https://apechain.calderachain.xyz/http'
-                            result_type = get_wallet_balance_type(url, evm_addr, custom_tokens)
-                            print("自定义配置查询结果:")
-                            ape = result_type.get("APE", Decimal(0))
-                            apeeth = result_type.get("APEETH", Decimal(0))
-                            apeusd = result_type.get("APEUSD", Decimal(0))
-
-                            print(f"ape: {ape}")
-                            print(f"apeeth: {apeeth}")
-                            print(f"apeusd: {apeusd}")
-
-                            if apeusd >= Decimal("0.02"):
-                                __click_ele(page=camelot_page, xpath='x://div[div[div[text()="From"]]]', loop=2)
-                                __click_ele(page=camelot_page, xpath='x://button[span[text()="apeUSD"]]', loop=2)
-                                __click_ele(page=camelot_page, xpath='x://div[div[div[text()="To"]]]', loop=2)
-                                __click_ele(page=camelot_page, xpath='x://button[span[text()="APE"]]', loop=2)
-                                time.sleep(2)
-                                __click_ele(page=camelot_page, xpath='x://a[contains(text(), "Max")]', loop=2)
-                                __get_ele(page=camelot_page, xpath='x://button[.//span[contains(text(), "Approve apeUSD")] and not(@disabled)]', loop=3)
-                                __do_swap(page=camelot_page, loop=3, cont="Add apeUSD to Wallet", conts="Add APE to Wallet", swap_txt="Approve apeUSD")
-                            elif ape >= Decimal("0.2"):
-                                # 交换金额
-                                __click_ele(page=camelot_page, xpath='x://div[div[div[text()="From"]]]', loop=2)
-                                __click_ele(page=camelot_page, xpath='x://button[span[text()="APE"]]', loop=2)
-                                __click_ele(page=camelot_page, xpath='x://div[div[div[text()="To"]]]', loop=2)
-                                __click_ele(page=camelot_page, xpath='x://button[span[text()="apeETH"]]', loop=2)
-                                # _text = __get_ele_value(page=camelot_page, xpath='x://div[contains(@class, "text-secondary") and contains(., "balance") and contains(., "Max")]')
-                                # if _text:
-                                #     # 提取金额部分
-                                #     match = re.search(r'balance:\s*([\d.]+)', _text)
-                                #     if match:
-                                #         value = match.group(1)
-                                _run_mon = round(float(ape - Decimal("0.1")), 6)
-                                # 输入金额
-                                __input_ele_value(page=camelot_page,
-                                                  xpath="x://a[contains(text(), 'Max')]/ancestor::div[@class='text-secondary text-small text-right']/preceding-sibling::input",
-                                                  value=str(_run_mon))
-                                __get_ele(page=camelot_page, xpath='x://button[.//span[contains(text(), "Swap")] and not(@disabled)]', loop=3)
-                                __do_swap(page=camelot_page, loop=3, cont="Add apeETH to Wallet", conts="Add APE to Wallet")
-                            elif apeeth > Decimal("0"):
-                                # 交换金额
-                                __click_ele(page=camelot_page, xpath='x://div[div[div[text()="From"]]]', loop=2)
-                                __click_ele(page=camelot_page, xpath='x://button[span[text()="apeETH"]]', loop=2)
-                                __click_ele(page=camelot_page, xpath='x://div[div[div[text()="To"]]]', loop=2)
-                                __click_ele(page=camelot_page, xpath='x://button[span[text()="APE"]]', loop=2)
-                                time.sleep(2)
-                                __click_ele(page=camelot_page, xpath='x://a[contains(text(), "Max")]', loop=2)
-                                __get_ele(page=camelot_page, xpath='x://button[.//span[contains(text(), "Swap")] and not(@disabled)]', loop=3)
-                                __bool_2 = __do_swap(page=camelot_page, loop=3, cont="Add apeETH to Wallet", conts= "Add APE to Wallet")
-                            else:
-                                __bool_2 = True
-                            if __bool_2:
-                                break
-    except Exception as e:
-        logger.info(f'异常数据：{e}')
-        pass
-    finally:
-        if camelot_page is not None:
-            try:
-                camelot_page.close()
-            except Exception:
-                logger.info('关闭异常')
-    _result = get_ape_balance(evm_addr)
-    signma_log(message=f"{evm_addr},{__bool_2},{result['balance_eth']},{_result['balance_eth']}", task_name=f'camelot_apechain_{get_date_as_string()}', index=evm_id)
-    return __bool_2
-
-
 def __do_swap(page, loop: int = 3, cont: str = 'cont', conts: str = 'cont', swap_txt: str = 'swap'):
     attempts = 0
     time.sleep(3)
@@ -901,117 +673,6 @@ def __do_swap(page, loop: int = 3, cont: str = 'cont', conts: str = 'cont', swap
         __close_popup(page=page.browser, _url=f'{evm_ext_id}', timeout=5)
         __click_ele(page=page, xpath='x://button[i[contains(@class, "mdi-close")]]', loop=1)
     return False
-
-
-def __relay_link(page, evm_id, evm_addr):
-    _bool = False
-    __handle_signma_popup(page=page, count=0)
-    __login_wallet(page=page, evm_id=evm_id)
-    __handle_signma_popup(page=page, count=0)
-    emv_id_int = int(evm_id)
-    emd_w = 0.0006
-    result = get_ape_balance(evm_addr)
-    _base = get_eth_balance("base", evm_addr)
-    _op = get_eth_balance("opt", evm_addr)
-    _arb = get_eth_balance("arb", evm_addr)
-    _rari = get_eth_balance("rari", evm_addr)
-    _sum = float(_base) + float(_op) + float(_arb) + float(_rari)
-    key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb, 'rari': _rari})
-    _sw = False
-    if not (4291 <= emv_id_int <= 9290):
-        if result and result['success'] and float(result['balance_eth']) >= 0.7:
-            emd_w = 0.0005
-        if _sum < emd_w:
-            _gas = __quyer_gas()
-            if _gas is not None:
-                _low_gas = _gas.get('SafeGasPrice', '99')
-                if _low_gas is not None and float(_low_gas) < 0.3:
-                    _sw = True
-                    wallet_page = __get_page('wallet', '88102', '34533', False)
-                    __handle_signma_popup(page=wallet_page, count=0)
-                    __login_wallet(page=wallet_page, evm_id='88102')
-                    __handle_signma_popup(page=wallet_page, count=0)
-                    __add_net_work(page=wallet_page, coin_name='base')
-                    __handle_signma_popup(page=wallet_page, count=0)
-                    _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
-                    _run_mon = round(random.uniform(0.000611, 0.000652), 6)
-                    if result and result['success'] and float(result['balance_eth']) >= 0.7:
-                        _run_mon = round(random.uniform(0.000511, 0.000552), 6)
-                    _send_mon  = _run_mon - _sum
-                    if _send_mon <= 0.00005:
-                        _send_mon += 0.00005
-
-                    elif key == 'opt':
-                        _url = 'https://relay.link/bridge/optimism?fromChainId=8453'
-                    else:
-                        _url = 'https://relay.link/bridge/arbitrum?fromChainId=8453'
-
-                    _bool = __send_end_wallet(wallet_page, '88102', evm_addr, round(_send_mon, 6), _url, 0.06, 0, f'eth_88102_apechain')
-                    if wallet_page is not None:
-                        try:
-                            wallet_page.quit()
-                        except Exception:
-                            logger.exception("退出错误")
-                    _base = get_eth_balance("base", evm_addr)
-                    _op = get_eth_balance("opt", evm_addr)
-                    _arb = get_eth_balance("arb", evm_addr)
-                    _rari = get_eth_balance("rari", evm_addr)
-                    _sum = float(_base) + float(_op) + float(_arb) + float(_rari)
-                    key, value = get_max_from_map({'base': _base, 'opt': _op, 'arb': _arb, 'rari': _rari})
-
-    if result and result['success'] and float(result['balance_eth']) <= 0.7:
-        _gas = __quyer_gas()
-        if _gas is not None:
-            _low_gas = _gas.get('SafeGasPrice', '99')
-            if _low_gas is not None and float(_low_gas) < 0.3:
-                _sw = True
-                if not (4291 <= emv_id_int <= 9290):
-                    __add_net_work(page=page, coin_name=key)
-                    _url = ''
-                    if key == 'base':
-                        _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
-                    elif key == 'opt':
-                        _url = 'https://relay.link/bridge/apechain?fromChainId=10'
-                    elif key == 'arb':
-                        _url = 'https://relay.link/bridge/apechain?fromChainId=42161'
-                    elif key == 'rari':
-                        _url = 'https://relay.link/bridge/apechain?fromChainId=1380012617'
-
-                    _end_mon = round(random.uniform(0.0001207, 0.0001425), 6)
-                    __send_end_wallet(page, evm_id, None, _end_mon, _url, 0.06, 0, f'eth_apechain')
-                    # 0.0001207 0.0001425   0.05
-                else:
-                    wallet_page = __get_page('wallet', '88102', '34533', False)
-                    __handle_signma_popup(page=wallet_page, count=0)
-                    __login_wallet(page=wallet_page, evm_id='88102')
-                    __handle_signma_popup(page=wallet_page, count=0)
-                    __add_net_work(page=wallet_page, coin_name='base')
-                    __handle_signma_popup(page=wallet_page, count=0)
-                    _url = 'https://relay.link/bridge/apechain?fromChainId=8453'
-                    _send_mon = round(random.uniform(0.0001207, 0.0001425), 6)
-                    __send_end_wallet(wallet_page, '88102', evm_addr, _send_mon, _url, 0.06, 0, f'eth_88102_apechain')
-                    if wallet_page is not None:
-                        try:
-                            wallet_page.quit()
-                        except Exception:
-                            logger.exception("退出错误")
-    if _sw:
-        result = get_ape_balance(evm_addr)
-        _base = get_eth_balance("base", evm_addr)
-        _op = get_eth_balance("opt", evm_addr)
-        _arb = get_eth_balance("arb", evm_addr)
-        _rari = get_eth_balance("rari", evm_addr)
-        _sum = float(_base) + float(_op) + float(_arb) + float(_rari)
-    if 4291 <= emv_id_int <= 9290:
-        if result and result['success'] and float(result['balance_eth']) >= 0.7:
-            _bool = True
-    else:
-        if _sum >= emd_w and result and result['success'] and float(result['balance_eth']) >= 0.7:
-            _bool = True
-
-    signma_log(message=f"{evm_addr},{_bool},{_base},{_op},{_arb},{_rari},{result['balance_eth']},{_sum:.18f}", task_name=f'ape_task_{get_date_as_string()}', index=evm_id)
-    return _bool
-
 
 
 def get_max_from_map(data_map):
@@ -1082,12 +743,75 @@ def __select_net(page, net_name, net_name_t: str = None, add_net: str = None):
     wallet_page.close()
 
 
+def short_address(address, head=6, tail=4, join="..."):
+    if not address or len(address) <= head + tail:
+        return address
+    return address[:head] + join + address[-tail:]
+
+
+
+# 检查 Coinbase 是否已 Claimed（从HTML看它是已完成状态）
+def check_task_status(page, task_name):
+    """检查任务状态：返回 'Claimed' 或 'Connect'"""
+    xpath = f'//h5[contains(text(),"{task_name}")]/ancestor::article//button'
+    btn = page.ele(f'x:{xpath}')
+    if btn:
+        # 检查按钮是否包含 Claimed
+        if btn.ele('x:.//span[contains(text(),"Claimed")]'):
+            return 'Claimed'
+        return 'Connect'
+    return None
+
+
+def __do_task_espresso(page, evm_id, index, evm_addr):
+    __bool = False
+    try:
+        time.sleep(1)
+        __handle_signma_popup(page=page, count=0)
+        time.sleep(2)
+        __login_wallet(page=page, evm_id=evm_id)
+        __handle_signma_popup(page=page, count=0)
+        authena_page = page.new_tab("https://authena.xyz/espresso")
+        for i in range(5):
+            __handle_signma_popup(page=page, count=0)
+            if __click_ele(page=authena_page, xpath='x://button[contains(.,"Connect") and contains(@class,"navMenu_connectButton__9aYV7")]', loop=3):
+                time.sleep(1)
+                __click_ele(page=authena_page, xpath='x://button[contains(.,"Continue to login")]', loop=1)
+                if __click_ele(page=authena_page, xpath='x=//article[contains(@class,"_main_container") and .//h5[normalize-space(.)="Metamask"]]', loop=1):
+                    __handle_signma_popup(page=page, count=2)
+                    __click_ele(page=authena_page, xpath='x://button[contains(.,"Skip")]', loop=1)
+            if __get_ele(page=authena_page,
+                         xpath=f"x://span[translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='{short_address(evm_addr,6,2,join="....").lower()}']",
+                         loop=2):
+
+                jf_ele = __get_ele(page=authena_page, xpath='x://div[normalize-space()="Humanity Points"]/ancestor::div[contains(@class,"min-w-0")][1]//number-flow-react', loop=1)
+                value_jf = jf_ele.attr('aria-label')
+
+                status_ok = check_task_status(authena_page, 'OKX KYC (zkPass)')
+                status_binance = check_task_status(authena_page, 'Binance KYC (zkPass)')
+                status_coinbase = check_task_status(authena_page, 'Coinbase KYC (zkPass)')
+
+                signma_log(message=f"{evm_addr},{value_jf},{status_ok},{status_binance},{status_coinbase}", task_name=f'task_authena', index=evm_id)
+                __bool = True
+                authena_page.close()
+                break
+            authena_page.refresh()
+
+        if authena_page is not None:
+            authena_page.close()
+
+
+    except Exception as e:
+        logger.info(f"窗口{index}: 处理任务异常: {e}")
+    return __bool
+
+
 # ========== 主流程 ==========
 
 if __name__ == '__main__':
     _this_day = ''
     _end_day_task = []
-    TASK_TYPES = {'prismax_home'}
+    TASK_TYPES = {'espresso'}
     parser = argparse.ArgumentParser(description="获取应用信息")
     parser.add_argument("--ip", type=str, help="ip参数", default="127.0.0.1")
     parser.add_argument("--display", type=str, help="X11 DISPLAY", default=":24")
@@ -1178,26 +902,10 @@ if __name__ == '__main__':
                     logger.info(f'开始数据:{_task_type}:{_task_id}')
                     if _type in TASK_TYPES:
                         logger.warning(f"启动任务1:{_type}:{part}")
+                        _page = __get_page(_type, _id, None, False)
+                        if _type == 'espresso':
+                            _end = __do_task_espresso(page=_page, index=_window, evm_id=_id, evm_addr=arg[2])
 
-
-                        if _type == 'prismax_home':
-                            _end = True
-                        else:
-                            _home_ip = False
-                            # if _type == 'nexus_joina':
-                            #     _home_ip = check_available(_id)
-                            #     if _home_ip:
-                            #         logger.info('加载住宅ip')
-                            #     else:
-                            #         break
-                            _page = __get_page(_type, _id, None, _home_ip)
-                            if _page is None:
-                                logger.error("浏览器启动失败，跳过该任务")
-                                continue
-                            if _type == 'eth_end':
-                                _end = __eth_to_op_arb_base(page=_page , evm_id=_id, evm_addr=arg[2])
-                            else:
-                                logger.warning(f"未知任务类型：{_type}")
                 except Exception as e:
                     logger.info(f"任务异常: {e}")
                 finally:
