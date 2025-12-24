@@ -781,7 +781,7 @@ def __do_task_espresso(page, evm_id, index, evm_addr):
                     __handle_signma_popup(page=page, count=2)
                     __click_ele(page=authena_page, xpath='x://button[contains(.,"Skip")]', loop=1)
             if __get_ele(page=authena_page,
-                         xpath=f"x://span[translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='{short_address(evm_addr,6,2,join="....").lower()}']",
+                         xpath=f"x://span[translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='{short_address(evm_addr,6,2,join='....').lower()}']",
                          loop=2):
 
                 jf_ele = __get_ele(page=authena_page, xpath='x://div[normalize-space()="Humanity Points"]/ancestor::div[contains(@class,"min-w-0")][1]//number-flow-react', loop=1)
