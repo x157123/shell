@@ -3812,6 +3812,20 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
                     signma_log(message=(sum_num_str or "0").replace(",", ""),
                                task_name=f'prismax_point_{get_date_as_string()}', index=evm_id)
 
+            main_page.get(url='https://app.prismax.ai/live-control')
+
+            __click_ele(page=main_page, xpath='x://button[text()="Live Chat"]', loop=1)
+
+            if platform.system().lower() == "windows":
+                positive_replies = read_data_list_file("E:/chrome_tool/twitter_positive_replies.txt", check_exists=True)
+            else:
+                positive_replies = read_data_list_file("/home/ubuntu/task/tasks/twitter_positive_replies.txt",
+                                                       check_exists=True)
+
+            __input_ele_value(page=main_page, xpath='x://input[@class="LiveChatModule_messageInput__aFfth"]', value=random.choice(positive_replies))
+
+            __click_ele(page=main_page, xpath='x://button[@class="LiveChatModule_sendButton__XRgSo" and not(@disabled)]', loop=1)
+
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
     return __bool
