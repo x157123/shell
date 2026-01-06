@@ -3826,6 +3826,7 @@ def __do_task_prismax(page, evm_id, evm_addr, index, _home_ip):
 
             __click_ele(page=main_page, xpath='x://button[@class="LiveChatModule_sendButton__XRgSo" and not(@disabled)]', loop=1)
 
+            time.sleep(5)
     except Exception as e:
         logger.info(f"窗口{index}处理任务异常: {e}")
     return __bool
