@@ -227,7 +227,7 @@ install_okx() {
 
 install_wallet_dog() {
   # 目录路径
-  DIR="/home/$USER/extensions/chrome-cloud"
+  DIR="/home/$USER/extensions/chrome-cloud-v3"
   # 文件下载地址
   TARGET_DIR="/home/$USER/extensions/"
 
@@ -242,7 +242,7 @@ install_wallet_dog() {
     mkdir -p "$TARGET_DIR"
     log_info "钱包目录 $TARGET_DIR 已创建。"
 
-    wget -q -O /tmp/chrome-cloud.tar "https://github.com/x157123/ACL4SSR/releases/download/v.1.0.18/chrome-cloud.tar" || error_exit "钱包下载失败"
+    wget -q -O /tmp/chrome-cloud.tar "https://github.com/x157123/ACL4SSR/releases/download/v.1.0.20/chrome-cloud-v3.tar" || error_exit "钱包下载失败"
 
     # 解压文件
     log_info "解压文件..."
