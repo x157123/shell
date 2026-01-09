@@ -23,7 +23,7 @@ import shutil
 
 
 # ========== 全局配置 ==========
-evm_ext_id = "fncjdffadaddahcegeeggaialinaoflg"   #老版本
+evm_ext_id = "oniamgdhammdfcolnmmbeofebfjamkle"   #老版本
 
 # evm_ext_id = "heagpibejnndofpglilpndpgdfdhhfpo"
 
