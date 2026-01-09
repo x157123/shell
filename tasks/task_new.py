@@ -23,7 +23,7 @@ import shutil
 
 
 # ========== 全局配置 ==========
-evm_ext_id = "ohgmkpjifodfiomblclfpdhehohinlnn"   #老版本
+evm_ext_id = "fncjdffadaddahcegeeggaialinaoflg"   #老版本
 
 # evm_ext_id = "heagpibejnndofpglilpndpgdfdhhfpo"
 
@@ -65,11 +65,11 @@ def __get_page(_type, _id, _port, _home_ip):
             options.add_extension(f"/home/ubuntu/extensions/okx")
     else:
         if platform.system().lower() == "windows":
-            options.add_extension(f"E:/chrome_tool/signma")
+            options.add_extension(f"E:/chrome_tool/chrome-cloud-v3")
             if _type == 'nexus_joina_sse':
                 options.add_extension(f"E:/chrome_tool/cookin")
         else:
-            options.add_extension(f"/home/ubuntu/extensions/chrome-cloud")
+            options.add_extension(f"/home/ubuntu/extensions/chrome-cloud-v3")
             if _type == 'nexus_joina_sse':
                 options.add_extension(f"/home/ubuntu/extensions/edit-cookies")
     if _type == 'prismax':
