@@ -4728,7 +4728,8 @@ if __name__ == '__main__':
                             _end = __do_task_molten(page=_page, evm_id=_id, evm_addr=arg[2], index=_window)
                             _end = True
                         elif _type == 'nexus':
-                            if random.choice([True, False]):
+                            if True:
+                            # if random.choice([True, False]):
                                 _end = __do_task_nexus(page=_page, index=_window, evm_id=_id)
                             _end = True
                         else:
